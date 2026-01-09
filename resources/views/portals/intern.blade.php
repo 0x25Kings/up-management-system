@@ -141,6 +141,67 @@
             margin-top: 16px;
         }
 
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            max-width: 550px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.3s ease;
+        }
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: translateY(-30px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(100px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideOut {
+            from { opacity: 1; transform: translateX(0); }
+            to { opacity: 0; transform: translateX(100px); }
+        }
+        .modal-header {
+            background: linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%);
+            padding: 24px 30px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 20px 20px 0 0;
+        }
+        .modal-header h2 { font-size: 20px; font-weight: 700; margin: 0; }
+        .modal-close {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s ease;
+        }
+        .modal-close:hover { background: rgba(255,255,255,0.3); transform: rotate(90deg); }
+        .modal-body { padding: 30px; }
+
         /* Dashboard Styles */
         .sidebar {
             background: linear-gradient(180deg, #7B1D3A 0%, #5a1428 100%);
@@ -451,7 +512,7 @@
 </head>
 <body>
     @if(!$showDashboard)
-    <!-- Registration Page -->
+    <!-- Intern Portal Landing Page -->
     <div class="registration-page">
         <div class="registration-container">
             <div class="registration-card">
@@ -481,14 +542,61 @@
                     </div>
                 @endif
 
-                <!-- Registration Form -->
+                <!-- Access with Reference Code (Primary Section) -->
+                <div class="access-code-section" style="background: linear-gradient(135deg, rgba(123, 29, 58, 0.05) 0%, rgba(255, 191, 0, 0.1) 100%); border: 2px solid rgba(123, 29, 58, 0.15); margin-top: 0; margin-bottom: 24px;">
+                    <form action="{{ route('intern.access') }}" method="POST">
+                        @csrf
+                        <h4 style="font-size: 16px; font-weight: 600; color: #7B1D3A; margin-bottom: 16px;">
+                            <i class="fas fa-key" style="color: #FFBF00; margin-right: 8px;"></i>
+                            Access Your Dashboard
+                        </h4>
+                        <p style="font-size: 13px; color: #6B7280; margin-bottom: 16px;">
+                            Already registered? Enter your reference code to access your intern dashboard.
+                        </p>
+                        <div style="display: flex; gap: 12px;">
+                            <input type="text" name="reference_code" placeholder="Enter reference code (e.g., INT-2026-XXXXXX)" style="flex: 1; padding: 14px 16px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px;">
+                            <button type="submit" class="btn-primary" style="padding: 14px 24px;">
+                                <i class="fas fa-sign-in-alt" style="margin-right: 6px;"></i> Access
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="divider">
+                    <span>New intern?</span>
+                </div>
+
+                <!-- Register Button -->
+                <button type="button" onclick="openRegistrationModal()" class="btn-submit" style="background: linear-gradient(135deg, #FFBF00 0%, #FFA500 100%); color: #7B1D3A;">
+                    <i class="fas fa-user-plus" style="margin-right: 8px;"></i>
+                    Register as New Intern
+                </button>
+
+                <div style="text-align: center; margin-top: 24px;">
+                    <a href="{{ route('home') }}" style="color: #6B7280; text-decoration: none; font-size: 14px;">
+                        <i class="fas fa-arrow-left" style="margin-right: 6px;"></i>
+                        Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Registration Modal -->
+    <div id="registrationModal" class="modal-overlay" onclick="closeModalOnOverlay(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <div>
+                    <h2><i class="fas fa-user-plus" style="margin-right: 8px;"></i>New Intern Registration</h2>
+                    <p style="font-size: 13px; opacity: 0.8; margin-top: 4px;">University of the Philippines Cebu</p>
+                </div>
+                <button class="modal-close" onclick="closeRegistrationModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
                 <form action="{{ route('intern.register') }}" method="POST">
                     @csrf
-                    <h3 style="font-size: 16px; font-weight: 600; color: #374151; margin-bottom: 20px;">
-                        <i class="fas fa-edit" style="color: #FFBF00; margin-right: 8px;"></i>
-                        New Intern Registration
-                    </h3>
-
                     <div class="form-group">
                         <label><i class="fas fa-user" style="color: #7B1D3A; margin-right: 6px;"></i>Full Name</label>
                         <input type="text" name="name" value="{{ old('name') }}" placeholder="Enter your full name" required>
@@ -548,37 +656,37 @@
                         Submit Registration
                     </button>
                 </form>
-
-                <div class="divider">
-                    <span>Already registered?</span>
-                </div>
-
-                <!-- Access with Reference Code -->
-                <div class="access-code-section">
-                    <form action="{{ route('intern.access') }}" method="POST">
-                        @csrf
-                        <h4 style="font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 12px;">
-                            <i class="fas fa-key" style="color: #FFBF00; margin-right: 6px;"></i>
-                            Access with Reference Code
-                        </h4>
-                        <div style="display: flex; gap: 12px;">
-                            <input type="text" name="reference_code" placeholder="Enter your reference code (e.g., INT-2026-XXXXXX)" style="flex: 1; padding: 12px; border: 2px solid #E5E7EB; border-radius: 8px;">
-                            <button type="submit" class="btn-primary">
-                                <i class="fas fa-sign-in-alt"></i>
-                            </button>
-                        </div>
-                    </form>
-                </div>
-
-                <div style="text-align: center; margin-top: 24px;">
-                    <a href="{{ route('home') }}" style="color: #6B7280; text-decoration: none; font-size: 14px;">
-                        <i class="fas fa-arrow-left" style="margin-right: 6px;"></i>
-                        Back to Home
-                    </a>
-                </div>
             </div>
         </div>
     </div>
+
+    <script>
+        function openRegistrationModal() {
+            document.getElementById('registrationModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeRegistrationModal() {
+            document.getElementById('registrationModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        function closeModalOnOverlay(event) {
+            if (event.target === document.getElementById('registrationModal')) {
+                closeRegistrationModal();
+            }
+        }
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeRegistrationModal();
+            }
+        });
+
+        @if($errors->any())
+            openRegistrationModal();
+        @endif
+    </script>
     @else
     <!-- Dashboard -->
     <aside class="sidebar">
@@ -830,48 +938,66 @@
                         Loading...
                     </div>
                     
-                    <div style="margin-top: 32px; display: flex; justify-content: center; gap: 16px;">
-                        @if(!$todayAttendance || !$todayAttendance->time_in)
-                            <!-- Time In Button -->
-                            <form action="{{ route('intern.timein') }}" method="POST" id="timeInForm" onsubmit="return handleAttendanceSubmit(this, 'in')">
-                                @csrf
-                                <button type="submit" id="timeInBtn" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; border: none; padding: 16px 48px; border-radius: 12px; font-size: 18px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 10px;">
-                                    <i class="fas fa-sign-in-alt" id="timeInIcon"></i>
-                                    <span id="timeInText">TIME IN</span>
-                                </button>
-                            </form>
-                        @elseif(!$todayAttendance->time_out)
-                            <!-- Time Out Button -->
-                            <form action="{{ route('intern.timeout') }}" method="POST" id="timeOutForm" onsubmit="return handleAttendanceSubmit(this, 'out')">
-                                @csrf
-                                <button type="submit" id="timeOutBtn" style="background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%); color: white; border: none; padding: 16px 48px; border-radius: 12px; font-size: 18px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 10px;">
-                                    <i class="fas fa-sign-out-alt" id="timeOutIcon"></i>
-                                    <span id="timeOutText">TIME OUT</span>
-                                </button>
-                            </form>
-                        @else
-                            <!-- Already completed for today -->
-                            <div style="background: rgba(255,255,255,0.2); padding: 16px 48px; border-radius: 12px;">
-                                <i class="fas fa-check-circle" style="margin-right: 8px;"></i>
-                                Attendance Complete for Today
-                            </div>
-                        @endif
+                    <div id="attendanceButtonsContainer" style="margin-top: 32px; display: flex; justify-content: center; gap: 16px;">
+                        <!-- Time In Button -->
+                        <form action="{{ route('intern.timein') }}" method="POST" id="timeInForm" style="display: {{ (!$todayAttendance || !$todayAttendance->time_in) ? 'block' : 'none' }};">
+                            @csrf
+                            <button type="submit" id="timeInBtn" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; border: none; padding: 16px 48px; border-radius: 12px; font-size: 18px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 10px;">
+                                <i class="fas fa-sign-in-alt" id="timeInIcon"></i>
+                                <span id="timeInText">TIME IN</span>
+                            </button>
+                        </form>
+                        
+                        <!-- Time Out Button -->
+                        <form action="{{ route('intern.timeout') }}" method="POST" id="timeOutForm" style="display: {{ ($todayAttendance && $todayAttendance->time_in && !$todayAttendance->time_out) ? 'block' : 'none' }};">
+                            @csrf
+                            <button type="submit" id="timeOutBtn" style="background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%); color: white; border: none; padding: 16px 48px; border-radius: 12px; font-size: 18px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 10px;">
+                                <i class="fas fa-sign-out-alt" id="timeOutIcon"></i>
+                                <span id="timeOutText">TIME OUT</span>
+                            </button>
+                        </form>
+                        
+                        <!-- Already completed for today -->
+                        <div id="attendanceComplete" style="display: {{ ($todayAttendance && $todayAttendance->time_in && $todayAttendance->time_out) ? 'block' : 'none' }}; background: rgba(255,255,255,0.2); padding: 16px 48px; border-radius: 12px;">
+                            <i class="fas fa-check-circle" style="margin-right: 8px;"></i>
+                            Attendance Complete for Today
+                        </div>
                     </div>
 
                     <!-- Today's Summary -->
                     @if($todayAttendance)
-                    <div style="margin-top: 32px; display: flex; justify-content: center; gap: 40px;">
+                    @php
+                        // Calculate hours for today dynamically from time_in and time_out
+                        $todayHours = 0;
+                        if ($todayAttendance->time_in) {
+                            $timeIn = \Carbon\Carbon::parse($todayAttendance->time_in);
+                            if ($todayAttendance->time_out) {
+                                $timeOut = \Carbon\Carbon::parse($todayAttendance->time_out);
+                                $todayHours = round($timeOut->diffInMinutes($timeIn) / 60, 2);
+                            } else {
+                                // If no time out, calculate from current time
+                                $now = \Carbon\Carbon::now('Asia/Manila');
+                                $todayHours = round($now->diffInMinutes($timeIn) / 60, 2);
+                            }
+                        }
+                    @endphp
+                    <div id="todaySummary" style="margin-top: 32px; display: flex; justify-content: center; gap: 40px;">
                         <div>
                             <p style="font-size: 12px; opacity: 0.7;">TIME IN</p>
-                            <p style="font-size: 24px; font-weight: 600;">{{ $todayAttendance->formatted_time_in }}</p>
+                            <p id="summaryTimeIn" style="font-size: 24px; font-weight: 600;">{{ $todayAttendance->formatted_time_in }}</p>
                         </div>
                         <div>
                             <p style="font-size: 12px; opacity: 0.7;">TIME OUT</p>
-                            <p style="font-size: 24px; font-weight: 600;">{{ $todayAttendance->formatted_time_out }}</p>
+                            <p id="summaryTimeOut" style="font-size: 24px; font-weight: 600;">{{ $todayAttendance->formatted_time_out }}</p>
                         </div>
                         <div>
                             <p style="font-size: 12px; opacity: 0.7;">HOURS TODAY</p>
-                            <p style="font-size: 24px; font-weight: 600;">{{ number_format($todayAttendance->hours_worked, 2) }}</p>
+                            <p id="summaryHours" style="font-size: 24px; font-weight: 600;" 
+                               data-time-in="{{ $todayAttendance->time_in }}"
+                               data-time-out="{{ $todayAttendance->time_out }}"
+                               data-is-working="{{ ($todayAttendance->time_in && !$todayAttendance->time_out) ? 'true' : 'false' }}">
+                                {{ number_format($todayHours, 2) }}
+                            </p>
                         </div>
                     </div>
                     @endif
@@ -892,11 +1018,46 @@
                                 <th style="padding: 12px 16px; font-size: 12px; font-weight: 600; color: #6B7280; text-transform: uppercase;">Time In</th>
                                 <th style="padding: 12px 16px; font-size: 12px; font-weight: 600; color: #6B7280; text-transform: uppercase;">Time Out</th>
                                 <th style="padding: 12px 16px; font-size: 12px; font-weight: 600; color: #6B7280; text-transform: uppercase;">Hours</th>
+                                <th style="padding: 12px 16px; font-size: 12px; font-weight: 600; color: #6B7280; text-transform: uppercase;">Over/Under</th>
                                 <th style="padding: 12px 16px; font-size: 12px; font-weight: 600; color: #6B7280; text-transform: uppercase;">Status</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($attendanceHistory as $record)
+                            @php
+                                // Calculate hours from time_in and time_out
+                                $hoursWorked = 0;
+                                $displayStatus = 'Absent';
+                                
+                                if ($record->time_in) {
+                                    $timeIn = \Carbon\Carbon::parse($record->time_in);
+                                    $timeOut = $record->time_out ? \Carbon\Carbon::parse($record->time_out) : null;
+                                    
+                                    if ($timeOut) {
+                                        $hoursWorked = round($timeOut->diffInMinutes($timeIn) / 60, 2);
+                                    } else {
+                                        // If no time out, calculate from current time
+                                        $now = \Carbon\Carbon::now('Asia/Manila');
+                                        $hoursWorked = round($now->diffInMinutes($timeIn) / 60, 2);
+                                    }
+                                    
+                                    // Determine status based on hours and time in
+                                    if ($timeOut) {
+                                        if ($hoursWorked >= 8) {
+                                            $displayStatus = 'Present';
+                                        } elseif ($hoursWorked > 0) {
+                                            $displayStatus = 'Undertime';
+                                        }
+                                    } else {
+                                        $displayStatus = 'Present'; // Still working
+                                    }
+                                    
+                                    // Check if late (after 9 AM)
+                                    if ($timeIn->hour >= 9 && $timeOut) {
+                                        $displayStatus = 'Late';
+                                    }
+                                }
+                            @endphp
                             <tr style="border-bottom: 1px solid #E5E7EB;">
                                 <td style="padding: 16px;">
                                     <div style="font-weight: 600; color: #1F2937;">{{ $record->date->format('M d, Y') }}</div>
@@ -904,13 +1065,39 @@
                                 </td>
                                 <td style="padding: 16px; color: #059669; font-weight: 500;">{{ $record->formatted_time_in }}</td>
                                 <td style="padding: 16px; color: #DC2626; font-weight: 500;">{{ $record->formatted_time_out }}</td>
-                                <td style="padding: 16px; font-weight: 600;">{{ number_format($record->hours_worked, 2) }} hrs</td>
+                                <td style="padding: 16px; font-weight: 600;">{{ number_format($hoursWorked, 2) }} hrs</td>
+                                <td style="padding: 16px;">
+                                    @if($record->time_out)
+                                        @if($record->hasUndertime())
+                                            <span style="background: #FEE2E2; color: #991B1B; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;">
+                                                <i class="fas fa-arrow-down"></i> -{{ number_format($record->undertime_hours, 2) }} hrs
+                                            </span>
+                                        @elseif($record->hasOvertime())
+                                            @if($record->overtime_approved)
+                                                <span style="background: #D1FAE5; color: #065F46; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;">
+                                                    <i class="fas fa-check-circle"></i> +{{ number_format($record->overtime_hours, 2) }} hrs
+                                                </span>
+                                            @else
+                                                <span style="background: #FEF3C7; color: #92400E; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;">
+                                                    <i class="fas fa-clock"></i> +{{ number_format($record->overtime_hours, 2) }} hrs (Pending)
+                                                </span>
+                                            @endif
+                                        @else
+                                            <span style="background: #DBEAFE; color: #1E40AF; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;">
+                                                <i class="fas fa-check"></i> On Target
+                                            </span>
+                                        @endif
+                                    @else
+                                        <span style="color: #9CA3AF; font-size: 12px;">--</span>
+                                    @endif
+                                </td>
                                 <td style="padding: 16px;">
                                     <span style="padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
-                                        @if($record->status === 'Present') background: #D1FAE5; color: #065F46;
-                                        @elseif($record->status === 'Late') background: #FEF3C7; color: #92400E;
-                                        @else background: #FEE2E2; color: #991B1B; @endif">
-                                        {{ $record->status }}
+                                        @if($displayStatus === 'Present') background: #D1FAE5; color: #065F46;
+                                        @elseif($displayStatus === 'Late') background: #FEF3C7; color: #92400E;
+                                        @elseif($displayStatus === 'Undertime') background: #FEE2E2; color: #991B1B;
+                                        @else background: #F3F4F6; color: #6B7280; @endif">
+                                        {{ $displayStatus }}
                                     </span>
                                 </td>
                             </tr>
@@ -939,11 +1126,98 @@
 
             <div class="content-card">
                 <div class="content-card-body">
+                    @if(($tasks ?? collect())->count() > 0)
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="border-bottom: 2px solid #E5E7EB; background: #F9FAFB;">
+                                    <th style="text-align: left; padding: 14px 16px; font-weight: 700; color: #1F2937; font-size: 13px;">Task Title</th>
+                                    <th style="text-align: left; padding: 14px 16px; font-weight: 700; color: #1F2937; font-size: 13px;">Description</th>
+                                    <th style="text-align: center; padding: 14px 16px; font-weight: 700; color: #1F2937; font-size: 13px;">Priority</th>
+                                    <th style="text-align: center; padding: 14px 16px; font-weight: 700; color: #1F2937; font-size: 13px;">Due Date</th>
+                                    <th style="text-align: center; padding: 14px 16px; font-weight: 700; color: #1F2937; font-size: 13px;">Status</th>
+                                    <th style="text-align: center; padding: 14px 16px; font-weight: 700; color: #1F2937; font-size: 13px;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($tasks as $task)
+                                <tr style="border-bottom: 1px solid #E5E7EB; transition: background 0.2s;" onmouseover="this.style.background='#F9FAFB'" onmouseout="this.style.background='white'">
+                                    <td style="padding: 14px 16px; font-weight: 600; color: #1F2937;">
+                                        {{ $task->title }}
+                                    </td>
+                                    <td style="padding: 14px 16px; color: #6B7280; font-size: 13px;">
+                                        {{ strlen($task->description ?? '') > 40 ? substr($task->description, 0, 40) . '...' : $task->description }}
+                                    </td>
+                                    <td style="padding: 14px 16px; text-align: center;">
+                                        <span style="display: inline-block; background: 
+                                            @if($task->priority === 'High') #FEE2E2; color: #991B1B;
+                                            @elseif($task->priority === 'Medium') #FEF3C7; color: #92400E;
+                                            @else #D1FAE5; color: #065F46;
+                                            @endif
+                                            padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 700;">
+                                            {{ $task->priority }}
+                                        </span>
+                                    </td>
+                                    <td style="padding: 14px 16px; text-align: center; color: #1F2937; font-weight: 500;">
+                                        {{ \Carbon\Carbon::parse($task->due_date)->format('M d, Y') }}
+                                        @php
+                                            $daysLeft = now('Asia/Manila')->diffInDays($task->due_date, false);
+                                            $isOverdue = $daysLeft < 0;
+                                        @endphp
+                                        @if($isOverdue && $task->status !== 'Completed')
+                                            <div style="font-size: 11px; color: #991B1B; margin-top: 2px;">
+                                                <i class="fas fa-exclamation-circle"></i> Overdue
+                                            </div>
+                                        @elseif($daysLeft === 0 && $task->status !== 'Completed')
+                                            <div style="font-size: 11px; color: #92400E; margin-top: 2px;">
+                                                <i class="fas fa-hourglass-end"></i> Due Today
+                                            </div>
+                                        @endif
+                                    </td>
+                                    <td style="padding: 14px 16px; text-align: center;">
+                                        <span style="display: inline-block; background: 
+                                            @if($task->status === 'Completed') #D1FAE5; color: #065F46;
+                                            @elseif($task->status === 'In Progress') #FEF3C7; color: #92400E;
+                                            @else #E5E7EB; color: #6B7280;
+                                            @endif
+                                            padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 700;">
+                                            {{ $task->status }}
+                                        </span>
+                                    </td>
+                                    <td style="padding: 14px 16px; text-align: center;">
+                                        @if($task->status === 'Completed')
+                                            <span style="color: #6B7280; font-size: 12px;">
+                                                <i class="fas fa-check-circle"></i> Completed
+                                            </span>
+                                        @elseif($task->status === 'In Progress')
+                                            <button onclick="completeTask({{ $task->id }})" style="background: #10B981; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 11px; cursor: pointer; font-weight: 600; transition: background 0.2s;" onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10B981'">
+                                                <i class="fas fa-check"></i> Complete
+                                            </button>
+                                        @else
+                                            <button onclick="startTask({{ $task->id }})" style="background: #7B1D3A; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 11px; cursor: pointer; font-weight: 600; transition: background 0.2s;" onmouseover="this.style.background='#5a1428'" onmouseout="this.style.background='#7B1D3A'">
+                                                <i class="fas fa-play"></i> Start
+                                            </button>
+                                        @endif
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                    <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #E5E7EB; display: flex; justify-content: space-between; align-items: center; color: #6B7280; font-size: 12px;">
+                        <div>
+                            Total Tasks: <strong>{{ $tasks->count() }}</strong>
+                            | Completed: <strong>{{ $tasks->where('status', 'Completed')->count() }}</strong>
+                            | Pending: <strong>{{ $tasks->whereNotIn('status', ['Completed'])->count() }}</strong>
+                        </div>
+                    </div>
+                    @else
                     <div style="text-align: center; padding: 50px; color: #9CA3AF;">
-                        <i class="fas fa-clipboard-list" style="font-size: 50px; margin-bottom: 16px;"></i>
-                        <p style="font-size: 16px;">No tasks assigned yet</p>
+                        <i class="fas fa-clipboard-list" style="font-size: 50px; margin-bottom: 16px; display: block;"></i>
+                        <p style="font-size: 16px; font-weight: 600;">No tasks assigned yet</p>
                         <p style="font-size: 14px; margin-top: 8px;">Tasks assigned by your supervisor will appear here</p>
                     </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -1072,6 +1346,27 @@
 
         // Prevent spam on attendance buttons
         let isSubmitting = false;
+        
+        // Initialize attendance form handlers
+        document.addEventListener('DOMContentLoaded', function() {
+            const timeInForm = document.getElementById('timeInForm');
+            const timeOutForm = document.getElementById('timeOutForm');
+            
+            if (timeInForm) {
+                timeInForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    handleAttendanceSubmit(this, 'in');
+                });
+            }
+            
+            if (timeOutForm) {
+                timeOutForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    handleAttendanceSubmit(this, 'out');
+                });
+            }
+        });
+        
         function handleAttendanceSubmit(form, type) {
             if (isSubmitting) {
                 return false; // Prevent double submission
@@ -1095,7 +1390,177 @@
                 text.textContent = type === 'in' ? 'TIMING IN...' : 'TIMING OUT...';
             }
             
-            return true; // Allow form submission
+            // Get form data
+            const formData = new FormData(form);
+            
+            // Submit via AJAX
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                credentials: 'same-origin',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    if (type === 'in') {
+                        // Transition from Time In to Time Out
+                        document.getElementById('timeInForm').style.display = 'none';
+                        document.getElementById('timeOutForm').style.display = 'block';
+                        
+                        // Reset Time In button for future and prepare Time Out button
+                        resetButton(btn, icon, text, type);
+                        
+                        // Update the today's summary with live tracking enabled
+                        updateTodaySummary(data.time_in, null, null, data.raw_time_in);
+                        
+                        // Show success notification
+                        showAttendanceNotification('Time In recorded successfully!', 'success');
+                    } else {
+                        // Transition from Time Out to Complete
+                        document.getElementById('timeOutForm').style.display = 'none';
+                        document.getElementById('attendanceComplete').style.display = 'block';
+                        
+                        // Update the today's summary (stops live tracking)
+                        updateTodaySummary(data.time_in, data.time_out, data.hours_worked);
+                        
+                        // Show success notification
+                        showAttendanceNotification('Time Out recorded successfully!', 'success');
+                        
+                        // Reset Time Out button for future use
+                        resetButton(btn, icon, text, type);
+                        
+                        // Reload page after time out to show updated status
+                        if (data.reload) {
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1500);
+                        }
+                    }
+                } else {
+                    // Show error
+                    showAttendanceNotification(data.message || 'An error occurred', 'error');
+                    resetButton(btn, icon, text, type);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAttendanceNotification('An error occurred. Please try again.', 'error');
+                resetButton(btn, icon, text, type);
+            })
+            .finally(() => {
+                isSubmitting = false;
+            });
+            
+            return false;
+        }
+        
+        function resetButton(btn, icon, text, type) {
+            btn.disabled = false;
+            btn.style.opacity = '1';
+            btn.style.cursor = 'pointer';
+            if (icon) {
+                icon.className = type === 'in' ? 'fas fa-sign-in-alt' : 'fas fa-sign-out-alt';
+            }
+            if (text) {
+                text.textContent = type === 'in' ? 'TIME IN' : 'TIME OUT';
+            }
+        }
+        
+        function updateTodaySummary(timeIn, timeOut, hoursWorked, rawTimeIn = null) {
+            // Check if summary section exists, if not create it
+            let summaryContainer = document.getElementById('todaySummary');
+            
+            if (!summaryContainer) {
+                // Create the summary section
+                const buttonContainer = document.getElementById('attendanceButtonsContainer');
+                summaryContainer = document.createElement('div');
+                summaryContainer.id = 'todaySummary';
+                summaryContainer.style.cssText = 'margin-top: 32px; display: flex; justify-content: center; gap: 40px;';
+                summaryContainer.innerHTML = `
+                    <div>
+                        <p style="font-size: 12px; opacity: 0.7;">TIME IN</p>
+                        <p id="summaryTimeIn" style="font-size: 24px; font-weight: 600;">--:--</p>
+                    </div>
+                    <div>
+                        <p style="font-size: 12px; opacity: 0.7;">TIME OUT</p>
+                        <p id="summaryTimeOut" style="font-size: 24px; font-weight: 600;">--:--</p>
+                    </div>
+                    <div>
+                        <p style="font-size: 12px; opacity: 0.7;">HOURS TODAY</p>
+                        <p id="summaryHours" style="font-size: 24px; font-weight: 600;" data-is-working="false" data-time-in="">0.00</p>
+                    </div>
+                `;
+                buttonContainer.parentNode.insertBefore(summaryContainer, buttonContainer.nextSibling);
+            }
+            
+            // Update values
+            if (timeIn) {
+                const timeInEl = document.getElementById('summaryTimeIn');
+                if (timeInEl) timeInEl.textContent = timeIn;
+            }
+            if (timeOut) {
+                const timeOutEl = document.getElementById('summaryTimeOut');
+                if (timeOutEl) timeOutEl.textContent = timeOut;
+            }
+            
+            const hoursEl = document.getElementById('summaryHours');
+            if (hoursEl) {
+                if (hoursWorked !== undefined && hoursWorked !== null) {
+                    hoursEl.textContent = parseFloat(hoursWorked).toFixed(2);
+                    hoursEl.dataset.isWorking = 'false'; // Stop live updates when timed out
+                }
+                
+                // Set up live tracking if rawTimeIn is provided (just timed in)
+                if (rawTimeIn && !timeOut) {
+                    hoursEl.dataset.timeIn = rawTimeIn;
+                    hoursEl.dataset.isWorking = 'true';
+                }
+            }
+        }
+        
+        function showAttendanceNotification(message, type) {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 16px 24px;
+                border-radius: 12px;
+                color: white;
+                font-weight: 600;
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            `;
+            
+            if (type === 'success') {
+                notification.style.background = 'linear-gradient(135deg, #10B981 0%, #059669 100%)';
+                notification.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
+            } else {
+                notification.style.background = 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)';
+                notification.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+            }
+            
+            document.body.appendChild(notification);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
         }
 
         // Real-time Philippine Clock
@@ -1127,9 +1592,134 @@
             if (dateElement) dateElement.textContent = dateString;
         }
 
-        // Update clock every second
+        // Update live hours worked while still working
+        function updateLiveHours() {
+            const hoursElement = document.getElementById('summaryHours');
+            if (!hoursElement) return;
+            
+            const isWorking = hoursElement.dataset.isWorking === 'true';
+            const timeIn = hoursElement.dataset.timeIn;
+            
+            if (!isWorking || !timeIn) return;
+            
+            // Parse time_in (format: HH:MM:SS)
+            const today = new Date();
+            const [hours, minutes, seconds] = timeIn.split(':').map(Number);
+            
+            // Create time_in date in Manila timezone
+            const timeInDate = new Date();
+            timeInDate.setHours(hours, minutes, seconds, 0);
+            
+            // Get current Manila time
+            const manilaTime = new Date(today.toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
+            
+            // Calculate difference in hours
+            const diffMs = manilaTime - timeInDate;
+            const diffHours = Math.max(0, diffMs / (1000 * 60 * 60));
+            
+            hoursElement.textContent = diffHours.toFixed(2);
+        }
+
+        // Update clock and hours every second
         updateClock();
+        updateLiveHours();
         setInterval(updateClock, 1000);
+        setInterval(updateLiveHours, 1000);
+
+        // Start task (update status to 'In Progress')
+        function startTask(taskId) {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+
+            fetch(`/admin/tasks/${taskId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                body: JSON.stringify({
+                    status: 'In Progress'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Task started! Good luck!');
+                    location.reload();
+                } else {
+                    alert('Error: ' + (data.message || 'Failed to start task'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error starting task: ' + error.message);
+            });
+        }
+
+        // Complete task (update status to 'Completed')
+        function completeTask(taskId) {
+            if (!confirm('Mark this task as completed?')) {
+                return;
+            }
+
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+
+            fetch(`/admin/tasks/${taskId}/complete`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Congratulations! Task completed!');
+                    location.reload();
+                } else {
+                    alert('Error: ' + (data.message || 'Failed to complete task'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error completing task: ' + error.message);
+            });
+        }
+
+        // Update task status
+        function updateTaskStatus(taskId, status) {
+            if (!confirm('Update task status to ' + status + '?')) {
+                return;
+            }
+
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+
+            fetch(`/admin/tasks/${taskId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                body: JSON.stringify({
+                    status: status
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Task updated successfully!');
+                    location.reload();
+                } else {
+                    alert('Error: ' + (data.message || 'Failed to update task'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error updating task: ' + error.message);
+            });
+        }
     </script>
     @endif
 </body>

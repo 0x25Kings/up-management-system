@@ -42,12 +42,20 @@ class Intern extends Model
     }
 
     /**
+     * Get all tasks assigned to this intern
+     */
+    public function tasks()
+    {
+        return $this->hasMany(Task::class);
+    }
+
+    /**
      * Get today's attendance record
      */
     public function getTodayAttendanceAttribute()
     {
         return $this->attendances()
-            ->where('date', Carbon::now('Asia/Manila')->toDateString())
+            ->whereDate('date', Carbon::now('Asia/Manila')->toDateString())
             ->first();
     }
 

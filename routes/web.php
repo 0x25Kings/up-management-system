@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\InternController;
+use App\Http\Controllers\TaskController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -35,4 +36,12 @@ Route::post('/admin/logout', [AdminAuthController::class, 'logout'])->name('admi
 Route::middleware(['admin'])->group(function () {
     Route::get('/admin', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
     Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard.home');
+    Route::post('/admin/attendance/{attendance}/approve-overtime', [AdminDashboardController::class, 'approveOvertime'])->name('admin.attendance.approve-overtime');
+    
+    // Task routes
+    Route::post('/admin/tasks', [TaskController::class, 'store'])->name('task.store');
+    Route::put('/admin/tasks/{task}', [TaskController::class, 'update'])->name('task.update');
+    Route::post('/admin/tasks/{task}/complete', [TaskController::class, 'complete'])->name('task.complete');
+    Route::delete('/admin/tasks/{task}', [TaskController::class, 'destroy'])->name('task.destroy');
+    Route::get('/admin/intern/{intern}/tasks', [TaskController::class, 'getInternTasks'])->name('intern.tasks');
 });

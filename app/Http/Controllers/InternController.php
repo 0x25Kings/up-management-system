@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Intern;
 use App\Models\Attendance;
+use App\Models\Task;
 use Carbon\Carbon;
 
 class InternController extends Controller
@@ -25,12 +26,14 @@ class InternController extends Controller
             if ($intern) {
                 $todayAttendance = $intern->today_attendance;
                 $attendanceHistory = $intern->attendances()->orderBy('date', 'desc')->limit(10)->get();
+                $tasks = $intern->tasks()->orderBy('due_date', 'asc')->get();
                 
                 return view('portals.intern', [
                     'intern' => $intern,
                     'showDashboard' => true,
                     'todayAttendance' => $todayAttendance,
                     'attendanceHistory' => $attendanceHistory,
+                    'tasks' => $tasks,
                 ]);
             }
         }
@@ -40,6 +43,7 @@ class InternController extends Controller
             'showDashboard' => false,
             'todayAttendance' => null,
             'attendanceHistory' => collect(),
+            'tasks' => collect(),
         ]);
     }
 
@@ -137,7 +141,12 @@ class InternController extends Controller
     {
         $internId = $request->session()->get('intern_id');
         
+        $expectsJson = $request->ajax() || $request->wantsJson() || $request->expectsJson();
+        
         if (!$internId) {
+            if ($expectsJson) {
+                return response()->json(['success' => false, 'message' => 'Session expired. Please login again.'], 401);
+            }
             return redirect()->route('intern.portal');
         }
 
@@ -147,12 +156,15 @@ class InternController extends Controller
 
         // Check if already has attendance for today using whereDate for reliable comparison
         $attendance = Attendance::where('intern_id', $intern->id)
-            ->where('date', $today)
+            ->whereDate('date', $today)
             ->first();
 
         if ($attendance) {
             // Already has an attendance record for today
             if ($attendance->time_in) {
+                if ($expectsJson) {
+                    return response()->json(['success' => false, 'message' => 'You have already timed in today.']);
+                }
                 return back()->with('error', 'You have already timed in today.');
             }
             // Update existing record with time_in (rare case - record exists but no time_in)
@@ -176,20 +188,39 @@ class InternController extends Controller
                     $attendance->status = $now->hour >= 9 ? 'Late' : 'Present';
                     $attendance->save();
                 } elseif (!$attendance->wasRecentlyCreated && $attendance->time_in) {
+                    if ($expectsJson) {
+                        return response()->json(['success' => false, 'message' => 'You have already timed in today.']);
+                    }
                     return back()->with('error', 'You have already timed in today.');
                 }
             } catch (\Illuminate\Database\UniqueConstraintViolationException $e) {
                 // Record already exists, fetch it and check
                 $attendance = Attendance::where('intern_id', $intern->id)
-                    ->where('date', $today)
+                    ->whereDate('date', $today)
                     ->first();
                     
                 if ($attendance && $attendance->time_in) {
+                    if ($expectsJson) {
+                        return response()->json(['success' => false, 'message' => 'You have already timed in today.']);
+                    }
                     return back()->with('error', 'You have already timed in today.');
                 }
                 
+                if ($expectsJson) {
+                    return response()->json(['success' => false, 'message' => 'An error occurred. Please try again.']);
+                }
                 return back()->with('error', 'An error occurred. Please try again.');
             }
+        }
+
+        // Return JSON for AJAX requests
+        if ($expectsJson) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Time In recorded at ' . $now->format('h:i A'),
+                'time_in' => $now->format('h:i A'),
+                'raw_time_in' => $now->format('H:i:s')
+            ]);
         }
 
         return redirect()->route('intern.portal', ['page' => 'attendance'])
@@ -202,8 +233,12 @@ class InternController extends Controller
     public function timeOut(Request $request)
     {
         $internId = $request->session()->get('intern_id');
+        $expectsJson = $request->ajax() || $request->wantsJson() || $request->expectsJson();
         
         if (!$internId) {
+            if ($expectsJson) {
+                return response()->json(['success' => false, 'message' => 'Session expired. Please login again.'], 401);
+            }
             return redirect()->route('intern.portal');
         }
 
@@ -213,14 +248,20 @@ class InternController extends Controller
 
         // Check if has timed in today
         $attendance = Attendance::where('intern_id', $intern->id)
-            ->where('date', $today)
+            ->whereDate('date', $today)
             ->first();
 
         if (!$attendance || !$attendance->time_in) {
+            if ($expectsJson) {
+                return response()->json(['success' => false, 'message' => 'You need to time in first.']);
+            }
             return back()->with('error', 'You need to time in first.');
         }
 
         if ($attendance->time_out) {
+            if ($expectsJson) {
+                return response()->json(['success' => false, 'message' => 'You have already timed out today.']);
+            }
             return back()->with('error', 'You have already timed out today.');
         }
 
@@ -234,10 +275,36 @@ class InternController extends Controller
             'hours_worked' => $hoursWorked,
         ]);
 
-        // Update intern's completed hours
-        $intern->increment('completed_hours', floor($hoursWorked));
+        // Calculate overtime/undertime
+        $attendance->calculateOvertimeUndertime();
+        $attendance->save();
+
+        // Update intern's completed hours (only count effective hours)
+        $intern->increment('completed_hours', floor($attendance->effective_hours));
+
+        // Prepare message based on overtime/undertime status
+        $message = 'Time Out recorded at ' . $now->format('h:i A') . '. Hours worked: ' . $hoursWorked;
+        if ($attendance->hasUndertime()) {
+            $message .= ' (Undertime: ' . $attendance->undertime_hours . ' hrs)';
+        } elseif ($attendance->hasOvertime()) {
+            $message .= ' (Overtime: ' . $attendance->overtime_hours . ' hrs - Pending Approval)';
+        }
+
+        // Return JSON for AJAX requests with reload flag
+        if ($expectsJson) {
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'time_in' => Carbon::parse($attendance->time_in)->format('h:i A'),
+                'time_out' => $now->format('h:i A'),
+                'hours_worked' => $hoursWorked,
+                'overtime_hours' => $attendance->overtime_hours,
+                'undertime_hours' => $attendance->undertime_hours,
+                'reload' => true  // Flag to trigger page reload
+            ]);
+        }
 
         return redirect()->route('intern.portal', ['page' => 'attendance'])
-            ->with('success', 'Time Out recorded at ' . $now->format('h:i A') . '. Hours worked: ' . $hoursWorked);
+            ->with('success', $message);
     }
 }

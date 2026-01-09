@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Admin Dashboard - UP Cebu Management System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -2248,12 +2249,14 @@
                                     <th>Time In</th>
                                     <th>Time Out</th>
                                     <th>Hours Today</th>
+                                    <th>Over/Under</th>
                                     <th>Status</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody id="dailyHoursTableBody">
                                 @forelse($todayAttendances ?? [] as $attendance)
-                                <tr>
+                                <tr data-attendance-id="{{ $attendance->id }}" data-time-in="{{ $attendance->raw_time_in }}" data-timed-out="{{ $attendance->time_out ? 'true' : 'false' }}">
                                     <td>
                                         <div style="display: flex; align-items: center; gap: 12px;">
                                             <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #FFBF00, #FFA500); display: flex; align-items: center; justify-content: center; color: #7B1D3A; font-weight: 700;">
@@ -2280,7 +2283,36 @@
                                         <span style="color: #9CA3AF; font-style: italic;">Still working...</span>
                                         @endif
                                     </td>
-                                    <td><strong style="font-size: 16px;">{{ number_format($attendance->hours_worked, 1) }} hrs</strong></td>
+                                    <td>
+                                        <strong style="font-size: 16px;" id="hours-{{ $attendance->id }}">
+                                            {{ number_format($attendance->current_hours_worked, 2) }} hrs
+                                        </strong>
+                                    </td>
+                                    <td>
+                                        @if($attendance->time_out)
+                                            @if($attendance->hasUndertime())
+                                                <span style="background: #FEE2E2; color: #991B1B; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                                                    <i class="fas fa-arrow-down"></i> -{{ number_format($attendance->undertime_hours, 2) }} hrs
+                                                </span>
+                                            @elseif($attendance->hasOvertime())
+                                                @if($attendance->overtime_approved)
+                                                    <span style="background: #D1FAE5; color: #065F46; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                                                        <i class="fas fa-check-circle"></i> +{{ number_format($attendance->overtime_hours, 2) }} hrs (Approved)
+                                                    </span>
+                                                @else
+                                                    <span style="background: #FEF3C7; color: #92400E; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                                                        <i class="fas fa-clock"></i> +{{ number_format($attendance->overtime_hours, 2) }} hrs (Pending)
+                                                    </span>
+                                                @endif
+                                            @else
+                                                <span style="background: #DBEAFE; color: #1E40AF; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                                                    <i class="fas fa-check"></i> On Target
+                                                </span>
+                                            @endif
+                                        @else
+                                            <span style="color: #9CA3AF; font-size: 12px;">--</span>
+                                        @endif
+                                    </td>
                                     <td>
                                         <span class="hours-badge" style="padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
                                             @if($attendance->status === 'Present') background: #D1FAE5; color: #065F46;
@@ -2288,6 +2320,15 @@
                                             @else background: #FEE2E2; color: #991B1B; @endif">
                                             {{ $attendance->status }}
                                         </span>
+                                    </td>
+                                    <td>
+                                        @if($attendance->isOvertimePending())
+                                            <button onclick="approveOvertime({{ $attendance->id }})" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;">
+                                                <i class="fas fa-check"></i> Approve OT
+                                            </button>
+                                        @else
+                                            <span style="color: #9CA3AF;">--</span>
+                                        @endif
                                     </td>
                                 </tr>
                                 @empty
@@ -2322,6 +2363,7 @@
                                     <th>Time In</th>
                                     <th>Time Out</th>
                                     <th>Hours Worked</th>
+                                    <th>Over/Under</th>
                                     <th>Status</th>
                                 </tr>
                             </thead>
@@ -2360,6 +2402,31 @@
                                     </td>
                                     <td><strong style="color: #7B1D3A;">{{ number_format($attendance->hours_worked, 2) }} hrs</strong></td>
                                     <td>
+                                        @if($attendance->time_out)
+                                            @if($attendance->hasUndertime())
+                                                <span style="background: #FEE2E2; color: #991B1B; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                                                    <i class="fas fa-arrow-down"></i> -{{ number_format($attendance->undertime_hours, 2) }} hrs
+                                                </span>
+                                            @elseif($attendance->hasOvertime())
+                                                @if($attendance->overtime_approved)
+                                                    <span style="background: #D1FAE5; color: #065F46; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                                                        <i class="fas fa-check-circle"></i> +{{ number_format($attendance->overtime_hours, 2) }} hrs
+                                                    </span>
+                                                @else
+                                                    <span style="background: #FEF3C7; color: #92400E; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                                                        <i class="fas fa-clock"></i> +{{ number_format($attendance->overtime_hours, 2) }} hrs (Pending)
+                                                    </span>
+                                                @endif
+                                            @else
+                                                <span style="background: #DBEAFE; color: #1E40AF; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                                                    <i class="fas fa-check"></i> On Target
+                                                </span>
+                                            @endif
+                                        @else
+                                            <span style="color: #9CA3AF; font-size: 12px;">--</span>
+                                        @endif
+                                    </td>
+                                    <td>
                                         <span style="padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
                                             @if($attendance->status === 'Present') background: #D1FAE5; color: #065F46;
                                             @elseif($attendance->status === 'Late') background: #FEF3C7; color: #92400E;
@@ -2370,7 +2437,7 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="7" style="text-align: center; padding: 40px; color: #9CA3AF;">
+                                    <td colspan="8" style="text-align: center; padding: 40px; color: #9CA3AF;">
                                         <i class="fas fa-history" style="font-size: 40px; margin-bottom: 12px; display: block;"></i>
                                         No attendance history yet. Records will appear here once interns start timing in.
                                     </td>
@@ -2517,288 +2584,65 @@
                             </tr>
                         </thead>
                         <tbody id="taskTableBody">
-                            <!-- Group Assigned Tasks -->
+                            @forelse($tasks ?? [] as $task)
                             <tr>
                                 <td>
-                                    <div style="font-weight: 600; margin-bottom: 4px;">Database Migration & Testing</div>
-                                    <div style="font-size: 12px; color: #6B7280;">Migrate database to new server and run tests</div>
+                                    <div style="font-weight: 600; margin-bottom: 4px;">{{ $task->title }}</div>
+                                    <div style="font-size: 12px; color: #6B7280;">{{ $task->description ?? 'No description' }}</div>
                                 </td>
                                 <td>
                                     <div class="intern-info">
-                                        <span class="intern-name">Development Team (3)</span>
-                                        <span class="intern-school">UP Cebu, CTU</span>
-                                    </div>
-                                </td>
-                                <td><span class="status-badge" style="background: #DBEAFE; color: #1E40AF;">Group</span></td>
-                                <td>UP Cebu, CTU</td>
-                                <td style="font-weight: 600;">Dec 20, 2025</td>
-                                <td><span class="status-badge" style="background: #FEE2E2; color: #991B1B;">High</span></td>
-                                <td>
-                                    <div style="display: flex; align-items: center; gap: 8px;">
-                                        <div class="progress-bar-container" style="flex: 1; max-width: 80px;">
-                                            <div class="progress-bar" style="width: 75%;"></div>
-                                        </div>
-                                        <span style="font-weight: 600; font-size: 12px;">75%</span>
-                                    </div>
-                                </td>
-                                <td><span class="status-badge" style="background: #FEF3C7; color: #92400E;">Ongoing</span></td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button class="btn-action btn-view" title="View Details" onclick="viewTaskDetails(1)"><i class="fas fa-eye"></i></button>
-                                        <button class="btn-action btn-edit" title="Edit Task"><i class="fas fa-edit"></i></button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div style="font-weight: 600; margin-bottom: 4px;">Research Paper Documentation</div>
-                                    <div style="font-size: 12px; color: #6B7280;">Complete research documentation and references</div>
-                                </td>
-                                <td>
-                                    <div class="intern-info">
-                                        <span class="intern-name">Research Team (4)</span>
-                                        <span class="intern-school">UP Cebu, CTU</span>
-                                    </div>
-                                </td>
-                                <td><span class="status-badge" style="background: #DBEAFE; color: #1E40AF;">Group</span></td>
-                                <td>UP Cebu, CTU</td>
-                                <td style="font-weight: 600;">Dec 18, 2025</td>
-                                <td><span class="status-badge" style="background: #FEE2E2; color: #991B1B;">High</span></td>
-                                <td>
-                                    <div style="display: flex; align-items: center; gap: 8px;">
-                                        <div class="progress-bar-container" style="flex: 1; max-width: 80px;">
-                                            <div class="progress-bar" style="width: 90%;"></div>
-                                        </div>
-                                        <span style="font-weight: 600; font-size: 12px;">90%</span>
-                                    </div>
-                                </td>
-                                <td><span class="status-badge" style="background: #FEF3C7; color: #92400E;">Ongoing</span></td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button class="btn-action btn-view" title="View Details" onclick="viewTaskDetails(2)"><i class="fas fa-eye"></i></button>
-                                        <button class="btn-action btn-edit" title="Edit Task"><i class="fas fa-edit"></i></button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div style="font-weight: 600; margin-bottom: 4px;">UI/UX Design Review</div>
-                                    <div style="font-size: 12px; color: #6B7280;">Review and finalize UI mockups for client</div>
-                                </td>
-                                <td>
-                                    <div class="intern-info">
-                                        <span class="intern-name">Design Team (2)</span>
-                                        <span class="intern-school">UP Cebu</span>
-                                    </div>
-                                </td>
-                                <td><span class="status-badge" style="background: #DBEAFE; color: #1E40AF;">Group</span></td>
-                                <td>UP Cebu</td>
-                                <td style="font-weight: 600;">Dec 16, 2025</td>
-                                <td><span class="status-badge" style="background: #FEF3C7; color: #92400E;">Medium</span></td>
-                                <td>
-                                    <div style="display: flex; align-items: center; gap: 8px;">
-                                        <div class="progress-bar-container" style="flex: 1; max-width: 80px;">
-                                            <div class="progress-bar" style="width: 85%;"></div>
-                                        </div>
-                                        <span style="font-weight: 600; font-size: 12px;">85%</span>
-                                    </div>
-                                </td>
-                                <td><span class="status-badge" style="background: #FEF3C7; color: #92400E;">Ongoing</span></td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button class="btn-action btn-view" title="View Details" onclick="viewTaskDetails(3)"><i class="fas fa-eye"></i></button>
-                                        <button class="btn-action btn-edit" title="Edit Task"><i class="fas fa-edit"></i></button>
-                                    </div>
-                                </td>
-                            </tr>
-                            
-                            <!-- Individual Assigned Tasks -->
-                            <tr>
-                                <td>
-                                    <div style="font-weight: 600; margin-bottom: 4px;">Content Creation - Blog Posts</div>
-                                    <div style="font-size: 12px; color: #6B7280;">Create 5 blog posts about technology trends</div>
-                                </td>
-                                <td>
-                                    <div class="intern-info">
-                                        <span class="intern-name">Julliana Panaguiton</span>
-                                        <span class="intern-school">UP Cebu</span>
+                                        <span class="intern-name">{{ $task->intern->name ?? 'Unknown' }}</span>
+                                        <span class="intern-school">{{ $task->intern->school ?? 'N/A' }}</span>
                                     </div>
                                 </td>
                                 <td><span class="status-badge" style="background: #D1FAE5; color: #065F46;">Individual</span></td>
-                                <td>UP Cebu</td>
-                                <td style="font-weight: 600;">Dec 22, 2025</td>
-                                <td><span class="status-badge" style="background: #FEF3C7; color: #92400E;">Medium</span></td>
+                                <td>{{ $task->intern->school ?? 'N/A' }}</td>
+                                <td style="font-weight: 600;">{{ \Carbon\Carbon::parse($task->due_date)->format('M d, Y') }}</td>
+                                <td>
+                                    <span class="status-badge" style="background: 
+                                        @if($task->priority === 'High') #FEE2E2; color: #991B1B;
+                                        @elseif($task->priority === 'Medium') #FEF3C7; color: #92400E;
+                                        @else #D1FAE5; color: #065F46;
+                                        @endif">
+                                        {{ $task->priority }}
+                                    </span>
+                                </td>
                                 <td>
                                     <div style="display: flex; align-items: center; gap: 8px;">
                                         <div class="progress-bar-container" style="flex: 1; max-width: 80px;">
-                                            <div class="progress-bar" style="width: 60%;"></div>
+                                            <div class="progress-bar" style="width: {{ $task->status === 'Completed' ? 100 : ($task->status === 'In Progress' ? 50 : 10) }}%;"></div>
                                         </div>
-                                        <span style="font-weight: 600; font-size: 12px;">60%</span>
+                                        <span style="font-weight: 600; font-size: 12px;">{{ $task->status === 'Completed' ? 100 : ($task->status === 'In Progress' ? 50 : 10) }}%</span>
                                     </div>
                                 </td>
-                                <td><span class="status-badge" style="background: #FEF3C7; color: #92400E;">Ongoing</span></td>
+                                <td>
+                                    <span class="status-badge" style="background: 
+                                        @if($task->status === 'Completed') #D1FAE5; color: #065F46;
+                                        @elseif($task->status === 'In Progress') #FEF3C7; color: #92400E;
+                                        @else #E5E7EB; color: #6B7280;
+                                        @endif">
+                                        {{ $task->status }}
+                                    </span>
+                                </td>
                                 <td>
                                     <div class="action-buttons">
-                                        <button class="btn-action btn-view" title="View Details" onclick="viewTaskDetails(4)"><i class="fas fa-eye"></i></button>
-                                        <button class="btn-action btn-edit" title="Edit Task"><i class="fas fa-edit"></i></button>
+                                        <button class="btn-action btn-view" title="View Details" onclick="viewTaskDetails({{ $task->id }})"><i class="fas fa-eye"></i></button>
+                                        <button class="btn-action btn-edit" title="Edit Task" onclick="editTask({{ $task->id }})"><i class="fas fa-edit"></i></button>
+                                        @if($task->status !== 'Completed')
+                                        <button class="btn-action btn-check" title="Mark Complete" onclick="markTaskComplete({{ $task->id }})"><i class="fas fa-check"></i></button>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
+                            @empty
                             <tr>
-                                <td>
-                                    <div style="font-weight: 600; margin-bottom: 4px;">Mobile App Testing</div>
-                                    <div style="font-size: 12px; color: #6B7280;">Test mobile application and report bugs</div>
-                                </td>
-                                <td>
-                                    <div class="intern-info">
-                                        <span class="intern-name">Ashley Coleen</span>
-                                        <span class="intern-school">San Carlos</span>
-                                    </div>
-                                </td>
-                                <td><span class="status-badge" style="background: #D1FAE5; color: #065F46;">Individual</span></td>
-                                <td>San Carlos</td>
-                                <td style="font-weight: 600;">Dec 19, 2025</td>
-                                <td><span class="status-badge" style="background: #D1FAE5; color: #065F46;">Low</span></td>
-                                <td>
-                                    <div style="display: flex; align-items: center; gap: 8px;">
-                                        <div class="progress-bar-container" style="flex: 1; max-width: 80px;">
-                                            <div class="progress-bar" style="width: 45%;"></div>
-                                        </div>
-                                        <span style="font-weight: 600; font-size: 12px;">45%</span>
-                                    </div>
-                                </td>
-                                <td><span class="status-badge" style="background: #FEF3C7; color: #92400E;">Ongoing</span></td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button class="btn-action btn-view" title="View Details" onclick="viewTaskDetails(5)"><i class="fas fa-eye"></i></button>
-                                        <button class="btn-action btn-edit" title="Edit Task"><i class="fas fa-edit"></i></button>
-                                    </div>
+                                <td colspan="9" style="text-align: center; padding: 40px; color: #9CA3AF;">
+                                    <i class="fas fa-tasks" style="font-size: 40px; margin-bottom: 12px; display: block;"></i>
+                                    No tasks assigned yet. Click <strong>New Task</strong> to create one.
                                 </td>
                             </tr>
-                            <tr>
-                                <td>
-                                    <div style="font-weight: 600; margin-bottom: 4px;">Data Analysis Report</div>
-                                    <div style="font-size: 12px; color: #6B7280;">Analyze data and create visualization report</div>
-                                </td>
-                                <td>
-                                    <div class="intern-info">
-                                        <span class="intern-name">Lyca Mansueto</span>
-                                        <span class="intern-school">CTU</span>
-                                    </div>
-                                </td>
-                                <td><span class="status-badge" style="background: #D1FAE5; color: #065F46;">Individual</span></td>
-                                <td>CTU</td>
-                                <td style="font-weight: 600;">Dec 17, 2025</td>
-                                <td><span class="status-badge" style="background: #FEE2E2; color: #991B1B;">High</span></td>
-                                <td>
-                                    <div style="display: flex; align-items: center; gap: 8px;">
-                                        <div class="progress-bar-container" style="flex: 1; max-width: 80px;">
-                                            <div class="progress-bar" style="width: 95%;"></div>
-                                        </div>
-                                        <span style="font-weight: 600; font-size: 12px;">95%</span>
-                                    </div>
-                                </td>
-                                <td><span class="status-badge" style="background: #FEF3C7; color: #92400E;">Ongoing</span></td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button class="btn-action btn-view" title="View Details" onclick="viewTaskDetails(6)"><i class="fas fa-eye"></i></button>
-                                        <button class="btn-action btn-edit" title="Edit Task"><i class="fas fa-edit"></i></button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div style="font-weight: 600; margin-bottom: 4px;">System Documentation Update</div>
-                                    <div style="font-size: 12px; color: #6B7280;">Update technical documentation for systems</div>
-                                </td>
-                                <td>
-                                    <div class="intern-info">
-                                        <span class="intern-name">Brejean Abarico</span>
-                                        <span class="intern-school">UP Cebu</span>
-                                    </div>
-                                </td>
-                                <td><span class="status-badge" style="background: #D1FAE5; color: #065F46;">Individual</span></td>
-                                <td>UP Cebu</td>
-                                <td style="font-weight: 600;">Dec 21, 2025</td>
-                                <td><span class="status-badge" style="background: #D1FAE5; color: #065F46;">Low</span></td>
-                                <td>
-                                    <div style="display: flex; align-items: center; gap: 8px;">
-                                        <div class="progress-bar-container" style="flex: 1; max-width: 80px;">
-                                            <div class="progress-bar" style="width: 30%;"></div>
-                                        </div>
-                                        <span style="font-weight: 600; font-size: 12px;">30%</span>
-                                    </div>
-                                </td>
-                                <td><span class="status-badge" style="background: #E5E7EB; color: #6B7280;">Pending</span></td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button class="btn-action btn-view" title="View Details" onclick="viewTaskDetails(7)"><i class="fas fa-eye"></i></button>
-                                        <button class="btn-action btn-edit" title="Edit Task"><i class="fas fa-edit"></i></button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div style="font-weight: 600; margin-bottom: 4px;">Event Management System</div>
-                                    <div style="font-size: 12px; color: #6B7280;">Develop event scheduling module</div>
-                                </td>
-                                <td>
-                                    <div class="intern-info">
-                                        <span class="intern-name">Mj Bersabal</span>
-                                        <span class="intern-school">UP Cebu</span>
-                                    </div>
-                                </td>
-                                <td><span class="status-badge" style="background: #D1FAE5; color: #065F46;">Individual</span></td>
-                                <td>UP Cebu</td>
-                                <td style="font-weight: 600;">Dec 25, 2025</td>
-                                <td><span class="status-badge" style="background: #FEF3C7; color: #92400E;">Medium</span></td>
-                                <td>
-                                    <div style="display: flex; align-items: center; gap: 8px;">
-                                        <div class="progress-bar-container" style="flex: 1; max-width: 80px;">
-                                            <div class="progress-bar" style="width: 20%;"></div>
-                                        </div>
-                                        <span style="font-weight: 600; font-size: 12px;">20%</span>
-                                    </div>
-                                </td>
-                                <td><span class="status-badge" style="background: #E5E7EB; color: #6B7280;">Pending</span></td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button class="btn-action btn-view" title="View Details" onclick="viewTaskDetails(8)"><i class="fas fa-eye"></i></button>
-                                        <button class="btn-action btn-edit" title="Edit Task"><i class="fas fa-edit"></i></button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div style="font-weight: 600; margin-bottom: 4px;">Website Redesign</div>
-                                    <div style="font-size: 12px; color: #6B7280;">Redesign company website landing page</div>
-                                </td>
-                                <td>
-                                    <div class="intern-info">
-                                        <span class="intern-name">Ruther Cainghug</span>
-                                        <span class="intern-school">UP Cebu</span>
-                                    </div>
-                                </td>
-                                <td><span class="status-badge" style="background: #D1FAE5; color: #065F46;">Individual</span></td>
-                                <td>UP Cebu</td>
-                                <td style="font-weight: 600;">Dec 23, 2025</td>
-                                <td><span class="status-badge" style="background: #FEE2E2; color: #991B1B;">High</span></td>
-                                <td>
-                                    <div style="display: flex; align-items: center; gap: 8px;">
-                                        <div class="progress-bar-container" style="flex: 1; max-width: 80px;">
-                                            <div class="progress-bar" style="width: 100%; background: #10B981;"></div>
-                                        </div>
-                                        <span style="font-weight: 600; font-size: 12px;">100%</span>
-                                    </div>
-                                </td>
-                                <td><span class="status-badge status-completed">Completed</span></td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button class="btn-action btn-view" title="View Details" onclick="viewTaskDetails(9)"><i class="fas fa-eye"></i></button>
-                                        <button class="btn-action btn-edit" title="Edit Task"><i class="fas fa-edit"></i></button>
-                                    </div>
-                                </td>
-                            </tr>
+                            @endforelse
                         </tbody>
                     </table>
                     
@@ -4855,7 +4699,59 @@
             }
         }
 
-        // Handle daily overtime approval/rejection
+        // Approve overtime function
+        function approveOvertime(attendanceId) {
+            if (!confirm('Are you sure you want to approve this overtime?')) {
+                return;
+            }
+
+            fetch(`/admin/attendance/${attendanceId}/approve-overtime`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Overtime approved successfully!');
+                    window.location.reload();
+                } else {
+                    alert(data.message || 'Failed to approve overtime.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while approving overtime.');
+            });
+        }
+
+        // Update hours live for attendances still working
+        function updateLiveHours() {
+            const hoursElements = document.querySelectorAll('[id^="hours-"]');
+            hoursElements.forEach(element => {
+                const attendanceId = element.id.replace('hours-', '');
+                const row = document.querySelector(`[data-attendance-id="${attendanceId}"]`);
+                if (row) {
+                    const timeInStr = row.getAttribute('data-time-in');
+                    if (timeInStr && !row.getAttribute('data-timed-out')) {
+                        const timeIn = new Date(timeInStr);
+                        const now = new Date();
+                        const diffMs = now - timeIn;
+                        const hours = (diffMs / (1000 * 60 * 60)).toFixed(2);
+                        element.textContent = hours + ' hrs';
+                    }
+                }
+            });
+        }
+
+        // Start live hour updates every second
+        setInterval(updateLiveHours, 1000);
+        updateLiveHours();
+
+        // Handle daily overtime approval/rejection (legacy)
         function handleDailyOvertimeAction(action, internName, overtimeHours) {
             const actionText = action === 'approve' ? 'approved' : 'rejected';
             alert(`${overtimeHours} hour(s) overtime for ${internName} has been ${actionText}.`);
@@ -5050,8 +4946,7 @@
             const priority = document.getElementById('priorityLevel').value;
             const dueDate = document.getElementById('dueDate').value;
 
-            let assignedTo = '';
-            let school = '';
+            let internId = '';
 
             if (assignmentType === 'individual') {
                 const internSelect = document.getElementById('individualIntern');
@@ -5059,34 +4954,50 @@
                     alert('Please select an intern');
                     return;
                 }
-                assignedTo = internSelect.value;
-                const optgroup = internSelect.options[internSelect.selectedIndex].parentElement.label;
-                school = optgroup;
+                internId = internSelect.value;
             } else {
                 const checkedBoxes = document.querySelectorAll('input[name="groupMembers"]:checked');
-                const leader = document.getElementById('groupLeader').value;
-                
                 if (checkedBoxes.length === 0) {
                     alert('Please select at least one group member');
                     return;
                 }
-                
-                if (!leader) {
-                    alert('Please assign a group leader');
-                    return;
-                }
-
-                assignedTo = `Group (${checkedBoxes.length})`;
-                const schoolSelect = document.getElementById('schoolSelect');
-                school = schoolSelect.options[schoolSelect.selectedIndex].text;
+                // For now, use first member's ID. In a full implementation, you'd handle group assignments differently
+                internId = checkedBoxes[0].value;
             }
 
-            // Here you would typically send this data to a server
-            // For now, just show success message and close modal
-            alert(`Task "${title}" created successfully!`);
-            closeNewTaskModal();
-            
-            // Optionally refresh the task list here
+            const taskData = {
+                intern_id: internId,
+                title: title,
+                description: description,
+                priority: priority === 'high' ? 'High' : (priority === 'medium' ? 'Medium' : 'Low'),
+                due_date: dueDate,
+                _token: document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+            };
+
+            fetch('/admin/tasks', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': taskData._token
+                },
+                body: JSON.stringify(taskData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Task created successfully!');
+                    closeNewTaskModal();
+                    // Reload the page to show the new task
+                    location.reload();
+                } else {
+                    alert('Error: ' + (data.message || 'Failed to create task'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error creating task: ' + error.message);
+            });
         }
 
         // View task details
@@ -5205,6 +5116,43 @@
             closeViewTaskModal();
             // Here you would populate the new task modal with the task data for editing
             alert('Edit functionality will open the task form with pre-filled data');
+        }
+
+        // Mark task as complete
+        function markTaskComplete(taskId) {
+            if (!confirm('Mark this task as completed?')) {
+                return;
+            }
+
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+
+            fetch(`/admin/tasks/${taskId}/complete`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Task marked as completed!');
+                    location.reload();
+                } else {
+                    alert('Error: ' + (data.message || 'Failed to complete task'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error completing task: ' + error.message);
+            });
+        }
+
+        // Edit task
+        function editTask(taskId) {
+            alert('Edit task functionality - Task ID: ' + taskId);
+            // TODO: Implement full edit functionality
         }
 
         // ===== DAILY HOURS FILTER AND SEARCH =====
