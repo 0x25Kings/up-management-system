@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Intern;
 use App\Models\Attendance;
 use App\Models\Task;
+use App\Models\Booking;
+use App\Models\BlockedDate;
 use Carbon\Carbon;
 
 class AdminDashboardController extends Controller
@@ -47,6 +49,24 @@ class AdminDashboardController extends Controller
             ->orderBy('due_date', 'asc')
             ->get();
 
+        // Get booking statistics
+        $pendingBookings = Booking::where('status', 'pending')->count();
+        $todayBookings = Booking::whereDate('booking_date', $today)
+            ->where('status', 'approved')
+            ->count();
+        $upcomingBookings = Booking::where('booking_date', '>=', $today)
+            ->where('status', 'approved')
+            ->orderBy('booking_date', 'asc')
+            ->orderBy('time_start', 'asc')
+            ->limit(10)
+            ->get();
+        $allBookings = Booking::with('approvedBy')
+            ->orderBy('booking_date', 'desc')
+            ->get();
+
+        // Get blocked dates
+        $blockedDates = BlockedDate::orderBy('blocked_date', 'asc')->get();
+
         return view('admin.dashboard', [
             'user' => Auth::user(),
             'totalInterns' => $totalInterns,
@@ -56,6 +76,11 @@ class AdminDashboardController extends Controller
             'attendanceHistory' => $attendanceHistory,
             'internsBySchool' => $internsBySchool,
             'tasks' => $tasks,
+            'pendingBookings' => $pendingBookings,
+            'todayBookings' => $todayBookings,
+            'upcomingBookings' => $upcomingBookings,
+            'allBookings' => $allBookings,
+            'blockedDates' => $blockedDates,
         ]);
     }
 

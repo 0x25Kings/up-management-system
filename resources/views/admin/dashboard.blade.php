@@ -1652,6 +1652,61 @@
             color: #DC2626;
         }
 
+        .badge-count {
+            background: #DC2626;
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 12px;
+            margin-left: 8px;
+        }
+
+        .booking-tab-content {
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Clickable calendar day styles */
+        .clickable-day {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .clickable-day:hover {
+            background: #F3F4F6 !important;
+            transform: scale(1.02);
+        }
+
+        .mini-day {
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        
+        .mini-day:hover:not(.other-month) {
+            background: #7B1D3A20;
+            transform: scale(1.1);
+        }
+
+        .mini-day.blocked {
+            position: relative;
+        }
+
+        .blocked-day {
+            position: relative;
+        }
+
+        .calendar-event.blocked {
+            font-size: 11px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin-bottom: 4px;
+        }
+
         .filter-tabs {
             display: flex;
             gap: 8px;
@@ -3776,442 +3831,268 @@
             <!-- Scheduler Page -->
             <div id="scheduler" class="page-content">
                 <div style="margin-bottom: 24px;">
-                    <h2 style="font-size: 28px; font-weight: 700; color: #1F2937; margin-bottom: 8px;">Event Scheduler & Calendar</h2>
-                    <p style="color: #6B7280; font-size: 14px;">Manage events, meetings, room bookings, and schedules in one centralized calendar</p>
+                    <h2 style="font-size: 28px; font-weight: 700; color: #1F2937; margin-bottom: 8px;">Agency Bookings & Calendar</h2>
+                    <p style="color: #6B7280; font-size: 14px;">Manage agency booking requests and view scheduled appointments</p>
                 </div>
 
                 <!-- Stats Overview -->
                 <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 24px;">
                     <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #F59E0B, #D97706);">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-value" id="pendingBookingsCount">{{ $pendingBookings ?? 0 }}</div>
+                        <div class="stat-label">Pending Requests</div>
+                    </div>
+                    <div class="stat-card">
                         <div class="stat-icon" style="background: linear-gradient(135deg, #3B82F6, #2563EB);">
                             <i class="fas fa-calendar-check"></i>
                         </div>
-                        <div class="stat-value">12</div>
-                        <div class="stat-label">Today's Events</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #8B5CF6, #7C3AED);">
-                            <i class="fas fa-users"></i>
-                        </div>
-                        <div class="stat-value">47</div>
-                        <div class="stat-label">This Week's Meetings</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #F59E0B, #D97706);">
-                            <i class="fas fa-door-open"></i>
-                        </div>
-                        <div class="stat-value">8</div>
-                        <div class="stat-label">Room Bookings Today</div>
+                        <div class="stat-value">{{ $todayBookings ?? 0 }}</div>
+                        <div class="stat-label">Today's Bookings</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon" style="background: linear-gradient(135deg, #10B981, #059669);">
-                            <i class="fas fa-chart-line"></i>
+                            <i class="fas fa-calendar-alt"></i>
                         </div>
-                        <div class="stat-value">78%</div>
-                        <div class="stat-label">Room Utilization</div>
+                        <div class="stat-value">{{ isset($upcomingBookings) ? $upcomingBookings->count() : 0 }}</div>
+                        <div class="stat-label">Upcoming Events</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #8B5CF6, #7C3AED);">
+                            <i class="fas fa-building"></i>
+                        </div>
+                        <div class="stat-value">{{ isset($allBookings) ? $allBookings->where('status', 'approved')->count() : 0 }}</div>
+                        <div class="stat-label">Total Approved</div>
                     </div>
                 </div>
 
-                <!-- View Toggle and Actions -->
+                <!-- Booking Tabs -->
                 <div class="filter-bar" style="margin-bottom: 24px;">
                     <div class="filter-tabs" style="margin: 0;">
-                        <button class="filter-tab active" onclick="switchCalendarView('month')">
-                            <i class="fas fa-calendar"></i> Month
+                        <button class="filter-tab active" onclick="switchBookingTab('pending')">
+                            <i class="fas fa-clock"></i> Pending Requests <span class="badge-count" id="pendingBadge">{{ $pendingBookings ?? 0 }}</span>
                         </button>
-                        <button class="filter-tab" onclick="switchCalendarView('week')">
-                            <i class="fas fa-calendar-week"></i> Week
+                        <button class="filter-tab" onclick="switchBookingTab('calendar')">
+                            <i class="fas fa-calendar"></i> Calendar View
                         </button>
-                        <button class="filter-tab" onclick="switchCalendarView('day')">
-                            <i class="fas fa-calendar-day"></i> Day
-                        </button>
-                        <button class="filter-tab" onclick="switchCalendarView('agenda')">
-                            <i class="fas fa-list"></i> Agenda
-                        </button>
-                    </div>
-                    <div style="display: flex; gap: 8px; margin-left: auto;">
-                        <button class="filter-btn secondary" onclick="goToToday()">
-                            <i class="fas fa-calendar-day"></i> Today
-                        </button>
-                        <button class="filter-btn" onclick="openNewEventModal()">
-                            <i class="fas fa-plus"></i> New Event
-                        </button>
-                        <button class="filter-btn" onclick="openRoomBookingModal()">
-                            <i class="fas fa-door-open"></i> Book Room
+                        <button class="filter-tab" onclick="switchBookingTab('all')">
+                            <i class="fas fa-list"></i> All Bookings
                         </button>
                     </div>
                 </div>
 
-                <!-- Calendar Container -->
-                <div class="calendar-layout">
-                    <!-- Left Sidebar -->
-                    <div class="calendar-sidebar">
-                        <!-- Mini Calendar -->
-                        <div class="mini-calendar-card">
-                            <div class="mini-calendar-header">
-                                <button class="cal-nav-btn" onclick="prevMonth()"><i class="fas fa-chevron-left"></i></button>
-                                <span class="mini-calendar-title">December 2025</span>
-                                <button class="cal-nav-btn" onclick="nextMonth()"><i class="fas fa-chevron-right"></i></button>
-                            </div>
-                            <div class="mini-calendar">
-                                <div class="mini-calendar-days">
-                                    <div class="day-label">Su</div>
-                                    <div class="day-label">Mo</div>
-                                    <div class="day-label">Tu</div>
-                                    <div class="day-label">We</div>
-                                    <div class="day-label">Th</div>
-                                    <div class="day-label">Fr</div>
-                                    <div class="day-label">Sa</div>
-                                </div>
-                                <div class="mini-calendar-grid">
-                                    <div class="mini-day other-month">30</div>
-                                    <div class="mini-day">1</div>
-                                    <div class="mini-day">2</div>
-                                    <div class="mini-day">3</div>
-                                    <div class="mini-day">4</div>
-                                    <div class="mini-day">5</div>
-                                    <div class="mini-day">6</div>
-                                    <div class="mini-day">7</div>
-                                    <div class="mini-day">8</div>
-                                    <div class="mini-day">9</div>
-                                    <div class="mini-day">10</div>
-                                    <div class="mini-day">11</div>
-                                    <div class="mini-day">12</div>
-                                    <div class="mini-day">13</div>
-                                    <div class="mini-day">14</div>
-                                    <div class="mini-day today">15</div>
-                                    <div class="mini-day">16</div>
-                                    <div class="mini-day">17</div>
-                                    <div class="mini-day has-events">18</div>
-                                    <div class="mini-day has-events">19</div>
-                                    <div class="mini-day has-events">20</div>
-                                    <div class="mini-day">21</div>
-                                    <div class="mini-day">22</div>
-                                    <div class="mini-day">23</div>
-                                    <div class="mini-day">24</div>
-                                    <div class="mini-day">25</div>
-                                    <div class="mini-day">26</div>
-                                    <div class="mini-day">27</div>
-                                    <div class="mini-day">28</div>
-                                    <div class="mini-day">29</div>
-                                    <div class="mini-day">30</div>
-                                    <div class="mini-day">31</div>
-                                    <div class="mini-day other-month">1</div>
-                                    <div class="mini-day other-month">2</div>
-                                    <div class="mini-day other-month">3</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Event Filter -->
-                        <div class="event-filter-card">
-                            <h4 style="font-size: 14px; font-weight: 700; margin-bottom: 12px; color: #1F2937;">Filter Events</h4>
-                            <div class="filter-checkboxes">
-                                <label class="filter-checkbox-label">
-                                    <input type="checkbox" checked onchange="filterCalendarEvents()">
-                                    <span class="event-color-dot" style="background: #3B82F6;"></span>
-                                    <span>Meetings</span>
-                                </label>
-                                <label class="filter-checkbox-label">
-                                    <input type="checkbox" checked onchange="filterCalendarEvents()">
-                                    <span class="event-color-dot" style="background: #10B981;"></span>
-                                    <span>Deadlines</span>
-                                </label>
-                                <label class="filter-checkbox-label">
-                                    <input type="checkbox" checked onchange="filterCalendarEvents()">
-                                    <span class="event-color-dot" style="background: #F59E0B;"></span>
-                                    <span>Training</span>
-                                </label>
-                                <label class="filter-checkbox-label">
-                                    <input type="checkbox" checked onchange="filterCalendarEvents()">
-                                    <span class="event-color-dot" style="background: #8B5CF6;"></span>
-                                    <span>Bookings</span>
-                                </label>
-                                <label class="filter-checkbox-label">
-                                    <input type="checkbox" checked onchange="filterCalendarEvents()">
-                                    <span class="event-color-dot" style="background: #EF4444;"></span>
-                                    <span>Payments Due</span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <!-- Upcoming Events -->
-                        <div class="upcoming-events-card">
-                            <h4 style="font-size: 14px; font-weight: 700; margin-bottom: 12px; color: #1F2937;">Upcoming Events</h4>
-                            <div class="upcoming-events-list">
-                                <div class="upcoming-event-item" style="border-left-color: #3B82F6;">
-                                    <div class="event-time">10:00 AM</div>
-                                    <div class="event-info">
-                                        <div class="event-title">Team Stand-up Meeting</div>
-                                        <div class="event-location"><i class="fas fa-map-marker-alt"></i> Conference Room A</div>
-                                    </div>
-                                </div>
-                                <div class="upcoming-event-item" style="border-left-color: #F59E0B;">
-                                    <div class="event-time">2:00 PM</div>
-                                    <div class="event-info">
-                                        <div class="event-title">Startup Pitch Training</div>
-                                        <div class="event-location"><i class="fas fa-users"></i> 15 participants</div>
-                                    </div>
-                                </div>
-                                <div class="upcoming-event-item" style="border-left-color: #10B981;">
-                                    <div class="event-time">4:00 PM</div>
-                                    <div class="event-info">
-                                        <div class="event-title">Project Milestone Review</div>
-                                        <div class="event-location"><i class="fas fa-video"></i> Virtual Meeting</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Main Calendar View -->
-                    <div class="calendar-main">
-                        <div class="calendar-header">
-                            <div style="display: flex; align-items: center; gap: 12px;">
-                                <button class="cal-nav-btn" onclick="prevPeriod()"><i class="fas fa-chevron-left"></i></button>
-                                <h3 style="font-size: 24px; font-weight: 700; color: #1F2937; margin: 0;">December 15, 2025</h3>
-                                <button class="cal-nav-btn" onclick="nextPeriod()"><i class="fas fa-chevron-right"></i></button>
-                            </div>
-                        </div>
-
-                        <!-- Month View Calendar -->
-                        <div class="full-calendar">
-                            <div class="calendar-weekdays">
-                                <div class="weekday">Sunday</div>
-                                <div class="weekday">Monday</div>
-                                <div class="weekday">Tuesday</div>
-                                <div class="weekday">Wednesday</div>
-                                <div class="weekday">Thursday</div>
-                                <div class="weekday">Friday</div>
-                                <div class="weekday">Saturday</div>
-                            </div>
-                            <div class="calendar-grid">
-                                <!-- Week 1 -->
-                                <div class="calendar-day other-month">
-                                    <div class="day-number">30</div>
-                                </div>
-                                <div class="calendar-day">
-                                    <div class="day-number">1</div>
-                                </div>
-                                <div class="calendar-day">
-                                    <div class="day-number">2</div>
-                                    <div class="event-dot" style="background: #3B82F6;" title="Meeting"></div>
-                                </div>
-                                <div class="calendar-day">
-                                    <div class="day-number">3</div>
-                                </div>
-                                <div class="calendar-day">
-                                    <div class="day-number">4</div>
-                                </div>
-                                <div class="calendar-day">
-                                    <div class="day-number">5</div>
-                                    <div class="event-dot" style="background: #F59E0B;" title="Training"></div>
-                                </div>
-                                <div class="calendar-day">
-                                    <div class="day-number">6</div>
-                                </div>
-                                
-                                <!-- Week 2 -->
-                                <div class="calendar-day">
-                                    <div class="day-number">7</div>
-                                </div>
-                                <div class="calendar-day">
-                                    <div class="day-number">8</div>
-                                    <div class="event-dot" style="background: #3B82F6;"></div>
-                                </div>
-                                <div class="calendar-day">
-                                    <div class="day-number">9</div>
-                                </div>
-                                <div class="calendar-day">
-                                    <div class="day-number">10</div>
-                                    <div class="event-dot" style="background: #10B981;"></div>
-                                </div>
-                                <div class="calendar-day">
-                                    <div class="day-number">11</div>
-                                </div>
-                                <div class="calendar-day">
-                                    <div class="day-number">12</div>
-                                    <div class="event-dot" style="background: #F59E0B;"></div>
-                                </div>
-                                <div class="calendar-day">
-                                    <div class="day-number">13</div>
-                                </div>
-                                
-                                <!-- Week 3 -->
-                                <div class="calendar-day">
-                                    <div class="day-number">14</div>
-                                </div>
-                                <div class="calendar-day current-day">
-                                    <div class="day-number">15</div>
-                                    <div class="calendar-event meeting" onclick="viewEventDetails(1)">
-                                        <div class="event-time">10:00 AM</div>
-                                        <div class="event-name">Team Stand-up</div>
-                                    </div>
-                                    <div class="calendar-event training" onclick="viewEventDetails(2)">
-                                        <div class="event-time">2:00 PM</div>
-                                        <div class="event-name">Pitch Training</div>
-                                    </div>
-                                    <div class="calendar-event deadline" onclick="viewEventDetails(3)">
-                                        <div class="event-time">4:00 PM</div>
-                                        <div class="event-name">Milestone Review</div>
-                                    </div>
-                                </div>
-                                <div class="calendar-day">
-                                    <div class="day-number">16</div>
-                                    <div class="event-dot" style="background: #8B5CF6;"></div>
-                                </div>
-                                <div class="calendar-day">
-                                    <div class="day-number">17</div>
-                                </div>
-                                <div class="calendar-day">
-                                    <div class="day-number">18</div>
-                                    <div class="event-dot" style="background: #3B82F6;"></div>
-                                    <div class="event-dot" style="background: #10B981;"></div>
-                                </div>
-                                <div class="calendar-day">
-                                    <div class="day-number">19</div>
-                                    <div class="event-dot" style="background: #F59E0B;"></div>
-                                </div>
-                                <div class="calendar-day">
-                                    <div class="day-number">20</div>
-                                    <div class="event-dot" style="background: #EF4444;"></div>
-                                </div>
-                                
-                                <!-- Week 4 -->
-                                <div class="calendar-day">
-                                    <div class="day-number">21</div>
-                                </div>
-                                <div class="calendar-day">
-                                    <div class="day-number">22</div>
-                                </div>
-                                <div class="calendar-day">
-                                    <div class="day-number">23</div>
-                                </div>
-                                <div class="calendar-day">
-                                    <div class="day-number">24</div>
-                                </div>
-                                <div class="calendar-day">
-                                    <div class="day-number">25</div>
-                                </div>
-                                <div class="calendar-day">
-                                    <div class="day-number">26</div>
-                                </div>
-                                <div class="calendar-day">
-                                    <div class="day-number">27</div>
-                                </div>
-                                
-                                <!-- Week 5 -->
-                                <div class="calendar-day">
-                                    <div class="day-number">28</div>
-                                </div>
-                                <div class="calendar-day">
-                                    <div class="day-number">29</div>
-                                </div>
-                                <div class="calendar-day">
-                                    <div class="day-number">30</div>
-                                </div>
-                                <div class="calendar-day">
-                                    <div class="day-number">31</div>
-                                </div>
-                                <div class="calendar-day other-month">
-                                    <div class="day-number">1</div>
-                                </div>
-                                <div class="calendar-day other-month">
-                                    <div class="day-number">2</div>
-                                </div>
-                                <div class="calendar-day other-month">
-                                    <div class="day-number">3</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Room Availability Section -->
-                <div style="margin-top: 32px;">
-                    <h3 style="font-size: 20px; font-weight: 700; color: #1F2937; margin-bottom: 16px;">Room Availability Today</h3>
+                <!-- Pending Bookings Tab -->
+                <div id="pendingBookingsTab" class="booking-tab-content">
                     <div class="table-card">
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Room</th>
-                                    <th>Capacity</th>
-                                    <th>Amenities</th>
-                                    <th>9AM-12PM</th>
-                                    <th>12PM-3PM</th>
-                                    <th>3PM-6PM</th>
-                                    <th>6PM-9PM</th>
+                                    <th>Date & Time</th>
+                                    <th>Agency</th>
+                                    <th>Event / School</th>
+                                    <th>Contact Person</th>
+                                    <th>Contact Info</th>
+                                    <th>Purpose</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
+                            <tbody id="pendingBookingsBody">
+                                @forelse($allBookings->where('status', 'pending') ?? [] as $booking)
+                                <tr id="booking-row-{{ $booking->id }}">
                                     <td>
-                                        <div style="font-weight: 600;">Conference Room A</div>
-                                        <div style="font-size: 12px; color: #6B7280;">Main building, 2nd Floor</div>
+                                        <div style="font-weight: 600;">{{ $booking->booking_date->format('M d, Y') }}</div>
+                                        <div style="font-size: 12px; color: #6B7280;">{{ $booking->formatted_time }}</div>
                                     </td>
-                                    <td><strong>20</strong> people</td>
                                     <td>
-                                        <div style="font-size: 12px; display: flex; gap: 4px; flex-wrap: wrap;">
-                                            <span title="Projector"><i class="fas fa-tv"></i></span>
-                                            <span title="Whiteboard"><i class="fas fa-chalkboard"></i></span>
-                                            <span title="Video Conference"><i class="fas fa-video"></i></span>
-                                            <span title="WiFi"><i class="fas fa-wifi"></i></span>
+                                        <div style="font-weight: 600; color: #7B1D3A;">{{ $booking->agency_name }}</div>
+                                    </td>
+                                    <td>{{ $booking->event_name }}</td>
+                                    <td>{{ $booking->contact_person }}</td>
+                                    <td>
+                                        <div style="font-size: 12px;"><i class="fas fa-phone" style="color: #6B7280; margin-right: 4px;"></i> {{ $booking->phone }}</div>
+                                        <div style="font-size: 12px;"><i class="fas fa-envelope" style="color: #6B7280; margin-right: 4px;"></i> {{ $booking->email }}</div>
+                                    </td>
+                                    <td style="max-width: 200px;">
+                                        <div style="font-size: 12px; color: #6B7280; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ $booking->purpose }}">
+                                            {{ $booking->purpose ?? 'N/A' }}
                                         </div>
                                     </td>
-                                    <td><span class="room-status booked">Booked</span></td>
-                                    <td><span class="room-status available">Available</span></td>
-                                    <td><span class="room-status booked">Booked</span></td>
-                                    <td><span class="room-status available">Available</span></td>
                                     <td>
-                                        <button class="btn-action btn-view" onclick="viewRoomSchedule('A')"><i class="fas fa-calendar"></i></button>
-                                        <button class="btn-action btn-edit" onclick="bookRoom('A')"><i class="fas fa-plus"></i></button>
+                                        <button class="btn-action btn-edit" onclick="approveBooking({{ $booking->id }})" title="Approve">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                        <button class="btn-action btn-delete" onclick="rejectBooking({{ $booking->id }})" title="Reject">
+                                            <i class="fas fa-times"></i>
+                                        </button>
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td>
-                                        <div style="font-weight: 600;">Meeting Room B1</div>
-                                        <div style="font-size: 12px; color: #6B7280;">Main building, 1st Floor</div>
+                                @empty
+                                <tr id="noPendingRow">
+                                    <td colspan="7" style="text-align: center; padding: 40px; color: #9CA3AF;">
+                                        <i class="fas fa-check-circle" style="font-size: 40px; margin-bottom: 12px; display: block;"></i>
+                                        No pending booking requests
                                     </td>
-                                    <td><strong>10</strong> people</td>
-                                    <td>
-                                        <div style="font-size: 12px; display: flex; gap: 4px; flex-wrap: wrap;">
-                                            <span title="TV Screen"><i class="fas fa-tv"></i></span>
-                                            <span title="Whiteboard"><i class="fas fa-chalkboard"></i></span>
-                                            <span title="WiFi"><i class="fas fa-wifi"></i></span>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Calendar View Tab -->
+                <div id="calendarViewTab" class="booking-tab-content" style="display: none;">
+                    <div class="calendar-layout">
+                        <!-- Left Sidebar -->
+                        <div class="calendar-sidebar">
+                            <!-- Mini Calendar -->
+                            <div class="mini-calendar-card">
+                                <div class="mini-calendar-header">
+                                    <button class="cal-nav-btn" onclick="schedulerPrevMonth()"><i class="fas fa-chevron-left"></i></button>
+                                    <span class="mini-calendar-title" id="schedulerMonthTitle">January 2026</span>
+                                    <button class="cal-nav-btn" onclick="schedulerNextMonth()"><i class="fas fa-chevron-right"></i></button>
+                                </div>
+                                <div class="mini-calendar">
+                                    <div class="mini-calendar-days">
+                                        <div class="day-label">Su</div>
+                                        <div class="day-label">Mo</div>
+                                        <div class="day-label">Tu</div>
+                                        <div class="day-label">We</div>
+                                        <div class="day-label">Th</div>
+                                        <div class="day-label">Fr</div>
+                                        <div class="day-label">Sa</div>
+                                    </div>
+                                    <div class="mini-calendar-grid" id="schedulerMiniCalendar">
+                                        <!-- Calendar days will be generated by JavaScript -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Upcoming Bookings -->
+                            <div class="upcoming-events-card">
+                                <h4 style="font-size: 14px; font-weight: 700; margin-bottom: 12px; color: #1F2937;">Upcoming Bookings</h4>
+                                <div class="upcoming-events-list" id="upcomingBookingsList">
+                                    @forelse($upcomingBookings ?? [] as $booking)
+                                    <div class="upcoming-event-item" style="border-left-color: #3B82F6;">
+                                        <div class="event-time">{{ $booking->booking_date->format('M d') }}</div>
+                                        <div class="event-info">
+                                            <div class="event-title">{{ $booking->agency_name }}</div>
+                                            <div class="event-location"><i class="fas fa-clock"></i> {{ $booking->formatted_time }}</div>
                                         </div>
-                                    </td>
-                                    <td><span class="room-status available">Available</span></td>
-                                    <td><span class="room-status booked">Booked</span></td>
-                                    <td><span class="room-status available">Available</span></td>
-                                    <td><span class="room-status available">Available</span></td>
-                                    <td>
-                                        <button class="btn-action btn-view" onclick="viewRoomSchedule('B1')"><i class="fas fa-calendar"></i></button>
-                                        <button class="btn-action btn-edit" onclick="bookRoom('B1')"><i class="fas fa-plus"></i></button>
-                                    </td>
-                                </tr>
+                                    </div>
+                                    @empty
+                                    <div style="text-align: center; padding: 20px; color: #9CA3AF;">
+                                        <i class="fas fa-calendar-check" style="font-size: 24px; margin-bottom: 8px; display: block;"></i>
+                                        No upcoming bookings
+                                    </div>
+                                    @endforelse
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Main Calendar View -->
+                        <div class="calendar-main">
+                            <div class="calendar-header">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <button class="cal-nav-btn" onclick="schedulerPrevMonth()"><i class="fas fa-chevron-left"></i></button>
+                                    <h3 style="font-size: 24px; font-weight: 700; color: #1F2937; margin: 0;" id="schedulerMainTitle">January 2026</h3>
+                                    <button class="cal-nav-btn" onclick="schedulerNextMonth()"><i class="fas fa-chevron-right"></i></button>
+                                </div>
+                            </div>
+
+                            <!-- Month View Calendar -->
+                            <div class="full-calendar">
+                                <div class="calendar-weekdays">
+                                    <div class="weekday">Sunday</div>
+                                    <div class="weekday">Monday</div>
+                                    <div class="weekday">Tuesday</div>
+                                    <div class="weekday">Wednesday</div>
+                                    <div class="weekday">Thursday</div>
+                                    <div class="weekday">Friday</div>
+                                    <div class="weekday">Saturday</div>
+                                </div>
+                                <div class="calendar-grid" id="schedulerCalendarGrid">
+                                    <!-- Calendar will be generated by JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- All Bookings Tab -->
+                <div id="allBookingsTab" class="booking-tab-content" style="display: none;">
+                    <div class="filter-bar" style="margin-bottom: 16px;">
+                        <div class="search-box" style="max-width: 300px;">
+                            <i class="fas fa-search"></i>
+                            <input type="text" placeholder="Search bookings..." id="searchBookings" onkeyup="filterBookings()">
+                        </div>
+                        <select class="filter-select" id="filterBookingStatus" onchange="filterBookings()">
+                            <option value="">All Status</option>
+                            <option value="pending">Pending</option>
+                            <option value="approved">Approved</option>
+                            <option value="rejected">Rejected</option>
+                        </select>
+                    </div>
+                    <div class="table-card">
+                        <table>
+                            <thead>
                                 <tr>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Agency</th>
+                                    <th>Event</th>
+                                    <th>Contact</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="allBookingsBody">
+                                @forelse($allBookings ?? [] as $booking)
+                                <tr class="booking-row" data-status="{{ $booking->status }}" data-search="{{ strtolower($booking->agency_name . ' ' . $booking->event_name . ' ' . $booking->contact_person) }}">
+                                    <td>{{ $booking->booking_date->format('M d, Y') }}</td>
+                                    <td>{{ $booking->formatted_time }}</td>
                                     <td>
-                                        <div style="font-weight: 600;">Co-Working Space</div>
-                                        <div style="font-size: 12px; color: #6B7280;">Innovation Hub, 3rd Floor</div>
+                                        <div style="font-weight: 600;">{{ $booking->agency_name }}</div>
                                     </td>
-                                    <td><strong>30</strong> people</td>
+                                    <td>{{ $booking->event_name }}</td>
                                     <td>
-                                        <div style="font-size: 12px; display: flex; gap: 4px; flex-wrap: wrap;">
-                                            <span title="Multiple Desks"><i class="fas fa-desktop"></i></span>
-                                            <span title="WiFi"><i class="fas fa-wifi"></i></span>
-                                            <span title="Printer"><i class="fas fa-print"></i></span>
-                                            <span title="Coffee"><i class="fas fa-coffee"></i></span>
-                                        </div>
+                                        <div>{{ $booking->contact_person }}</div>
+                                        <div style="font-size: 12px; color: #6B7280;">{{ $booking->email }}</div>
                                     </td>
-                                    <td><span class="room-status available">Available</span></td>
-                                    <td><span class="room-status available">Available</span></td>
-                                    <td><span class="room-status available">Available</span></td>
-                                    <td><span class="room-status available">Available</span></td>
                                     <td>
-                                        <button class="btn-action btn-view" onclick="viewRoomSchedule('Coworking')"><i class="fas fa-calendar"></i></button>
-                                        <button class="btn-action btn-edit" onclick="bookRoom('Coworking')"><i class="fas fa-plus"></i></button>
+                                        @if($booking->status === 'pending')
+                                        <span class="status-badge" style="background: #FEF3C7; color: #D97706;">Pending</span>
+                                        @elseif($booking->status === 'approved')
+                                        <span class="status-badge" style="background: #D1FAE5; color: #059669;">Approved</span>
+                                        @else
+                                        <span class="status-badge" style="background: #FEE2E2; color: #DC2626;">Rejected</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <button class="btn-action btn-view" onclick="viewBookingDetails({{ $booking->id }})" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        @if($booking->status === 'pending')
+                                        <button class="btn-action btn-edit" onclick="approveBooking({{ $booking->id }})" title="Approve">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                        <button class="btn-action btn-delete" onclick="rejectBooking({{ $booking->id }})" title="Reject">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                        @endif
+                                        <button class="btn-action btn-delete" onclick="deleteBooking({{ $booking->id }})" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
                                     </td>
                                 </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="7" style="text-align: center; padding: 40px; color: #9CA3AF;">
+                                        <i class="fas fa-calendar-times" style="font-size: 40px; margin-bottom: 12px; display: block;"></i>
+                                        No bookings found
+                                    </td>
+                                </tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>
@@ -4219,6 +4100,76 @@
             </div>
         </div>
     </main>
+
+    <!-- Block Date Modal -->
+    <div id="blockDateModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 450px;">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-calendar-times" style="margin-right: 8px;"></i>Block Date</h3>
+                <button class="modal-close" onclick="closeBlockDateModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="blockDateForm">
+                    <div class="form-group">
+                        <label class="form-label">Selected Date</label>
+                        <input type="text" id="blockDateDisplay" class="form-input" readonly style="background: #f9fafb;">
+                        <input type="hidden" id="blockDateValue">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label required">Reason</label>
+                        <select id="blockDateReason" class="form-select" required>
+                            <option value="">-- Select Reason --</option>
+                            <option value="unavailable">Not Available</option>
+                            <option value="no_work">No Work</option>
+                            <option value="holiday">Holiday</option>
+                            <option value="sick">Sick Day</option>
+                            <option value="maintenance">Maintenance</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Description (Optional)</label>
+                        <input type="text" id="blockDateDescription" class="form-input" placeholder="e.g., Staff meeting, Building maintenance...">
+                    </div>
+                </form>
+
+                <!-- Existing bookings warning -->
+                <div id="blockDateWarning" style="display: none; background: #FEF3C7; border: 1px solid #F59E0B; border-radius: 8px; padding: 12px; margin-top: 16px;">
+                    <div style="display: flex; align-items: flex-start; gap: 10px;">
+                        <i class="fas fa-exclamation-triangle" style="color: #D97706; margin-top: 2px;"></i>
+                        <div>
+                            <div style="font-weight: 600; color: #92400E; margin-bottom: 4px;">Existing Bookings</div>
+                            <div id="blockDateWarningText" style="font-size: 13px; color: #78350F;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Blocked date info (if already blocked) -->
+                <div id="blockedDateInfo" style="display: none; background: #FEE2E2; border: 1px solid #EF4444; border-radius: 8px; padding: 12px; margin-top: 16px;">
+                    <div style="display: flex; align-items: flex-start; gap: 10px;">
+                        <i class="fas fa-ban" style="color: #DC2626; margin-top: 2px;"></i>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600; color: #991B1B; margin-bottom: 4px;">Date Already Blocked</div>
+                            <div id="blockedDateInfoText" style="font-size: 13px; color: #7F1D1D;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal secondary" onclick="closeBlockDateModal()">Cancel</button>
+                <button class="btn-modal primary" id="blockDateSubmitBtn" onclick="submitBlockDate()" style="background: #EF4444;">
+                    <i class="fas fa-ban"></i> Block Date
+                </button>
+                <button class="btn-modal primary" id="unblockDateBtn" onclick="unblockDate()" style="display: none; background: #10B981;">
+                    <i class="fas fa-check"></i> Unblock Date
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- New Task Modal -->
     <div id="newTaskModal" class="modal-overlay">
@@ -4532,61 +4483,434 @@
             alert(`Viewing Issue #${issueId} Details\n\nThis will show:\n- Complete issue description\n- Photos and attachments\n- Reporter information\n- Assignment details\n- Status history\n- Resolution notes\n- Communication thread`);
         }
 
-        // Scheduler Functions
-        function switchCalendarView(viewType) {
-            // Remove active class from all tabs
-            document.querySelectorAll('.filter-tab').forEach(tab => {
+        // ============================================
+        // Booking & Scheduler Functions
+        // ============================================
+        
+        // Booking data from server
+        @php
+            $approvedBookingsData = isset($allBookings) ? $allBookings->where('status', 'approved')->map(function($b) {
+                return [
+                    'id' => $b->id,
+                    'date' => $b->booking_date->format('Y-m-d'),
+                    'agency' => $b->agency_name,
+                    'event' => $b->event_name,
+                    'time' => $b->formatted_time,
+                    'contact' => $b->contact_person
+                ];
+            })->values()->toArray() : [];
+
+            $blockedDatesData = isset($blockedDates) ? $blockedDates->map(function($b) {
+                return [
+                    'id' => $b->id,
+                    'date' => $b->blocked_date->format('Y-m-d'),
+                    'reason' => $b->reason,
+                    'reason_label' => $b->reason_label,
+                    'reason_color' => $b->reason_color,
+                    'description' => $b->description
+                ];
+            })->values()->toArray() : [];
+        @endphp
+        let schedulerBookings = @json($approvedBookingsData);
+        let blockedDates = @json($blockedDatesData);
+        
+        let schedulerCurrentMonth = new Date().getMonth();
+        let schedulerCurrentYear = new Date().getFullYear();
+        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+        // Switch between booking tabs
+        function switchBookingTab(tabName) {
+            // Remove active from all tabs
+            document.querySelectorAll('#scheduler .filter-tab').forEach(tab => {
                 tab.classList.remove('active');
             });
-            // Add active class to clicked tab
+            // Add active to clicked tab
             event.target.closest('.filter-tab').classList.add('active');
             
-            alert(`Switching to ${viewType.toUpperCase()} view\n\nThis will display:\n- Month view: Full month calendar grid\n- Week view: 7-day schedule with time slots\n- Day view: Single day with hourly breakdown\n- Agenda view: List of all upcoming events`);
+            // Hide all tab contents
+            document.querySelectorAll('.booking-tab-content').forEach(content => {
+                content.style.display = 'none';
+            });
+            
+            // Show selected tab
+            if (tabName === 'pending') {
+                document.getElementById('pendingBookingsTab').style.display = 'block';
+            } else if (tabName === 'calendar') {
+                document.getElementById('calendarViewTab').style.display = 'block';
+                renderSchedulerCalendar();
+            } else if (tabName === 'all') {
+                document.getElementById('allBookingsTab').style.display = 'block';
+            }
         }
 
-        function goToToday() {
-            alert('Jumping to today\'s date\n\nCalendar will reset to show current day with all scheduled events.');
+        // Approve booking
+        function approveBooking(bookingId) {
+            if (!confirm('Approve this booking request?')) return;
+            
+            fetch(`/admin/bookings/${bookingId}/approve`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Booking approved successfully!');
+                    // Remove from pending table
+                    const row = document.getElementById(`booking-row-${bookingId}`);
+                    if (row) row.remove();
+                    // Update pending count
+                    updatePendingCount(-1);
+                    // Reload to update all views
+                    setTimeout(() => window.location.reload(), 500);
+                } else {
+                    alert(data.message || 'Failed to approve booking.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while approving the booking.');
+            });
         }
 
-        function prevMonth() {
-            alert('Navigate to previous month');
+        // Reject booking
+        function rejectBooking(bookingId) {
+            if (!confirm('Reject this booking request? This action cannot be undone.')) return;
+            
+            fetch(`/admin/bookings/${bookingId}/reject`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Booking rejected.');
+                    const row = document.getElementById(`booking-row-${bookingId}`);
+                    if (row) row.remove();
+                    updatePendingCount(-1);
+                    setTimeout(() => window.location.reload(), 500);
+                } else {
+                    alert(data.message || 'Failed to reject booking.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while rejecting the booking.');
+            });
         }
 
-        function nextMonth() {
-            alert('Navigate to next month');
+        // Delete booking
+        function deleteBooking(bookingId) {
+            if (!confirm('Are you sure you want to permanently delete this booking?')) return;
+            
+            fetch(`/admin/bookings/${bookingId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Booking deleted successfully.');
+                    window.location.reload();
+                } else {
+                    alert(data.message || 'Failed to delete booking.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while deleting the booking.');
+            });
         }
 
-        function prevPeriod() {
-            alert('Navigate to previous period (month/week/day depending on current view)');
+        // View booking details
+        function viewBookingDetails(bookingId) {
+            // Find booking in allBookings data
+            alert(`Viewing Booking #${bookingId} Details\n\nIn a production environment, this would show a modal with complete booking information.`);
         }
 
-        function nextPeriod() {
-            alert('Navigate to next period (month/week/day depending on current view)');
+        // Update pending count badge
+        function updatePendingCount(change) {
+            const countEl = document.getElementById('pendingBookingsCount');
+            const badgeEl = document.getElementById('pendingBadge');
+            if (countEl) {
+                const newCount = Math.max(0, parseInt(countEl.textContent) + change);
+                countEl.textContent = newCount;
+                if (badgeEl) badgeEl.textContent = newCount;
+            }
+            // Check if pending table is empty
+            const tbody = document.getElementById('pendingBookingsBody');
+            if (tbody && tbody.querySelectorAll('tr:not(#noPendingRow)').length === 0) {
+                tbody.innerHTML = `<tr id="noPendingRow">
+                    <td colspan="7" style="text-align: center; padding: 40px; color: #9CA3AF;">
+                        <i class="fas fa-check-circle" style="font-size: 40px; margin-bottom: 12px; display: block;"></i>
+                        No pending booking requests
+                    </td>
+                </tr>`;
+            }
         }
 
-        function filterCalendarEvents() {
-            alert('Filtering calendar events based on selected event types\n\nShows/hides:\n- Meetings (Blue)\n- Deadlines (Green)\n- Training (Yellow/Orange)\n- Bookings (Purple)\n- Payments Due (Red)');
+        // Filter bookings in All Bookings tab
+        function filterBookings() {
+            const searchValue = document.getElementById('searchBookings').value.toLowerCase();
+            const statusFilter = document.getElementById('filterBookingStatus').value;
+            
+            document.querySelectorAll('#allBookingsBody .booking-row').forEach(row => {
+                const searchText = row.getAttribute('data-search');
+                const status = row.getAttribute('data-status');
+                
+                const matchesSearch = !searchValue || searchText.includes(searchValue);
+                const matchesStatus = !statusFilter || status === statusFilter;
+                
+                row.style.display = (matchesSearch && matchesStatus) ? '' : 'none';
+            });
         }
 
-        function openNewEventModal() {
-            alert('Create New Event Modal\n\nForm fields:\n- Event title and description\n- Date and time (start/end)\n- Event type (Meeting/Training/Deadline/Other)\n- Location or Virtual link\n- Participants/Attendees\n- Recurrence options (One-time/Daily/Weekly/Monthly)\n- Reminder settings\n- Integration options (Link to Project/Incubatee/Task)');
+        // Scheduler calendar navigation
+        function schedulerPrevMonth() {
+            schedulerCurrentMonth--;
+            if (schedulerCurrentMonth < 0) {
+                schedulerCurrentMonth = 11;
+                schedulerCurrentYear--;
+            }
+            renderSchedulerCalendar();
         }
 
-        function openRoomBookingModal() {
-            alert('Room Booking Modal\n\nForm fields:\n- Select room from available spaces\n- Date and time (with availability checker)\n- Duration calculator\n- Purpose/Description\n- Number of participants\n- Equipment needed (Projector/Whiteboard/Video Conf)\n- Setup requirements\n- Catering/Special requests');
+        function schedulerNextMonth() {
+            schedulerCurrentMonth++;
+            if (schedulerCurrentMonth > 11) {
+                schedulerCurrentMonth = 0;
+                schedulerCurrentYear++;
+            }
+            renderSchedulerCalendar();
         }
 
-        function viewEventDetails(eventId) {
-            alert(`Viewing Event #${eventId} Details\n\nThis will show:\n- Complete event information\n- Participant list with RSVP status\n- Location/Room details\n- Attached documents\n- Related projects or tasks\n- Meeting notes\n- Edit and delete options`);
+        // Render scheduler calendar
+        function renderSchedulerCalendar() {
+            const titleEl = document.getElementById('schedulerMonthTitle');
+            const mainTitleEl = document.getElementById('schedulerMainTitle');
+            const miniCalEl = document.getElementById('schedulerMiniCalendar');
+            const mainCalEl = document.getElementById('schedulerCalendarGrid');
+            
+            const monthYear = `${monthNames[schedulerCurrentMonth]} ${schedulerCurrentYear}`;
+            if (titleEl) titleEl.textContent = monthYear;
+            if (mainTitleEl) mainTitleEl.textContent = monthYear;
+            
+            const firstDay = new Date(schedulerCurrentYear, schedulerCurrentMonth, 1).getDay();
+            const daysInMonth = new Date(schedulerCurrentYear, schedulerCurrentMonth + 1, 0).getDate();
+            const daysInPrevMonth = new Date(schedulerCurrentYear, schedulerCurrentMonth, 0).getDate();
+            const today = new Date();
+            const todayString = today.toISOString().split('T')[0];
+            
+            // Generate mini calendar
+            let miniHtml = '';
+            for (let i = firstDay - 1; i >= 0; i--) {
+                miniHtml += `<div class="mini-day other-month">${daysInPrevMonth - i}</div>`;
+            }
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateString = `${schedulerCurrentYear}-${String(schedulerCurrentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const isToday = dateString === todayString;
+                const hasBooking = schedulerBookings.some(b => b.date === dateString);
+                const blockedInfo = blockedDates.find(b => b.date === dateString);
+                let classes = 'mini-day';
+                if (isToday) classes += ' today';
+                if (hasBooking) classes += ' has-events';
+                if (blockedInfo) classes += ' blocked';
+                
+                let style = blockedInfo ? `background: ${blockedInfo.reason_color}20; color: ${blockedInfo.reason_color}; font-weight: 600;` : '';
+                miniHtml += `<div class="${classes}" style="${style}" onclick="openBlockDateModal('${dateString}')">${day}</div>`;
+            }
+            const remainingMini = 42 - (firstDay + daysInMonth);
+            for (let i = 1; i <= remainingMini; i++) {
+                miniHtml += `<div class="mini-day other-month">${i}</div>`;
+            }
+            if (miniCalEl) miniCalEl.innerHTML = miniHtml;
+            
+            // Generate main calendar
+            let mainHtml = '';
+            for (let i = firstDay - 1; i >= 0; i--) {
+                mainHtml += `<div class="calendar-day other-month"><div class="day-number">${daysInPrevMonth - i}</div></div>`;
+            }
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateString = `${schedulerCurrentYear}-${String(schedulerCurrentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const isToday = dateString === todayString;
+                const dayBookings = schedulerBookings.filter(b => b.date === dateString);
+                const blockedInfo = blockedDates.find(b => b.date === dateString);
+                
+                let classes = 'calendar-day clickable-day';
+                if (isToday) classes += ' current-day';
+                if (blockedInfo) classes += ' blocked-day';
+                
+                let eventsHtml = '';
+                
+                // Show blocked status
+                if (blockedInfo) {
+                    eventsHtml += `
+                        <div class="calendar-event blocked" style="background: ${blockedInfo.reason_color}20; border-left: 3px solid ${blockedInfo.reason_color}; color: ${blockedInfo.reason_color};">
+                            <div class="event-name"><i class="fas fa-ban" style="margin-right: 4px;"></i>${blockedInfo.reason_label}</div>
+                            ${blockedInfo.description ? `<div class="event-time">${blockedInfo.description}</div>` : ''}
+                        </div>
+                    `;
+                }
+                
+                // Show bookings
+                dayBookings.forEach(booking => {
+                    eventsHtml += `
+                        <div class="calendar-event meeting" onclick="event.stopPropagation(); viewBookingDetails(${booking.id})" style="cursor: pointer;">
+                            <div class="event-time">${booking.time.split(' - ')[0]}</div>
+                            <div class="event-name">${booking.agency}</div>
+                        </div>
+                    `;
+                });
+                
+                let dayStyle = blockedInfo ? `background: ${blockedInfo.reason_color}08;` : '';
+                mainHtml += `<div class="${classes}" style="${dayStyle}" onclick="openBlockDateModal('${dateString}')"><div class="day-number">${day}</div>${eventsHtml}</div>`;
+            }
+            const remainingMain = 42 - (firstDay + daysInMonth);
+            for (let i = 1; i <= remainingMain; i++) {
+                mainHtml += `<div class="calendar-day other-month"><div class="day-number">${i}</div></div>`;
+            }
+            if (mainCalEl) mainCalEl.innerHTML = mainHtml;
         }
 
-        function viewRoomSchedule(roomId) {
-            alert(`Viewing Schedule for Room ${roomId}\n\nThis will display:\n- Full day/week schedule\n- All booked time slots\n- Booking details (who, purpose, duration)\n- Available time slots highlighted\n- Quick book options for free slots`);
+        // ===== BLOCKED DATE MODAL FUNCTIONS =====
+        let currentBlockDateId = null;
+
+        function openBlockDateModal(dateString) {
+            const date = new Date(dateString + 'T00:00:00');
+            const formattedDate = date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            
+            document.getElementById('blockDateDisplay').value = formattedDate;
+            document.getElementById('blockDateValue').value = dateString;
+            document.getElementById('blockDateReason').value = '';
+            document.getElementById('blockDateDescription').value = '';
+            document.getElementById('blockDateWarning').style.display = 'none';
+            document.getElementById('blockedDateInfo').style.display = 'none';
+            document.getElementById('blockDateSubmitBtn').style.display = 'inline-flex';
+            document.getElementById('unblockDateBtn').style.display = 'none';
+            currentBlockDateId = null;
+
+            // Check if date is already blocked
+            const blockedInfo = blockedDates.find(b => b.date === dateString);
+            if (blockedInfo) {
+                currentBlockDateId = blockedInfo.id;
+                document.getElementById('blockedDateInfo').style.display = 'block';
+                document.getElementById('blockedDateInfoText').innerHTML = `
+                    <strong>${blockedInfo.reason_label}</strong><br>
+                    ${blockedInfo.description || 'No description provided'}
+                `;
+                document.getElementById('blockDateSubmitBtn').style.display = 'none';
+                document.getElementById('unblockDateBtn').style.display = 'inline-flex';
+            }
+
+            // Check for existing bookings on this date
+            const dateBookings = schedulerBookings.filter(b => b.date === dateString);
+            if (dateBookings.length > 0 && !blockedInfo) {
+                document.getElementById('blockDateWarning').style.display = 'block';
+                let bookingsList = dateBookings.map(b => `• ${b.agency} (${b.time})`).join('<br>');
+                document.getElementById('blockDateWarningText').innerHTML = `
+                    There are ${dateBookings.length} approved booking(s) on this date:<br>${bookingsList}<br>
+                    <small>Blocking this date will not cancel existing bookings.</small>
+                `;
+            }
+
+            document.getElementById('blockDateModal').classList.add('active');
         }
 
-        function bookRoom(roomId) {
-            alert(`Quick Book Room ${roomId}\n\nThis will open simplified booking form with:\n- Pre-selected room\n- Time slot selection\n- Purpose and participant count\n- Submit for immediate booking`);
+        function closeBlockDateModal() {
+            document.getElementById('blockDateModal').classList.remove('active');
+            currentBlockDateId = null;
         }
+
+        function submitBlockDate() {
+            const dateValue = document.getElementById('blockDateValue').value;
+            const reason = document.getElementById('blockDateReason').value;
+            const description = document.getElementById('blockDateDescription').value;
+
+            if (!reason) {
+                alert('Please select a reason.');
+                return;
+            }
+
+            fetch('/admin/blocked-dates', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    blocked_date: dateValue,
+                    reason: reason,
+                    description: description
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Date blocked successfully!');
+                    // Add to local array
+                    blockedDates.push(data.blockedDate);
+                    closeBlockDateModal();
+                    renderSchedulerCalendar();
+                } else {
+                    alert(data.message || 'Failed to block date.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while blocking the date.');
+            });
+        }
+
+        function unblockDate() {
+            if (!currentBlockDateId) return;
+            
+            if (!confirm('Are you sure you want to unblock this date?')) return;
+
+            fetch(`/admin/blocked-dates/${currentBlockDateId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Date unblocked successfully!');
+                    // Remove from local array
+                    blockedDates = blockedDates.filter(b => b.id !== currentBlockDateId);
+                    closeBlockDateModal();
+                    renderSchedulerCalendar();
+                } else {
+                    alert(data.message || 'Failed to unblock date.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while unblocking the date.');
+            });
+        }
+
+        // Initialize scheduler calendar when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Pre-render calendar if scheduler tab gets shown
+            if (document.getElementById('scheduler').classList.contains('active')) {
+                renderSchedulerCalendar();
+            }
+        });
 
         // Digital Records Functions
         let currentFolder = 'root';

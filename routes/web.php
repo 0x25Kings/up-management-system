@@ -5,10 +5,20 @@ use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\InternController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\BookingController;
+use App\Http\Controllers\BlockedDateController;
 
 Route::get('/', function () {
     return view('welcome');
 })->name('home');
+
+// Booking Routes (Public)
+Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
+Route::get('/bookings/date/{date}', [BookingController::class, 'getByDate'])->name('bookings.byDate');
+Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
+Route::get('/bookings/check-availability', [BookingController::class, 'checkAvailability'])->name('bookings.checkAvailability');
+Route::get('/blocked-dates/check/{date}', [BlockedDateController::class, 'check'])->name('blocked.check');
+Route::get('/blocked-dates', [BlockedDateController::class, 'index'])->name('blocked.index');
 
 // Intern Portal Routes (No Login Required)
 Route::get('/intern', [InternController::class, 'index'])->name('intern.portal');
@@ -44,4 +54,15 @@ Route::middleware(['admin'])->group(function () {
     Route::post('/admin/tasks/{task}/complete', [TaskController::class, 'complete'])->name('task.complete');
     Route::delete('/admin/tasks/{task}', [TaskController::class, 'destroy'])->name('task.destroy');
     Route::get('/admin/intern/{intern}/tasks', [TaskController::class, 'getInternTasks'])->name('intern.tasks');
+
+    // Booking management routes (Admin)
+    Route::get('/admin/bookings/pending', [BookingController::class, 'pending'])->name('admin.bookings.pending');
+    Route::post('/admin/bookings/{booking}/approve', [BookingController::class, 'approve'])->name('admin.bookings.approve');
+
+    // Blocked dates management (Admin)
+    Route::get('/admin/blocked-dates', [BlockedDateController::class, 'index'])->name('admin.blocked.index');
+    Route::post('/admin/blocked-dates', [BlockedDateController::class, 'store'])->name('admin.blocked.store');
+    Route::delete('/admin/blocked-dates/{blockedDate}', [BlockedDateController::class, 'destroy'])->name('admin.blocked.destroy');
+    Route::post('/admin/bookings/{booking}/reject', [BookingController::class, 'reject'])->name('admin.bookings.reject');
+    Route::delete('/admin/bookings/{booking}', [BookingController::class, 'destroy'])->name('admin.bookings.destroy');
 });
