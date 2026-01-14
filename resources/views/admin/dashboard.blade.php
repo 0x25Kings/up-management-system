@@ -4295,13 +4295,6 @@
         </div>
     </div>
 
-    <!-- Floating Action Button -->
-    <div class="quick-actions">
-        <button class="fab-button" title="Quick Actions">
-            <i class="fas fa-plus"></i>
-        </button>
-    </div>
-
     <script>
         // Authentication is handled server-side by Laravel middleware
         // User data is passed from the controller
