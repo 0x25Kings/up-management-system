@@ -21,7 +21,7 @@
         }
 
         .sidebar {
-            background: linear-gradient(180deg, #7B1D3A 0%, #5a1428 100%);
+            background: linear-gradient(180deg, #7B1D3A 0%, #5a1428 50%, #4a1020 100%);
             width: 260px;
             min-width: 260px;
             max-width: 260px;
@@ -32,72 +32,110 @@
             overflow-y: auto;
             overflow-x: hidden;
             z-index: 1000;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255, 191, 0, 0.3);
+            border-radius: 3px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 191, 0, 0.5);
         }
 
         .sidebar-logo {
-            padding: 24px 20px;
+            padding: 28px 24px;
             text-align: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            background: rgba(0, 0, 0, 0.1);
         }
 
         .sidebar-logo img {
-            height: 48px;
+            height: 52px;
             width: auto;
-            margin: 0 auto 12px auto;
+            margin: 0 auto 14px auto;
             display: block;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
         }
 
         .sidebar-logo h3 {
             color: white;
-            font-size: 16px;
-            font-weight: 700;
-            margin-bottom: 4px;
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 6px;
             text-align: center;
-            line-height: 1.3;
+            line-height: 1.4;
+            letter-spacing: 0.3px;
         }
 
         .sidebar-logo p {
             color: #FFBF00;
-            font-size: 12px;
+            font-size: 11px;
             text-align: center;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .sidebar-menu {
-            padding: 20px 0;
+            padding: 16px 0;
         }
 
         .menu-item {
             display: flex;
             align-items: center;
-            padding: 14px 24px;
-            color: white;
+            padding: 13px 24px;
+            color: rgba(255, 255, 255, 0.85);
             text-decoration: none;
-            transition: all 0.3s ease;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             font-size: 14px;
             font-weight: 500;
             white-space: nowrap;
+            position: relative;
+            margin: 2px 12px;
+            border-radius: 10px;
         }
 
-        .menu-item i {
-            width: 24px;
-            margin-right: 12px;
-            font-size: 18px;
+        .menu-item i:first-child {
+            width: 22px;
+            margin-right: 14px;
+            font-size: 17px;
+            transition: transform 0.25s ease, color 0.25s ease;
         }
 
         .menu-item:hover {
-            background: rgba(255, 191, 0, 0.1);
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+        }
+
+        .menu-item:hover i:first-child {
+            transform: scale(1.1);
+            color: #FFBF00;
         }
 
         .menu-item.active {
-            background: linear-gradient(135deg, #FFBF00 0%, #FFA500 100%);
+            background: linear-gradient(135deg, #FFBF00 0%, #FFD54F 100%);
             color: #7B1D3A;
             font-weight: 600;
-            border-left: 4px solid #7B1D3A;
+            box-shadow: 0 4px 15px rgba(255, 191, 0, 0.3);
+        }
+
+        .menu-item.active i:first-child {
+            color: #7B1D3A;
+            transform: scale(1);
         }
 
         .menu-item-parent {
@@ -116,8 +154,10 @@
         .submenu {
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.3s ease;
-            background: rgba(0, 0, 0, 0.2);
+            transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(0, 0, 0, 0.15);
+            margin: 0 12px;
+            border-radius: 0 0 10px 10px;
         }
 
         .submenu.open {
@@ -127,27 +167,43 @@
         .submenu-item {
             display: flex;
             align-items: center;
-            padding: 12px 24px 12px 56px;
-            color: rgba(255, 255, 255, 0.9);
+            padding: 11px 20px 11px 48px;
+            color: rgba(255, 255, 255, 0.75);
             text-decoration: none;
-            transition: all 0.3s ease;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             font-size: 13px;
-            font-weight: 400;
+            font-weight: 500;
+            position: relative;
+        }
+
+        .submenu-item::before {
+            content: '';
+            position: absolute;
+            left: 28px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transition: all 0.25s ease;
         }
 
         .submenu-item:hover {
-            background: rgba(255, 191, 0, 0.15);
+            background: rgba(255, 191, 0, 0.1);
             color: #FFBF00;
+        }
+
+        .submenu-item:hover::before {
+            background: #FFBF00;
+            box-shadow: 0 0 8px rgba(255, 191, 0, 0.5);
         }
 
         .submenu-item i {
             width: 16px;
             margin-right: 10px;
             font-size: 12px;
-        }
-
-        .submenu-item {
-            position: relative;
+            display: none;
         }
 
         .page-content {
@@ -1047,52 +1103,224 @@
             gap: 20px;
         }
 
-        .search-box {
+        .notification-wrapper {
             position: relative;
-        }
-
-        .search-box input {
-            padding: 10px 16px 10px 40px;
-            border: 1px solid #E5E7EB;
-            border-radius: 8px;
-            width: 300px;
-            background: #F9FAFB;
-        }
-
-        .search-box i {
-            position: absolute;
-            left: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #9CA3AF;
         }
 
         .notification-btn {
             position: relative;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: #F9FAFB;
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: #F3F4F6;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid #E5E7EB;
         }
 
         .notification-btn:hover {
-            background: #E5E7EB;
+            background: #7B1D3A;
+            color: white;
+            border-color: #7B1D3A;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(123, 29, 58, 0.25);
+        }
+
+        .notification-btn i {
+            font-size: 18px;
+            color: #6B7280;
+            transition: color 0.25s ease;
+        }
+
+        .notification-btn:hover i {
+            color: white;
         }
 
         .notification-badge {
             position: absolute;
-            top: 4px;
-            right: 4px;
-            width: 12px;
-            height: 12px;
-            background: #EF4444;
-            border-radius: 50%;
+            top: -4px;
+            right: -4px;
+            min-width: 20px;
+            height: 20px;
+            padding: 0 6px;
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+            border-radius: 10px;
             border: 2px solid white;
+            font-size: 11px;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+        }
+
+        .notification-badge.hidden {
+            display: none;
+        }
+
+        .notification-dropdown {
+            position: absolute;
+            top: calc(100% + 12px);
+            right: 0;
+            width: 380px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .notification-dropdown.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .notification-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #E5E7EB;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notification-header h4 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1F2937;
+            margin: 0;
+        }
+
+        .notification-mark-read {
+            font-size: 12px;
+            color: #7B1D3A;
+            font-weight: 600;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .notification-mark-read:hover {
+            color: #5a1428;
+        }
+
+        .notification-list {
+            max-height: 360px;
+            overflow-y: auto;
+        }
+
+        .notification-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .notification-list::-webkit-scrollbar-thumb {
+            background: #D1D5DB;
+            border-radius: 3px;
+        }
+
+        .notification-item {
+            padding: 14px 20px;
+            display: flex;
+            gap: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+            border-bottom: 1px solid #F3F4F6;
+        }
+
+        .notification-item:hover {
+            background: #F9FAFB;
+        }
+
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+
+        .notification-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .notification-icon.booking {
+            background: #DBEAFE;
+            color: #2563EB;
+        }
+
+        .notification-icon.startup {
+            background: #D1FAE5;
+            color: #059669;
+        }
+
+        .notification-icon.issue {
+            background: #FEE2E2;
+            color: #DC2626;
+        }
+
+        .notification-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .notification-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1F2937;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .notification-text {
+            font-size: 13px;
+            color: #6B7280;
+            line-height: 1.4;
+        }
+
+        .notification-time {
+            font-size: 11px;
+            color: #9CA3AF;
+            margin-top: 4px;
+        }
+
+        .notification-empty {
+            padding: 40px 20px;
+            text-align: center;
+            color: #9CA3AF;
+        }
+
+        .notification-empty i {
+            font-size: 40px;
+            margin-bottom: 12px;
+            color: #D1D5DB;
+        }
+
+        .notification-footer {
+            padding: 12px 20px;
+            border-top: 1px solid #E5E7EB;
+            text-align: center;
+        }
+
+        .notification-footer a {
+            font-size: 13px;
+            color: #7B1D3A;
+            font-weight: 600;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .notification-footer a:hover {
+            color: #5a1428;
         }
 
         .user-profile {
@@ -2204,13 +2432,26 @@
                 Dashboard > <span>Overview</span>
             </div>
             <div class="header-actions">
-                <div class="search-box">
-                    <i class="fas fa-search"></i>
-                    <input type="text" placeholder="Search anything...">
-                </div>
-                <div class="notification-btn">
-                    <i class="fas fa-bell"></i>
-                    <span class="notification-badge"></span>
+                <div class="notification-wrapper">
+                    <div class="notification-btn" onclick="toggleNotificationDropdown()">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge" id="notificationBadge">0</span>
+                    </div>
+                    <div class="notification-dropdown" id="notificationDropdown">
+                        <div class="notification-header">
+                            <h4>Notifications</h4>
+                            <span class="notification-mark-read" onclick="markAllAsRead()">Mark all as read</span>
+                        </div>
+                        <div class="notification-list" id="notificationList">
+                            <div class="notification-empty">
+                                <i class="fas fa-bell-slash"></i>
+                                <p>No new notifications</p>
+                            </div>
+                        </div>
+                        <div class="notification-footer">
+                            <a href="#" onclick="loadPage(event, 'scheduler')">View All Activity</a>
+                        </div>
+                    </div>
                 </div>
                 <div class="user-profile">
                     <div class="user-avatar" id="userAvatar">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</div>
@@ -2371,13 +2612,19 @@
 
             <!-- Intern List Page -->
             <div id="intern-list" class="page-content">
-                <div style="margin-bottom: 24px;">
-                    <h2 style="font-size: 28px; font-weight: 700; color: #1F2937; margin-bottom: 8px;">Intern List Management</h2>
-                    <p style="color: #6B7280; font-size: 14px;">View all registered interns with their progress and hours</p>
+                <div style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <h2 style="font-size: 28px; font-weight: 700; color: #1F2937; margin-bottom: 8px;">Intern List Management</h2>
+                        <p style="color: #6B7280; font-size: 14px;">View all registered interns with their progress and hours</p>
+                    </div>
+                    <button onclick="openSchoolManagementModal()" style="background: linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%); color: white; border: none; padding: 12px 20px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(123, 29, 58, 0.3); transition: all 0.3s ease;">
+                        <i class="fas fa-university"></i>
+                        Manage Schools
+                    </button>
                 </div>
 
                 <!-- Stats Cards -->
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 24px;">
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 24px;">
                     <div style="background: white; padding: 24px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
                         <div style="display: flex; align-items: center; gap: 16px;">
                             <div style="width: 50px; height: 50px; background: #DBEAFE; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
@@ -2411,28 +2658,133 @@
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <!-- School-Grouped Intern List -->
-                @php
-                    // Use internsBySchool passed from controller, or create from interns if not available
-                    $internsBySchool = $internsBySchool ?? ($interns ?? collect())->groupBy('school');
-                @endphp
-
-                @if($internsBySchool->count() > 0)
-                    @foreach($internsBySchool as $school => $schoolInterns)
-                    <div class="school-group" style="margin-bottom: 16px;">
-                        <div class="school-header" onclick="toggleSchoolGroup('school-{{ Str::slug($school) }}')" style="background: linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%); color: white; padding: 16px 20px; border-radius: 12px 12px 0 0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s ease;">
-                            <h4 style="margin: 0; font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 12px;">
-                                <i class="fas fa-university"></i>
-                                {{ $school }}
-                            </h4>
-                            <div style="display: flex; align-items: center; gap: 12px;">
-                                <span style="background: rgba(255,191,0,0.9); color: #7B1D3A; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;">{{ $schoolInterns->count() }} {{ $schoolInterns->count() == 1 ? 'Intern' : 'Interns' }}</span>
-                                <i class="fas fa-chevron-down school-toggle-icon" id="icon-school-{{ Str::slug($school) }}" style="transition: transform 0.3s ease;"></i>
+                    <div onclick="document.getElementById('pendingInternsSection').scrollIntoView({behavior: 'smooth'})" style="background: white; padding: 24px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); cursor: pointer; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 16px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.05)'">
+                        <div style="display: flex; align-items: center; gap: 16px;">
+                            <div style="width: 50px; height: 50px; background: #FEE2E2; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-user-clock" style="color: #DC2626; font-size: 22px;"></i>
+                            </div>
+                            <div>
+                                <div style="font-size: 28px; font-weight: 700; color: #1F2937;">{{ $pendingInternApprovals ?? 0 }}</div>
+                                <div style="color: #6B7280; font-size: 14px;">Pending Approval</div>
                             </div>
                         </div>
-                        <div class="table-card" id="school-{{ Str::slug($school) }}" style="border-radius: 0 0 12px 12px; display: block; margin-top: 0;">
+                    </div>
+                </div>
+
+                <!-- Pending Interns Section - Grouped by School -->
+                @php
+                    $pendingBySchool = ($pendingInterns ?? collect())->groupBy(function($intern) {
+                        return $intern->schoolRelation->name ?? $intern->school ?? 'Unknown School';
+                    });
+                @endphp
+                
+                @if(($pendingInterns ?? collect())->count() > 0)
+                <div id="pendingInternsSection" style="margin-bottom: 24px;">
+                    <div style="background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%); color: white; padding: 16px 20px; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center;">
+                        <h4 style="margin: 0; font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 12px;">
+                            <i class="fas fa-user-clock"></i>
+                            Pending Intern Approvals
+                        </h4>
+                        <span style="background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;">{{ ($pendingInterns ?? collect())->count() }} Pending from {{ $pendingBySchool->count() }} {{ $pendingBySchool->count() == 1 ? 'School' : 'Schools' }}</span>
+                    </div>
+                    <div style="background: white; border-radius: 0 0 12px 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        @foreach($pendingBySchool as $schoolName => $schoolPending)
+                        @php
+                            $schoolId = $schoolPending->first()->school_id ?? 0;
+                        @endphp
+                        <div class="pending-school-group" id="pending-school-{{ $schoolId }}" style="border-bottom: 1px solid #E5E7EB;">
+                            <div onclick="togglePendingSchoolGroup('pending-school-content-{{ $schoolId }}')" style="padding: 16px 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: #F9FAFB; transition: all 0.3s ease;" onmouseover="this.style.background='#F3F4F6'" onmouseout="this.style.background='#F9FAFB'">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <div style="width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, #FEF3C7, #FDE68A); display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-university" style="color: #92400E; font-size: 16px;"></i>
+                                    </div>
+                                    <div>
+                                        <div style="font-weight: 600; color: #1F2937;">{{ $schoolName }}</div>
+                                        <div style="font-size: 12px; color: #6B7280;">{{ $schoolPending->count() }} pending {{ $schoolPending->count() == 1 ? 'intern' : 'interns' }}</div>
+                                    </div>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <button onclick="event.stopPropagation(); approveAllBySchool({{ $schoolId }}, '{{ addslashes($schoolName) }}')" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                                        <i class="fas fa-check-double"></i> Approve All ({{ $schoolPending->count() }})
+                                    </button>
+                                    <i class="fas fa-chevron-down pending-toggle-icon" id="icon-pending-{{ $schoolId }}" style="transition: transform 0.3s ease; color: #6B7280;"></i>
+                                </div>
+                            </div>
+                            <div id="pending-school-content-{{ $schoolId }}" style="display: block; padding: 0 20px 16px;">
+                                <table style="width: 100%; border-collapse: collapse;">
+                                    <thead>
+                                        <tr style="background: #F3F4F6;">
+                                            <th style="padding: 10px 12px; text-align: left; font-size: 12px; font-weight: 600; color: #6B7280;">Name</th>
+                                            <th style="padding: 10px 12px; text-align: left; font-size: 12px; font-weight: 600; color: #6B7280;">Email</th>
+                                            <th style="padding: 10px 12px; text-align: left; font-size: 12px; font-weight: 600; color: #6B7280;">Course</th>
+                                            <th style="padding: 10px 12px; text-align: left; font-size: 12px; font-weight: 600; color: #6B7280;">Applied On</th>
+                                            <th style="padding: 10px 12px; text-align: center; font-size: 12px; font-weight: 600; color: #6B7280;">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($schoolPending as $pending)
+                                        <tr id="pending-intern-{{ $pending->id }}" style="border-bottom: 1px solid #E5E7EB;">
+                                            <td style="padding: 12px;">
+                                                <div style="display: flex; align-items: center; gap: 10px;">
+                                                    <div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #FEF3C7, #FDE68A); display: flex; align-items: center; justify-content: center; color: #92400E; font-weight: 700; font-size: 13px;">
+                                                        {{ strtoupper(substr($pending->name, 0, 1)) }}
+                                                    </div>
+                                                    <div>
+                                                        <div style="font-weight: 600; color: #1F2937; font-size: 13px;">{{ $pending->name }}</div>
+                                                        <div style="font-size: 11px; color: #6B7280;">{{ $pending->phone }}</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td style="padding: 12px; font-size: 13px; color: #374151;">{{ $pending->email }}</td>
+                                            <td style="padding: 12px; font-size: 13px; color: #374151;">{{ $pending->course }}</td>
+                                            <td style="padding: 12px; font-size: 13px; color: #6B7280;">{{ $pending->created_at->format('M d, Y') }}</td>
+                                            <td style="padding: 12px; text-align: center;">
+                                                <div style="display: flex; justify-content: center; gap: 6px;">
+                                                    <button onclick="approveIntern({{ $pending->id }})" style="background: #D1FAE5; color: #065F46; border: none; width: 28px; height: 28px; border-radius: 6px; cursor: pointer;" title="Approve">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
+                                                    <button onclick="openRejectInternModal({{ $pending->id }}, '{{ addslashes($pending->name) }}')" style="background: #FEE2E2; color: #991B1B; border: none; width: 28px; height: 28px; border-radius: 6px; cursor: pointer;" title="Reject">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
+
+                <!-- All Schools List (Show all schools even without interns) -->
+                @if(($schools ?? collect())->count() > 0)
+                    @foreach($schools as $school)
+                    @php
+                        $schoolInterns = ($interns ?? collect())->where('school_id', $school->id);
+                    @endphp
+                    <div class="school-group" style="margin-bottom: 16px;">
+                        <div class="school-header" onclick="toggleSchoolGroup('school-{{ $school->id }}')" style="background: linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%); color: white; padding: 16px 20px; border-radius: 12px 12px 0 0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s ease;">
+                            <h4 style="margin: 0; font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 12px;">
+                                <i class="fas fa-university"></i>
+                                {{ $school->name }}
+                                @if($school->status !== 'Active')
+                                <span style="background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 10px; font-size: 10px;">Inactive</span>
+                                @endif
+                            </h4>
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <span style="background: rgba(255,255,255,0.2); color: white; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;">{{ $school->required_hours }} hrs required</span>
+                                <span style="background: rgba(255,191,0,0.9); color: #7B1D3A; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;">{{ $schoolInterns->count() }} {{ $schoolInterns->count() == 1 ? 'Intern' : 'Interns' }}</span>
+                                @if(($school->pending_interns ?? 0) > 0)
+                                <span style="background: #FEE2E2; color: #991B1B; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;">+{{ $school->pending_interns }} pending</span>
+                                @endif
+                                <i class="fas fa-chevron-down school-toggle-icon" id="icon-school-{{ $school->id }}" style="transition: transform 0.3s ease;"></i>
+                            </div>
+                        </div>
+                        <div class="table-card" id="school-{{ $school->id }}" style="border-radius: 0 0 12px 12px; display: block; margin-top: 0;">
+                            @if($schoolInterns->count() > 0)
                             <table>
                                 <thead>
                                     <tr>
@@ -2486,14 +2838,31 @@
                                     @endforeach
                                 </tbody>
                             </table>
+                            @else
+                            <div style="text-align: center; padding: 40px; color: #9CA3AF;">
+                                <i class="fas fa-user-graduate" style="font-size: 32px; margin-bottom: 12px; display: block;"></i>
+                                <p style="margin: 0; color: #6B7280;">No approved interns from this school yet.</p>
+                                @if(($school->pending_interns ?? 0) > 0)
+                                <p style="margin: 8px 0 0; font-size: 13px; color: #D97706;">
+                                    <i class="fas fa-clock"></i> {{ $school->pending_interns }} intern(s) pending approval
+                                </p>
+                                @endif
+                                @if($school->contact_person)
+                                <p style="margin: 12px 0 0; font-size: 12px; color: #6B7280;">
+                                    <i class="fas fa-user"></i> Contact: {{ $school->contact_person }} 
+                                    @if($school->contact_phone) | {{ $school->contact_phone }} @endif
+                                </p>
+                                @endif
+                            </div>
+                            @endif
                         </div>
                     </div>
                     @endforeach
                 @else
                     <div class="table-card" style="text-align: center; padding: 60px 40px; color: #9CA3AF;">
-                        <i class="fas fa-users" style="font-size: 48px; margin-bottom: 16px; display: block;"></i>
-                        <h3 style="color: #6B7280; margin-bottom: 8px;">No Interns Registered Yet</h3>
-                        <p>Interns will appear here grouped by school once they register through the Intern Portal.</p>
+                        <i class="fas fa-university" style="font-size: 48px; margin-bottom: 16px; display: block;"></i>
+                        <h3 style="color: #6B7280; margin-bottom: 8px;">No Schools Registered Yet</h3>
+                        <p>Click "Manage Schools" to add schools first, then interns can register.</p>
                     </div>
                 @endif
             </div>
@@ -4995,6 +5364,226 @@
         </div>
     </div>
 
+    <!-- ========== SCHOOL MANAGEMENT MODALS ========== -->
+
+    <!-- School Management Modal -->
+    <div id="schoolManagementModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 900px; max-height: 90vh;">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-university" style="margin-right: 8px;"></i>School Management</h3>
+                <button class="modal-close" onclick="closeSchoolManagementModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+                <!-- Add New School Button -->
+                <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                    <h4 style="margin: 0; color: #1F2937; font-size: 16px;">
+                        <i class="fas fa-list" style="color: #7B1D3A; margin-right: 8px;"></i>Registered Schools
+                    </h4>
+                    <button onclick="openAddSchoolForm()" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; border: none; padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-plus"></i> Add New School
+                    </button>
+                </div>
+
+                <!-- Add/Edit School Form (Hidden by default) -->
+                <div id="schoolFormContainer" style="display: none; background: #F9FAFB; border-radius: 12px; padding: 20px; margin-bottom: 20px; border: 2px solid #E5E7EB;">
+                    <h5 style="margin: 0 0 16px 0; color: #1F2937;" id="schoolFormTitle">
+                        <i class="fas fa-plus-circle" style="color: #10B981; margin-right: 8px;"></i>Add New School
+                    </h5>
+                    <form id="schoolForm">
+                        <input type="hidden" id="schoolFormId">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div class="form-group" style="margin-bottom: 12px;">
+                                <label class="form-label required">School Name</label>
+                                <input type="text" id="schoolFormName" class="form-input" placeholder="e.g., University of the Philippines Cebu" required>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 12px;">
+                                <label class="form-label required">Required Hours</label>
+                                <input type="number" id="schoolFormHours" class="form-input" placeholder="e.g., 500" min="1" max="2000" required>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 12px;">
+                                <label class="form-label">Max Interns</label>
+                                <input type="number" id="schoolFormMaxInterns" class="form-input" placeholder="Leave empty for unlimited" min="1">
+                                <small style="color: #6B7280; font-size: 11px;">Maximum number of interns allowed (leave empty for no limit)</small>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 12px;">
+                                <label class="form-label"></label>Contact Person</label>
+                                <input type="text" id="schoolFormContactPerson" class="form-input" placeholder="e.g., Dr. Juan Dela Cruz">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 12px;">
+                                <label class="form-label">Contact Email</label>
+                                <input type="email" id="schoolFormContactEmail" class="form-input" placeholder="e.g., contact@school.edu.ph">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 12px;">
+                                <label class="form-label">Contact Phone</label>
+                                <input type="text" id="schoolFormContactPhone" class="form-input" placeholder="e.g., 09XX XXX XXXX">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 12px;">
+                                <label class="form-label">Notes</label>
+                                <input type="text" id="schoolFormNotes" class="form-input" placeholder="Any additional notes...">
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 12px; margin-top: 16px;">
+                            <button type="button" onclick="cancelSchoolForm()" style="background: #E5E7EB; color: #374151; border: none; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;">
+                                Cancel
+                            </button>
+                            <button type="submit" style="background: linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;">
+                                <i class="fas fa-save" style="margin-right: 6px;"></i><span id="schoolFormSubmitText">Save School</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Schools Table -->
+                <div id="schoolsTableContainer">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #F3F4F6;">
+                                <th style="padding: 12px 16px; text-align: left; font-size: 13px; font-weight: 600; color: #6B7280;">School Name</th>
+                                <th style="padding: 12px 16px; text-align: center; font-size: 13px; font-weight: 600; color: #6B7280;">Req. Hours</th>
+                                <th style="padding: 12px 16px; text-align: center; font-size: 13px; font-weight: 600; color: #6B7280;">Interns</th>
+                                <th style="padding: 12px 16px; text-align: center; font-size: 13px; font-weight: 600; color: #6B7280;">Capacity</th>
+                                <th style="padding: 12px 16px; text-align: center; font-size: 13px; font-weight: 600; color: #6B7280;">Total Rendered</th>
+                                <th style="padding: 12px 16px; text-align: left; font-size: 13px; font-weight: 600; color: #6B7280;">Contact Person</th>
+                                <th style="padding: 12px 16px; text-align: center; font-size: 13px; font-weight: 600; color: #6B7280;">Status</th>
+                                <th style="padding: 12px 16px; text-align: center; font-size: 13px; font-weight: 600; color: #6B7280;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="schoolsTableBody">
+                            @forelse($schools ?? [] as $school)
+                            <tr id="school-row-{{ $school->id }}" style="border-bottom: 1px solid #E5E7EB;">
+                                <td style="padding: 14px 16px;">
+                                    <div style="display: flex; align-items: center; gap: 12px;">
+                                        <div style="width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, #7B1D3A, #5a1428); display: flex; align-items: center; justify-content: center;">
+                                            <i class="fas fa-university" style="color: #FFBF00; font-size: 16px;"></i>
+                                        </div>
+                                        <div>
+                                            <div style="font-weight: 600; color: #1F2937;">{{ $school->name }}</div>
+                                            @if($school->contact_email)
+                                            <div style="font-size: 12px; color: #6B7280;">{{ $school->contact_email }}</div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style="padding: 14px 16px; text-align: center;">
+                                    <span style="background: #DBEAFE; color: #1E40AF; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 600;">{{ $school->required_hours }} hrs</span>
+                                </td>
+                                <td style="padding: 14px 16px; text-align: center;">
+                                    <div style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
+                                        <span style="font-weight: 700; color: #1F2937; font-size: 18px;">{{ $school->total_interns ?? 0 }}</span>
+                                        @if(($school->pending_interns ?? 0) > 0)
+                                        <span style="background: #FEF3C7; color: #92400E; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600;">+{{ $school->pending_interns }} pending</span>
+                                        @endif
+                                    </div>
+                                </td>
+                                <td style="padding: 14px 16px; text-align: center;">
+                                    @if($school->max_interns)
+                                        @php
+                                            $currentInterns = $school->total_interns ?? 0;
+                                            $maxInterns = $school->max_interns;
+                                            $percentage = ($currentInterns / $maxInterns) * 100;
+                                            $isFull = $currentInterns >= $maxInterns;
+                                            $isNearFull = $percentage >= 80;
+                                        @endphp
+                                        <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+                                            <span style="font-weight: 600; font-size: 13px; {{ $isFull ? 'color: #DC2626;' : ($isNearFull ? 'color: #D97706;' : 'color: #059669;') }}">
+                                                {{ $currentInterns }}/{{ $maxInterns }}
+                                            </span>
+                                            <div style="width: 60px; height: 6px; background: #E5E7EB; border-radius: 3px; overflow: hidden;">
+                                                <div style="width: {{ min($percentage, 100) }}%; height: 100%; background: {{ $isFull ? '#DC2626' : ($isNearFull ? '#D97706' : '#059669') }}; border-radius: 3px;"></div>
+                                            </div>
+                                            @if($isFull)
+                                            <span style="background: #FEE2E2; color: #DC2626; padding: 2px 6px; border-radius: 8px; font-size: 9px; font-weight: 600;">FULL</span>
+                                            @endif
+                                        </div>
+                                    @else
+                                        <span style="color: #9CA3AF; font-style: italic; font-size: 12px;">Unlimited</span>
+                                    @endif
+                                </td>
+                                <td style="padding: 14px 16px; text-align: center;">
+                                    <span style="font-weight: 600; color: #059669;">{{ number_format($school->total_rendered_hours ?? 0) }} hrs</span>
+                                </td>
+                                <td style="padding: 14px 16px;">
+                                    @if($school->contact_person)
+                                    <div style="font-weight: 500; color: #1F2937;">{{ $school->contact_person }}</div>
+                                    @if($school->contact_phone)
+                                    <div style="font-size: 12px; color: #6B7280;">{{ $school->contact_phone }}</div>
+                                    @endif
+                                    @else
+                                    <span style="color: #9CA3AF; font-style: italic;">Not set</span>
+                                    @endif
+                                </td>
+                                <td style="padding: 14px 16px; text-align: center;">
+                                    <span style="padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; {{ $school->status === 'Active' ? 'background: #D1FAE5; color: #065F46;' : 'background: #FEE2E2; color: #991B1B;' }}">
+                                        {{ $school->status }}
+                                    </span>
+                                </td>
+                                <td style="padding: 14px 16px; text-align: center;">
+                                    <div style="display: flex; justify-content: center; gap: 6px;">
+                                        <button onclick="editSchool({{ $school->id }}, '{{ addslashes($school->name) }}', {{ $school->required_hours }}, {{ $school->max_interns ?? 'null' }}, '{{ addslashes($school->contact_person ?? '') }}', '{{ addslashes($school->contact_email ?? '') }}', '{{ addslashes($school->contact_phone ?? '') }}', '{{ addslashes($school->notes ?? '') }}')" style="background: #DBEAFE; color: #1E40AF; border: none; width: 32px; height: 32px; border-radius: 6px; cursor: pointer;" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button onclick="toggleSchoolStatus({{ $school->id }})" style="background: {{ $school->status === 'Active' ? '#FEF3C7' : '#D1FAE5' }}; color: {{ $school->status === 'Active' ? '#92400E' : '#065F46' }}; border: none; width: 32px; height: 32px; border-radius: 6px; cursor: pointer;" title="{{ $school->status === 'Active' ? 'Deactivate' : 'Activate' }}">
+                                            <i class="fas {{ $school->status === 'Active' ? 'fa-toggle-off' : 'fa-toggle-on' }}"></i>
+                                        </button>
+                                        @if(($school->total_interns ?? 0) == 0)
+                                        <button onclick="deleteSchool({{ $school->id }}, '{{ addslashes($school->name) }}')" style="background: #FEE2E2; color: #991B1B; border: none; width: 32px; height: 32px; border-radius: 6px; cursor: pointer;" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                        @endif
+                                    </div>
+                                </td>
+                            </tr>
+                            @empty
+                            <tr id="noSchoolsRow">
+                                <td colspan="8" style="padding: 40px; text-align: center; color: #9CA3AF;">
+                                    <i class="fas fa-university" style="font-size: 40px; margin-bottom: 12px; display: block;"></i>
+                                    No schools registered yet. Click "Add New School" to get started.
+                                </td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal secondary" onclick="closeSchoolManagementModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reject Intern Modal -->
+    <div id="rejectInternModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 450px;">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-user-times" style="margin-right: 8px; color: #DC2626;"></i>Reject Intern</h3>
+                <button class="modal-close" onclick="closeRejectInternModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="rejectInternId">
+                <div style="background: #FEE2E2; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+                    <p style="margin: 0; color: #991B1B; font-size: 14px;">
+                        <i class="fas fa-exclamation-triangle" style="margin-right: 8px;"></i>
+                        You are about to reject <strong id="rejectInternName"></strong>'s application.
+                    </p>
+                </div>
+                <div class="form-group">
+                    <label class="form-label required">Reason for Rejection</label>
+                    <textarea id="rejectInternReason" class="form-input" rows="3" placeholder="Please provide a reason for rejection..." required></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal secondary" onclick="closeRejectInternModal()">Cancel</button>
+                <button class="btn-modal primary" onclick="submitRejectIntern()" style="background: linear-gradient(135deg, #DC2626, #B91C1C);">
+                    <i class="fas fa-times"></i> Reject Intern
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Authentication is handled server-side by Laravel middleware
         // User data is passed from the controller
@@ -5017,7 +5606,230 @@
             if (userRoleEl) {
                 userRoleEl.textContent = 'Administrator';
             }
+
+            // Load notifications on page load
+            loadNotifications();
         });
+
+        // Notification System
+        let notifications = [];
+        let previousBookingCount = 0;
+        let previousStartupCount = 0;
+        let previousIssueCount = 0;
+        let isFirstLoad = true;
+
+        function toggleNotificationDropdown() {
+            const dropdown = document.getElementById('notificationDropdown');
+            dropdown.classList.toggle('active');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const wrapper = document.querySelector('.notification-wrapper');
+            const dropdown = document.getElementById('notificationDropdown');
+            if (wrapper && dropdown && !wrapper.contains(event.target)) {
+                dropdown.classList.remove('active');
+            }
+        });
+
+        async function loadNotifications() {
+            try {
+                // Fetch pending bookings
+                const bookingsResponse = await fetch('/admin/bookings');
+                const bookings = await bookingsResponse.json();
+                const pendingBookings = bookings.filter(b => b.status === 'pending');
+
+                // Fetch startup submissions
+                const startupsResponse = await fetch('/admin/startup-submissions');
+                const startups = await startupsResponse.json();
+                const pendingStartups = startups.filter(s => s.status === 'pending');
+
+                // Fetch room issues
+                const issuesResponse = await fetch('/admin/room-issues');
+                const issues = await issuesResponse.json();
+                const pendingIssues = issues.filter(i => i.status === 'pending' || i.status === 'in_progress');
+
+                // Check for new items and show toast notifications
+                if (!isFirstLoad) {
+                    // New bookings
+                    if (pendingBookings.length > previousBookingCount) {
+                        const newCount = pendingBookings.length - previousBookingCount;
+                        const latestBooking = pendingBookings[0];
+                        showToast('info', `🗓️ New Booking Request${newCount > 1 ? 's' : ''}!`, 
+                            newCount > 1 
+                                ? `${newCount} new booking requests need your attention.` 
+                                : `${latestBooking.agency_name} wants to book for ${latestBooking.event_name}.`,
+                            6000);
+                        playNotificationSound();
+                    }
+
+                    // New startups
+                    if (pendingStartups.length > previousStartupCount) {
+                        const newCount = pendingStartups.length - previousStartupCount;
+                        const latestStartup = pendingStartups[0];
+                        showToast('success', `🚀 New Startup Application${newCount > 1 ? 's' : ''}!`,
+                            newCount > 1
+                                ? `${newCount} new startup applications need review.`
+                                : `${latestStartup.startup_name} has applied for incubation.`,
+                            6000);
+                        playNotificationSound();
+                    }
+
+                    // New issues
+                    if (pendingIssues.length > previousIssueCount) {
+                        const newCount = pendingIssues.length - previousIssueCount;
+                        const latestIssue = pendingIssues[0];
+                        showToast('warning', `⚠️ New Issue Reported${newCount > 1 ? 's' : ''}!`,
+                            newCount > 1
+                                ? `${newCount} new issues require attention.`
+                                : `Issue at ${latestIssue.room_location}: ${latestIssue.category}`,
+                            6000);
+                        playNotificationSound();
+                    }
+                } else {
+                    // First load - show summary if there are pending items
+                    if (pendingBookings.length > 0) {
+                        showToast('info', '🗓️ Pending Bookings', 
+                            `You have ${pendingBookings.length} booking request${pendingBookings.length > 1 ? 's' : ''} awaiting approval.`,
+                            5000);
+                    }
+                }
+
+                // Update previous counts
+                previousBookingCount = pendingBookings.length;
+                previousStartupCount = pendingStartups.length;
+                previousIssueCount = pendingIssues.length;
+                isFirstLoad = false;
+
+                // Build notifications array
+                notifications = [];
+
+                pendingBookings.forEach(booking => {
+                    notifications.push({
+                        type: 'booking',
+                        icon: 'fa-calendar-check',
+                        title: 'New Booking Request',
+                        text: `${booking.agency_name} - ${booking.event_name}`,
+                        time: formatTimeAgo(booking.created_at),
+                        page: 'scheduler'
+                    });
+                });
+
+                pendingStartups.forEach(startup => {
+                    notifications.push({
+                        type: 'startup',
+                        icon: 'fa-rocket',
+                        title: 'New Startup Application',
+                        text: `${startup.startup_name} - ${startup.industry}`,
+                        time: formatTimeAgo(startup.created_at),
+                        page: 'incubatee-tracker'
+                    });
+                });
+
+                pendingIssues.forEach(issue => {
+                    notifications.push({
+                        type: 'issue',
+                        icon: 'fa-exclamation-circle',
+                        title: issue.status === 'pending' ? 'New Issue Reported' : 'Issue In Progress',
+                        text: `${issue.room_location} - ${issue.category}`,
+                        time: formatTimeAgo(issue.created_at),
+                        page: 'issues-management'
+                    });
+                });
+
+                renderNotifications();
+            } catch (error) {
+                console.error('Error loading notifications:', error);
+            }
+        }
+
+        // Simple notification sound using Web Audio API
+        function playNotificationSound() {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = 880; // A5 note
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.3);
+            } catch (e) {
+                // Audio not supported or blocked
+                console.log('Notification sound not available');
+            }
+        }
+
+        function formatTimeAgo(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return `${diffMins}m ago`;
+            if (diffHours < 24) return `${diffHours}h ago`;
+            if (diffDays < 7) return `${diffDays}d ago`;
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        }
+
+        function renderNotifications() {
+            const list = document.getElementById('notificationList');
+            const badge = document.getElementById('notificationBadge');
+            const count = notifications.length;
+
+            // Update badge
+            badge.textContent = count > 99 ? '99+' : count;
+            badge.classList.toggle('hidden', count === 0);
+
+            // Render list
+            if (count === 0) {
+                list.innerHTML = `
+                    <div class="notification-empty">
+                        <i class="fas fa-bell-slash"></i>
+                        <p>No new notifications</p>
+                    </div>
+                `;
+            } else {
+                list.innerHTML = notifications.map(notif => `
+                    <div class="notification-item" onclick="handleNotificationClick('${notif.page}')">
+                        <div class="notification-icon ${notif.type}">
+                            <i class="fas ${notif.icon}"></i>
+                        </div>
+                        <div class="notification-content">
+                            <div class="notification-title">${notif.title}</div>
+                            <div class="notification-text">${notif.text}</div>
+                            <div class="notification-time">${notif.time}</div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function handleNotificationClick(page) {
+            document.getElementById('notificationDropdown').classList.remove('active');
+            // Navigate to the relevant page
+            const fakeEvent = { preventDefault: () => {} };
+            loadPage(fakeEvent, page);
+        }
+
+        function markAllAsRead() {
+            notifications = [];
+            renderNotifications();
+            showToast('success', 'Notifications Cleared', 'All notifications have been marked as read.');
+        }
+
+        // Refresh notifications every 30 seconds
+        setInterval(loadNotifications, 30000);
 
         // Logout function - uses Laravel logout
         function handleLogout(event) {
@@ -7648,46 +8460,108 @@ University of the Philippines Cebu
             console.log(`Loading task page ${currentTaskPage}`);
         }
 
-        // Bar Chart - Intern Progress
+        // Bar Chart - Intern Progress (Smooth Modern Style)
         const barCtx = document.getElementById('barChart').getContext('2d');
+        
+        // Create gradients for bars
+        const maroonGradient = barCtx.createLinearGradient(0, 0, 0, 400);
+        maroonGradient.addColorStop(0, 'rgba(123, 29, 58, 0.9)');
+        maroonGradient.addColorStop(1, 'rgba(123, 29, 58, 0.4)');
+        
+        const goldGradient = barCtx.createLinearGradient(0, 0, 0, 400);
+        goldGradient.addColorStop(0, 'rgba(255, 191, 0, 0.9)');
+        goldGradient.addColorStop(1, 'rgba(255, 191, 0, 0.4)');
+        
         const barChart = new Chart(barCtx, {
             type: 'bar',
             data: {
-                labels: ['January', 'February', 'March', 'April', 'May', 'June'],
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
                 datasets: [{
                     label: 'Active Interns',
                     data: [185, 195, 210, 225, 235, 245],
-                    backgroundColor: 'rgba(123, 29, 58, 0.8)',
+                    backgroundColor: maroonGradient,
                     borderColor: '#7B1D3A',
-                    borderWidth: 2,
-                    borderRadius: 8
+                    borderWidth: 0,
+                    borderRadius: 8,
+                    borderSkipped: false,
+                    barPercentage: 0.6,
+                    categoryPercentage: 0.7
                 }, {
                     label: 'Completed Tasks',
                     data: [165, 180, 190, 205, 215, 230],
-                    backgroundColor: 'rgba(255, 191, 0, 0.8)',
+                    backgroundColor: goldGradient,
                     borderColor: '#FFBF00',
-                    borderWidth: 2,
-                    borderRadius: 8
+                    borderWidth: 0,
+                    borderRadius: 8,
+                    borderSkipped: false,
+                    barPercentage: 0.6,
+                    categoryPercentage: 0.7
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: true,
+                animation: {
+                    duration: 1000,
+                    easing: 'easeOutQuart'
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
                 plugins: {
                     legend: {
                         display: true,
-                        position: 'bottom'
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true,
+                            pointStyle: 'circle',
+                            font: {
+                                size: 12,
+                                weight: '500'
+                            }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(31, 41, 55, 0.95)',
+                        titleFont: { size: 13, weight: '600' },
+                        bodyFont: { size: 12 },
+                        padding: 12,
+                        cornerRadius: 10,
+                        displayColors: true,
+                        boxPadding: 6
                     }
                 },
                 scales: {
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            font: { size: 11, weight: '500' },
+                            color: '#6B7280',
+                            padding: 8
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false,
+                            drawBorder: false
+                        },
+                        ticks: {
+                            font: { size: 11, weight: '500' },
+                            color: '#6B7280',
+                            padding: 8
+                        }
                     }
                 }
             }
         });
 
-        // Pie Chart - System Usage
+        // Pie Chart - System Usage (Smooth Doughnut Style)
         const pieCtx = document.getElementById('pieChart').getContext('2d');
         const pieChart = new Chart(pieCtx, {
             type: 'doughnut',
@@ -7698,25 +8572,327 @@ University of the Philippines Cebu
                     backgroundColor: [
                         '#7B1D3A',
                         '#FFBF00',
-                        '#FFA500',
+                        '#F97316',
                         '#10B981',
                         '#3B82F6'
                     ],
-                    borderWidth: 3,
-                    borderColor: '#fff'
+                    hoverBackgroundColor: [
+                        '#5a1428',
+                        '#E5A800',
+                        '#EA580C',
+                        '#059669',
+                        '#2563EB'
+                    ],
+                    borderWidth: 0,
+                    spacing: 4,
+                    borderRadius: 6
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: true,
+                cutout: '65%',
+                animation: {
+                    animateRotate: true,
+                    animateScale: true,
+                    duration: 1000,
+                    easing: 'easeOutQuart'
+                },
                 plugins: {
                     legend: {
                         display: true,
-                        position: 'bottom'
+                        position: 'bottom',
+                        labels: {
+                            padding: 16,
+                            usePointStyle: true,
+                            pointStyle: 'circle',
+                            font: {
+                                size: 11,
+                                weight: '500'
+                            }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(31, 41, 55, 0.95)',
+                        titleFont: { size: 13, weight: '600' },
+                        bodyFont: { size: 12 },
+                        padding: 12,
+                        cornerRadius: 10,
+                        displayColors: true,
+                        boxPadding: 6,
+                        callbacks: {
+                            label: function(context) {
+                                return ' ' + context.label + ': ' + context.parsed + '%';
+                            }
+                        }
                     }
                 }
             }
         });
+
+        // ===== SCHOOL MANAGEMENT FUNCTIONS =====
+
+        function openSchoolManagementModal() {
+            document.getElementById('schoolManagementModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSchoolManagementModal() {
+            document.getElementById('schoolManagementModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+            cancelSchoolForm();
+        }
+
+        function openAddSchoolForm() {
+            document.getElementById('schoolFormContainer').style.display = 'block';
+            document.getElementById('schoolFormTitle').innerHTML = '<i class="fas fa-plus-circle" style="color: #10B981; margin-right: 8px;"></i>Add New School';
+            document.getElementById('schoolFormSubmitText').textContent = 'Save School';
+            document.getElementById('schoolFormId').value = '';
+            document.getElementById('schoolForm').reset();
+        }
+
+        function cancelSchoolForm() {
+            document.getElementById('schoolFormContainer').style.display = 'none';
+            document.getElementById('schoolForm').reset();
+            document.getElementById('schoolFormId').value = '';
+        }
+
+        function editSchool(id, name, hours, maxInterns, contactPerson, contactEmail, contactPhone, notes) {
+            document.getElementById('schoolFormContainer').style.display = 'block';
+            document.getElementById('schoolFormTitle').innerHTML = '<i class="fas fa-edit" style="color: #7B1D3A; margin-right: 8px;"></i>Edit School';
+            document.getElementById('schoolFormSubmitText').textContent = 'Update School';
+            document.getElementById('schoolFormId').value = id;
+            document.getElementById('schoolFormName').value = name;
+            document.getElementById('schoolFormHours').value = hours;
+            document.getElementById('schoolFormMaxInterns').value = maxInterns || '';
+            document.getElementById('schoolFormContactPerson').value = contactPerson;
+            document.getElementById('schoolFormContactEmail').value = contactEmail;
+            document.getElementById('schoolFormContactPhone').value = contactPhone;
+            document.getElementById('schoolFormNotes').value = notes;
+        }
+
+        document.getElementById('schoolForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formId = document.getElementById('schoolFormId').value;
+            const isEdit = formId !== '';
+            const url = isEdit ? `/admin/schools/${formId}` : '/admin/schools';
+            const method = isEdit ? 'PUT' : 'POST';
+
+            const data = {
+                name: document.getElementById('schoolFormName').value,
+                required_hours: parseInt(document.getElementById('schoolFormHours').value),
+                max_interns: document.getElementById('schoolFormMaxInterns').value ? parseInt(document.getElementById('schoolFormMaxInterns').value) : null,
+                contact_person: document.getElementById('schoolFormContactPerson').value || null,
+                contact_email: document.getElementById('schoolFormContactEmail').value || null,
+                contact_phone: document.getElementById('schoolFormContactPhone').value || null,
+                notes: document.getElementById('schoolFormNotes').value || null,
+            };
+
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showToast(result.message, 'success');
+                    cancelSchoolForm();
+                    // Reload page to refresh schools list
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showToast(result.message || 'An error occurred', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('An error occurred while saving the school', 'error');
+            }
+        });
+
+        async function toggleSchoolStatus(schoolId) {
+            try {
+                const response = await fetch(`/admin/schools/${schoolId}/toggle-status`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showToast(result.message, 'success');
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showToast(result.message || 'An error occurred', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('An error occurred', 'error');
+            }
+        }
+
+        async function deleteSchool(schoolId, schoolName) {
+            if (!confirm(`Are you sure you want to delete "${schoolName}"? This action cannot be undone.`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/admin/schools/${schoolId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showToast(result.message, 'success');
+                    document.getElementById(`school-row-${schoolId}`).remove();
+                } else {
+                    showToast(result.message || 'An error occurred', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('An error occurred while deleting the school', 'error');
+            }
+        }
+
+        // ===== INTERN APPROVAL FUNCTIONS =====
+
+        function togglePendingSchoolGroup(contentId) {
+            const content = document.getElementById(contentId);
+            const schoolId = contentId.replace('pending-school-content-', '');
+            const icon = document.getElementById(`icon-pending-${schoolId}`);
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                if (icon) icon.style.transform = 'rotate(0deg)';
+            } else {
+                content.style.display = 'none';
+                if (icon) icon.style.transform = 'rotate(-90deg)';
+            }
+        }
+
+        async function approveAllBySchool(schoolId, schoolName) {
+            if (!confirm(`Approve all pending interns from "${schoolName}"?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/admin/interns/school/${schoolId}/approve-all`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showToast(result.message, 'success');
+                    // Remove the entire school pending group
+                    const schoolGroup = document.getElementById(`pending-school-${schoolId}`);
+                    if (schoolGroup) {
+                        schoolGroup.remove();
+                    }
+                    // Reload to update all counts
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    showToast(result.message || 'An error occurred', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('An error occurred while approving interns', 'error');
+            }
+        }
+
+        async function approveIntern(internId) {
+            try {
+                const response = await fetch(`/admin/interns/${internId}/approve`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showToast(result.message, 'success');
+                    document.getElementById(`pending-intern-${internId}`).remove();
+                    // Update pending count
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    showToast(result.message || 'An error occurred', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('An error occurred while approving the intern', 'error');
+            }
+        }
+
+        function openRejectInternModal(internId, internName) {
+            document.getElementById('rejectInternId').value = internId;
+            document.getElementById('rejectInternName').textContent = internName;
+            document.getElementById('rejectInternReason').value = '';
+            document.getElementById('rejectInternModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeRejectInternModal() {
+            document.getElementById('rejectInternModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        async function submitRejectIntern() {
+            const internId = document.getElementById('rejectInternId').value;
+            const reason = document.getElementById('rejectInternReason').value;
+
+            if (!reason.trim()) {
+                showToast('Please provide a reason for rejection', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/admin/interns/${internId}/reject`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ rejection_reason: reason })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showToast(result.message, 'success');
+                    closeRejectInternModal();
+                    document.getElementById(`pending-intern-${internId}`).remove();
+                    // Update pending count
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    showToast(result.message || 'An error occurred', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('An error occurred while rejecting the intern', 'error');
+            }
+        }
     </script>
 
     <!-- Toast Container -->

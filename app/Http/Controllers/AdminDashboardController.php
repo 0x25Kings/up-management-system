@@ -11,6 +11,7 @@ use App\Models\Booking;
 use App\Models\BlockedDate;
 use App\Models\StartupSubmission;
 use App\Models\RoomIssue;
+use App\Models\School;
 use Carbon\Carbon;
 
 class AdminDashboardController extends Controller
@@ -20,14 +21,44 @@ class AdminDashboardController extends Controller
      */
     public function index()
     {
-        // Get intern statistics
-        $totalInterns = Intern::count();
-        $activeInterns = Intern::where('status', 'Active')->count();
+        // Get intern statistics (only approved interns)
+        $totalInterns = Intern::approved()->count();
+        $activeInterns = Intern::approved()->where('status', 'Active')->count();
+        $pendingInternApprovals = Intern::pending()->count();
         
-        // Get all interns with their latest attendance
-        $interns = Intern::with(['attendances' => function($query) {
-            $query->orderBy('date', 'desc')->limit(1);
-        }])->orderBy('created_at', 'desc')->get();
+        // Get all approved interns with their latest attendance
+        $interns = Intern::approved()
+            ->with(['attendances' => function($query) {
+                $query->orderBy('date', 'desc')->limit(1);
+            }, 'schoolRelation'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Get pending interns for approval
+        $pendingInterns = Intern::pending()
+            ->with('schoolRelation')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Get all schools with statistics
+        $schools = School::withCount([
+            'interns as total_interns' => function ($query) {
+                $query->where('approval_status', 'approved');
+            },
+            'interns as pending_interns' => function ($query) {
+                $query->where('approval_status', 'pending');
+            },
+            'interns as active_interns' => function ($query) {
+                $query->where('approval_status', 'approved')->where('status', 'Active');
+            }
+        ])->get();
+
+        // Add total rendered hours to each school
+        $schools->each(function ($school) {
+            $school->total_rendered_hours = Intern::where('school_id', $school->id)
+                ->where('approval_status', 'approved')
+                ->sum('completed_hours');
+        });
 
         // Get today's attendance records
         $today = Carbon::now('Asia/Manila')->toDateString();
@@ -117,7 +148,10 @@ class AdminDashboardController extends Controller
             'user' => Auth::user(),
             'totalInterns' => $totalInterns,
             'activeInterns' => $activeInterns,
+            'pendingInternApprovals' => $pendingInternApprovals,
             'interns' => $interns,
+            'pendingInterns' => $pendingInterns,
+            'schools' => $schools,
             'todayAttendances' => $todayAttendances,
             'attendanceHistory' => $attendanceHistory,
             'internsBySchool' => $internsBySchool,

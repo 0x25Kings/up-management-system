@@ -9,6 +9,7 @@ use App\Http\Controllers\TaskController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\BlockedDateController;
 use App\Http\Controllers\StartupController;
+use App\Http\Controllers\SchoolController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -21,6 +22,9 @@ Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.st
 Route::get('/bookings/check-availability', [BookingController::class, 'checkAvailability'])->name('bookings.checkAvailability');
 Route::get('/blocked-dates/check/{date}', [BlockedDateController::class, 'check'])->name('blocked.check');
 Route::get('/blocked-dates', [BlockedDateController::class, 'index'])->name('blocked.index');
+
+// Public route to get active schools for intern registration dropdown
+Route::get('/schools/active', [SchoolController::class, 'getActiveSchools'])->name('schools.active');
 
 // Intern Portal Routes (No Login Required)
 Route::get('/intern', [InternController::class, 'index'])->name('intern.portal');
@@ -83,4 +87,17 @@ Route::middleware(['admin'])->group(function () {
     Route::get('/admin/room-issues/{roomIssue}', [AdminStartupController::class, 'getRoomIssue'])->name('admin.room-issues.show');
     Route::put('/admin/room-issues/{roomIssue}', [AdminStartupController::class, 'updateRoomIssue'])->name('admin.room-issues.update');
     Route::delete('/admin/room-issues/{roomIssue}', [AdminStartupController::class, 'deleteRoomIssue'])->name('admin.room-issues.destroy');
+
+    // School Management Routes (Admin)
+    Route::get('/admin/schools', [SchoolController::class, 'index'])->name('admin.schools.index');
+    Route::post('/admin/schools', [SchoolController::class, 'store'])->name('admin.schools.store');
+    Route::put('/admin/schools/{school}', [SchoolController::class, 'update'])->name('admin.schools.update');
+    Route::delete('/admin/schools/{school}', [SchoolController::class, 'destroy'])->name('admin.schools.destroy');
+    Route::post('/admin/schools/{school}/toggle-status', [SchoolController::class, 'toggleStatus'])->name('admin.schools.toggleStatus');
+
+    // Intern Approval Routes (Admin)
+    Route::get('/admin/interns/pending', [SchoolController::class, 'getPendingInterns'])->name('admin.interns.pending');
+    Route::post('/admin/interns/{intern}/approve', [SchoolController::class, 'approveIntern'])->name('admin.interns.approve');
+    Route::post('/admin/interns/{intern}/reject', [SchoolController::class, 'rejectIntern'])->name('admin.interns.reject');
+    Route::post('/admin/interns/school/{school}/approve-all', [SchoolController::class, 'approveAllBySchool'])->name('admin.interns.approveAllBySchool');
 });

@@ -15,15 +15,45 @@ class InternController extends Controller
      */
     public function index(Request $request)
     {
+        // Get active schools for registration dropdown
+        $schools = \App\Models\School::active()->orderBy('name')->get();
+
         // Check if intern is already registered in this session
         $internId = $request->session()->get('intern_id');
         
         if ($internId) {
             $intern = Intern::with(['attendances' => function($query) {
                 $query->orderBy('date', 'desc')->limit(10);
-            }])->find($internId);
+            }, 'schoolRelation'])->find($internId);
             
             if ($intern) {
+                // Check if intern is pending approval
+                if ($intern->isPending()) {
+                    return view('portals.intern', [
+                        'intern' => $intern,
+                        'showDashboard' => false,
+                        'showPending' => true,
+                        'todayAttendance' => null,
+                        'attendanceHistory' => collect(),
+                        'tasks' => collect(),
+                        'schools' => $schools,
+                    ]);
+                }
+
+                // Check if intern is rejected
+                if ($intern->isRejected()) {
+                    return view('portals.intern', [
+                        'intern' => $intern,
+                        'showDashboard' => false,
+                        'showRejected' => true,
+                        'todayAttendance' => null,
+                        'attendanceHistory' => collect(),
+                        'tasks' => collect(),
+                        'schools' => $schools,
+                    ]);
+                }
+
+                // Intern is approved - show dashboard
                 $todayAttendance = $intern->today_attendance;
                 $attendanceHistory = $intern->attendances()->orderBy('date', 'desc')->limit(10)->get();
                 $tasks = $intern->tasks()->orderBy('due_date', 'asc')->get();
@@ -34,6 +64,7 @@ class InternController extends Controller
                     'todayAttendance' => $todayAttendance,
                     'attendanceHistory' => $attendanceHistory,
                     'tasks' => $tasks,
+                    'schools' => $schools,
                 ]);
             }
         }
@@ -44,6 +75,7 @@ class InternController extends Controller
             'todayAttendance' => null,
             'attendanceHistory' => collect(),
             'tasks' => collect(),
+            'schools' => $schools,
         ]);
     }
 
@@ -58,14 +90,27 @@ class InternController extends Controller
             'gender' => 'required|in:Male,Female,Other',
             'email' => 'required|email|unique:interns,email',
             'phone' => 'required|string|max:20',
-            'school' => 'required|string|max:255',
+            'school_id' => 'required|exists:schools,id',
             'course' => 'required|string|max:255',
             'year_level' => 'nullable|string|max:50',
         ]);
 
+        // Get school and check capacity
+        $school = \App\Models\School::find($validated['school_id']);
+        
+        // Check if school is at capacity
+        if ($school->max_interns && !$school->hasCapacity()) {
+            return back()->withInput()->withErrors([
+                'school_id' => "Sorry, {$school->name} has reached its maximum capacity of {$school->max_interns} interns. Please contact the administrator."
+            ]);
+        }
+        
         // Generate reference code
         $validated['reference_code'] = Intern::generateReferenceCode();
-        $validated['start_date'] = now();
+        $validated['school'] = $school->name; // Keep school name for backward compatibility
+        $validated['required_hours'] = $school->required_hours;
+        $validated['approval_status'] = 'pending';
+        // Don't set start_date until approved
 
         // Create the intern
         $intern = Intern::create($validated);
@@ -74,7 +119,7 @@ class InternController extends Controller
         $request->session()->put('intern_id', $intern->id);
 
         return redirect()->route('intern.portal')
-            ->with('success', 'Registration successful! Your reference code is: ' . $intern->reference_code);
+            ->with('success', 'Registration submitted successfully! Your reference code is: ' . $intern->reference_code . '. Please wait for admin approval.');
     }
 
     /**
