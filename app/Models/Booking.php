@@ -20,11 +20,14 @@ class Booking extends Model
         'status',
         'approved_by',
         'approved_at',
+        'admin_emailed',
+        'attachment_path',
     ];
 
     protected $casts = [
         'booking_date' => 'date',
         'approved_at' => 'datetime',
+        'admin_emailed' => 'boolean',
     ];
 
     /**

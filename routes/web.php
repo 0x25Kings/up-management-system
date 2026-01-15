@@ -65,6 +65,7 @@ Route::middleware(['admin'])->group(function () {
     // Booking management routes (Admin)
     Route::get('/admin/bookings/pending', [BookingController::class, 'pending'])->name('admin.bookings.pending');
     Route::post('/admin/bookings/{booking}/approve', [BookingController::class, 'approve'])->name('admin.bookings.approve');
+    Route::post('/admin/bookings/{booking}/send-email', [BookingController::class, 'sendEmailNotification'])->name('admin.bookings.sendEmail');
 
     // Blocked dates management (Admin)
     Route::get('/admin/blocked-dates', [BlockedDateController::class, 'index'])->name('admin.blocked.index');

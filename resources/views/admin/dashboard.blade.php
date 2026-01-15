@@ -1858,6 +1858,265 @@
                 order: 1;
             }
         }
+
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 12px;
+            max-width: 400px;
+        }
+
+        .toast {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 16px 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            animation: toastSlideIn 0.3s ease, toastFadeOut 0.3s ease 4.7s forwards;
+            min-width: 320px;
+        }
+
+        .toast.toast-success {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            color: white;
+        }
+
+        .toast.toast-error {
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+            color: white;
+        }
+
+        .toast.toast-warning {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+            color: white;
+        }
+
+        .toast.toast-info {
+            background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+            color: white;
+        }
+
+        .toast-icon {
+            font-size: 20px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .toast-content {
+            flex: 1;
+        }
+
+        .toast-title {
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .toast-message {
+            font-size: 13px;
+            opacity: 0.9;
+            line-height: 1.4;
+        }
+
+        .toast-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: background 0.2s;
+        }
+
+        .toast-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .toast-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 0 0 12px 12px;
+            animation: toastProgress 5s linear forwards;
+        }
+
+        @keyframes toastSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes toastFadeOut {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+        }
+
+        @keyframes toastProgress {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
+
+        /* Confirmation Modal */
+        .confirm-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .confirm-modal-overlay.active {
+            display: flex;
+        }
+
+        .confirm-modal {
+            background: white;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: modalPopIn 0.3s ease;
+            overflow: hidden;
+        }
+
+        @keyframes modalPopIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .confirm-modal-header {
+            padding: 24px 24px 0;
+            text-align: center;
+        }
+
+        .confirm-modal-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 28px;
+        }
+
+        .confirm-modal-icon.warning {
+            background: #FEF3C7;
+            color: #D97706;
+        }
+
+        .confirm-modal-icon.danger {
+            background: #FEE2E2;
+            color: #DC2626;
+        }
+
+        .confirm-modal-icon.info {
+            background: #DBEAFE;
+            color: #2563EB;
+        }
+
+        .confirm-modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1F2937;
+            margin-bottom: 8px;
+        }
+
+        .confirm-modal-body {
+            padding: 16px 24px 24px;
+            text-align: center;
+        }
+
+        .confirm-modal-message {
+            color: #6B7280;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .confirm-modal-footer {
+            padding: 0 24px 24px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .confirm-modal-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .confirm-modal-btn.cancel {
+            background: #F3F4F6;
+            color: #4B5563;
+        }
+
+        .confirm-modal-btn.cancel:hover {
+            background: #E5E7EB;
+        }
+
+        .confirm-modal-btn.confirm {
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+            color: white;
+        }
+
+        .confirm-modal-btn.confirm:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+        }
+
+        .confirm-modal-btn.confirm.success {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+        }
+
+        .confirm-modal-btn.confirm.success:hover {
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
     </style>
 </head>
 <body>
@@ -3759,16 +4018,47 @@
 
                 <!-- Pending Bookings Tab -->
                 <div id="pendingBookingsTab" class="booking-tab-content">
+                    <!-- Approved but not emailed Alert -->
+                    @php
+                        $notEmailedCount = $allBookings->where('status', 'approved')->where('admin_emailed', false)->count();
+                    @endphp
+                    @if($notEmailedCount > 0)
+                    <div style="background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: white; padding: 16px 20px; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 24px;"></i>
+                        <div>
+                            <div style="font-weight: 600; font-size: 14px;">Email Notification Pending</div>
+                            <div style="font-size: 12px; opacity: 0.9;">{{ $notEmailedCount }} approved booking(s) awaiting email notification to booker</div>
+                        </div>
+                        <button onclick="switchBookingTab('all')" style="margin-left: auto; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 12px;">
+                            View All <i class="fas fa-arrow-right" style="margin-left: 4px;"></i>
+                        </button>
+                    </div>
+                    @endif
+                    
+                    @php
+                        $emailedCount = $allBookings->where('admin_emailed', true)->count();
+                    @endphp
+                    @if($emailedCount > 0)
+                    <div style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; padding: 16px 20px; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
+                        <i class="fas fa-envelope-circle-check" style="font-size: 24px;"></i>
+                        <div>
+                            <div style="font-weight: 600; font-size: 14px;">Email Notifications Sent</div>
+                            <div style="font-size: 12px; opacity: 0.9;">{{ $emailedCount }} booking(s) have been notified via email</div>
+                        </div>
+                    </div>
+                    @endif
+                    
                     <div class="table-card">
                         <table>
                             <thead>
                                 <tr>
                                     <th>Date & Time</th>
                                     <th>Agency</th>
-                                    <th>Event / School</th>
+                                    <th>Purpose</th>
                                     <th>Contact Person</th>
                                     <th>Contact Info</th>
-                                    <th>Purpose</th>
+                                    <th>Notes</th>
+                                    <th>Attachment</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -3778,6 +4068,11 @@
                                     <td>
                                         <div style="font-weight: 600;">{{ $booking->booking_date->format('M d, Y') }}</div>
                                         <div style="font-size: 12px; color: #6B7280;">{{ $booking->formatted_time }}</div>
+                                        @if($booking->admin_emailed)
+                                        <span style="background: #D1FAE5; color: #059669; font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-top: 4px; display: inline-block;">
+                                            <i class="fas fa-envelope-circle-check"></i> Emailed
+                                        </span>
+                                        @endif
                                     </td>
                                     <td>
                                         <div style="font-weight: 600; color: #7B1D3A;">{{ $booking->agency_name }}</div>
@@ -3794,17 +4089,29 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <button class="btn-action btn-edit" onclick="approveBooking({{ $booking->id }})" title="Approve">
+                                        @if($booking->attachment_path)
+                                        <a href="{{ asset('storage/' . $booking->attachment_path) }}" target="_blank" class="btn-action btn-view" title="View Attachment" style="background: #DBEAFE; color: #2563EB;">
+                                            <i class="fas fa-file-pdf"></i>
+                                        </a>
+                                        @else
+                                        <span style="color: #9CA3AF; font-size: 12px;">None</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <button class="btn-action btn-view" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? asset('storage/' . $booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn-action btn-edit" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? asset('storage/' . $booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})" title="Approve">
                                             <i class="fas fa-check"></i>
                                         </button>
-                                        <button class="btn-action btn-delete" onclick="rejectBooking({{ $booking->id }})" title="Reject">
+                                        <button class="btn-action btn-delete" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? asset('storage/' . $booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})" title="Reject">
                                             <i class="fas fa-times"></i>
                                         </button>
                                     </td>
                                 </tr>
                                 @empty
                                 <tr id="noPendingRow">
-                                    <td colspan="7" style="text-align: center; padding: 40px; color: #9CA3AF;">
+                                    <td colspan="8" style="text-align: center; padding: 40px; color: #9CA3AF;">
                                         <i class="fas fa-check-circle" style="font-size: 40px; margin-bottom: 12px; display: block;"></i>
                                         No pending booking requests
                                     </td>
@@ -3915,16 +4222,24 @@
                                     <th>Date</th>
                                     <th>Time</th>
                                     <th>Agency</th>
-                                    <th>Event</th>
+                                    <th>Purpose</th>
                                     <th>Contact</th>
                                     <th>Status</th>
+                                    <th>Attachment</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="allBookingsBody">
                                 @forelse($allBookings ?? [] as $booking)
                                 <tr class="booking-row" data-status="{{ $booking->status }}" data-search="{{ strtolower($booking->agency_name . ' ' . $booking->event_name . ' ' . $booking->contact_person) }}">
-                                    <td>{{ $booking->booking_date->format('M d, Y') }}</td>
+                                    <td>
+                                        {{ $booking->booking_date->format('M d, Y') }}
+                                        @if($booking->admin_emailed)
+                                        <span style="background: #D1FAE5; color: #059669; font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 4px;" title="Admin Emailed">
+                                            <i class="fas fa-envelope-circle-check"></i>
+                                        </span>
+                                        @endif
+                                    </td>
                                     <td>{{ $booking->formatted_time }}</td>
                                     <td>
                                         <div style="font-weight: 600;">{{ $booking->agency_name }}</div>
@@ -3944,14 +4259,23 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <button class="btn-action btn-view" onclick="viewBookingDetails({{ $booking->id }})" title="View Details">
+                                        @if($booking->attachment_path)
+                                        <a href="{{ asset('storage/' . $booking->attachment_path) }}" target="_blank" class="btn-action btn-view" title="View PDF" style="background: #DBEAFE; color: #2563EB;">
+                                            <i class="fas fa-file-pdf"></i>
+                                        </a>
+                                        @else
+                                        <span style="color: #9CA3AF; font-size: 12px;">—</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <button class="btn-action btn-view" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? asset('storage/' . $booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})" title="View Details">
                                             <i class="fas fa-eye"></i>
                                         </button>
                                         @if($booking->status === 'pending')
-                                        <button class="btn-action btn-edit" onclick="approveBooking({{ $booking->id }})" title="Approve">
+                                        <button class="btn-action btn-edit" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? asset('storage/' . $booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})" title="Approve">
                                             <i class="fas fa-check"></i>
                                         </button>
-                                        <button class="btn-action btn-delete" onclick="rejectBooking({{ $booking->id }})" title="Reject">
+                                        <button class="btn-action btn-delete" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? asset('storage/' . $booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})" title="Reject">
                                             <i class="fas fa-times"></i>
                                         </button>
                                         @endif
@@ -3962,7 +4286,7 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="7" style="text-align: center; padding: 40px; color: #9CA3AF;">
+                                    <td colspan="8" style="text-align: center; padding: 40px; color: #9CA3AF;">
                                         <i class="fas fa-calendar-times" style="font-size: 40px; margin-bottom: 12px; display: block;"></i>
                                         No bookings found
                                     </td>
@@ -4045,6 +4369,136 @@
             </div>
         </div>
     </div>
+
+    <!-- Booking Action Modal -->
+    <div id="bookingActionModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 550px;">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-calendar-check" style="margin-right: 8px;"></i>Booking Details</h3>
+                <button class="modal-close" onclick="closeBookingActionModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Booking Info Card -->
+                <div style="background: linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%); color: white; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+                        <div>
+                            <div style="font-size: 12px; opacity: 0.8; margin-bottom: 4px;">Agency / Organization</div>
+                            <div id="modalAgencyName" style="font-size: 18px; font-weight: 700;"></div>
+                        </div>
+                        <span id="modalStatusBadge" class="status-badge" style="background: #FEF3C7; color: #D97706;">Pending</span>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div>
+                            <div style="font-size: 12px; opacity: 0.8; margin-bottom: 4px;"><i class="fas fa-calendar"></i> Date</div>
+                            <div id="modalBookingDate" style="font-weight: 600;"></div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; opacity: 0.8; margin-bottom: 4px;"><i class="fas fa-clock"></i> Time</div>
+                            <div id="modalBookingTime" style="font-weight: 600;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Booking Details -->
+                <div style="display: grid; gap: 16px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Purpose</div>
+                            <div id="modalPurpose" style="font-weight: 600; color: #1F2937;"></div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Contact Person</div>
+                            <div id="modalContactPerson" style="font-weight: 600; color: #1F2937;"></div>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;"><i class="fas fa-envelope"></i> Email</div>
+                            <div id="modalEmail" style="color: #1F2937;"></div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;"><i class="fas fa-phone"></i> Phone</div>
+                            <div id="modalPhone" style="color: #1F2937;"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Notes</div>
+                        <div id="modalNotes" style="color: #1F2937; font-size: 14px; background: #F9FAFB; padding: 12px; border-radius: 8px;"></div>
+                    </div>
+                    <div id="modalAttachmentSection">
+                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Attachment</div>
+                        <a id="modalAttachmentLink" href="#" target="_blank" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; background: #DBEAFE; color: #2563EB; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px;">
+                            <i class="fas fa-file-pdf"></i> View PDF
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Email Notification Section (for approved bookings not yet emailed) -->
+                <div id="emailNotificationSection" style="display: none; margin-top: 20px; padding: 16px; background: #FEF3C7; border: 1px solid #F59E0B; border-radius: 12px;">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                        <i class="fas fa-envelope" style="font-size: 20px; color: #D97706;"></i>
+                        <div>
+                            <div style="font-weight: 600; color: #92400E;">Email Not Yet Sent</div>
+                            <div style="font-size: 12px; color: #78350F;">The booker has not been notified about the approval.</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Email Preview -->
+                    <div style="background: white; border: 1px solid #E5E7EB; border-radius: 8px; padding: 16px; margin-bottom: 16px; max-height: 200px; overflow-y: auto;">
+                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 8px;">
+                            <strong>To:</strong> <span id="emailPreviewTo"></span>
+                        </div>
+                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 12px;">
+                            <strong>Subject:</strong> <span id="emailPreviewSubject"></span>
+                        </div>
+                        <div id="emailPreviewBody" style="font-size: 13px; color: #374151; white-space: pre-line; line-height: 1.6;"></div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <button class="btn-modal" onclick="copyEmailContent()" style="background: #3B82F6; color: white; width: 100%;">
+                            <i class="fas fa-copy"></i> Copy to Clipboard
+                        </button>
+                        <button class="btn-modal" onclick="openMailClient()" style="background: #8B5CF6; color: white; width: 100%;">
+                            <i class="fas fa-external-link-alt"></i> Open in Email App
+                        </button>
+                    </div>
+                    <button class="btn-modal primary" onclick="markAsEmailed()" style="background: #10B981; width: 100%; margin-top: 12px;">
+                        <i class="fas fa-check-circle"></i> Mark as Emailed
+                    </button>
+                </div>
+
+                <!-- Already Emailed Badge -->
+                <div id="emailSentSection" style="display: none; margin-top: 20px; padding: 16px; background: #D1FAE5; border: 1px solid #10B981; border-radius: 12px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <i class="fas fa-envelope-circle-check" style="font-size: 20px; color: #059669;"></i>
+                        <div>
+                            <div style="font-weight: 600; color: #065F46;">Email Notification Sent</div>
+                            <div style="font-size: 12px; color: #047857;">The booker has been notified about the booking status.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" id="bookingActionFooter">
+                <button class="btn-modal secondary" onclick="closeBookingActionModal()">Close</button>
+                <button class="btn-modal" id="btnRejectBooking" onclick="confirmRejectBooking()" style="background: #EF4444; color: white;">
+                    <i class="fas fa-times"></i> Reject
+                </button>
+                <button class="btn-modal primary" id="btnApproveBooking" onclick="confirmApproveBooking()" style="background: #10B981;">
+                    <i class="fas fa-check"></i> Approve
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <input type="hidden" id="currentBookingId" value="">
+    <input type="hidden" id="currentBookingEmail" value="">
+    <input type="hidden" id="currentBookingAgency" value="">
+    <input type="hidden" id="currentBookingDate" value="">
+    <input type="hidden" id="currentBookingTime" value="">
+    <input type="hidden" id="currentBookingPurpose" value="">
 
     <!-- New Task Modal -->
     <div id="newTaskModal" class="modal-overlay">
@@ -5784,6 +6238,90 @@
         let schedulerCurrentYear = new Date().getFullYear();
         const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
+        // ========== TOAST NOTIFICATION SYSTEM ==========
+        function showToast(type, title, message, duration = 5000) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            
+            const icons = {
+                success: 'fa-check-circle',
+                error: 'fa-times-circle',
+                warning: 'fa-exclamation-triangle',
+                info: 'fa-info-circle'
+            };
+            
+            toast.innerHTML = `
+                <i class="fas ${icons[type]} toast-icon"></i>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close" onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div class="toast-progress"></div>
+            `;
+            
+            container.appendChild(toast);
+            
+            // Auto remove after duration
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.remove();
+                }
+            }, duration);
+        }
+
+        // ========== CONFIRMATION MODAL SYSTEM ==========
+        let confirmCallback = null;
+        
+        function showConfirmModal(options) {
+            const { type = 'warning', title, message, confirmText = 'Confirm', onConfirm } = options;
+            
+            const modal = document.getElementById('confirmModal');
+            const iconEl = document.getElementById('confirmModalIcon');
+            const titleEl = document.getElementById('confirmModalTitle');
+            const messageEl = document.getElementById('confirmModalMessage');
+            const confirmBtn = document.getElementById('confirmModalBtn');
+            
+            // Set icon based on type
+            const icons = {
+                warning: { icon: 'fa-exclamation-triangle', class: 'warning' },
+                danger: { icon: 'fa-trash-alt', class: 'danger' },
+                info: { icon: 'fa-question-circle', class: 'info' }
+            };
+            
+            const iconConfig = icons[type] || icons.warning;
+            iconEl.className = `confirm-modal-icon ${iconConfig.class}`;
+            iconEl.innerHTML = `<i class="fas ${iconConfig.icon}"></i>`;
+            
+            titleEl.textContent = title;
+            messageEl.textContent = message;
+            confirmBtn.innerHTML = `<i class="fas fa-check"></i> ${confirmText}`;
+            
+            // Set button style based on type
+            confirmBtn.className = 'confirm-modal-btn confirm';
+            if (type === 'info') {
+                confirmBtn.classList.add('success');
+            }
+            
+            confirmCallback = onConfirm;
+            modal.classList.add('active');
+        }
+        
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').classList.remove('active');
+            confirmCallback = null;
+        }
+        
+        function executeConfirmAction() {
+            if (confirmCallback) {
+                confirmCallback();
+            }
+            closeConfirmModal();
+        }
+
         // Switch between booking tabs
         function switchBookingTab(tabName) {
             // Remove active from all tabs
@@ -5809,10 +6347,185 @@
             }
         }
 
+        // Booking Action Modal Functions
+        function openBookingActionModal(id, agencyName, date, time, purpose, contactPerson, email, phone, notes, attachmentUrl, status, adminEmailed) {
+            document.getElementById('currentBookingId').value = id;
+            document.getElementById('modalAgencyName').textContent = agencyName;
+            document.getElementById('modalBookingDate').textContent = date;
+            document.getElementById('modalBookingTime').textContent = time;
+            document.getElementById('modalPurpose').textContent = purpose;
+            document.getElementById('modalContactPerson').textContent = contactPerson;
+            document.getElementById('modalEmail').textContent = email;
+            document.getElementById('modalPhone').textContent = phone;
+            document.getElementById('modalNotes').textContent = notes || 'No notes provided';
+            
+            // Handle attachment
+            const attachmentSection = document.getElementById('modalAttachmentSection');
+            const attachmentLink = document.getElementById('modalAttachmentLink');
+            if (attachmentUrl) {
+                attachmentSection.style.display = 'block';
+                attachmentLink.href = attachmentUrl;
+            } else {
+                attachmentSection.style.display = 'none';
+            }
+            
+            // Handle status badge and buttons
+            const statusBadge = document.getElementById('modalStatusBadge');
+            const approveBtn = document.getElementById('btnApproveBooking');
+            const rejectBtn = document.getElementById('btnRejectBooking');
+            const emailNotificationSection = document.getElementById('emailNotificationSection');
+            const emailSentSection = document.getElementById('emailSentSection');
+            
+            // Reset sections
+            emailNotificationSection.style.display = 'none';
+            emailSentSection.style.display = 'none';
+            
+            if (status === 'pending') {
+                statusBadge.style.background = '#FEF3C7';
+                statusBadge.style.color = '#D97706';
+                statusBadge.textContent = 'Pending';
+                approveBtn.style.display = 'inline-flex';
+                rejectBtn.style.display = 'inline-flex';
+            } else if (status === 'approved') {
+                statusBadge.style.background = '#D1FAE5';
+                statusBadge.style.color = '#059669';
+                statusBadge.textContent = 'Approved';
+                approveBtn.style.display = 'none';
+                rejectBtn.style.display = 'none';
+                
+                // Show email notification section based on admin_emailed status
+                if (adminEmailed) {
+                    emailSentSection.style.display = 'block';
+                } else {
+                    emailNotificationSection.style.display = 'block';
+                    // Generate email preview
+                    generateEmailPreview(agencyName, date, time, purpose, email);
+                }
+            } else {
+                statusBadge.style.background = '#FEE2E2';
+                statusBadge.style.color = '#DC2626';
+                statusBadge.textContent = 'Rejected';
+                approveBtn.style.display = 'none';
+                rejectBtn.style.display = 'none';
+            }
+            
+            document.getElementById('bookingActionModal').classList.add('active');
+        }
+        
+        function generateEmailPreview(agencyName, date, time, purpose, email) {
+            const subject = `Booking Approved - ${purpose} on ${date}`;
+            const body = `Dear ${agencyName},
+
+We are pleased to inform you that your booking request has been APPROVED.
+
+📅 BOOKING DETAILS:
+━━━━━━━━━━━━━━━━━━━━
+Date: ${date}
+Time: ${time}
+Purpose: ${purpose}
+
+Please arrive at least 15 minutes before your scheduled time. If you need to reschedule or cancel, please contact us as soon as possible.
+
+We look forward to seeing you!
+
+Best regards,
+UP Cebu Innovation & Technology Hub
+University of the Philippines Cebu
+📧 info@upcebu.edu.ph
+📞 +63 32 123 4567`;
+
+            document.getElementById('emailPreviewTo').textContent = email;
+            document.getElementById('emailPreviewSubject').textContent = subject;
+            document.getElementById('emailPreviewBody').textContent = body;
+            
+            // Store for copy/mail functions
+            document.getElementById('currentBookingEmail').value = email;
+            document.getElementById('currentBookingAgency').value = agencyName;
+            document.getElementById('currentBookingDate').value = date;
+            document.getElementById('currentBookingTime').value = time;
+            document.getElementById('currentBookingPurpose').value = purpose;
+        }
+        
+        function copyEmailContent() {
+            const email = document.getElementById('currentBookingEmail').value;
+            const subject = document.getElementById('emailPreviewSubject').textContent;
+            const body = document.getElementById('emailPreviewBody').textContent;
+            
+            const fullContent = `To: ${email}\nSubject: ${subject}\n\n${body}`;
+            
+            navigator.clipboard.writeText(fullContent).then(() => {
+                showToast('success', 'Copied!', 'Email content copied to clipboard. Paste it into your email application.');
+            }).catch(err => {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = fullContent;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showToast('success', 'Copied!', 'Email content copied to clipboard.');
+            });
+        }
+        
+        function openMailClient() {
+            const email = document.getElementById('currentBookingEmail').value;
+            const subject = encodeURIComponent(document.getElementById('emailPreviewSubject').textContent);
+            const body = encodeURIComponent(document.getElementById('emailPreviewBody').textContent);
+            
+            window.open(`mailto:${email}?subject=${subject}&body=${body}`, '_blank');
+            showToast('info', 'Email App Opened', 'Your default email application should now open with the pre-filled content.');
+        }
+        
+        function markAsEmailed() {
+            const bookingId = document.getElementById('currentBookingId').value;
+            
+            fetch(`/admin/bookings/${bookingId}/send-email`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('success', 'Marked as Emailed', 'Email notification status has been updated.');
+                    // Update UI
+                    document.getElementById('emailNotificationSection').style.display = 'none';
+                    document.getElementById('emailSentSection').style.display = 'block';
+                } else {
+                    showToast('error', 'Error', data.message || 'Failed to update status.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('error', 'Error', 'An error occurred while updating the status.');
+            });
+        }
+        
+        function closeBookingActionModal() {
+            document.getElementById('bookingActionModal').classList.remove('active');
+        }
+        
+        function confirmApproveBooking() {
+            const bookingId = document.getElementById('currentBookingId').value;
+            approveBooking(bookingId);
+        }
+        
+        function confirmRejectBooking() {
+            const bookingId = document.getElementById('currentBookingId').value;
+            showConfirmModal({
+                type: 'danger',
+                title: 'Reject Booking?',
+                message: 'This booking request will be rejected. The booker will not be able to use this time slot. This action cannot be undone.',
+                confirmText: 'Reject Booking',
+                onConfirm: () => rejectBooking(bookingId)
+            });
+        }
+
         // Approve booking
         function approveBooking(bookingId) {
-            if (!confirm('Approve this booking request?')) return;
-            
             fetch(`/admin/bookings/${bookingId}/approve`, {
                 method: 'POST',
                 headers: {
@@ -5824,28 +6537,27 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('Booking approved successfully!');
+                    closeBookingActionModal();
+                    showToast('success', 'Booking Approved!', 'You can now send an email notification to the booker.');
                     // Remove from pending table
                     const row = document.getElementById(`booking-row-${bookingId}`);
                     if (row) row.remove();
                     // Update pending count
                     updatePendingCount(-1);
                     // Reload to update all views
-                    setTimeout(() => window.location.reload(), 500);
+                    setTimeout(() => window.location.reload(), 1500);
                 } else {
-                    alert(data.message || 'Failed to approve booking.');
+                    showToast('error', 'Error', data.message || 'Failed to approve booking.');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('An error occurred while approving the booking.');
+                showToast('error', 'Error', 'An error occurred while approving the booking.');
             });
         }
 
         // Reject booking
         function rejectBooking(bookingId) {
-            if (!confirm('Reject this booking request? This action cannot be undone.')) return;
-            
             fetch(`/admin/bookings/${bookingId}/reject`, {
                 method: 'POST',
                 headers: {
@@ -5857,25 +6569,34 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('Booking rejected.');
+                    closeBookingActionModal();
+                    showToast('warning', 'Booking Rejected', 'The booking request has been rejected.');
                     const row = document.getElementById(`booking-row-${bookingId}`);
                     if (row) row.remove();
                     updatePendingCount(-1);
-                    setTimeout(() => window.location.reload(), 500);
+                    setTimeout(() => window.location.reload(), 1500);
                 } else {
-                    alert(data.message || 'Failed to reject booking.');
+                    showToast('error', 'Error', data.message || 'Failed to reject booking.');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('An error occurred while rejecting the booking.');
+                showToast('error', 'Error', 'An error occurred while rejecting the booking.');
             });
         }
 
         // Delete booking
         function deleteBooking(bookingId) {
-            if (!confirm('Are you sure you want to permanently delete this booking?')) return;
-            
+            showConfirmModal({
+                type: 'danger',
+                title: 'Delete Booking?',
+                message: 'This will permanently delete the booking record. This action cannot be undone.',
+                confirmText: 'Delete',
+                onConfirm: () => executeDeleteBooking(bookingId)
+            });
+        }
+        
+        function executeDeleteBooking(bookingId) {
             fetch(`/admin/bookings/${bookingId}`, {
                 method: 'DELETE',
                 headers: {
@@ -5887,15 +6608,15 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('Booking deleted successfully.');
-                    window.location.reload();
+                    showToast('success', 'Deleted', 'Booking has been permanently deleted.');
+                    setTimeout(() => window.location.reload(), 1500);
                 } else {
-                    alert(data.message || 'Failed to delete booking.');
+                    showToast('error', 'Error', data.message || 'Failed to delete booking.');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('An error occurred while deleting the booking.');
+                showToast('error', 'Error', 'An error occurred while deleting the booking.');
             });
         }
 
@@ -6997,5 +7718,31 @@
             }
         });
     </script>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="confirm-modal-overlay">
+        <div class="confirm-modal">
+            <div class="confirm-modal-header">
+                <div id="confirmModalIcon" class="confirm-modal-icon warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h3 id="confirmModalTitle" class="confirm-modal-title">Are you sure?</h3>
+            </div>
+            <div class="confirm-modal-body">
+                <p id="confirmModalMessage" class="confirm-modal-message">This action cannot be undone.</p>
+            </div>
+            <div class="confirm-modal-footer">
+                <button class="confirm-modal-btn cancel" onclick="closeConfirmModal()">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <button id="confirmModalBtn" class="confirm-modal-btn confirm" onclick="executeConfirmAction()">
+                    <i class="fas fa-check"></i> Confirm
+                </button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
