@@ -938,14 +938,33 @@
             <div class="content-card">
                 <div class="content-card-header">
                     <h3 class="content-card-title">Internship Progress</h3>
-                    <span style="font-size: 24px; font-weight: 700; color: #7B1D3A;">{{ $intern->progress_percentage }}%</span>
+                    @php
+                        // Calculate actual completed hours from attendance records
+                        $actualCompletedHours = 0;
+                        if ($attendanceHistory && $attendanceHistory->count() > 0) {
+                            foreach ($attendanceHistory as $record) {
+                                if ($record->time_in && $record->time_out) {
+                                    $timeIn = \Carbon\Carbon::parse($record->time_in);
+                                    $timeOut = \Carbon\Carbon::parse($record->time_out);
+                                    $hoursWorked = round($timeOut->diffInMinutes($timeIn) / 60, 2);
+                                    if ($hoursWorked >= 8) {
+                                        $actualCompletedHours += 8; // Count as full 8-hour day
+                                    } else {
+                                        $actualCompletedHours += $hoursWorked;
+                                    }
+                                }
+                            }
+                        }
+                        $progressPercentage = $intern->required_hours > 0 ? round(($actualCompletedHours / $intern->required_hours) * 100, 1) : 0;
+                    @endphp
+                    <span style="font-size: 24px; font-weight: 700; color: #7B1D3A;">{{ min($progressPercentage, 100) }}%</span>
                 </div>
                 <div class="content-card-body">
                     <div class="progress-bar-container">
-                        <div class="progress-bar" style="width: {{ $intern->progress_percentage }}%;"></div>
+                        <div class="progress-bar" style="width: {{ min($progressPercentage, 100) }}%;"></div>
                     </div>
                     <div style="display: flex; justify-content: space-between; margin-top: 12px; color: #6B7280; font-size: 14px;">
-                        <span>{{ $intern->completed_hours }} hours completed</span>
+                        <span>{{ number_format($actualCompletedHours, 2) }} hours completed</span>
                         <span>{{ $intern->required_hours }} hours required</span>
                     </div>
                 </div>
