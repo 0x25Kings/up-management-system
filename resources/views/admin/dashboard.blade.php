@@ -3290,18 +3290,19 @@
                             <i class="fas fa-download"></i> Export Tasks
                         </button>
                     </div>
-                    <table>
+                    <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+                    <table style="min-width: 1400px;">
                         <thead>
                             <tr>
-                                <th>Task Title</th>
-                                <th>Assigned To</th>
-                                <th>Assignment Type</th>
-                                <th>School</th>
-                                <th>Due Date</th>
-                                <th>Priority</th>
-                                <th>Progress</th>
-                                <th>Status</th>
-                                <th>Actions</th>
+                                <th style="min-width: 200px;">Task Title</th>
+                                <th style="min-width: 180px;">Assigned To</th>
+                                <th style="min-width: 140px;">Assignment Type</th>
+                                <th style="min-width: 120px;">School</th>
+                                <th style="min-width: 120px;">Due Date</th>
+                                <th style="min-width: 100px;">Priority</th>
+                                <th style="min-width: 120px;">Progress</th>
+                                <th style="min-width: 120px;">Status</th>
+                                <th style="min-width: 150px; position: sticky; right: 0; background: #F9FAFB; z-index: 10;">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="taskTableBody">
@@ -3321,37 +3322,43 @@
                                 <td>{{ $task->intern->school ?? 'N/A' }}</td>
                                 <td style="font-weight: 600;">{{ \Carbon\Carbon::parse($task->due_date)->format('M d, Y') }}</td>
                                 <td>
-                                    <span class="status-badge" style="background:
-                                        @if($task->priority === 'High') #FEE2E2; color: #991B1B;
-                                        @elseif($task->priority === 'Medium') #FEF3C7; color: #92400E;
-                                        @else #D1FAE5; color: #065F46;
-                                        @endif">
+                                    @php
+                                        $priorityStyle = $task->priority === 'High'
+                                            ? 'background: #FEE2E2; color: #991B1B;'
+                                            : ($task->priority === 'Medium'
+                                                ? 'background: #FEF3C7; color: #92400E;'
+                                                : 'background: #D1FAE5; color: #065F46;');
+                                    @endphp
+                                    <span class="status-badge" style="{{ $priorityStyle }}">
                                         {{ $task->priority }}
                                     </span>
                                 </td>
                                 <td>
                                     <div style="display: flex; align-items: center; gap: 8px;">
                                         <div class="progress-bar-container" style="flex: 1; max-width: 80px;">
-                                            <div class="progress-bar" style="width: {{ $task->status === 'Completed' ? 100 : ($task->status === 'In Progress' ? 50 : 10) }}%;"></div>
+                                            <div class="progress-bar" style="width: {{ $task->progress ?? 0 }}%;"></div>
                                         </div>
-                                        <span style="font-weight: 600; font-size: 12px;">{{ $task->status === 'Completed' ? 100 : ($task->status === 'In Progress' ? 50 : 10) }}%</span>
+                                        <span style="font-weight: 600; font-size: 12px;">{{ $task->progress ?? 0 }}%</span>
                                     </div>
                                 </td>
                                 <td>
-                                    <span class="status-badge" style="background:
-                                        @if($task->status === 'Completed') #D1FAE5; color: #065F46;
-                                        @elseif($task->status === 'In Progress') #FEF3C7; color: #92400E;
-                                        @else #E5E7EB; color: #6B7280;
-                                        @endif">
+                                    @php
+                                        $statusStyle = $task->status === 'Completed'
+                                            ? 'background: #D1FAE5; color: #065F46;'
+                                            : ($task->status === 'In Progress'
+                                                ? 'background: #FEF3C7; color: #92400E;'
+                                                : 'background: #E5E7EB; color: #6B7280;');
+                                    @endphp
+                                    <span class="status-badge" style="{{ $statusStyle }}">
                                         {{ $task->status }}
                                     </span>
                                 </td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button class="btn-action btn-view" title="View Details" onclick="viewTaskDetails({{ $task->id }})"><i class="fas fa-eye"></i></button>
-                                        <button class="btn-action btn-edit" title="Edit Task" onclick="editTask({{ $task->id }})"><i class="fas fa-edit"></i></button>
+                                <td style="position: sticky; right: 0; background: #F9FAFB; z-index: 9;">
+                                    <div class="action-buttons" style="display: flex; gap: 6px; justify-content: center; flex-wrap: nowrap;">
+                                        <button class="btn-action btn-view" title="View Details" onclick="viewTaskDetails({{ $task->id }})" style="padding: 8px 10px; background: #3B82F6; color: white; border: none; border-radius: 4px; cursor: pointer; flex-shrink: 0;"><i class="fas fa-eye"></i></button>
+                                        <button class="btn-action btn-edit" title="Edit Task" onclick="editTask({{ $task->id }})" style="padding: 8px 10px; background: #F59E0B; color: white; border: none; border-radius: 4px; cursor: pointer; flex-shrink: 0;"><i class="fas fa-edit"></i></button>
                                         @if($task->status !== 'Completed')
-                                        <button class="btn-action btn-check" title="Mark Complete" onclick="markTaskComplete({{ $task->id }})"><i class="fas fa-check"></i></button>
+                                        <button class="btn-action btn-check" title="Mark Complete" onclick="markTaskComplete({{ $task->id }})" style="padding: 8px 10px; background: #10B981; color: white; border: none; border-radius: 4px; cursor: pointer; flex-shrink: 0;"><i class="fas fa-check"></i></button>
                                         @endif
                                     </div>
                                 </td>
@@ -3366,6 +3373,7 @@
                             @endforelse
                         </tbody>
                     </table>
+                    </div>
 
                     <!-- Pagination -->
                     <div style="display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-top: 1px solid #E5E7EB;">
@@ -5644,6 +5652,42 @@
             if (userRoleEl) {
                 userRoleEl.textContent = 'Administrator';
             }
+
+            // Restore dashboard state after page refresh
+            const savedTab = localStorage.getItem('activeDashboardTab');
+
+            if (savedTab) {
+                const tabElement = document.querySelector(`[data-tab="${savedTab}"]`);
+                const contentElement = document.getElementById(savedTab);
+
+                // Hide all tabs
+                document.querySelectorAll('.tab-content').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+
+                // Remove active class from all tab buttons
+                document.querySelectorAll('.tab-button').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+
+                // Show the saved tab
+                if (contentElement) {
+                    contentElement.classList.add('active');
+                }
+                if (tabElement) {
+                    tabElement.classList.add('active');
+                }
+            }
+
+            // Save tab state when clicking tabs
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    const tabName = this.getAttribute('data-tab');
+                    if (tabName) {
+                        localStorage.setItem('activeDashboardTab', tabName);
+                    }
+                });
+            });
 
             // Load notifications on page load
             loadNotifications();
@@ -8163,108 +8207,112 @@ University of the Philippines Cebu
 
         // View task details
         function viewTaskDetails(taskId) {
-            // Sample task data - in a real app, this would come from a server or data store
-            const tasks = {
-                1: {
-                    title: 'Database Schema Design',
-                    description: 'Design and implement the database schema for the new management system',
-                    assignedTo: 'Development Team (3)',
-                    type: 'Group',
-                    members: [
-                        { name: 'Kingsley Laran', isLeader: true, school: 'UP Cebu' },
-                        { name: 'Julliana Laurena', isLeader: false, school: 'UP Cebu' },
-                        { name: 'Ruther Marte', isLeader: false, school: 'UP Cebu' }
-                    ],
-                    school: 'UP Cebu',
-                    dueDate: '2024-02-15',
-                    priority: 'High',
-                    progress: 75,
-                    status: 'In Progress'
-                },
-                2: {
-                    title: 'UI/UX Research',
-                    description: 'Conduct user research and create wireframes for the dashboard',
-                    assignedTo: 'Julliana Laurena',
-                    type: 'Individual',
-                    school: 'UP Cebu',
-                    dueDate: '2024-02-10',
-                    priority: 'Medium',
-                    progress: 100,
-                    status: 'Completed'
+            // Fetch task data from backend
+            fetch(`/admin/tasks/${taskId}`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
                 }
-            };
+            })
+            .then(response => response.json())
+            .then(data => {
+                const task = data.task;
 
-            const task = tasks[taskId] || tasks[1]; // Default to first task if not found
-
-            let membersHtml = '';
-            if (task.type === 'Group' && task.members) {
-                membersHtml = `
+                // Intern Provided Progress Section
+                const progressHtml = `
                     <div class="detail-section">
-                        <div class="detail-label">Group Members</div>
-                        <div class="assigned-members">
-                            ${task.members.map(member => `
-                                <span class="member-badge ${member.isLeader ? 'leader' : ''}">
-                                    ${member.name} ${member.isLeader ? '(Leader)' : ''}
-                                </span>
-                            `).join('')}
+                        <div class="detail-label" style="color: #7B1D3A; font-weight: 700;">Intern Provided Progress</div>
+                        <div class="detail-value">
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                                <div style="flex: 1; background: #f3f4f6; border-radius: 4px; height: 12px; overflow: hidden;">
+                                    <div style="width: ${task.progress || 0}%; background: linear-gradient(90deg, #7B1D3A, #5a1428); height: 100%;"></div>
+                                </div>
+                                <span style="font-weight: 600; min-width: 50px;">${task.progress || 0}%</span>
+                            </div>
                         </div>
                     </div>
                 `;
-            }
 
-            const detailsHtml = `
-                <div class="detail-section">
-                    <div class="detail-label">Task Title</div>
-                    <div class="detail-value">${task.title}</div>
-                </div>
-                <div class="detail-section">
-                    <div class="detail-label">Description</div>
-                    <div class="detail-value">${task.description}</div>
-                </div>
-                <div class="detail-section">
-                    <div class="detail-label">Assignment Type</div>
-                    <div class="detail-value">${task.type}</div>
-                </div>
-                <div class="detail-section">
-                    <div class="detail-label">Assigned To</div>
-                    <div class="detail-value">${task.assignedTo}</div>
-                </div>
-                ${membersHtml}
-                <div class="detail-section">
-                    <div class="detail-label">School</div>
-                    <div class="detail-value">${task.school}</div>
-                </div>
-                <div class="detail-section">
-                    <div class="detail-label">Due Date</div>
-                    <div class="detail-value">${new Date(task.dueDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
-                </div>
-                <div class="detail-section">
-                    <div class="detail-label">Priority</div>
-                    <div class="detail-value">
-                        <span class="priority-badge priority-${task.priority.toLowerCase()}">${task.priority}</span>
+                // Intern Notes Section
+                const notesHtml = task.notes ? `
+                    <div class="detail-section">
+                        <div class="detail-label" style="color: #7B1D3A; font-weight: 700;">Intern Notes / Comments</div>
+                        <div class="detail-value" style="background: #F3F4F6; padding: 12px; border-radius: 6px; border-left: 4px solid #7B1D3A; line-height: 1.5;">${task.notes}</div>
                     </div>
-                </div>
-                <div class="detail-section">
-                    <div class="detail-label">Progress</div>
-                    <div class="detail-value">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <div style="flex: 1; background: #f3f4f6; border-radius: 4px; height: 8px; overflow: hidden;">
-                                <div style="width: ${task.progress}%; background: #7B1D3A; height: 100%;"></div>
+                ` : '';
+
+                // Uploaded Documents Section
+                const documentsHtml = task.documents && task.documents.length > 0 ? `
+                    <div class="detail-section">
+                        <div class="detail-label" style="color: #7B1D3A; font-weight: 700;">Uploaded Documents</div>
+                        <div class="detail-value">
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                ${task.documents.map(doc => {
+                                    const filename = doc.split('/').pop();
+                                    return `
+                                        <a href="/documents/download/${filename}" download style="display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; background: #E5E7EB; border-radius: 4px; text-decoration: none; color: #1F2937; font-size: 14px; transition: background 0.2s;">
+                                            <i class="fas fa-file-download" style="color: #7B1D3A;"></i>
+                                            ${filename}
+                                        </a>
+                                    `;
+                                }).join('')}
                             </div>
-                            <span>${task.progress}%</span>
                         </div>
                     </div>
-                </div>
-                <div class="detail-section">
-                    <div class="detail-label">Status</div>
-                    <div class="detail-value">
-                        <span class="status-badge status-${task.status.toLowerCase().replace(' ', '-')}">${task.status}</span>
-                    </div>
-                </div>
-            `;
+                ` : '';
 
-            document.getElementById('taskDetailsContent').innerHTML = detailsHtml;
-            document.getElementById('viewTaskModal').classList.add('active');
+                const detailsHtml = `
+                    <div class="detail-section">
+                        <div class="detail-label">Task Title</div>
+                        <div class="detail-value">${task.title}</div>
+                    </div>
+                    <div class="detail-section">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">${task.description || 'No description provided'}</div>
+                    </div>
+                    <div class="detail-section">
+                        <div class="detail-label">Assigned To</div>
+                        <div class="detail-value">${task.intern?.name || 'Unknown'}</div>
+                    </div>
+                    <div class="detail-section">
+                        <div class="detail-label">School</div>
+                        <div class="detail-value">${task.intern?.school || 'N/A'}</div>
+                    </div>
+                    <div class="detail-section">
+                        <div class="detail-label">Due Date</div>
+                        <div class="detail-value">${new Date(task.due_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
+                    </div>
+                    <div class="detail-section">
+                        <div class="detail-label">Priority</div>
+                        <div class="detail-value">
+                            <span class="status-badge" style="background:
+                                ${task.priority === 'High' ? '#FEE2E2; color: #991B1B' :
+                                  task.priority === 'Medium' ? '#FEF3C7; color: #92400E' :
+                                  '#D1FAE5; color: #065F46'};\">${task.priority}</span>
+                        </div>
+                    </div>
+                    <div class="detail-section">
+                        <div class="detail-label">Status</div>
+                        <div class="detail-value">
+                            <span class="status-badge" style="background:
+                                ${task.status === 'Completed' ? '#D1FAE5; color: #065F46' :
+                                  task.status === 'In Progress' ? '#FEF3C7; color: #92400E' :
+                                  '#E5E7EB; color: #6B7280'};\">${task.status}</span>
+                        </div>
+                    </div>
+                    ${progressHtml}
+                    ${notesHtml}
+                    ${documentsHtml}
+                `;
+
+                document.getElementById('taskDetailsContent').innerHTML = detailsHtml;
+                document.getElementById('viewTaskModal').classList.add('active');
+            })
+            .catch(error => {
+                console.error('Error fetching task:', error);
+                alert('Error loading task details');
+            });
         }
 
         // Close view task modal

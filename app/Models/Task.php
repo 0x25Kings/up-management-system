@@ -17,11 +17,16 @@ class Task extends Model
         'due_date',
         'completed_date',
         'assigned_by',
+        'progress',
+        'notes',
+        'documents',
+        'started_at',
     ];
 
     protected $casts = [
         'due_date' => 'date',
         'completed_date' => 'date',
+        'documents' => 'array',
     ];
 
     /**

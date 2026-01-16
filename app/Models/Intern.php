@@ -167,4 +167,39 @@ class Intern extends Model
     {
         return max(0, $this->required_hours - $this->completed_hours);
     }
+
+    /**
+     * Auto-update task progress based on attendance records
+     * Called daily to increment progress for active tasks
+     */
+    public function autoUpdateTaskProgress()
+    {
+        $activeTasks = $this->tasks()
+            ->where('status', 'In Progress')
+            ->whereNull('completed_date')
+            ->get();
+
+        foreach ($activeTasks as $task) {
+            // Count unique days with attendance since task started
+            $daysWorked = $this->attendances()
+                ->whereDate('date', '>=', $task->started_at ?? $task->created_at)
+                ->distinct('date')
+                ->count();
+
+            if ($daysWorked > 0) {
+                // Estimate task duration in days (if available from due_date)
+                $totalDays = $task->started_at
+                    ? $task->due_date->diffInDays($task->started_at) + 1
+                    : 5; // Default 5 days if no due date
+
+                // Calculate progress: (days worked / total estimated days) * 100
+                $estimatedProgress = min(95, round(($daysWorked / max($totalDays, 1)) * 100));
+
+                // Only update if progress increased
+                if ($estimatedProgress > $task->progress) {
+                    $task->update(['progress' => $estimatedProgress]);
+                }
+            }
+        }
+    }
 }

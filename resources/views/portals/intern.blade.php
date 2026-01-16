@@ -909,29 +909,68 @@
                     <div class="stat-icon" style="background: #DBEAFE; color: #2563EB;">
                         <i class="fas fa-clock"></i>
                     </div>
-                    <div class="stat-value">{{ $intern->completed_hours }}</div>
+                    <div class="stat-value">
+                        @php
+                            $actualCompletedHours = 0;
+                            if ($attendanceHistory && $attendanceHistory->count() > 0) {
+                                foreach ($attendanceHistory as $record) {
+                                    if ($record->time_in && $record->time_out) {
+                                        $timeIn = \Carbon\Carbon::parse($record->time_in);
+                                        $timeOut = \Carbon\Carbon::parse($record->time_out);
+                                        $hoursWorked = round($timeOut->diffInMinutes($timeIn) / 60, 2);
+                                        if ($hoursWorked >= 8) {
+                                            $actualCompletedHours += 8;
+                                        } else {
+                                            $actualCompletedHours += $hoursWorked;
+                                        }
+                                    }
+                                }
+                            }
+                            echo number_format($actualCompletedHours, 1);
+                        @endphp
+                    </div>
                     <div class="stat-label">Hours Completed</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon" style="background: #FEF3C7; color: #D97706;">
                         <i class="fas fa-hourglass-half"></i>
                     </div>
-                    <div class="stat-value">{{ $intern->remaining_hours }}</div>
+                    <div class="stat-value">
+                        @php
+                            echo max(0, $intern->required_hours - $actualCompletedHours);
+                        @endphp
+                    </div>
                     <div class="stat-label">Hours Remaining</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon" style="background: #D1FAE5; color: #059669;">
                         <i class="fas fa-tasks"></i>
                     </div>
-                    <div class="stat-value">0</div>
+                    <div class="stat-value">
+                        @php
+                            $completedTasks = 0;
+                            if ($intern->tasks) {
+                                $completedTasks = $intern->tasks->where('status', 'Completed')->count();
+                            }
+                            echo $completedTasks;
+                        @endphp
+                    </div>
                     <div class="stat-label">Tasks Completed</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon" style="background: #EDE9FE; color: #7C3AED;">
                         <i class="fas fa-file-alt"></i>
                     </div>
-                    <div class="stat-value">0</div>
-                    <div class="stat-label">Reports Submitted</div>
+                    <div class="stat-value">
+                        @php
+                            $totalTasks = 0;
+                            if ($intern->tasks) {
+                                $totalTasks = $intern->tasks->count();
+                            }
+                            echo $totalTasks;
+                        @endphp
+                    </div>
+                    <div class="stat-label">Total Tasks Assigned</div>
                 </div>
             </div>
 
@@ -977,13 +1016,34 @@
                     </div>
                     <div class="content-card-body">
                         <div style="display: flex; flex-direction: column; gap: 12px;">
-                            <button class="btn-primary" style="justify-content: flex-start; display: flex; align-items: center;">
+                            @php
+                                $hasTimeIn = $todayAttendance && $todayAttendance->time_in;
+                                $hasTimeOut = $todayAttendance && $todayAttendance->time_out;
+                            @endphp
+
+                            @if(!$hasTimeIn)
+                            <button class="btn-primary" style="justify-content: flex-start; display: flex; align-items: center; cursor: pointer;" onclick="document.querySelector('#attendance').click();">
                                 <i class="fas fa-clock" style="margin-right: 10px;"></i>
-                                Log Attendance
+                                Log Time In
                             </button>
-                            <button class="btn-primary" style="justify-content: flex-start; display: flex; align-items: center;">
-                                <i class="fas fa-file-upload" style="margin-right: 10px;"></i>
-                                Submit Daily Report
+                            @elseif(!$hasTimeOut)
+                            <button class="btn-primary" style="justify-content: flex-start; display: flex; align-items: center; cursor: pointer; background: #F59E0B;" onclick="document.querySelector('#attendance').click();">
+                                <i class="fas fa-sign-out-alt" style="margin-right: 10px;"></i>
+                                Log Time Out
+                            </button>
+                            @else
+                            <button class="btn-secondary" style="justify-content: flex-start; display: flex; align-items: center; cursor: not-allowed; opacity: 0.6;">
+                                <i class="fas fa-check-circle" style="margin-right: 10px;"></i>
+                                Attendance Logged Today
+                            </button>
+                            @endif
+
+                            @php
+                                $pendingTasks = $intern->tasks ? $intern->tasks->whereIn('status', ['Not Started', 'In Progress'])->count() : 0;
+                            @endphp
+                            <button class="btn-primary" style="justify-content: flex-start; display: flex; align-items: center; cursor: pointer;" onclick="document.querySelector('[data-tab=\"tasks\"]').click();">
+                                <i class="fas fa-tasks" style="margin-right: 10px;"></i>
+                                View Tasks ({{ $pendingTasks }} pending)
                             </button>
                             <button class="btn-secondary" style="justify-content: flex-start; display: flex; align-items: center;">
                                 <i class="fas fa-download" style="margin-right: 10px;"></i>
@@ -998,10 +1058,86 @@
                         <h3 class="content-card-title">Recent Activity</h3>
                     </div>
                     <div class="content-card-body">
+                        @php
+                            $recentActivities = [];
+
+                            // Get today's attendance
+                            if ($todayAttendance && $todayAttendance->time_in) {
+                                $recentActivities[] = [
+                                    'type' => 'attendance',
+                                    'icon' => 'fa-clock',
+                                    'title' => 'Time In Logged',
+                                    'description' => 'Logged in at ' . \Carbon\Carbon::parse($todayAttendance->time_in)->format('h:i A'),
+                                    'time' => \Carbon\Carbon::parse($todayAttendance->time_in)->diffForHumans()
+                                ];
+                            }
+
+                            if ($todayAttendance && $todayAttendance->time_out) {
+                                $recentActivities[] = [
+                                    'type' => 'attendance',
+                                    'icon' => 'fa-sign-out-alt',
+                                    'title' => 'Time Out Logged',
+                                    'description' => 'Logged out at ' . \Carbon\Carbon::parse($todayAttendance->time_out)->format('h:i A'),
+                                    'time' => \Carbon\Carbon::parse($todayAttendance->time_out)->diffForHumans()
+                                ];
+                            }
+
+                            // Get recent tasks
+                            if ($intern->tasks) {
+                                foreach ($intern->tasks->sortByDesc('updated_at')->take(3) as $task) {
+                                    if ($task->status === 'Completed') {
+                                        $recentActivities[] = [
+                                            'type' => 'task',
+                                            'icon' => 'fa-check-circle',
+                                            'title' => 'Task Completed',
+                                            'description' => $task->title,
+                                            'time' => $task->updated_at->diffForHumans()
+                                        ];
+                                    }
+                                }
+                            }
+
+                            // Get recent attendance
+                            if ($attendanceHistory) {
+                                foreach ($attendanceHistory->sortByDesc('created_at')->take(2) as $attendance) {
+                                    if ($attendance->time_in && $attendance->time_out && $attendance->date !== today()->toDateString()) {
+                                        $recentActivities[] = [
+                                            'type' => 'attendance',
+                                            'icon' => 'fa-calendar-check',
+                                            'title' => 'Attendance Logged',
+                                            'description' => \Carbon\Carbon::parse($attendance->date)->format('F d, Y'),
+                                            'time' => \Carbon\Carbon::parse($attendance->date)->diffForHumans()
+                                        ];
+                                    }
+                                }
+                            }
+
+                            $recentActivities = collect($recentActivities)->take(5);
+                        @endphp
+
+                        @if($recentActivities->count() > 0)
+                        <div style="display: flex; flex-direction: column; gap: 12px;">
+                            @foreach($recentActivities as $activity)
+                            <div style="padding: 12px; background: #F9FAFB; border-radius: 8px; border-left: 4px solid #7B1D3A;">
+                                <div style="display: flex; align-items: flex-start; gap: 12px;">
+                                    <div style="width: 40px; height: 40px; background: #EDE9FE; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #7C3AED; flex-shrink: 0;">
+                                        <i class="fas {{ $activity['icon'] }}"></i>
+                                    </div>
+                                    <div style="flex: 1;">
+                                        <div style="font-weight: 600; color: #1F2937; font-size: 13px;">{{ $activity['title'] }}</div>
+                                        <div style="color: #6B7280; font-size: 12px; margin-top: 2px;">{{ $activity['description'] }}</div>
+                                        <div style="color: #9CA3AF; font-size: 11px; margin-top: 4px;">{{ $activity['time'] }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                        @else
                         <div style="text-align: center; padding: 30px; color: #9CA3AF;">
                             <i class="fas fa-inbox" style="font-size: 40px; margin-bottom: 12px;"></i>
                             <p>No recent activity</p>
                         </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -1346,9 +1482,14 @@
                                                 <i class="fas fa-check-circle"></i> Completed
                                             </span>
                                         @elseif($task->status === 'In Progress')
-                                            <button onclick="completeTask({{ $task->id }})" style="background: #10B981; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 11px; cursor: pointer; font-weight: 600; transition: background 0.2s;" onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10B981'">
-                                                <i class="fas fa-check"></i> Complete
-                                            </button>
+                                            <div style="display: flex; gap: 6px; justify-content: center;">
+                                                <button onclick="updateTask({{ $task->id }})" style="background: #3B82F6; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 11px; cursor: pointer; font-weight: 600; transition: background 0.2s;" onmouseover="this.style.background='#2563EB'" onmouseout="this.style.background='#3B82F6'">
+                                                    <i class="fas fa-sync"></i> Update
+                                                </button>
+                                                <button onclick="completeTask({{ $task->id }})" style="background: #10B981; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 11px; cursor: pointer; font-weight: 600; transition: background 0.2s;" onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10B981'">
+                                                    <i class="fas fa-check"></i> Complete
+                                                </button>
+                                            </div>
                                         @else
                                             <button onclick="startTask({{ $task->id }})" style="background: #7B1D3A; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 11px; cursor: pointer; font-weight: 600; transition: background 0.2s;" onmouseover="this.style.background='#5a1428'" onmouseout="this.style.background='#7B1D3A'">
                                                 <i class="fas fa-play"></i> Start
@@ -1521,6 +1662,9 @@
                     handleAttendanceSubmit(this, 'out');
                 });
             }
+
+            // Initialize task modal
+            createTaskStartModal();
         });
 
         function handleAttendanceSubmit(form, type) {
@@ -1784,31 +1928,221 @@
 
         // Start task (update status to 'In Progress')
         function startTask(taskId) {
+            // Ensure modal exists
+            if (!document.getElementById('taskStartModal')) {
+                createTaskStartModal();
+            }
+            // Open modal for task details
+            document.getElementById('isUpdateOnly').value = '0';
+            openTaskStartModal(taskId);
+        }
+
+        function updateTask(taskId) {
+            // Ensure modal exists
+            if (!document.getElementById('taskStartModal')) {
+                createTaskStartModal();
+            }
+            // Open modal in update-only mode (don't change status)
+            document.getElementById('isUpdateOnly').value = '1';
+            openTaskStartModal(taskId);
+        }
+
+        function openTaskStartModal(taskId) {
+            const modal = document.getElementById('taskStartModal');
+            const isUpdateOnly = document.getElementById('isUpdateOnly').value === '1';
+            if (modal) {
+                modal.classList.add('active');
+                document.getElementById('taskStartId').value = taskId;
+                document.getElementById('startTaskForm').reset();
+
+                // If updating, fetch current task data to pre-fill
+                if (isUpdateOnly) {
+                    // Find the current progress from the table row
+                    const rows = document.querySelectorAll('tr');
+                    let currentProgress = 0;
+                    rows.forEach(row => {
+                        const btn = row.querySelector(`button[onclick*="updateTask(${taskId})"]`);
+                        if (btn) {
+                            // Look for a progress display in this row - using data attribute if available
+                            const progressAttr = row.getAttribute('data-progress');
+                            if (progressAttr) {
+                                currentProgress = progressAttr;
+                            }
+                        }
+                    });
+
+                    // Fetch task details from backend
+                    fetch(`/admin/tasks/${taskId}`, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.task) {
+                            document.getElementById('taskProgress').value = data.task.progress || 0;
+                            document.getElementById('taskNotes').value = data.task.notes || '';
+                        }
+                    })
+                    .catch(error => console.error('Error fetching task:', error));
+                }
+
+                // Update button text based on mode
+                document.getElementById('submitBtnText').textContent = isUpdateOnly ? 'Update Progress' : 'Start Task';
+                const submitBtn = document.getElementById('submitBtn');
+                if (isUpdateOnly) {
+                    submitBtn.style.background = '#3B82F6';
+                } else {
+                    submitBtn.style.background = '#7B1D3A';
+                }
+            } else {
+                // Create modal if it doesn't exist
+                createTaskStartModal();
+                openTaskStartModal(taskId);
+            }
+        }
+
+        function closeTaskStartModal() {
+            const modal = document.getElementById('taskStartModal');
+            if (modal) {
+                modal.classList.remove('active');
+            }
+        }
+
+        function createTaskStartModal() {
+            const modalHTML = `
+                <div id="taskStartModal" class="modal-overlay" onclick="if(event.target === this) closeTaskStartModal()">
+                    <div class="modal-content" style="max-width: 600px;">
+                        <div class="modal-header" style="background: linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%); color: white;">
+                            <h2 style="margin: 0;"><i class="fas fa-play" style="margin-right: 8px;"></i>Start Task</h2>
+                            <button class="modal-close" onclick="closeTaskStartModal()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 36px; height: 36px; border-radius: 50%; cursor: pointer;"><i class="fas fa-times"></i></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="startTaskForm" onsubmit="submitTaskStart(event)">
+                                <input type="hidden" id="taskStartId">
+                                <input type="hidden" id="isUpdateOnly" value="0">
+
+                                <div class="form-group" style="margin-bottom: 20px;">
+                                    <label style="display: block; font-size: 14px; font-weight: 600; color: #1F2937; margin-bottom: 8px;">
+                                        <i class="fas fa-bars" style="color: #7B1D3A; margin-right: 6px;"></i>
+                                        Update Progress (%)
+                                    </label>
+                                    <input type="number" id="taskProgress" name="progress" min="0" max="100" value="0" placeholder="0-100" style="width: 100%; padding: 10px 12px; border: 1px solid #E5E7EB; border-radius: 6px; font-size: 14px;">
+                                    <small style="color: #6B7280; font-size: 12px; margin-top: 4px; display: block;">Progress will be recorded and visible to admin</small>
+                                </div>
+
+                                <div class="form-group" style="margin-bottom: 20px;">
+                                    <label style="display: block; font-size: 14px; font-weight: 600; color: #1F2937; margin-bottom: 8px;">
+                                        <i class="fas fa-paperclip" style="color: #7B1D3A; margin-right: 6px;"></i>
+                                        Upload Documents (Optional)
+                                    </label>
+                                    <input type="file" id="taskDocuments" name="documents" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.jpg,.png" style="width: 100%; padding: 10px 12px; border: 1px solid #E5E7EB; border-radius: 6px; font-size: 14px;">
+                                    <small style="color: #6B7280; font-size: 12px; margin-top: 4px; display: block;">Allowed: PDF, DOC, DOCX, XLS, XLSX, TXT, JPG, PNG</small>
+                                </div>
+
+                                <div class="form-group" style="margin-bottom: 20px;">
+                                    <label style="display: block; font-size: 14px; font-weight: 600; color: #1F2937; margin-bottom: 8px;">
+                                        <i class="fas fa-comment" style="color: #7B1D3A; margin-right: 6px;"></i>
+                                        Notes / Comments
+                                    </label>
+                                    <textarea id="taskNotes" name="notes" placeholder="Add any notes or comments..." style="width: 100%; padding: 10px 12px; border: 1px solid #E5E7EB; border-radius: 6px; font-size: 14px; min-height: 100px; resize: vertical;"></textarea>
+                                </div>
+
+                                <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                                    <button type="button" onclick="closeTaskStartModal()" style="padding: 10px 20px; background: #F3F4F6; color: #6B7280; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">
+                                        Cancel
+                                    </button>
+                                    <button type="submit" id="submitBtn" style="padding: 10px 20px; background: #7B1D3A; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">
+                                        <i class="fas fa-check" style="margin-right: 6px;"></i><span id="submitBtnText">Start Task</span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+        }
+
+        function submitTaskStart(event) {
+            event.preventDefault();
+            const taskId = document.getElementById('taskStartId').value;
+            const progress = document.getElementById('taskProgress').value;
+            const notes = document.getElementById('taskNotes').value;
+            const documentsInput = document.getElementById('taskDocuments');
+            const isUpdateOnly = document.getElementById('isUpdateOnly').value === '1';
             const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
 
+            const formData = new FormData();
+
+            // Only set status if this is a start action
+            if (!isUpdateOnly) {
+                formData.append('status', 'In Progress');
+            }
+
+            formData.append('progress', progress || 0);
+            formData.append('notes', notes);
+
+            // Add documents if selected
+            if (documentsInput.files.length > 0) {
+                for (let i = 0; i < documentsInput.files.length; i++) {
+                    formData.append('documents[]', documentsInput.files[i]);
+                }
+            }
+            formData.append('_method', 'PUT');
+            formData.append('_token', csrfToken);
+
             fetch(`/admin/tasks/${taskId}`, {
-                method: 'PUT',
+                method: 'POST',
+                body: formData,
                 headers: {
-                    'Content-Type': 'application/json',
                     'Accept': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken
-                },
-                body: JSON.stringify({
-                    status: 'In Progress'
-                })
+                    'X-CSRF-TOKEN': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('Task started! Good luck!');
-                    location.reload();
+                    closeTaskStartModal();
+                    const message = isUpdateOnly
+                        ? 'Task progress updated successfully!'
+                        : 'Task started successfully! Your progress and documents have been recorded.';
+                    alert(message);
+
+                    // If starting task, update the buttons in the table
+                    if (!isUpdateOnly) {
+                        // Find the button container for this task
+                        const allRows = document.querySelectorAll('tr');
+                        allRows.forEach(row => {
+                            const btn = row.querySelector(`button[onclick="startTask(${taskId})"]`);
+                            if (btn) {
+                                const cell = btn.closest('td');
+                                if (cell) {
+                                    // Replace with Update and Complete buttons
+                                    cell.innerHTML = `
+                                        <div style="display: flex; gap: 6px; justify-content: center;">
+                                            <button onclick="updateTask(${taskId})" style="background: #3B82F6; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 11px; cursor: pointer; font-weight: 600; transition: background 0.2s;" onmouseover="this.style.background='#2563EB'" onmouseout="this.style.background='#3B82F6'">
+                                                <i class="fas fa-sync"></i> Update
+                                            </button>
+                                            <button onclick="completeTask(${taskId})" style="background: #10B981; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 11px; cursor: pointer; font-weight: 600; transition: background 0.2s;" onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10B981'">
+                                                <i class="fas fa-check"></i> Complete
+                                            </button>
+                                        </div>
+                                    `;
+                                }
+                            }
+                        });
+                    }
                 } else {
-                    alert('Error: ' + (data.message || 'Failed to start task'));
+                    alert('Error: ' + (data.message || 'Failed to update task'));
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Error starting task: ' + error.message);
+                alert('Error updating task: ' + error.message);
             });
         }
 

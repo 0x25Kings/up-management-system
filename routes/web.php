@@ -48,6 +48,17 @@ Route::get('/agency', function () {
     return view('portals.agency');
 })->name('agency.portal');
 
+// Public route to download task documents
+Route::get('/documents/download/{filename}', function ($filename) {
+    $path = storage_path('app/public/tasks/documents/' . basename($filename));
+
+    if (!file_exists($path)) {
+        abort(404);
+    }
+
+    return response()->download($path);
+})->name('documents.download');
+
 // Admin Authentication Routes
 Route::get('/admin/login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
 Route::post('/admin/login', [AdminAuthController::class, 'login'])->name('admin.login.submit');
@@ -58,13 +69,15 @@ Route::middleware(['admin'])->group(function () {
     Route::get('/admin', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
     Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard.home');
     Route::post('/admin/attendance/{attendance}/approve-overtime', [AdminDashboardController::class, 'approveOvertime'])->name('admin.attendance.approve-overtime');
-    
+
     // Task routes
     Route::post('/admin/tasks', [TaskController::class, 'store'])->name('task.store');
+    Route::get('/admin/tasks/{task}', [TaskController::class, 'show'])->name('task.show');
     Route::put('/admin/tasks/{task}', [TaskController::class, 'update'])->name('task.update');
     Route::post('/admin/tasks/{task}/complete', [TaskController::class, 'complete'])->name('task.complete');
     Route::delete('/admin/tasks/{task}', [TaskController::class, 'destroy'])->name('task.destroy');
     Route::get('/admin/intern/{intern}/tasks', [TaskController::class, 'getInternTasks'])->name('intern.tasks');
+    Route::post('/admin/interns/{intern}/auto-update-tasks', [TaskController::class, 'autoUpdateInternTasks'])->name('intern.auto-update-tasks');
 
     // Booking management routes (Admin)
     Route::get('/admin/bookings/pending', [BookingController::class, 'pending'])->name('admin.bookings.pending');
