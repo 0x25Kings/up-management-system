@@ -511,7 +511,112 @@
     </style>
 </head>
 <body>
-    @if(!$showDashboard)
+    @if(isset($showPending) && $showPending)
+    <!-- Pending Approval Page -->
+    <div class="registration-page">
+        <div class="registration-container">
+            <div class="registration-card" style="text-align: center; padding: 60px 40px;">
+                <div style="width: 100px; height: 100px; background: linear-gradient(135deg, #FEF3C7, #FDE68A); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
+                    <i class="fas fa-clock" style="font-size: 48px; color: #D97706;"></i>
+                </div>
+                <h2 style="color: #1F2937; font-size: 24px; font-weight: 700; margin-bottom: 12px;">Pending Approval</h2>
+                <p style="color: #6B7280; font-size: 15px; margin-bottom: 24px; max-width: 400px; margin-left: auto; margin-right: auto;">
+                    Your registration is being reviewed by the administrator. Please check back later or contact your school coordinator.
+                </p>
+                
+                <div style="background: #F9FAFB; border-radius: 12px; padding: 20px; margin-bottom: 24px; text-align: left;">
+                    <h4 style="color: #7B1D3A; font-size: 14px; font-weight: 600; margin-bottom: 16px;">
+                        <i class="fas fa-info-circle" style="margin-right: 8px;"></i>Your Registration Details
+                    </h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 13px;">
+                        <div>
+                            <div style="color: #6B7280; margin-bottom: 2px;">Reference Code</div>
+                            <div style="color: #1F2937; font-weight: 600;">{{ $intern->reference_code }}</div>
+                        </div>
+                        <div>
+                            <div style="color: #6B7280; margin-bottom: 2px;">Name</div>
+                            <div style="color: #1F2937; font-weight: 600;">{{ $intern->name }}</div>
+                        </div>
+                        <div>
+                            <div style="color: #6B7280; margin-bottom: 2px;">School</div>
+                            <div style="color: #1F2937; font-weight: 600;">{{ $intern->schoolRelation->name ?? $intern->school }}</div>
+                        </div>
+                        <div>
+                            <div style="color: #6B7280; margin-bottom: 2px;">Submitted On</div>
+                            <div style="color: #1F2937; font-weight: 600;">{{ $intern->created_at->format('M d, Y') }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <form action="{{ route('intern.clear') }}" method="POST" style="display: inline;">
+                    @csrf
+                    <button type="submit" style="background: #E5E7EB; color: #374151; border: none; padding: 12px 24px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer;">
+                        <i class="fas fa-sign-out-alt" style="margin-right: 8px;"></i>Switch Account
+                    </button>
+                </form>
+                
+                <div style="text-align: center; margin-top: 24px;">
+                    <a href="{{ route('home') }}" style="color: #6B7280; text-decoration: none; font-size: 14px;">
+                        <i class="fas fa-arrow-left" style="margin-right: 6px;"></i>
+                        Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    @elseif(isset($showRejected) && $showRejected)
+    <!-- Rejected Page -->
+    <div class="registration-page">
+        <div class="registration-container">
+            <div class="registration-card" style="text-align: center; padding: 60px 40px;">
+                <div style="width: 100px; height: 100px; background: linear-gradient(135deg, #FEE2E2, #FECACA); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
+                    <i class="fas fa-times-circle" style="font-size: 48px; color: #DC2626;"></i>
+                </div>
+                <h2 style="color: #1F2937; font-size: 24px; font-weight: 700; margin-bottom: 12px;">Application Rejected</h2>
+                <p style="color: #6B7280; font-size: 15px; margin-bottom: 24px; max-width: 400px; margin-left: auto; margin-right: auto;">
+                    Unfortunately, your application has been rejected. Please review the reason below and contact your school coordinator if you have any questions.
+                </p>
+                
+                <div style="background: #FEE2E2; border-radius: 12px; padding: 20px; margin-bottom: 24px; text-align: left;">
+                    <h4 style="color: #991B1B; font-size: 14px; font-weight: 600; margin-bottom: 8px;">
+                        <i class="fas fa-exclamation-triangle" style="margin-right: 8px;"></i>Rejection Reason
+                    </h4>
+                    <p style="color: #7F1D1D; font-size: 14px; margin: 0;">{{ $intern->rejection_reason ?? 'No reason provided.' }}</p>
+                </div>
+
+                <div style="background: #F9FAFB; border-radius: 12px; padding: 20px; margin-bottom: 24px; text-align: left;">
+                    <h4 style="color: #7B1D3A; font-size: 14px; font-weight: 600; margin-bottom: 16px;">
+                        <i class="fas fa-info-circle" style="margin-right: 8px;"></i>Your Application Details
+                    </h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 13px;">
+                        <div>
+                            <div style="color: #6B7280; margin-bottom: 2px;">Reference Code</div>
+                            <div style="color: #1F2937; font-weight: 600;">{{ $intern->reference_code }}</div>
+                        </div>
+                        <div>
+                            <div style="color: #6B7280; margin-bottom: 2px;">Name</div>
+                            <div style="color: #1F2937; font-weight: 600;">{{ $intern->name }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <form action="{{ route('intern.clear') }}" method="POST" style="display: inline;">
+                    @csrf
+                    <button type="submit" style="background: linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%); color: white; border: none; padding: 12px 24px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer;">
+                        <i class="fas fa-redo" style="margin-right: 8px;"></i>Try Another Account
+                    </button>
+                </form>
+                
+                <div style="text-align: center; margin-top: 24px;">
+                    <a href="{{ route('home') }}" style="color: #6B7280; text-decoration: none; font-size: 14px;">
+                        <i class="fas fa-arrow-left" style="margin-right: 6px;"></i>
+                        Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    @elseif(!$showDashboard)
     <!-- Intern Portal Landing Page -->
     <div class="registration-page">
         <div class="registration-container">
@@ -630,7 +735,27 @@
 
                     <div class="form-group">
                         <label><i class="fas fa-university" style="color: #7B1D3A; margin-right: 6px;"></i>School / University</label>
-                        <input type="text" name="school" value="{{ old('school') }}" placeholder="Enter your school name" required>
+                        <select name="school_id" required>
+                            <option value="">Select your school</option>
+                            @foreach($schools ?? [] as $school)
+                                @php
+                                    $isFull = $school->max_interns && !$school->hasCapacity();
+                                    $capacityInfo = $school->max_interns 
+                                        ? " - {$school->getRemainingSlots()} slots remaining" 
+                                        : '';
+                                @endphp
+                                @if(!$isFull)
+                                <option value="{{ $school->id }}" {{ old('school_id') == $school->id ? 'selected' : '' }}>
+                                    {{ $school->name }} ({{ $school->required_hours }} hrs required{{ $capacityInfo }})
+                                </option>
+                                @endif
+                            @endforeach
+                        </select>
+                        @if(($schools ?? collect())->isEmpty())
+                        <p style="font-size: 12px; color: #DC2626; margin-top: 6px;">
+                            <i class="fas fa-exclamation-circle"></i> No schools available. Please contact the administrator.
+                        </p>
+                        @endif
                     </div>
 
                     <div class="form-row">

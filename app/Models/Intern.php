@@ -19,6 +19,7 @@ class Intern extends Model
         'email',
         'phone',
         'school',
+        'school_id',
         'course',
         'year_level',
         'start_date',
@@ -26,12 +27,33 @@ class Intern extends Model
         'required_hours',
         'completed_hours',
         'status',
+        'approval_status',
+        'rejection_reason',
+        'approved_at',
+        'approved_by',
     ];
 
     protected $casts = [
         'start_date' => 'date',
         'end_date' => 'date',
+        'approved_at' => 'datetime',
     ];
+
+    /**
+     * Get the school this intern belongs to
+     */
+    public function schoolRelation()
+    {
+        return $this->belongsTo(School::class, 'school_id');
+    }
+
+    /**
+     * Get the user who approved this intern
+     */
+    public function approver()
+    {
+        return $this->belongsTo(User::class, 'approved_by');
+    }
 
     /**
      * Get all attendances for this intern
@@ -47,6 +69,46 @@ class Intern extends Model
     public function tasks()
     {
         return $this->hasMany(Task::class);
+    }
+
+    /**
+     * Check if intern is pending approval
+     */
+    public function isPending(): bool
+    {
+        return $this->approval_status === 'pending';
+    }
+
+    /**
+     * Check if intern is approved
+     */
+    public function isApproved(): bool
+    {
+        return $this->approval_status === 'approved';
+    }
+
+    /**
+     * Check if intern is rejected
+     */
+    public function isRejected(): bool
+    {
+        return $this->approval_status === 'rejected';
+    }
+
+    /**
+     * Scope for approved interns only
+     */
+    public function scopeApproved($query)
+    {
+        return $query->where('approval_status', 'approved');
+    }
+
+    /**
+     * Scope for pending interns only
+     */
+    public function scopePending($query)
+    {
+        return $query->where('approval_status', 'pending');
     }
 
     /**

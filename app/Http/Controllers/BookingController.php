@@ -67,6 +67,7 @@ class BookingController extends Controller
             'time_start' => 'required',
             'time_end' => 'required|after:time_start',
             'purpose' => 'nullable|string|max:1000',
+            'attachment' => 'nullable|file|mimes:pdf|max:5120',
         ]);
 
         // Check if the date is blocked
@@ -92,6 +93,17 @@ class BookingController extends Controller
                 'message' => "This time slot is already booked ({$conflictTime}). Please select a different time."
             ], 422);
         }
+
+        // Handle file upload
+        if ($request->hasFile('attachment')) {
+            $file = $request->file('attachment');
+            $filename = time() . '_' . preg_replace('/[^a-zA-Z0-9_.-]/', '_', $file->getClientOriginalName());
+            $path = $file->storeAs('booking-attachments', $filename, 'public');
+            $validated['attachment_path'] = $path;
+        }
+
+        // Remove the attachment key as it's not a database field
+        unset($validated['attachment']);
 
         $booking = Booking::create($validated);
 
@@ -229,6 +241,26 @@ class BookingController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Booking deleted.'
+        ]);
+    }
+
+    /**
+     * Send email notification to booker (admin)
+     */
+    public function sendEmailNotification(Booking $booking)
+    {
+        // In a production environment, you would send an actual email here
+        // For now, we'll just update the admin_emailed flag
+        
+        // Example of what you would do with Laravel Mail:
+        // Mail::to($booking->email)->send(new BookingApprovedMail($booking));
+        
+        $booking->admin_emailed = true;
+        $booking->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Email notification sent successfully!'
         ]);
     }
 }

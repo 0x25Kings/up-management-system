@@ -21,7 +21,7 @@
         }
 
         .sidebar {
-            background: linear-gradient(180deg, #7B1D3A 0%, #5a1428 100%);
+            background: linear-gradient(180deg, #7B1D3A 0%, #5a1428 50%, #4a1020 100%);
             width: 260px;
             min-width: 260px;
             max-width: 260px;
@@ -32,72 +32,110 @@
             overflow-y: auto;
             overflow-x: hidden;
             z-index: 1000;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255, 191, 0, 0.3);
+            border-radius: 3px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 191, 0, 0.5);
         }
 
         .sidebar-logo {
-            padding: 24px 20px;
+            padding: 28px 24px;
             text-align: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            background: rgba(0, 0, 0, 0.1);
         }
 
         .sidebar-logo img {
-            height: 48px;
+            height: 52px;
             width: auto;
-            margin: 0 auto 12px auto;
+            margin: 0 auto 14px auto;
             display: block;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
         }
 
         .sidebar-logo h3 {
             color: white;
-            font-size: 16px;
-            font-weight: 700;
-            margin-bottom: 4px;
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 6px;
             text-align: center;
-            line-height: 1.3;
+            line-height: 1.4;
+            letter-spacing: 0.3px;
         }
 
         .sidebar-logo p {
             color: #FFBF00;
-            font-size: 12px;
+            font-size: 11px;
             text-align: center;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .sidebar-menu {
-            padding: 20px 0;
+            padding: 16px 0;
         }
 
         .menu-item {
             display: flex;
             align-items: center;
-            padding: 14px 24px;
-            color: white;
+            padding: 13px 24px;
+            color: rgba(255, 255, 255, 0.85);
             text-decoration: none;
-            transition: all 0.3s ease;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             font-size: 14px;
             font-weight: 500;
             white-space: nowrap;
+            position: relative;
+            margin: 2px 12px;
+            border-radius: 10px;
         }
 
-        .menu-item i {
-            width: 24px;
-            margin-right: 12px;
-            font-size: 18px;
+        .menu-item i:first-child {
+            width: 22px;
+            margin-right: 14px;
+            font-size: 17px;
+            transition: transform 0.25s ease, color 0.25s ease;
         }
 
         .menu-item:hover {
-            background: rgba(255, 191, 0, 0.1);
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+        }
+
+        .menu-item:hover i:first-child {
+            transform: scale(1.1);
+            color: #FFBF00;
         }
 
         .menu-item.active {
-            background: linear-gradient(135deg, #FFBF00 0%, #FFA500 100%);
+            background: linear-gradient(135deg, #FFBF00 0%, #FFD54F 100%);
             color: #7B1D3A;
             font-weight: 600;
-            border-left: 4px solid #7B1D3A;
+            box-shadow: 0 4px 15px rgba(255, 191, 0, 0.3);
+        }
+
+        .menu-item.active i:first-child {
+            color: #7B1D3A;
+            transform: scale(1);
         }
 
         .menu-item-parent {
@@ -116,8 +154,10 @@
         .submenu {
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.3s ease;
-            background: rgba(0, 0, 0, 0.2);
+            transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(0, 0, 0, 0.15);
+            margin: 0 12px;
+            border-radius: 0 0 10px 10px;
         }
 
         .submenu.open {
@@ -127,27 +167,43 @@
         .submenu-item {
             display: flex;
             align-items: center;
-            padding: 12px 24px 12px 56px;
-            color: rgba(255, 255, 255, 0.9);
+            padding: 11px 20px 11px 48px;
+            color: rgba(255, 255, 255, 0.75);
             text-decoration: none;
-            transition: all 0.3s ease;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             font-size: 13px;
-            font-weight: 400;
+            font-weight: 500;
+            position: relative;
+        }
+
+        .submenu-item::before {
+            content: '';
+            position: absolute;
+            left: 28px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transition: all 0.25s ease;
         }
 
         .submenu-item:hover {
-            background: rgba(255, 191, 0, 0.15);
+            background: rgba(255, 191, 0, 0.1);
             color: #FFBF00;
+        }
+
+        .submenu-item:hover::before {
+            background: #FFBF00;
+            box-shadow: 0 0 8px rgba(255, 191, 0, 0.5);
         }
 
         .submenu-item i {
             width: 16px;
             margin-right: 10px;
             font-size: 12px;
-        }
-
-        .submenu-item {
-            position: relative;
+            display: none;
         }
 
         .page-content {
@@ -1047,52 +1103,224 @@
             gap: 20px;
         }
 
-        .search-box {
+        .notification-wrapper {
             position: relative;
-        }
-
-        .search-box input {
-            padding: 10px 16px 10px 40px;
-            border: 1px solid #E5E7EB;
-            border-radius: 8px;
-            width: 300px;
-            background: #F9FAFB;
-        }
-
-        .search-box i {
-            position: absolute;
-            left: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #9CA3AF;
         }
 
         .notification-btn {
             position: relative;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: #F9FAFB;
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: #F3F4F6;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid #E5E7EB;
         }
 
         .notification-btn:hover {
-            background: #E5E7EB;
+            background: #7B1D3A;
+            color: white;
+            border-color: #7B1D3A;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(123, 29, 58, 0.25);
+        }
+
+        .notification-btn i {
+            font-size: 18px;
+            color: #6B7280;
+            transition: color 0.25s ease;
+        }
+
+        .notification-btn:hover i {
+            color: white;
         }
 
         .notification-badge {
             position: absolute;
-            top: 4px;
-            right: 4px;
-            width: 12px;
-            height: 12px;
-            background: #EF4444;
-            border-radius: 50%;
+            top: -4px;
+            right: -4px;
+            min-width: 20px;
+            height: 20px;
+            padding: 0 6px;
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+            border-radius: 10px;
             border: 2px solid white;
+            font-size: 11px;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+        }
+
+        .notification-badge.hidden {
+            display: none;
+        }
+
+        .notification-dropdown {
+            position: absolute;
+            top: calc(100% + 12px);
+            right: 0;
+            width: 380px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .notification-dropdown.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .notification-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #E5E7EB;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notification-header h4 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1F2937;
+            margin: 0;
+        }
+
+        .notification-mark-read {
+            font-size: 12px;
+            color: #7B1D3A;
+            font-weight: 600;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .notification-mark-read:hover {
+            color: #5a1428;
+        }
+
+        .notification-list {
+            max-height: 360px;
+            overflow-y: auto;
+        }
+
+        .notification-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .notification-list::-webkit-scrollbar-thumb {
+            background: #D1D5DB;
+            border-radius: 3px;
+        }
+
+        .notification-item {
+            padding: 14px 20px;
+            display: flex;
+            gap: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+            border-bottom: 1px solid #F3F4F6;
+        }
+
+        .notification-item:hover {
+            background: #F9FAFB;
+        }
+
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+
+        .notification-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .notification-icon.booking {
+            background: #DBEAFE;
+            color: #2563EB;
+        }
+
+        .notification-icon.startup {
+            background: #D1FAE5;
+            color: #059669;
+        }
+
+        .notification-icon.issue {
+            background: #FEE2E2;
+            color: #DC2626;
+        }
+
+        .notification-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .notification-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1F2937;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .notification-text {
+            font-size: 13px;
+            color: #6B7280;
+            line-height: 1.4;
+        }
+
+        .notification-time {
+            font-size: 11px;
+            color: #9CA3AF;
+            margin-top: 4px;
+        }
+
+        .notification-empty {
+            padding: 40px 20px;
+            text-align: center;
+            color: #9CA3AF;
+        }
+
+        .notification-empty i {
+            font-size: 40px;
+            margin-bottom: 12px;
+            color: #D1D5DB;
+        }
+
+        .notification-footer {
+            padding: 12px 20px;
+            border-top: 1px solid #E5E7EB;
+            text-align: center;
+        }
+
+        .notification-footer a {
+            font-size: 13px;
+            color: #7B1D3A;
+            font-weight: 600;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .notification-footer a:hover {
+            color: #5a1428;
         }
 
         .user-profile {
@@ -1858,6 +2086,265 @@
                 order: 1;
             }
         }
+
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 12px;
+            max-width: 400px;
+        }
+
+        .toast {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 16px 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            animation: toastSlideIn 0.3s ease, toastFadeOut 0.3s ease 4.7s forwards;
+            min-width: 320px;
+        }
+
+        .toast.toast-success {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            color: white;
+        }
+
+        .toast.toast-error {
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+            color: white;
+        }
+
+        .toast.toast-warning {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+            color: white;
+        }
+
+        .toast.toast-info {
+            background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+            color: white;
+        }
+
+        .toast-icon {
+            font-size: 20px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .toast-content {
+            flex: 1;
+        }
+
+        .toast-title {
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .toast-message {
+            font-size: 13px;
+            opacity: 0.9;
+            line-height: 1.4;
+        }
+
+        .toast-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: background 0.2s;
+        }
+
+        .toast-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .toast-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 0 0 12px 12px;
+            animation: toastProgress 5s linear forwards;
+        }
+
+        @keyframes toastSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes toastFadeOut {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+        }
+
+        @keyframes toastProgress {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
+
+        /* Confirmation Modal */
+        .confirm-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .confirm-modal-overlay.active {
+            display: flex;
+        }
+
+        .confirm-modal {
+            background: white;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: modalPopIn 0.3s ease;
+            overflow: hidden;
+        }
+
+        @keyframes modalPopIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .confirm-modal-header {
+            padding: 24px 24px 0;
+            text-align: center;
+        }
+
+        .confirm-modal-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 28px;
+        }
+
+        .confirm-modal-icon.warning {
+            background: #FEF3C7;
+            color: #D97706;
+        }
+
+        .confirm-modal-icon.danger {
+            background: #FEE2E2;
+            color: #DC2626;
+        }
+
+        .confirm-modal-icon.info {
+            background: #DBEAFE;
+            color: #2563EB;
+        }
+
+        .confirm-modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1F2937;
+            margin-bottom: 8px;
+        }
+
+        .confirm-modal-body {
+            padding: 16px 24px 24px;
+            text-align: center;
+        }
+
+        .confirm-modal-message {
+            color: #6B7280;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .confirm-modal-footer {
+            padding: 0 24px 24px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .confirm-modal-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .confirm-modal-btn.cancel {
+            background: #F3F4F6;
+            color: #4B5563;
+        }
+
+        .confirm-modal-btn.cancel:hover {
+            background: #E5E7EB;
+        }
+
+        .confirm-modal-btn.confirm {
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+            color: white;
+        }
+
+        .confirm-modal-btn.confirm:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+        }
+
+        .confirm-modal-btn.confirm.success {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+        }
+
+        .confirm-modal-btn.confirm.success:hover {
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
     </style>
 </head>
 <body>
@@ -1945,13 +2432,26 @@
                 Dashboard > <span>Overview</span>
             </div>
             <div class="header-actions">
-                <div class="search-box">
-                    <i class="fas fa-search"></i>
-                    <input type="text" placeholder="Search anything...">
-                </div>
-                <div class="notification-btn">
-                    <i class="fas fa-bell"></i>
-                    <span class="notification-badge"></span>
+                <div class="notification-wrapper">
+                    <div class="notification-btn" onclick="toggleNotificationDropdown()">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge" id="notificationBadge">0</span>
+                    </div>
+                    <div class="notification-dropdown" id="notificationDropdown">
+                        <div class="notification-header">
+                            <h4>Notifications</h4>
+                            <span class="notification-mark-read" onclick="markAllAsRead()">Mark all as read</span>
+                        </div>
+                        <div class="notification-list" id="notificationList">
+                            <div class="notification-empty">
+                                <i class="fas fa-bell-slash"></i>
+                                <p>No new notifications</p>
+                            </div>
+                        </div>
+                        <div class="notification-footer">
+                            <a href="#" onclick="loadPage(event, 'scheduler')">View All Activity</a>
+                        </div>
+                    </div>
                 </div>
                 <div class="user-profile">
                     <div class="user-avatar" id="userAvatar">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</div>
@@ -2112,13 +2612,19 @@
 
             <!-- Intern List Page -->
             <div id="intern-list" class="page-content">
-                <div style="margin-bottom: 24px;">
-                    <h2 style="font-size: 28px; font-weight: 700; color: #1F2937; margin-bottom: 8px;">Intern List Management</h2>
-                    <p style="color: #6B7280; font-size: 14px;">View all registered interns with their progress and hours</p>
+                <div style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <h2 style="font-size: 28px; font-weight: 700; color: #1F2937; margin-bottom: 8px;">Intern List Management</h2>
+                        <p style="color: #6B7280; font-size: 14px;">View all registered interns with their progress and hours</p>
+                    </div>
+                    <button onclick="openSchoolManagementModal()" style="background: linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%); color: white; border: none; padding: 12px 20px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(123, 29, 58, 0.3); transition: all 0.3s ease;">
+                        <i class="fas fa-university"></i>
+                        Manage Schools
+                    </button>
                 </div>
 
                 <!-- Stats Cards -->
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 24px;">
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 24px;">
                     <div style="background: white; padding: 24px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
                         <div style="display: flex; align-items: center; gap: 16px;">
                             <div style="width: 50px; height: 50px; background: #DBEAFE; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
@@ -2152,28 +2658,133 @@
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <!-- School-Grouped Intern List -->
-                @php
-                    // Use internsBySchool passed from controller, or create from interns if not available
-                    $internsBySchool = $internsBySchool ?? ($interns ?? collect())->groupBy('school');
-                @endphp
-
-                @if($internsBySchool->count() > 0)
-                    @foreach($internsBySchool as $school => $schoolInterns)
-                    <div class="school-group" style="margin-bottom: 16px;">
-                        <div class="school-header" onclick="toggleSchoolGroup('school-{{ Str::slug($school) }}')" style="background: linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%); color: white; padding: 16px 20px; border-radius: 12px 12px 0 0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s ease;">
-                            <h4 style="margin: 0; font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 12px;">
-                                <i class="fas fa-university"></i>
-                                {{ $school }}
-                            </h4>
-                            <div style="display: flex; align-items: center; gap: 12px;">
-                                <span style="background: rgba(255,191,0,0.9); color: #7B1D3A; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;">{{ $schoolInterns->count() }} {{ $schoolInterns->count() == 1 ? 'Intern' : 'Interns' }}</span>
-                                <i class="fas fa-chevron-down school-toggle-icon" id="icon-school-{{ Str::slug($school) }}" style="transition: transform 0.3s ease;"></i>
+                    <div onclick="document.getElementById('pendingInternsSection').scrollIntoView({behavior: 'smooth'})" style="background: white; padding: 24px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); cursor: pointer; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 16px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.05)'">
+                        <div style="display: flex; align-items: center; gap: 16px;">
+                            <div style="width: 50px; height: 50px; background: #FEE2E2; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-user-clock" style="color: #DC2626; font-size: 22px;"></i>
+                            </div>
+                            <div>
+                                <div style="font-size: 28px; font-weight: 700; color: #1F2937;">{{ $pendingInternApprovals ?? 0 }}</div>
+                                <div style="color: #6B7280; font-size: 14px;">Pending Approval</div>
                             </div>
                         </div>
-                        <div class="table-card" id="school-{{ Str::slug($school) }}" style="border-radius: 0 0 12px 12px; display: block; margin-top: 0;">
+                    </div>
+                </div>
+
+                <!-- Pending Interns Section - Grouped by School -->
+                @php
+                    $pendingBySchool = ($pendingInterns ?? collect())->groupBy(function($intern) {
+                        return $intern->schoolRelation->name ?? $intern->school ?? 'Unknown School';
+                    });
+                @endphp
+                
+                @if(($pendingInterns ?? collect())->count() > 0)
+                <div id="pendingInternsSection" style="margin-bottom: 24px;">
+                    <div style="background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%); color: white; padding: 16px 20px; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center;">
+                        <h4 style="margin: 0; font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 12px;">
+                            <i class="fas fa-user-clock"></i>
+                            Pending Intern Approvals
+                        </h4>
+                        <span style="background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;">{{ ($pendingInterns ?? collect())->count() }} Pending from {{ $pendingBySchool->count() }} {{ $pendingBySchool->count() == 1 ? 'School' : 'Schools' }}</span>
+                    </div>
+                    <div style="background: white; border-radius: 0 0 12px 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        @foreach($pendingBySchool as $schoolName => $schoolPending)
+                        @php
+                            $schoolId = $schoolPending->first()->school_id ?? 0;
+                        @endphp
+                        <div class="pending-school-group" id="pending-school-{{ $schoolId }}" style="border-bottom: 1px solid #E5E7EB;">
+                            <div onclick="togglePendingSchoolGroup('pending-school-content-{{ $schoolId }}')" style="padding: 16px 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: #F9FAFB; transition: all 0.3s ease;" onmouseover="this.style.background='#F3F4F6'" onmouseout="this.style.background='#F9FAFB'">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <div style="width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, #FEF3C7, #FDE68A); display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-university" style="color: #92400E; font-size: 16px;"></i>
+                                    </div>
+                                    <div>
+                                        <div style="font-weight: 600; color: #1F2937;">{{ $schoolName }}</div>
+                                        <div style="font-size: 12px; color: #6B7280;">{{ $schoolPending->count() }} pending {{ $schoolPending->count() == 1 ? 'intern' : 'interns' }}</div>
+                                    </div>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <button onclick="event.stopPropagation(); approveAllBySchool({{ $schoolId }}, '{{ addslashes($schoolName) }}')" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                                        <i class="fas fa-check-double"></i> Approve All ({{ $schoolPending->count() }})
+                                    </button>
+                                    <i class="fas fa-chevron-down pending-toggle-icon" id="icon-pending-{{ $schoolId }}" style="transition: transform 0.3s ease; color: #6B7280;"></i>
+                                </div>
+                            </div>
+                            <div id="pending-school-content-{{ $schoolId }}" style="display: block; padding: 0 20px 16px;">
+                                <table style="width: 100%; border-collapse: collapse;">
+                                    <thead>
+                                        <tr style="background: #F3F4F6;">
+                                            <th style="padding: 10px 12px; text-align: left; font-size: 12px; font-weight: 600; color: #6B7280;">Name</th>
+                                            <th style="padding: 10px 12px; text-align: left; font-size: 12px; font-weight: 600; color: #6B7280;">Email</th>
+                                            <th style="padding: 10px 12px; text-align: left; font-size: 12px; font-weight: 600; color: #6B7280;">Course</th>
+                                            <th style="padding: 10px 12px; text-align: left; font-size: 12px; font-weight: 600; color: #6B7280;">Applied On</th>
+                                            <th style="padding: 10px 12px; text-align: center; font-size: 12px; font-weight: 600; color: #6B7280;">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($schoolPending as $pending)
+                                        <tr id="pending-intern-{{ $pending->id }}" style="border-bottom: 1px solid #E5E7EB;">
+                                            <td style="padding: 12px;">
+                                                <div style="display: flex; align-items: center; gap: 10px;">
+                                                    <div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #FEF3C7, #FDE68A); display: flex; align-items: center; justify-content: center; color: #92400E; font-weight: 700; font-size: 13px;">
+                                                        {{ strtoupper(substr($pending->name, 0, 1)) }}
+                                                    </div>
+                                                    <div>
+                                                        <div style="font-weight: 600; color: #1F2937; font-size: 13px;">{{ $pending->name }}</div>
+                                                        <div style="font-size: 11px; color: #6B7280;">{{ $pending->phone }}</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td style="padding: 12px; font-size: 13px; color: #374151;">{{ $pending->email }}</td>
+                                            <td style="padding: 12px; font-size: 13px; color: #374151;">{{ $pending->course }}</td>
+                                            <td style="padding: 12px; font-size: 13px; color: #6B7280;">{{ $pending->created_at->format('M d, Y') }}</td>
+                                            <td style="padding: 12px; text-align: center;">
+                                                <div style="display: flex; justify-content: center; gap: 6px;">
+                                                    <button onclick="approveIntern({{ $pending->id }})" style="background: #D1FAE5; color: #065F46; border: none; width: 28px; height: 28px; border-radius: 6px; cursor: pointer;" title="Approve">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
+                                                    <button onclick="openRejectInternModal({{ $pending->id }}, '{{ addslashes($pending->name) }}')" style="background: #FEE2E2; color: #991B1B; border: none; width: 28px; height: 28px; border-radius: 6px; cursor: pointer;" title="Reject">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
+
+                <!-- All Schools List (Show all schools even without interns) -->
+                @if(($schools ?? collect())->count() > 0)
+                    @foreach($schools as $school)
+                    @php
+                        $schoolInterns = ($interns ?? collect())->where('school_id', $school->id);
+                    @endphp
+                    <div class="school-group" style="margin-bottom: 16px;">
+                        <div class="school-header" onclick="toggleSchoolGroup('school-{{ $school->id }}')" style="background: linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%); color: white; padding: 16px 20px; border-radius: 12px 12px 0 0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s ease;">
+                            <h4 style="margin: 0; font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 12px;">
+                                <i class="fas fa-university"></i>
+                                {{ $school->name }}
+                                @if($school->status !== 'Active')
+                                <span style="background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 10px; font-size: 10px;">Inactive</span>
+                                @endif
+                            </h4>
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <span style="background: rgba(255,255,255,0.2); color: white; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;">{{ $school->required_hours }} hrs required</span>
+                                <span style="background: rgba(255,191,0,0.9); color: #7B1D3A; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;">{{ $schoolInterns->count() }} {{ $schoolInterns->count() == 1 ? 'Intern' : 'Interns' }}</span>
+                                @if(($school->pending_interns ?? 0) > 0)
+                                <span style="background: #FEE2E2; color: #991B1B; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;">+{{ $school->pending_interns }} pending</span>
+                                @endif
+                                <i class="fas fa-chevron-down school-toggle-icon" id="icon-school-{{ $school->id }}" style="transition: transform 0.3s ease;"></i>
+                            </div>
+                        </div>
+                        <div class="table-card" id="school-{{ $school->id }}" style="border-radius: 0 0 12px 12px; display: block; margin-top: 0;">
+                            @if($schoolInterns->count() > 0)
                             <table>
                                 <thead>
                                     <tr>
@@ -2227,14 +2838,31 @@
                                     @endforeach
                                 </tbody>
                             </table>
+                            @else
+                            <div style="text-align: center; padding: 40px; color: #9CA3AF;">
+                                <i class="fas fa-user-graduate" style="font-size: 32px; margin-bottom: 12px; display: block;"></i>
+                                <p style="margin: 0; color: #6B7280;">No approved interns from this school yet.</p>
+                                @if(($school->pending_interns ?? 0) > 0)
+                                <p style="margin: 8px 0 0; font-size: 13px; color: #D97706;">
+                                    <i class="fas fa-clock"></i> {{ $school->pending_interns }} intern(s) pending approval
+                                </p>
+                                @endif
+                                @if($school->contact_person)
+                                <p style="margin: 12px 0 0; font-size: 12px; color: #6B7280;">
+                                    <i class="fas fa-user"></i> Contact: {{ $school->contact_person }} 
+                                    @if($school->contact_phone) | {{ $school->contact_phone }} @endif
+                                </p>
+                                @endif
+                            </div>
+                            @endif
                         </div>
                     </div>
                     @endforeach
                 @else
                     <div class="table-card" style="text-align: center; padding: 60px 40px; color: #9CA3AF;">
-                        <i class="fas fa-users" style="font-size: 48px; margin-bottom: 16px; display: block;"></i>
-                        <h3 style="color: #6B7280; margin-bottom: 8px;">No Interns Registered Yet</h3>
-                        <p>Interns will appear here grouped by school once they register through the Intern Portal.</p>
+                        <i class="fas fa-university" style="font-size: 48px; margin-bottom: 16px; display: block;"></i>
+                        <h3 style="color: #6B7280; margin-bottom: 8px;">No Schools Registered Yet</h3>
+                        <p>Click "Manage Schools" to add schools first, then interns can register.</p>
                     </div>
                 @endif
             </div>
@@ -2722,319 +3350,225 @@
             <!-- Research Tracking Page -->
             <div id="research-tracking" class="page-content">
                 <div style="margin-bottom: 24px;">
-                    <h2 style="font-size: 28px; font-weight: 700; color: #1F2937; margin-bottom: 8px;">Research & Startup Project Tracking</h2>
-                    <p style="color: #6B7280; font-size: 14px;">Monitor project progress from ideation to launch-ready stage, track training completion, and development phases</p>
+                    <h2 style="font-size: 28px; font-weight: 700; color: #1F2937; margin-bottom: 8px;">Research & Startup Document Tracking</h2>
+                    <p style="color: #6B7280; font-size: 14px;">Track and manage document submissions from startups in the incubation program</p>
                 </div>
 
-                <!-- View Toggle -->
-                <div class="filter-tabs">
-                    <button class="filter-tab active" onclick="switchResearchView('kanban')">
-                        <i class="fas fa-th-large"></i> Kanban View
-                    </button>
-                    <button class="filter-tab" onclick="switchResearchView('list')">
-                        <i class="fas fa-list"></i> List View
-                    </button>
-                    <button class="filter-tab" onclick="switchResearchView('timeline')">
-                        <i class="fas fa-stream"></i> Timeline View
-                    </button>
+                <!-- Stats Overview -->
+                <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 24px;">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #3B82F6, #2563EB);">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="stat-value">{{ $startupDocuments->count() }}</div>
+                        <div class="stat-label">Total Documents</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #F59E0B, #D97706);">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-value">{{ $startupDocuments->where('status', 'pending')->count() }}</div>
+                        <div class="stat-label">Pending Review</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #6366F1, #4F46E5);">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <div class="stat-value">{{ $startupDocuments->where('status', 'under_review')->count() }}</div>
+                        <div class="stat-label">Under Review</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #10B981, #059669);">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-value">{{ $startupDocuments->whereIn('status', ['approved', 'completed'])->count() }}</div>
+                        <div class="stat-label">Approved</div>
+                    </div>
                 </div>
 
                 <!-- Filter Bar -->
                 <div class="filter-bar">
                     <div class="filter-group">
-                        <span class="filter-label">Stage:</span>
-                        <select class="filter-select" onchange="filterResearchProjects()" id="researchStageFilter">
-                            <option value="all">All Stages</option>
-                            <option value="ideation">Ideation</option>
-                            <option value="training">Training</option>
-                            <option value="design">Design</option>
-                            <option value="development">Development</option>
-                            <option value="testing">Testing</option>
-                            <option value="launch">Launch Ready</option>
+                        <span class="filter-label">Status:</span>
+                        <select class="filter-select" onchange="filterDocuments()" id="documentStatusFilter">
+                            <option value="all">All Status</option>
+                            <option value="pending">Pending</option>
+                            <option value="under_review">Under Review</option>
+                            <option value="approved">Approved</option>
+                            <option value="rejected">Rejected</option>
                         </select>
                     </div>
                     <div class="filter-group">
-                        <span class="filter-label">Status:</span>
-                        <select class="filter-select" onchange="filterResearchProjects()" id="researchStatusFilter">
-                            <option value="all">All Status</option>
-                            <option value="active">Active</option>
-                            <option value="blocked">Blocked</option>
-                            <option value="completed">Completed</option>
+                        <span class="filter-label">Document Type:</span>
+                        <select class="filter-select" onchange="filterDocuments()" id="documentTypeFilter">
+                            <option value="all">All Types</option>
+                            <option value="Business Plan">Business Plan</option>
+                            <option value="Financial Report">Financial Report</option>
+                            <option value="Progress Report">Progress Report</option>
+                            <option value="Legal Document">Legal Document</option>
+                            <option value="Other">Other</option>
                         </select>
                     </div>
                     <div class="filter-search">
                         <i class="fas fa-search"></i>
-                        <input type="text" placeholder="Search projects..." onkeyup="searchResearchProjects()" id="researchSearchInput">
+                        <input type="text" placeholder="Search documents..." onkeyup="searchDocuments()" id="documentSearchInput">
                     </div>
-                    <button class="filter-btn" onclick="openNewProjectModal()">
-                        <i class="fas fa-plus"></i> New Project
-                    </button>
                 </div>
 
                 <!-- Kanban Board View -->
                 <div id="kanban-view" class="kanban-container">
+                    <!-- Pending Column -->
                     <div class="kanban-column">
                         <div class="kanban-header">
-                            <h4><i class="fas fa-lightbulb"></i> Ideation</h4>
-                            <span class="kanban-count">2</span>
+                            <h4><i class="fas fa-inbox"></i> Pending</h4>
+                            <span class="kanban-count">{{ $startupDocuments->where('status', 'pending')->count() }}</span>
                         </div>
                         <div class="kanban-cards">
-                            <div class="kanban-card" onclick="viewProjectDetails(1)">
+                            @forelse($startupDocuments->where('status', 'pending') as $doc)
+                            <div class="kanban-card" onclick="viewDocumentDetails('{{ $doc->id }}')">
                                 <div class="card-header">
-                                    <h5>Smart Farming IoT System</h5>
-                                    <span class="status-badge status-active">Active</span>
+                                    <h5>{{ $doc->company_name }}</h5>
+                                    <span class="status-badge" style="background: #FEF3C7; color: #92400E;">Pending</span>
                                 </div>
-                                <p class="card-description">Agricultural monitoring system using IoT sensors</p>
+                                <p class="card-description">{{ $doc->document_type }} - {{ $doc->original_filename }}</p>
                                 <div class="card-meta">
-                                    <span><i class="fas fa-users"></i> 4 Members</span>
-                                    <span><i class="fas fa-calendar"></i> Started: Dec 1</span>
+                                    <span><i class="fas fa-user"></i> {{ $doc->contact_person }}</span>
+                                    <span><i class="fas fa-calendar"></i> {{ $doc->created_at->format('M d') }}</span>
                                 </div>
-                                <div class="card-progress">
-                                    <div class="progress-bar-container">
-                                        <div class="progress-bar" style="width: 25%;"></div>
-                                    </div>
-                                    <span>25%</span>
+                                <div style="margin-top: 8px; font-size: 12px; color: #6B7280;">
+                                    <i class="fas fa-hashtag"></i> {{ $doc->tracking_code }}
                                 </div>
-                                <div class="card-team">
-                                    <div class="team-avatars">
-                                        <div class="avatar">K</div>
-                                        <div class="avatar">J</div>
-                                        <div class="avatar">R</div>
-                                        <div class="avatar">M</div>
-                                    </div>
+                                @if($doc->notes)
+                                <div style="margin-top: 8px; font-size: 11px; color: #6B7280; padding: 6px; background: #F3F4F6; border-radius: 4px;">
+                                    {{ Str::limit($doc->notes, 50) }}
                                 </div>
-                            </div>
-                            <div class="kanban-card" onclick="viewProjectDetails(2)">
-                                <div class="card-header">
-                                    <h5>E-Learning Platform</h5>
-                                    <span class="status-badge status-active">Active</span>
-                                </div>
-                                <p class="card-description">Interactive online learning system for students</p>
-                                <div class="card-meta">
-                                    <span><i class="fas fa-users"></i> 3 Members</span>
-                                    <span><i class="fas fa-calendar"></i> Started: Dec 3</span>
-                                </div>
-                                <div class="card-progress">
-                                    <div class="progress-bar-container">
-                                        <div class="progress-bar" style="width: 30%;"></div>
-                                    </div>
-                                    <span>30%</span>
-                                </div>
-                                <div class="card-team">
-                                    <div class="team-avatars">
-                                        <div class="avatar">B</div>
-                                        <div class="avatar">U</div>
-                                        <div class="avatar">A</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="kanban-column">
-                        <div class="kanban-header">
-                            <h4><i class="fas fa-graduation-cap"></i> Training</h4>
-                            <span class="kanban-count">1</span>
-                        </div>
-                        <div class="kanban-cards">
-                            <div class="kanban-card" onclick="viewProjectDetails(3)">
-                                <div class="card-header">
-                                    <h5>Healthcare Appointment App</h5>
-                                    <span class="status-badge status-active">Active</span>
-                                </div>
-                                <p class="card-description">Mobile app for booking medical appointments</p>
-                                <div class="card-meta">
-                                    <span><i class="fas fa-users"></i> 3 Members</span>
-                                    <span><i class="fas fa-calendar"></i> Started: Nov 20</span>
-                                </div>
-                                <div class="card-progress">
-                                    <div class="progress-bar-container">
-                                        <div class="progress-bar" style="width: 50%;"></div>
-                                    </div>
-                                    <span>50%</span>
-                                </div>
-                                <div class="training-status">
-                                    <small>Training: 3/5 completed</small>
-                                </div>
-                                <div class="card-team">
-                                    <div class="team-avatars">
-                                        <div class="avatar">C</div>
-                                        <div class="avatar">L</div>
-                                        <div class="avatar">D</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="kanban-column">
-                        <div class="kanban-header">
-                            <h4><i class="fas fa-palette"></i> Design</h4>
-                            <span class="kanban-count">2</span>
-                        </div>
-                        <div class="kanban-cards">
-                            <div class="kanban-card" onclick="viewProjectDetails(4)">
-                                <div class="card-header">
-                                    <h5>Food Delivery Platform</h5>
-                                    <span class="status-badge status-active">Active</span>
-                                </div>
-                                <p class="card-description">Online food ordering and delivery system</p>
-                                <div class="card-meta">
-                                    <span><i class="fas fa-users"></i> 5 Members</span>
-                                    <span><i class="fas fa-calendar"></i> Started: Nov 15</span>
-                                </div>
-                                <div class="card-progress">
-                                    <div class="progress-bar-container">
-                                        <div class="progress-bar" style="width: 65%;"></div>
-                                    </div>
-                                    <span>65%</span>
-                                </div>
-                                <div class="design-links">
-                                    <small><i class="fas fa-link"></i> Figma mockups ready</small>
-                                </div>
-                                <div class="card-team">
-                                    <div class="team-avatars">
-                                        <div class="avatar">K</div>
-                                        <div class="avatar">B</div>
-                                        <div class="avatar">A</div>
-                                        <div class="avatar">+2</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="kanban-card" onclick="viewProjectDetails(5)">
-                                <div class="card-header">
-                                    <h5>Inventory Management System</h5>
-                                    <span class="status-badge status-active">Active</span>
-                                </div>
-                                <p class="card-description">Warehouse inventory tracking solution</p>
-                                <div class="card-meta">
-                                    <span><i class="fas fa-users"></i> 3 Members</span>
-                                    <span><i class="fas fa-calendar"></i> Started: Nov 25</span>
-                                </div>
-                                <div class="card-progress">
-                                    <div class="progress-bar-container">
-                                        <div class="progress-bar" style="width: 55%;"></div>
-                                    </div>
-                                    <span>55%</span>
-                                </div>
-                                <div class="card-team">
-                                    <div class="team-avatars">
-                                        <div class="avatar">J</div>
-                                        <div class="avatar">R</div>
-                                        <div class="avatar">M</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="kanban-column">
-                        <div class="kanban-header">
-                            <h4><i class="fas fa-code"></i> Development</h4>
-                            <span class="kanban-count">1</span>
-                        </div>
-                        <div class="kanban-cards">
-                            <div class="kanban-card" onclick="viewProjectDetails(6)">
-                                <div class="card-header">
-                                    <h5>Task Management Tool</h5>
-                                    <span class="status-badge status-active">Active</span>
-                                </div>
-                                <p class="card-description">Collaborative task tracking platform</p>
-                                <div class="card-meta">
-                                    <span><i class="fas fa-users"></i> 4 Members</span>
-                                    <span><i class="fas fa-calendar"></i> Started: Oct 20</span>
-                                </div>
-                                <div class="card-progress">
-                                    <div class="progress-bar-container">
-                                        <div class="progress-bar" style="width: 75%;"></div>
-                                    </div>
-                                    <span>75%</span>
-                                </div>
-                                <div class="dev-status">
-                                    <small><i class="fab fa-github"></i> Repository active</small>
-                                </div>
-                                <div class="card-team">
-                                    <div class="team-avatars">
-                                        <div class="avatar">U</div>
-                                        <div class="avatar">C</div>
-                                        <div class="avatar">L</div>
-                                        <div class="avatar">A</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="kanban-column">
-                        <div class="kanban-header">
-                            <h4><i class="fas fa-vial"></i> Testing</h4>
-                            <span class="kanban-count">1</span>
-                        </div>
-                        <div class="kanban-cards">
-                            <div class="kanban-card" onclick="viewProjectDetails(7)">
-                                <div class="card-header">
-                                    <h5>Budget Tracker App</h5>
-                                    <span class="status-badge status-active">Active</span>
-                                </div>
-                                <p class="card-description">Personal finance management application</p>
-                                <div class="card-meta">
-                                    <span><i class="fas fa-users"></i> 2 Members</span>
-                                    <span><i class="fas fa-calendar"></i> Started: Oct 1</span>
-                                </div>
-                                <div class="card-progress">
-                                    <div class="progress-bar-container">
-                                        <div class="progress-bar" style="width: 90%;"></div>
-                                    </div>
-                                    <span>90%</span>
-                                </div>
-                                <div class="test-status">
-                                    <small><i class="fas fa-check-circle"></i> Beta testing</small>
-                                </div>
-                                <div class="card-team">
-                                    <div class="team-avatars">
-                                        <div class="avatar">D</div>
-                                        <div class="avatar">A</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="kanban-column">
-                        <div class="kanban-header">
-                            <h4><i class="fas fa-rocket"></i> Launch Ready</h4>
-                            <span class="kanban-count">1</span>
-                        </div>
-                        <div class="kanban-cards">
-                            <div class="kanban-card success" onclick="viewProjectDetails(8)">
-                                <div class="card-header">
-                                    <h5>Event Registration System</h5>
-                                    <span class="status-badge status-completed">Completed</span>
-                                </div>
-                                <p class="card-description">Online event ticketing and registration</p>
-                                <div class="card-meta">
-                                    <span><i class="fas fa-users"></i> 3 Members</span>
-                                    <span><i class="fas fa-calendar"></i> Started: Sep 10</span>
-                                </div>
-                                <div class="card-progress">
-                                    <div class="progress-bar-container">
-                                        <div class="progress-bar" style="width: 100%;"></div>
-                                    </div>
-                                    <span>100%</span>
-                                </div>
-                                <div class="launch-action">
-                                    <button class="btn-promote" onclick="promoteToIncubatee(8)">
-                                        <i class="fas fa-arrow-right"></i> Promote to Incubatee
+                                @endif
+                                <div style="margin-top: 10px; display: flex; gap: 6px;">
+                                    <button onclick="event.stopPropagation(); openReviewDocumentModal('{{ $doc->id }}')" style="flex: 1; padding: 6px 10px; font-size: 11px; background: #10B981; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                        <i class="fas fa-check"></i> Review
                                     </button>
-                                </div>
-                                <div class="card-team">
-                                    <div class="team-avatars">
-                                        <div class="avatar">K</div>
-                                        <div class="avatar">J</div>
-                                        <div class="avatar">R</div>
-                                    </div>
+                                    <a href="{{ asset('storage/' . $doc->file_path) }}" target="_blank" onclick="event.stopPropagation();" style="padding: 6px 10px; font-size: 11px; background: #3B82F6; color: white; border: none; border-radius: 4px; cursor: pointer; text-decoration: none;">
+                                        <i class="fas fa-download"></i>
+                                    </a>
                                 </div>
                             </div>
+                            @empty
+                            <div style="padding: 20px; text-align: center; color: #9CA3AF; font-size: 13px;">
+                                <i class="fas fa-inbox" style="font-size: 24px; margin-bottom: 8px; display: block;"></i>
+                                No pending documents
+                            </div>
+                            @endforelse
+                        </div>
+                    </div>
+
+                    <!-- Under Review Column -->
+                    <div class="kanban-column">
+                        <div class="kanban-header">
+                            <h4><i class="fas fa-search"></i> Under Review</h4>
+                            <span class="kanban-count">{{ $startupDocuments->where('status', 'under_review')->count() }}</span>
+                        </div>
+                        <div class="kanban-cards">
+                            @forelse($startupDocuments->where('status', 'under_review') as $doc)
+                            <div class="kanban-card" onclick="viewDocumentDetails('{{ $doc->id }}')">
+                                <div class="card-header">
+                                    <h5>{{ $doc->company_name }}</h5>
+                                    <span class="status-badge" style="background: #DBEAFE; color: #1E40AF;">Reviewing</span>
+                                </div>
+                                <p class="card-description">{{ $doc->document_type }} - {{ $doc->original_filename }}</p>
+                                <div class="card-meta">
+                                    <span><i class="fas fa-user"></i> {{ $doc->contact_person }}</span>
+                                    <span><i class="fas fa-calendar"></i> {{ $doc->created_at->format('M d') }}</span>
+                                </div>
+                                <div style="margin-top: 8px; font-size: 12px; color: #6B7280;">
+                                    <i class="fas fa-hashtag"></i> {{ $doc->tracking_code }}
+                                </div>
+                                <div style="margin-top: 10px; display: flex; gap: 6px;">
+                                    <button onclick="event.stopPropagation(); openReviewDocumentModal('{{ $doc->id }}')" style="flex: 1; padding: 6px 10px; font-size: 11px; background: #10B981; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                        <i class="fas fa-check"></i> Approve/Reject
+                                    </button>
+                                    <a href="{{ asset('storage/' . $doc->file_path) }}" target="_blank" onclick="event.stopPropagation();" style="padding: 6px 10px; font-size: 11px; background: #3B82F6; color: white; border: none; border-radius: 4px; cursor: pointer; text-decoration: none;">
+                                        <i class="fas fa-download"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            @empty
+                            <div style="padding: 20px; text-align: center; color: #9CA3AF; font-size: 13px;">
+                                <i class="fas fa-search" style="font-size: 24px; margin-bottom: 8px; display: block;"></i>
+                                No documents under review
+                            </div>
+                            @endforelse
+                        </div>
+                    </div>
+
+                    <!-- Approved Column -->
+                    <div class="kanban-column">
+                        <div class="kanban-header">
+                            <h4><i class="fas fa-check-circle"></i> Approved</h4>
+                            <span class="kanban-count">{{ $startupDocuments->where('status', 'approved')->count() }}</span>
+                        </div>
+                        <div class="kanban-cards">
+                            @forelse($startupDocuments->where('status', 'approved') as $doc)
+                            <div class="kanban-card success" onclick="viewDocumentDetails('{{ $doc->id }}')">
+                                <div class="card-header">
+                                    <h5>{{ $doc->company_name }}</h5>
+                                    <span class="status-badge" style="background: #DCFCE7; color: #166534;">Approved</span>
+                                </div>
+                                <p class="card-description">{{ $doc->document_type }} - {{ $doc->original_filename }}</p>
+                                <div class="card-meta">
+                                    <span><i class="fas fa-user"></i> {{ $doc->contact_person }}</span>
+                                    <span><i class="fas fa-calendar"></i> {{ $doc->reviewed_at ? $doc->reviewed_at->format('M d') : 'N/A' }}</span>
+                                </div>
+                                <div style="margin-top: 8px; font-size: 12px; color: #6B7280;">
+                                    <i class="fas fa-hashtag"></i> {{ $doc->tracking_code }}
+                                </div>
+                                @if($doc->reviewer)
+                                <div style="margin-top: 8px; font-size: 11px; color: #059669;">
+                                    <i class="fas fa-user-check"></i> Reviewed by {{ $doc->reviewer->name }}
+                                </div>
+                                @endif
+                            </div>
+                            @empty
+                            <div style="padding: 20px; text-align: center; color: #9CA3AF; font-size: 13px;">
+                                <i class="fas fa-check-circle" style="font-size: 24px; margin-bottom: 8px; display: block;"></i>
+                                No approved documents
+                            </div>
+                            @endforelse
+                        </div>
+                    </div>
+
+                    <!-- Rejected Column -->
+                    <div class="kanban-column">
+                        <div class="kanban-header">
+                            <h4><i class="fas fa-times-circle"></i> Rejected</h4>
+                            <span class="kanban-count">{{ $startupDocuments->where('status', 'rejected')->count() }}</span>
+                        </div>
+                        <div class="kanban-cards">
+                            @forelse($startupDocuments->where('status', 'rejected') as $doc)
+                            <div class="kanban-card" style="border-left: 3px solid #EF4444;" onclick="viewDocumentDetails('{{ $doc->id }}')">
+                                <div class="card-header">
+                                    <h5>{{ $doc->company_name }}</h5>
+                                    <span class="status-badge" style="background: #FEE2E2; color: #991B1B;">Rejected</span>
+                                </div>
+                                <p class="card-description">{{ $doc->document_type }} - {{ $doc->original_filename }}</p>
+                                <div class="card-meta">
+                                    <span><i class="fas fa-user"></i> {{ $doc->contact_person }}</span>
+                                    <span><i class="fas fa-calendar"></i> {{ $doc->reviewed_at ? $doc->reviewed_at->format('M d') : 'N/A' }}</span>
+                                </div>
+                                <div style="margin-top: 8px; font-size: 12px; color: #6B7280;">
+                                    <i class="fas fa-hashtag"></i> {{ $doc->tracking_code }}
+                                </div>
+                                @if($doc->admin_notes)
+                                <div style="margin-top: 8px; font-size: 11px; color: #DC2626; padding: 6px; background: #FEF2F2; border-radius: 4px;">
+                                    <i class="fas fa-exclamation-circle"></i> {{ Str::limit($doc->admin_notes, 50) }}
+                                </div>
+                                @endif
+                            </div>
+                            @empty
+                            <div style="padding: 20px; text-align: center; color: #9CA3AF; font-size: 13px;">
+                                <i class="fas fa-times-circle" style="font-size: 24px; margin-bottom: 8px; display: block;"></i>
+                                No rejected documents
+                            </div>
+                            @endforelse
                         </div>
                     </div>
                 </div>
@@ -3042,52 +3576,71 @@
                 <!-- List View (Hidden by default) -->
                 <div id="list-view" style="display: none;">
                     <div class="table-card">
+                        <div class="table-header">
+                            <h3 class="table-title">All Startup Documents</h3>
+                            <button style="padding: 8px 16px; background: #7B1D3A; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">
+                                <i class="fas fa-download"></i> Export Report
+                            </button>
+                        </div>
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Project Name</th>
-                                    <th>Team</th>
-                                    <th>Current Stage</th>
-                                    <th>Progress</th>
-                                    <th>Training Status</th>
-                                    <th>Started</th>
+                                    <th>Tracking Code</th>
+                                    <th>Company Name</th>
+                                    <th>Document Type</th>
+                                    <th>Contact Person</th>
+                                    <th>Submitted</th>
                                     <th>Status</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
+                                @forelse($startupDocuments as $doc)
+                                <tr class="document-row" data-status="{{ $doc->status }}" data-type="{{ $doc->document_type }}">
+                                    <td><strong>{{ $doc->tracking_code }}</strong></td>
                                     <td>
-                                        <div style="font-weight: 600;">Smart Farming IoT System</div>
-                                        <div style="font-size: 12px; color: #6B7280;">Agricultural monitoring</div>
+                                        <div style="font-weight: 600; margin-bottom: 4px;">{{ $doc->company_name }}</div>
+                                        <div style="font-size: 12px; color: #6B7280;">{{ $doc->email }}</div>
                                     </td>
-                                    <td>
-                                        <div class="team-avatars">
-                                            <div class="avatar">K</div>
-                                            <div class="avatar">J</div>
-                                            <div class="avatar">+2</div>
-                                        </div>
-                                    </td>
-                                    <td><span class="status-badge" style="background: #FEF3C7; color: #92400E;">Ideation</span></td>
+                                    <td>{{ $doc->document_type }}</td>
                                     <td>
                                         <div style="display: flex; align-items: center; gap: 8px;">
-                                            <div class="progress-bar-container" style="flex: 1; max-width: 100px;">
-                                                <div class="progress-bar" style="width: 25%;"></div>
-                                            </div>
-                                            <span>25%</span>
+                                            <div class="avatar">{{ strtoupper(substr($doc->contact_person, 0, 1)) }}</div>
+                                            <span>{{ $doc->contact_person }}</span>
                                         </div>
                                     </td>
-                                    <td><span style="font-size: 12px; color: #6B7280;">Not started</span></td>
-                                    <td>Dec 1, 2025</td>
-                                    <td><span class="status-badge status-active">Active</span></td>
+                                    <td>{{ $doc->created_at->format('M d, Y') }}</td>
+                                    <td>
+                                        @if($doc->status == 'pending')
+                                            <span class="status-badge" style="background: #FEF3C7; color: #92400E;">Pending</span>
+                                        @elseif($doc->status == 'under_review')
+                                            <span class="status-badge" style="background: #DBEAFE; color: #1E40AF;">Under Review</span>
+                                        @elseif($doc->status == 'approved')
+                                            <span class="status-badge" style="background: #DCFCE7; color: #166534;">Approved</span>
+                                        @elseif($doc->status == 'rejected')
+                                            <span class="status-badge" style="background: #FEE2E2; color: #991B1B;">Rejected</span>
+                                        @else
+                                            <span class="status-badge" style="background: #E5E7EB; color: #374151;">{{ ucfirst($doc->status) }}</span>
+                                        @endif
+                                    </td>
                                     <td>
                                         <div class="action-buttons">
-                                            <button class="btn-action btn-view" onclick="viewProjectDetails(1)"><i class="fas fa-eye"></i></button>
-                                            <button class="btn-action btn-edit"><i class="fas fa-edit"></i></button>
+                                            <button class="btn-action btn-view" onclick="viewDocumentDetails('{{ $doc->id }}')" title="View Details"><i class="fas fa-eye"></i></button>
+                                            <a href="{{ asset('storage/' . $doc->file_path) }}" target="_blank" class="btn-action btn-edit" title="Download"><i class="fas fa-download"></i></a>
+                                            @if(in_array($doc->status, ['pending', 'under_review']))
+                                            <button class="btn-action" style="background: #10B981; color: white;" onclick="event.stopPropagation(); openReviewDocumentModal('{{ $doc->id }}')" title="Review"><i class="fas fa-clipboard-check"></i></button>
+                                            @endif
                                         </div>
                                     </td>
                                 </tr>
-                                <!-- More rows would be here -->
+                                @empty
+                                <tr>
+                                    <td colspan="7" style="text-align: center; padding: 40px; color: #9CA3AF;">
+                                        <i class="fas fa-file-alt" style="font-size: 32px; margin-bottom: 12px; display: block;"></i>
+                                        No document submissions yet
+                                    </td>
+                                </tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>
@@ -3096,9 +3649,14 @@
 
             <!-- Incubatee Tracker Page -->
             <div id="incubatee-tracker" class="page-content">
-                <div style="margin-bottom: 24px;">
-                    <h2 style="font-size: 28px; font-weight: 700; color: #1F2937; margin-bottom: 8px;">Incubatee Management & Tracking</h2>
-                    <p style="color: #6B7280; font-size: 14px;">Monitor MOA compliance, payment status, deliverables, and incubatee activities</p>
+                <div style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <h2 style="font-size: 28px; font-weight: 700; color: #1F2937; margin-bottom: 8px;">Incubatee Management & Tracking</h2>
+                        <p style="color: #6B7280; font-size: 14px;">Monitor MOA requests, payment submissions, and incubatee activities from the startup portal</p>
+                    </div>
+                    <button onclick="openMoaTemplateModal()" style="background: linear-gradient(135deg, #7B1D3A, #5a1428); color: white; padding: 12px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: transform 0.2s, box-shadow 0.2s;">
+                        <i class="fas fa-file-contract"></i> Generate MOA Template
+                    </button>
                 </div>
 
                 <!-- Stats Overview -->
@@ -3107,65 +3665,64 @@
                         <div class="stat-icon" style="background: linear-gradient(135deg, #10B981, #059669);">
                             <i class="fas fa-check-circle"></i>
                         </div>
-                        <div class="stat-value">12</div>
+                        <div class="stat-value">{{ $activeIncubatees }}</div>
                         <div class="stat-label">Active Incubatees</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon" style="background: linear-gradient(135deg, #3B82F6, #2563EB);">
                             <i class="fas fa-file-contract"></i>
                         </div>
-                        <div class="stat-value">15</div>
-                        <div class="stat-label">Active MOAs</div>
+                        <div class="stat-value">{{ $moaRequests->count() }}</div>
+                        <div class="stat-label">Total MOA Requests</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon" style="background: linear-gradient(135deg, #F59E0B, #D97706);">
                             <i class="fas fa-exclamation-circle"></i>
                         </div>
-                        <div class="stat-value">3</div>
-                        <div class="stat-label">Pending Payments</div>
+                        <div class="stat-value">{{ $pendingMoaCount }}</div>
+                        <div class="stat-label">Pending MOAs</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #EF4444, #DC2626);">
-                            <i class="fas fa-clock"></i>
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #6366F1, #4F46E5);">
+                            <i class="fas fa-money-bill-wave"></i>
                         </div>
-                        <div class="stat-value">2</div>
-                        <div class="stat-label">Overdue Deliverables</div>
+                        <div class="stat-value">{{ $pendingPaymentCount }}</div>
+                        <div class="stat-label">Pending Payments</div>
                     </div>
+                </div>
+
+                <!-- Tabs for MOA and Payments -->
+                <div class="filter-tabs" style="margin-bottom: 20px;">
+                    <button class="filter-tab active" onclick="switchIncubateeTab('moa')" id="moaTabBtn">
+                        <i class="fas fa-file-contract"></i> MOA Requests
+                    </button>
+                    <button class="filter-tab" onclick="switchIncubateeTab('payments')" id="paymentsTabBtn">
+                        <i class="fas fa-credit-card"></i> Payment Submissions
+                    </button>
                 </div>
 
                 <!-- Filter Bar -->
                 <div class="filter-bar">
                     <div class="filter-group">
-                        <span class="filter-label">MOA Status:</span>
-                        <select class="filter-select" onchange="filterIncubatees()" id="moaStatusFilter">
+                        <span class="filter-label">Status:</span>
+                        <select class="filter-select" onchange="filterIncubatees()" id="incubateeStatusFilter">
                             <option value="all">All Status</option>
-                            <option value="active">Active</option>
-                            <option value="expiring">Expiring Soon</option>
-                            <option value="expired">Expired</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <span class="filter-label">Payment Status:</span>
-                        <select class="filter-select" onchange="filterIncubatees()" id="paymentStatusFilter">
-                            <option value="all">All Status</option>
-                            <option value="paid">Paid</option>
                             <option value="pending">Pending</option>
-                            <option value="overdue">Overdue</option>
+                            <option value="under_review">Under Review</option>
+                            <option value="approved">Approved</option>
+                            <option value="rejected">Rejected</option>
                         </select>
                     </div>
                     <div class="filter-search">
                         <i class="fas fa-search"></i>
                         <input type="text" placeholder="Search incubatees..." onkeyup="searchIncubatees()" id="incubateeSearchInput">
                     </div>
-                    <button class="filter-btn" onclick="openNewMOAModal()">
-                        <i class="fas fa-plus"></i> New MOA
-                    </button>
                 </div>
 
-                <!-- Incubatees Table -->
-                <div class="table-card">
+                <!-- MOA Requests Table -->
+                <div id="moa-table" class="table-card">
                     <div class="table-header">
-                        <h3 class="table-title">All Incubatees</h3>
+                        <h3 class="table-title">MOA Requests from Startups</h3>
                         <button style="padding: 8px 16px; background: #7B1D3A; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">
                             <i class="fas fa-download"></i> Export Report
                         </button>
@@ -3173,137 +3730,150 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>Project/Company</th>
-                                <th>Team Leader</th>
-                                <th>MOA Status</th>
-                                <th>Payment Status</th>
-                                <th>Next Payment</th>
-                                <th>Deliverables</th>
-                                <th>Compliance</th>
+                                <th>Tracking Code</th>
+                                <th>Company/Startup</th>
+                                <th>Contact Person</th>
+                                <th>MOA Purpose</th>
+                                <th>Submitted</th>
+                                <th>Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
+                            @forelse($moaRequests as $moa)
+                            <tr class="incubatee-row" data-status="{{ $moa->status }}">
+                                <td><strong>{{ $moa->tracking_code }}</strong></td>
                                 <td>
-                                    <div style="font-weight: 600; margin-bottom: 4px;">Event Registration System</div>
-                                    <div style="font-size: 12px; color: #6B7280;">Online ticketing platform</div>
+                                    <div style="font-weight: 600; margin-bottom: 4px;">{{ $moa->company_name }}</div>
+                                    <div style="font-size: 12px; color: #6B7280;">{{ $moa->email }}</div>
                                 </td>
                                 <td>
                                     <div style="display: flex; align-items: center; gap: 8px;">
-                                        <div class="avatar">K</div>
-                                        <span style="font-weight: 600;">Kingsley Laran</span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <span class="status-badge" style="background: #DCFCE7; color: #166534;">Active</span>
-                                    <div style="font-size: 11px; color: #6B7280; margin-top: 2px;">Expires: Jun 2026</div>
-                                </td>
-                                <td>
-                                    <span class="status-badge" style="background: #DCFCE7; color: #166534;">Paid</span>
-                                    <div style="font-size: 11px; color: #10B981; margin-top: 2px;">Last: Dec 1, 2025</div>
-                                </td>
-                                <td style="font-weight: 600;">Jan 1, 2026</td>
-                                <td>
-                                    <div style="display: flex; align-items: center; gap: 8px;">
-                                        <div class="progress-bar-container" style="flex: 1; max-width: 80px;">
-                                            <div class="progress-bar" style="width: 80%;"></div>
+                                        <div class="avatar">{{ strtoupper(substr($moa->contact_person, 0, 1)) }}</div>
+                                        <div>
+                                            <span style="font-weight: 600;">{{ $moa->contact_person }}</span>
+                                            @if($moa->phone)
+                                            <div style="font-size: 11px; color: #6B7280;">{{ $moa->phone }}</div>
+                                            @endif
                                         </div>
-                                        <span style="font-size: 12px;">4/5</span>
                                     </div>
                                 </td>
                                 <td>
-                                    <span class="status-badge" style="background: #DCFCE7; color: #166534;">
-                                        <i class="fas fa-check"></i> Good
-                                    </span>
+                                    <div style="font-weight: 500;">{{ $moa->moa_purpose }}</div>
+                                    @if($moa->moa_details)
+                                    <div style="font-size: 11px; color: #6B7280; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                        {{ Str::limit($moa->moa_details, 50) }}
+                                    </div>
+                                    @endif
+                                </td>
+                                <td>{{ $moa->created_at->format('M d, Y') }}</td>
+                                <td>
+                                    @if($moa->status == 'pending')
+                                        <span class="status-badge" style="background: #FEF3C7; color: #92400E;">Pending</span>
+                                    @elseif($moa->status == 'under_review')
+                                        <span class="status-badge" style="background: #DBEAFE; color: #1E40AF;">Under Review</span>
+                                    @elseif($moa->status == 'approved')
+                                        <span class="status-badge" style="background: #DCFCE7; color: #166534;">Approved</span>
+                                        @if($moa->reviewed_at)
+                                        <div style="font-size: 11px; color: #10B981; margin-top: 2px;">{{ $moa->reviewed_at->format('M d, Y') }}</div>
+                                        @endif
+                                    @elseif($moa->status == 'rejected')
+                                        <span class="status-badge" style="background: #FEE2E2; color: #991B1B;">Rejected</span>
+                                    @else
+                                        <span class="status-badge" style="background: #E5E7EB; color: #374151;">{{ ucfirst($moa->status) }}</span>
+                                    @endif
                                 </td>
                                 <td>
                                     <div class="action-buttons">
-                                        <button class="btn-action btn-view" onclick="viewIncubateeDetails(1)"><i class="fas fa-eye"></i></button>
-                                        <button class="btn-action btn-edit"><i class="fas fa-edit"></i></button>
+                                        <button class="btn-action btn-view" onclick="viewMoaDetails('{{ $moa->id }}')"><i class="fas fa-eye"></i></button>
+                                        <button class="btn-action btn-edit" onclick="reviewSubmission('{{ $moa->id }}', 'moa')"><i class="fas fa-clipboard-check"></i></button>
                                     </div>
                                 </td>
                             </tr>
+                            @empty
                             <tr>
+                                <td colspan="7" style="text-align: center; padding: 40px; color: #9CA3AF;">
+                                    <i class="fas fa-file-contract" style="font-size: 32px; margin-bottom: 12px; display: block;"></i>
+                                    No MOA requests yet
+                                </td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Payment Submissions Table -->
+                <div id="payments-table" class="table-card" style="display: none;">
+                    <div class="table-header">
+                        <h3 class="table-title">Payment Submissions from Startups</h3>
+                        <button style="padding: 8px 16px; background: #7B1D3A; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">
+                            <i class="fas fa-download"></i> Export Report
+                        </button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Tracking Code</th>
+                                <th>Company/Startup</th>
+                                <th>Contact Person</th>
+                                <th>Invoice #</th>
+                                <th>Amount</th>
+                                <th>Submitted</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($paymentSubmissions as $payment)
+                            <tr class="incubatee-row" data-status="{{ $payment->status }}">
+                                <td><strong>{{ $payment->tracking_code }}</strong></td>
                                 <td>
-                                    <div style="font-weight: 600; margin-bottom: 4px;">Food Delivery Platform</div>
-                                    <div style="font-size: 12px; color: #6B7280;">Online food ordering system</div>
+                                    <div style="font-weight: 600; margin-bottom: 4px;">{{ $payment->company_name }}</div>
+                                    <div style="font-size: 12px; color: #6B7280;">{{ $payment->email }}</div>
                                 </td>
                                 <td>
                                     <div style="display: flex; align-items: center; gap: 8px;">
-                                        <div class="avatar">J</div>
-                                        <span style="font-weight: 600;">Julliana Laurena</span>
+                                        <div class="avatar">{{ strtoupper(substr($payment->contact_person, 0, 1)) }}</div>
+                                        <span style="font-weight: 600;">{{ $payment->contact_person }}</span>
                                     </div>
                                 </td>
+                                <td><strong>{{ $payment->invoice_number }}</strong></td>
+                                <td style="font-weight: 700; color: #059669;">₱{{ number_format($payment->amount, 2) }}</td>
+                                <td>{{ $payment->created_at->format('M d, Y') }}</td>
                                 <td>
-                                    <span class="status-badge" style="background: #DCFCE7; color: #166534;">Active</span>
-                                    <div style="font-size: 11px; color: #6B7280; margin-top: 2px;">Expires: Aug 2026</div>
-                                </td>
-                                <td>
-                                    <span class="status-badge" style="background: #FEF3C7; color: #92400E;">Pending</span>
-                                    <div style="font-size: 11px; color: #F59E0B; margin-top: 2px;">Due: Dec 15, 2025</div>
-                                </td>
-                                <td style="font-weight: 600; color: #F59E0B;">Today</td>
-                                <td>
-                                    <div style="display: flex; align-items: center; gap: 8px;">
-                                        <div class="progress-bar-container" style="flex: 1; max-width: 80px;">
-                                            <div class="progress-bar" style="width: 60%;"></div>
-                                        </div>
-                                        <span style="font-size: 12px;">3/5</span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <span class="status-badge" style="background: #FEF3C7; color: #92400E;">
-                                        <i class="fas fa-exclamation-triangle"></i> Warning
-                                    </span>
+                                    @if($payment->status == 'pending')
+                                        <span class="status-badge" style="background: #FEF3C7; color: #92400E;">Pending</span>
+                                    @elseif($payment->status == 'under_review')
+                                        <span class="status-badge" style="background: #DBEAFE; color: #1E40AF;">Under Review</span>
+                                    @elseif($payment->status == 'approved')
+                                        <span class="status-badge" style="background: #DCFCE7; color: #166534;">Verified</span>
+                                        @if($payment->reviewed_at)
+                                        <div style="font-size: 11px; color: #10B981; margin-top: 2px;">{{ $payment->reviewed_at->format('M d, Y') }}</div>
+                                        @endif
+                                    @elseif($payment->status == 'rejected')
+                                        <span class="status-badge" style="background: #FEE2E2; color: #991B1B;">Rejected</span>
+                                    @else
+                                        <span class="status-badge" style="background: #E5E7EB; color: #374151;">{{ ucfirst($payment->status) }}</span>
+                                    @endif
                                 </td>
                                 <td>
                                     <div class="action-buttons">
-                                        <button class="btn-action btn-view" onclick="viewIncubateeDetails(2)"><i class="fas fa-eye"></i></button>
-                                        <button class="btn-action btn-edit"><i class="fas fa-edit"></i></button>
+                                        <button class="btn-action btn-view" onclick="viewPaymentDetails('{{ $payment->id }}')"><i class="fas fa-eye"></i></button>
+                                        @if($payment->payment_proof_path)
+                                        <a href="{{ asset('storage/' . $payment->payment_proof_path) }}" target="_blank" class="btn-action btn-edit"><i class="fas fa-receipt"></i></a>
+                                        @endif
+                                        <button class="btn-action" style="background: #10B981; color: white;" onclick="reviewSubmission('{{ $payment->id }}', 'finance')"><i class="fas fa-clipboard-check"></i></button>
                                     </div>
                                 </td>
                             </tr>
+                            @empty
                             <tr>
-                                <td>
-                                    <div style="font-weight: 600; margin-bottom: 4px;">Healthcare Appointment App</div>
-                                    <div style="font-size: 12px; color: #6B7280;">Medical booking application</div>
-                                </td>
-                                <td>
-                                    <div style="display: flex; align-items: center; gap: 8px;">
-                                        <div class="avatar">R</div>
-                                        <span style="font-weight: 600;">Ruther Marte</span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <span class="status-badge" style="background: #FEE2E2; color: #991B1B;">Expiring</span>
-                                    <div style="font-size: 11px; color: #EF4444; margin-top: 2px;">Expires: Jan 2026</div>
-                                </td>
-                                <td>
-                                    <span class="status-badge" style="background: #FEE2E2; color: #991B1B;">Overdue</span>
-                                    <div style="font-size: 11px; color: #EF4444; margin-top: 2px;">Due: Dec 1, 2025</div>
-                                </td>
-                                <td style="font-weight: 600; color: #EF4444;">14 days ago</td>
-                                <td>
-                                    <div style="display: flex; align-items: center; gap: 8px;">
-                                        <div class="progress-bar-container" style="flex: 1; max-width: 80px;">
-                                            <div class="progress-bar" style="width: 40%;"></div>
-                                        </div>
-                                        <span style="font-size: 12px;">2/5</span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <span class="status-badge" style="background: #FEE2E2; color: #991B1B;">
-                                        <i class="fas fa-times-circle"></i> Critical
-                                    </span>
-                                </td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button class="btn-action btn-view" onclick="viewIncubateeDetails(3)"><i class="fas fa-eye"></i></button>
-                                        <button class="btn-action btn-edit"><i class="fas fa-edit"></i></button>
-                                    </div>
+                                <td colspan="8" style="text-align: center; padding: 40px; color: #9CA3AF;">
+                                    <i class="fas fa-credit-card" style="font-size: 32px; margin-bottom: 12px; display: block;"></i>
+                                    No payment submissions yet
                                 </td>
                             </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
@@ -3313,7 +3883,7 @@
             <div id="issues-management" class="page-content">
                 <div style="margin-bottom: 24px;">
                     <h2 style="font-size: 28px; font-weight: 700; color: #1F2937; margin-bottom: 8px;">Issues & Complaints Management</h2>
-                    <p style="color: #6B7280; font-size: 14px;">Track and resolve facility issues, equipment problems, and incubatee complaints</p>
+                    <p style="color: #6B7280; font-size: 14px;">Track and resolve facility issues, equipment problems, and incubatee complaints from the startup portal</p>
                 </div>
 
                 <!-- Stats Overview -->
@@ -3322,29 +3892,29 @@
                         <div class="stat-icon" style="background: linear-gradient(135deg, #EF4444, #DC2626);">
                             <i class="fas fa-exclamation-circle"></i>
                         </div>
-                        <div class="stat-value">8</div>
+                        <div class="stat-value">{{ $openIssues }}</div>
                         <div class="stat-label">Open Issues</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon" style="background: linear-gradient(135deg, #F59E0B, #D97706);">
                             <i class="fas fa-clock"></i>
                         </div>
-                        <div class="stat-value">5</div>
+                        <div class="stat-value">{{ $inProgressIssues }}</div>
                         <div class="stat-label">In Progress</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon" style="background: linear-gradient(135deg, #10B981, #059669);">
                             <i class="fas fa-check-circle"></i>
                         </div>
-                        <div class="stat-value">32</div>
+                        <div class="stat-value">{{ $resolvedThisMonth }}</div>
                         <div class="stat-label">Resolved (This Month)</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon" style="background: linear-gradient(135deg, #6366F1, #4F46E5);">
-                            <i class="fas fa-chart-line"></i>
+                            <i class="fas fa-building"></i>
                         </div>
-                        <div class="stat-value">2.5</div>
-                        <div class="stat-label">Avg Resolution Time (days)</div>
+                        <div class="stat-value">{{ $roomIssues->count() }}</div>
+                        <div class="stat-label">Total Reports</div>
                     </div>
                 </div>
 
@@ -3354,8 +3924,8 @@
                         <span class="filter-label">Status:</span>
                         <select class="filter-select" onchange="filterIssues()" id="issueStatusFilter">
                             <option value="all">All Status</option>
-                            <option value="open">Open</option>
-                            <option value="in-progress">In Progress</option>
+                            <option value="pending">Pending</option>
+                            <option value="in_progress">In Progress</option>
                             <option value="resolved">Resolved</option>
                             <option value="closed">Closed</option>
                         </select>
@@ -3364,9 +3934,12 @@
                         <span class="filter-label">Type:</span>
                         <select class="filter-select" onchange="filterIssues()" id="issueTypeFilter">
                             <option value="all">All Types</option>
-                            <option value="facility">Facility</option>
-                            <option value="equipment">Equipment</option>
-                            <option value="network">Network</option>
+                            <option value="electrical">Electrical</option>
+                            <option value="plumbing">Plumbing</option>
+                            <option value="aircon">AC/Ventilation</option>
+                            <option value="internet">Internet/Network</option>
+                            <option value="furniture">Furniture</option>
+                            <option value="cleaning">Cleaning</option>
                             <option value="security">Security</option>
                             <option value="other">Other</option>
                         </select>
@@ -3375,7 +3948,7 @@
                         <span class="filter-label">Priority:</span>
                         <select class="filter-select" onchange="filterIssues()" id="issuePriorityFilter">
                             <option value="all">All Priorities</option>
-                            <option value="critical">Critical</option>
+                            <option value="urgent">Urgent</option>
                             <option value="high">High</option>
                             <option value="medium">Medium</option>
                             <option value="low">Low</option>
@@ -3390,176 +3963,106 @@
                 <!-- Issues Table -->
                 <div class="table-card">
                     <div class="table-header">
-                        <h3 class="table-title">All Issues & Complaints</h3>
+                        <h3 class="table-title">All Room Issues & Complaints</h3>
                         <div style="display: flex; gap: 8px;">
                             <button style="padding: 8px 16px; background: white; color: #7B1D3A; border: 2px solid #7B1D3A; border-radius: 6px; font-weight: 600; cursor: pointer;">
                                 <i class="fas fa-download"></i> Export
-                            </button>
-                            <button style="padding: 8px 16px; background: #7B1D3A; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;" onclick="openReportIssueModal()">
-                                <i class="fas fa-plus"></i> Report Issue
                             </button>
                         </div>
                     </div>
                     <table>
                         <thead>
                             <tr>
-                                <th>Issue ID</th>
-                                <th>Title</th>
-                                <th>Type</th>
+                                <th>Tracking Code</th>
+                                <th>Room/Description</th>
+                                <th>Issue Type</th>
                                 <th>Reported By</th>
                                 <th>Priority</th>
                                 <th>Status</th>
-                                <th>Assigned To</th>
                                 <th>Date Reported</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td><strong>#ISS-001</strong></td>
+                            @forelse($roomIssues as $issue)
+                            <tr class="issue-row" data-status="{{ $issue->status }}" data-type="{{ $issue->issue_type }}" data-priority="{{ $issue->priority }}">
+                                <td><strong>{{ $issue->tracking_code }}</strong></td>
                                 <td>
-                                    <div style="font-weight: 600; margin-bottom: 4px;">Office Ceiling Leak</div>
-                                    <div style="font-size: 12px; color: #6B7280;">Water dripping from ceiling in Room 203</div>
+                                    <div style="font-weight: 600; margin-bottom: 4px;">Room {{ $issue->room_number }}</div>
+                                    <div style="font-size: 12px; color: #6B7280; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ Str::limit($issue->description, 60) }}</div>
                                 </td>
-                                <td><span class="status-badge" style="background: #DBEAFE; color: #1E40AF;">Facility</span></td>
+                                <td>
+                                    @php
+                                        $typeColors = [
+                                            'electrical' => ['bg' => '#FEF3C7', 'text' => '#92400E'],
+                                            'plumbing' => ['bg' => '#DBEAFE', 'text' => '#1E40AF'],
+                                            'aircon' => ['bg' => '#E0F2FE', 'text' => '#0369A1'],
+                                            'internet' => ['bg' => '#FEE2E2', 'text' => '#991B1B'],
+                                            'furniture' => ['bg' => '#F3E8FF', 'text' => '#6B21A8'],
+                                            'cleaning' => ['bg' => '#DCFCE7', 'text' => '#166534'],
+                                            'security' => ['bg' => '#FCE7F3', 'text' => '#9D174D'],
+                                            'other' => ['bg' => '#E5E7EB', 'text' => '#374151'],
+                                        ];
+                                        $color = $typeColors[$issue->issue_type] ?? $typeColors['other'];
+                                    @endphp
+                                    <span class="status-badge" style="background: {{ $color['bg'] }}; color: {{ $color['text'] }};">{{ $issue->issue_type_label }}</span>
+                                </td>
                                 <td>
                                     <div style="display: flex; align-items: center; gap: 8px;">
-                                        <div class="avatar">K</div>
-                                        <span>Kingsley Laran</span>
+                                        <div class="avatar">{{ strtoupper(substr($issue->contact_person, 0, 1)) }}</div>
+                                        <div>
+                                            <span style="font-weight: 600;">{{ $issue->contact_person }}</span>
+                                            <div style="font-size: 11px; color: #6B7280;">{{ $issue->company_name }}</div>
+                                        </div>
                                     </div>
                                 </td>
-                                <td><span class="priority-badge priority-critical">Critical</span></td>
-                                <td><span class="status-badge" style="background: #FEF3C7; color: #92400E;">In Progress</span></td>
                                 <td>
-                                    <div style="font-size: 12px;">
-                                        <div style="font-weight: 600;">Maintenance Team</div>
-                                        <div style="color: #6B7280;">John Santos</div>
-                                    </div>
+                                    @php
+                                        $priorityClasses = [
+                                            'urgent' => 'priority-critical',
+                                            'high' => 'priority-high',
+                                            'medium' => 'priority-medium',
+                                            'low' => 'priority-low',
+                                        ];
+                                        $priorityClass = $priorityClasses[$issue->priority] ?? 'priority-medium';
+                                    @endphp
+                                    <span class="priority-badge {{ $priorityClass }}">{{ ucfirst($issue->priority) }}</span>
                                 </td>
-                                <td>Dec 14, 2025</td>
+                                <td>
+                                    @if($issue->status == 'pending')
+                                        <span class="status-badge" style="background: #FEE2E2; color: #991B1B;">Pending</span>
+                                    @elseif($issue->status == 'in_progress')
+                                        <span class="status-badge" style="background: #FEF3C7; color: #92400E;">In Progress</span>
+                                    @elseif($issue->status == 'resolved')
+                                        <span class="status-badge" style="background: #DCFCE7; color: #166534;">Resolved</span>
+                                        @if($issue->resolved_at)
+                                        <div style="font-size: 11px; color: #10B981; margin-top: 2px;">{{ $issue->resolved_at->format('M d') }}</div>
+                                        @endif
+                                    @elseif($issue->status == 'closed')
+                                        <span class="status-badge" style="background: #E5E7EB; color: #374151;">Closed</span>
+                                    @else
+                                        <span class="status-badge" style="background: #E5E7EB; color: #374151;">{{ ucfirst($issue->status) }}</span>
+                                    @endif
+                                </td>
+                                <td>{{ $issue->created_at->format('M d, Y') }}</td>
                                 <td>
                                     <div class="action-buttons">
-                                        <button class="btn-action btn-view" onclick="viewIssueDetails(1)"><i class="fas fa-eye"></i></button>
-                                        <button class="btn-action btn-edit"><i class="fas fa-edit"></i></button>
+                                        <button class="btn-action btn-view" onclick="viewRoomIssueDetails('{{ $issue->id }}')"><i class="fas fa-eye"></i></button>
+                                        @if($issue->photo_path)
+                                        <a href="{{ asset('storage/' . $issue->photo_path) }}" target="_blank" class="btn-action btn-edit"><i class="fas fa-image"></i></a>
+                                        @endif
+                                        <button class="btn-action" style="background: #10B981; color: white;" onclick="updateIssueStatus('{{ $issue->id }}')"><i class="fas fa-check"></i></button>
                                     </div>
                                 </td>
                             </tr>
+                            @empty
                             <tr>
-                                <td><strong>#ISS-002</strong></td>
-                                <td>
-                                    <div style="font-weight: 600; margin-bottom: 4px;">WiFi Connection Issues</div>
-                                    <div style="font-size: 12px; color: #6B7280;">Intermittent connectivity in co-working area</div>
-                                </td>
-                                <td><span class="status-badge" style="background: #FEE2E2; color: #991B1B;">Network</span></td>
-                                <td>
-                                    <div style="display: flex; align-items: center; gap: 8px;">
-                                        <div class="avatar">J</div>
-                                        <span>Julliana Laurena</span>
-                                    </div>
-                                </td>
-                                <td><span class="priority-badge priority-high">High</span></td>
-                                <td><span class="status-badge" style="background: #FEE2E2; color: #991B1B;">Open</span></td>
-                                <td>
-                                    <div style="font-size: 12px;">
-                                        <div style="font-weight: 600;">IT Department</div>
-                                        <div style="color: #6B7280;">Unassigned</div>
-                                    </div>
-                                </td>
-                                <td>Dec 15, 2025</td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button class="btn-action btn-view" onclick="viewIssueDetails(2)"><i class="fas fa-eye"></i></button>
-                                        <button class="btn-action btn-edit"><i class="fas fa-edit"></i></button>
-                                    </div>
+                                <td colspan="8" style="text-align: center; padding: 40px; color: #9CA3AF;">
+                                    <i class="fas fa-check-circle" style="font-size: 32px; margin-bottom: 12px; display: block;"></i>
+                                    No room issues reported yet
                                 </td>
                             </tr>
-                            <tr>
-                                <td><strong>#ISS-003</strong></td>
-                                <td>
-                                    <div style="font-weight: 600; margin-bottom: 4px;">Broken Printer</div>
-                                    <div style="font-size: 12px; color: #6B7280;">Printer not responding, paper jam issue</div>
-                                </td>
-                                <td><span class="status-badge" style="background: #FEF3C7; color: #92400E;">Equipment</span></td>
-                                <td>
-                                    <div style="display: flex; align-items: center; gap: 8px;">
-                                        <div class="avatar">R</div>
-                                        <span>Ruther Marte</span>
-                                    </div>
-                                </td>
-                                <td><span class="priority-badge priority-medium">Medium</span></td>
-                                <td><span class="status-badge" style="background: #DCFCE7; color: #166534;">Resolved</span></td>
-                                <td>
-                                    <div style="font-size: 12px;">
-                                        <div style="font-weight: 600;">Admin Office</div>
-                                        <div style="color: #6B7280;">Maria Cruz</div>
-                                    </div>
-                                </td>
-                                <td>Dec 12, 2025</td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button class="btn-action btn-view" onclick="viewIssueDetails(3)"><i class="fas fa-eye"></i></button>
-                                        <button class="btn-action btn-edit"><i class="fas fa-edit"></i></button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><strong>#ISS-004</strong></td>
-                                <td>
-                                    <div style="font-weight: 600; margin-bottom: 4px;">AC Not Working</div>
-                                    <div style="font-size: 12px; color: #6B7280;">Air conditioning unit in Room 105 not cooling</div>
-                                </td>
-                                <td><span class="status-badge" style="background: #DBEAFE; color: #1E40AF;">Facility</span></td>
-                                <td>
-                                    <div style="display: flex; align-items: center; gap: 8px;">
-                                        <div class="avatar">M</div>
-                                        <span>Mj Bersabal</span>
-                                    </div>
-                                </td>
-                                <td><span class="priority-badge priority-high">High</span></td>
-                                <td><span class="status-badge" style="background: #FEF3C7; color: #92400E;">In Progress</span></td>
-                                <td>
-                                    <div style="font-size: 12px;">
-                                        <div style="font-weight: 600;">Maintenance Team</div>
-                                        <div style="color: #6B7280;">Pedro Reyes</div>
-                                    </div>
-                                </td>
-                                <td>Dec 13, 2025</td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button class="btn-action btn-view" onclick="viewIssueDetails(4)"><i class="fas fa-eye"></i></button>
-                                        <button class="btn-action btn-edit"><i class="fas fa-edit"></i></button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><strong>#ISS-005</strong></td>
-                                <td>
-                                    <div style="font-weight: 600; margin-bottom: 4px;">Security Camera Malfunction</div>
-                                    <div style="font-size: 12px; color: #6B7280;">Camera 3 at entrance not recording</div>
-                                </td>
-                                <td><span class="status-badge" style="background: #F3E8FF; color: #6B21A8;">Security</span></td>
-                                <td>
-                                    <div style="display: flex; align-items: center; gap: 8px;">
-                                        <div class="avatar">B</div>
-                                        <span>Brejean Abarico</span>
-                                    </div>
-                                </td>
-                                <td><span class="priority-badge priority-high">High</span></td>
-                                <td><span class="status-badge" style="background: #FEE2E2; color: #991B1B;">Open</span></td>
-                                <td>
-                                    <div style="font-size: 12px;">
-                                        <div style="font-weight: 600;">Security Team</div>
-                                        <div style="color: #6B7280;">Unassigned</div>
-                                    </div>
-                                </td>
-                                <td>Dec 15, 2025</td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button class="btn-action btn-view" onclick="viewIssueDetails(5)"><i class="fas fa-eye"></i></button>
-                                        <button class="btn-action btn-edit"><i class="fas fa-edit"></i></button>
-                                    </div>
-                                </td>
-                            </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
@@ -3884,16 +4387,47 @@
 
                 <!-- Pending Bookings Tab -->
                 <div id="pendingBookingsTab" class="booking-tab-content">
+                    <!-- Approved but not emailed Alert -->
+                    @php
+                        $notEmailedCount = $allBookings->where('status', 'approved')->where('admin_emailed', false)->count();
+                    @endphp
+                    @if($notEmailedCount > 0)
+                    <div style="background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: white; padding: 16px 20px; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 24px;"></i>
+                        <div>
+                            <div style="font-weight: 600; font-size: 14px;">Email Notification Pending</div>
+                            <div style="font-size: 12px; opacity: 0.9;">{{ $notEmailedCount }} approved booking(s) awaiting email notification to booker</div>
+                        </div>
+                        <button onclick="switchBookingTab('all')" style="margin-left: auto; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 12px;">
+                            View All <i class="fas fa-arrow-right" style="margin-left: 4px;"></i>
+                        </button>
+                    </div>
+                    @endif
+                    
+                    @php
+                        $emailedCount = $allBookings->where('admin_emailed', true)->count();
+                    @endphp
+                    @if($emailedCount > 0)
+                    <div style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; padding: 16px 20px; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
+                        <i class="fas fa-envelope-circle-check" style="font-size: 24px;"></i>
+                        <div>
+                            <div style="font-weight: 600; font-size: 14px;">Email Notifications Sent</div>
+                            <div style="font-size: 12px; opacity: 0.9;">{{ $emailedCount }} booking(s) have been notified via email</div>
+                        </div>
+                    </div>
+                    @endif
+                    
                     <div class="table-card">
                         <table>
                             <thead>
                                 <tr>
                                     <th>Date & Time</th>
                                     <th>Agency</th>
-                                    <th>Event / School</th>
+                                    <th>Purpose</th>
                                     <th>Contact Person</th>
                                     <th>Contact Info</th>
-                                    <th>Purpose</th>
+                                    <th>Notes</th>
+                                    <th>Attachment</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -3903,6 +4437,11 @@
                                     <td>
                                         <div style="font-weight: 600;">{{ $booking->booking_date->format('M d, Y') }}</div>
                                         <div style="font-size: 12px; color: #6B7280;">{{ $booking->formatted_time }}</div>
+                                        @if($booking->admin_emailed)
+                                        <span style="background: #D1FAE5; color: #059669; font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-top: 4px; display: inline-block;">
+                                            <i class="fas fa-envelope-circle-check"></i> Emailed
+                                        </span>
+                                        @endif
                                     </td>
                                     <td>
                                         <div style="font-weight: 600; color: #7B1D3A;">{{ $booking->agency_name }}</div>
@@ -3919,17 +4458,29 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <button class="btn-action btn-edit" onclick="approveBooking({{ $booking->id }})" title="Approve">
+                                        @if($booking->attachment_path)
+                                        <a href="{{ asset('storage/' . $booking->attachment_path) }}" target="_blank" class="btn-action btn-view" title="View Attachment" style="background: #DBEAFE; color: #2563EB;">
+                                            <i class="fas fa-file-pdf"></i>
+                                        </a>
+                                        @else
+                                        <span style="color: #9CA3AF; font-size: 12px;">None</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <button class="btn-action btn-view" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? asset('storage/' . $booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn-action btn-edit" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? asset('storage/' . $booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})" title="Approve">
                                             <i class="fas fa-check"></i>
                                         </button>
-                                        <button class="btn-action btn-delete" onclick="rejectBooking({{ $booking->id }})" title="Reject">
+                                        <button class="btn-action btn-delete" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? asset('storage/' . $booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})" title="Reject">
                                             <i class="fas fa-times"></i>
                                         </button>
                                     </td>
                                 </tr>
                                 @empty
                                 <tr id="noPendingRow">
-                                    <td colspan="7" style="text-align: center; padding: 40px; color: #9CA3AF;">
+                                    <td colspan="8" style="text-align: center; padding: 40px; color: #9CA3AF;">
                                         <i class="fas fa-check-circle" style="font-size: 40px; margin-bottom: 12px; display: block;"></i>
                                         No pending booking requests
                                     </td>
@@ -4040,16 +4591,24 @@
                                     <th>Date</th>
                                     <th>Time</th>
                                     <th>Agency</th>
-                                    <th>Event</th>
+                                    <th>Purpose</th>
                                     <th>Contact</th>
                                     <th>Status</th>
+                                    <th>Attachment</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="allBookingsBody">
                                 @forelse($allBookings ?? [] as $booking)
                                 <tr class="booking-row" data-status="{{ $booking->status }}" data-search="{{ strtolower($booking->agency_name . ' ' . $booking->event_name . ' ' . $booking->contact_person) }}">
-                                    <td>{{ $booking->booking_date->format('M d, Y') }}</td>
+                                    <td>
+                                        {{ $booking->booking_date->format('M d, Y') }}
+                                        @if($booking->admin_emailed)
+                                        <span style="background: #D1FAE5; color: #059669; font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 4px;" title="Admin Emailed">
+                                            <i class="fas fa-envelope-circle-check"></i>
+                                        </span>
+                                        @endif
+                                    </td>
                                     <td>{{ $booking->formatted_time }}</td>
                                     <td>
                                         <div style="font-weight: 600;">{{ $booking->agency_name }}</div>
@@ -4069,14 +4628,23 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <button class="btn-action btn-view" onclick="viewBookingDetails({{ $booking->id }})" title="View Details">
+                                        @if($booking->attachment_path)
+                                        <a href="{{ asset('storage/' . $booking->attachment_path) }}" target="_blank" class="btn-action btn-view" title="View PDF" style="background: #DBEAFE; color: #2563EB;">
+                                            <i class="fas fa-file-pdf"></i>
+                                        </a>
+                                        @else
+                                        <span style="color: #9CA3AF; font-size: 12px;">—</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <button class="btn-action btn-view" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? asset('storage/' . $booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})" title="View Details">
                                             <i class="fas fa-eye"></i>
                                         </button>
                                         @if($booking->status === 'pending')
-                                        <button class="btn-action btn-edit" onclick="approveBooking({{ $booking->id }})" title="Approve">
+                                        <button class="btn-action btn-edit" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? asset('storage/' . $booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})" title="Approve">
                                             <i class="fas fa-check"></i>
                                         </button>
-                                        <button class="btn-action btn-delete" onclick="rejectBooking({{ $booking->id }})" title="Reject">
+                                        <button class="btn-action btn-delete" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? asset('storage/' . $booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})" title="Reject">
                                             <i class="fas fa-times"></i>
                                         </button>
                                         @endif
@@ -4087,7 +4655,7 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="7" style="text-align: center; padding: 40px; color: #9CA3AF;">
+                                    <td colspan="8" style="text-align: center; padding: 40px; color: #9CA3AF;">
                                         <i class="fas fa-calendar-times" style="font-size: 40px; margin-bottom: 12px; display: block;"></i>
                                         No bookings found
                                     </td>
@@ -4170,6 +4738,136 @@
             </div>
         </div>
     </div>
+
+    <!-- Booking Action Modal -->
+    <div id="bookingActionModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 550px;">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-calendar-check" style="margin-right: 8px;"></i>Booking Details</h3>
+                <button class="modal-close" onclick="closeBookingActionModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Booking Info Card -->
+                <div style="background: linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%); color: white; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+                        <div>
+                            <div style="font-size: 12px; opacity: 0.8; margin-bottom: 4px;">Agency / Organization</div>
+                            <div id="modalAgencyName" style="font-size: 18px; font-weight: 700;"></div>
+                        </div>
+                        <span id="modalStatusBadge" class="status-badge" style="background: #FEF3C7; color: #D97706;">Pending</span>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div>
+                            <div style="font-size: 12px; opacity: 0.8; margin-bottom: 4px;"><i class="fas fa-calendar"></i> Date</div>
+                            <div id="modalBookingDate" style="font-weight: 600;"></div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; opacity: 0.8; margin-bottom: 4px;"><i class="fas fa-clock"></i> Time</div>
+                            <div id="modalBookingTime" style="font-weight: 600;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Booking Details -->
+                <div style="display: grid; gap: 16px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Purpose</div>
+                            <div id="modalPurpose" style="font-weight: 600; color: #1F2937;"></div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Contact Person</div>
+                            <div id="modalContactPerson" style="font-weight: 600; color: #1F2937;"></div>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;"><i class="fas fa-envelope"></i> Email</div>
+                            <div id="modalEmail" style="color: #1F2937;"></div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;"><i class="fas fa-phone"></i> Phone</div>
+                            <div id="modalPhone" style="color: #1F2937;"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Notes</div>
+                        <div id="modalNotes" style="color: #1F2937; font-size: 14px; background: #F9FAFB; padding: 12px; border-radius: 8px;"></div>
+                    </div>
+                    <div id="modalAttachmentSection">
+                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Attachment</div>
+                        <a id="modalAttachmentLink" href="#" target="_blank" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; background: #DBEAFE; color: #2563EB; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px;">
+                            <i class="fas fa-file-pdf"></i> View PDF
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Email Notification Section (for approved bookings not yet emailed) -->
+                <div id="emailNotificationSection" style="display: none; margin-top: 20px; padding: 16px; background: #FEF3C7; border: 1px solid #F59E0B; border-radius: 12px;">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                        <i class="fas fa-envelope" style="font-size: 20px; color: #D97706;"></i>
+                        <div>
+                            <div style="font-weight: 600; color: #92400E;">Email Not Yet Sent</div>
+                            <div style="font-size: 12px; color: #78350F;">The booker has not been notified about the approval.</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Email Preview -->
+                    <div style="background: white; border: 1px solid #E5E7EB; border-radius: 8px; padding: 16px; margin-bottom: 16px; max-height: 200px; overflow-y: auto;">
+                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 8px;">
+                            <strong>To:</strong> <span id="emailPreviewTo"></span>
+                        </div>
+                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 12px;">
+                            <strong>Subject:</strong> <span id="emailPreviewSubject"></span>
+                        </div>
+                        <div id="emailPreviewBody" style="font-size: 13px; color: #374151; white-space: pre-line; line-height: 1.6;"></div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <button class="btn-modal" onclick="copyEmailContent()" style="background: #3B82F6; color: white; width: 100%;">
+                            <i class="fas fa-copy"></i> Copy to Clipboard
+                        </button>
+                        <button class="btn-modal" onclick="openMailClient()" style="background: #8B5CF6; color: white; width: 100%;">
+                            <i class="fas fa-external-link-alt"></i> Open in Email App
+                        </button>
+                    </div>
+                    <button class="btn-modal primary" onclick="markAsEmailed()" style="background: #10B981; width: 100%; margin-top: 12px;">
+                        <i class="fas fa-check-circle"></i> Mark as Emailed
+                    </button>
+                </div>
+
+                <!-- Already Emailed Badge -->
+                <div id="emailSentSection" style="display: none; margin-top: 20px; padding: 16px; background: #D1FAE5; border: 1px solid #10B981; border-radius: 12px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <i class="fas fa-envelope-circle-check" style="font-size: 20px; color: #059669;"></i>
+                        <div>
+                            <div style="font-weight: 600; color: #065F46;">Email Notification Sent</div>
+                            <div style="font-size: 12px; color: #047857;">The booker has been notified about the booking status.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" id="bookingActionFooter">
+                <button class="btn-modal secondary" onclick="closeBookingActionModal()">Close</button>
+                <button class="btn-modal" id="btnRejectBooking" onclick="confirmRejectBooking()" style="background: #EF4444; color: white;">
+                    <i class="fas fa-times"></i> Reject
+                </button>
+                <button class="btn-modal primary" id="btnApproveBooking" onclick="confirmApproveBooking()" style="background: #10B981;">
+                    <i class="fas fa-check"></i> Approve
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <input type="hidden" id="currentBookingId" value="">
+    <input type="hidden" id="currentBookingEmail" value="">
+    <input type="hidden" id="currentBookingAgency" value="">
+    <input type="hidden" id="currentBookingDate" value="">
+    <input type="hidden" id="currentBookingTime" value="">
+    <input type="hidden" id="currentBookingPurpose" value="">
 
     <!-- New Task Modal -->
     <div id="newTaskModal" class="modal-overlay">
@@ -4295,6 +4993,597 @@
         </div>
     </div>
 
+    <!-- ========== RESEARCH TRACKING MODALS ========== -->
+
+    <!-- View Document Details Modal -->
+    <div id="documentDetailsModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-file-alt" style="margin-right: 8px;"></i>Document Details</h3>
+                <button class="modal-close" onclick="closeDocumentDetailsModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="documentDetailsContent">
+                <!-- Document details will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal secondary" onclick="closeDocumentDetailsModal()">Close</button>
+                <a id="documentDownloadBtn" href="#" target="_blank" class="btn-modal primary" style="text-decoration: none;">
+                    <i class="fas fa-download"></i> Download Document
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Review Document Modal -->
+    <div id="reviewDocumentModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-clipboard-check" style="margin-right: 8px;"></i>Review Document</h3>
+                <button class="modal-close" onclick="closeReviewDocumentModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="reviewDocumentForm">
+                    <input type="hidden" id="reviewDocId">
+                    
+                    <div class="form-group">
+                        <label class="form-label">Document Info</label>
+                        <div id="reviewDocInfo" style="background: #F3F4F6; padding: 12px; border-radius: 8px; font-size: 14px;"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label required">Review Action</label>
+                        <select id="reviewDocAction" class="form-select" required onchange="toggleReviewNotes()">
+                            <option value="">-- Select Action --</option>
+                            <option value="under_review">Mark as Under Review</option>
+                            <option value="approved">Approve Document</option>
+                            <option value="rejected">Reject Document</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" id="reviewNotesGroup">
+                        <label class="form-label">Admin Notes</label>
+                        <textarea id="reviewDocNotes" class="form-input" rows="3" placeholder="Add notes for this review..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal secondary" onclick="closeReviewDocumentModal()">Cancel</button>
+                <button class="btn-modal primary" onclick="submitDocumentReview()">
+                    <i class="fas fa-check"></i> Submit Review
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== INCUBATEE TRACKER MODALS ========== -->
+
+    <!-- View MOA Details Modal -->
+    <div id="moaDetailsModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 650px;">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-file-contract" style="margin-right: 8px;"></i>MOA Request Details</h3>
+                <button class="modal-close" onclick="closeMoaDetailsModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="moaDetailsContent">
+                <!-- MOA details will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal secondary" onclick="closeMoaDetailsModal()">Close</button>
+                <button class="btn-modal" style="background: #10B981; color: white;" onclick="openReviewMoaModal()">
+                    <i class="fas fa-clipboard-check"></i> Review MOA
+                </button>
+                <button class="btn-modal primary" onclick="generateMoaFromTemplate()">
+                    <i class="fas fa-file-word"></i> Generate MOA
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Review MOA Modal -->
+    <div id="reviewMoaModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-clipboard-check" style="margin-right: 8px;"></i>Review MOA Request</h3>
+                <button class="modal-close" onclick="closeReviewMoaModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="reviewMoaForm">
+                    <input type="hidden" id="reviewMoaId">
+                    
+                    <div class="form-group">
+                        <label class="form-label">MOA Info</label>
+                        <div id="reviewMoaInfo" style="background: #F3F4F6; padding: 12px; border-radius: 8px; font-size: 14px;"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label required">Review Action</label>
+                        <select id="reviewMoaAction" class="form-select" required>
+                            <option value="">-- Select Action --</option>
+                            <option value="under_review">Mark as Under Review</option>
+                            <option value="approved">Approve MOA Request</option>
+                            <option value="rejected">Reject MOA Request</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Admin Notes</label>
+                        <textarea id="reviewMoaNotes" class="form-input" rows="3" placeholder="Add notes for this review..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal secondary" onclick="closeReviewMoaModal()">Cancel</button>
+                <button class="btn-modal primary" onclick="submitMoaReview()">
+                    <i class="fas fa-check"></i> Submit Review
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MOA Template Modal -->
+    <div id="moaTemplateModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 900px; max-height: 90vh;">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-file-word" style="margin-right: 8px;"></i>MOA Template Generator</h3>
+                <button class="modal-close" onclick="closeMoaTemplateModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" style="max-height: 65vh; overflow-y: auto;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                    <!-- Form Section -->
+                    <div>
+                        <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #1F2937;">
+                            <i class="fas fa-edit" style="color: #7B1D3A; margin-right: 8px;"></i>MOA Details
+                        </h4>
+                        <form id="moaTemplateForm">
+                            <div class="form-group">
+                                <label class="form-label required">Company/Startup Name</label>
+                                <input type="text" id="moaCompanyName" class="form-input" placeholder="Enter company name" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label required">Representative Name</label>
+                                <input type="text" id="moaRepresentative" class="form-input" placeholder="Enter representative name" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label required">Position/Title</label>
+                                <input type="text" id="moaPosition" class="form-input" placeholder="e.g., CEO, Founder, Manager" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label required">Business Address</label>
+                                <textarea id="moaAddress" class="form-input" rows="2" placeholder="Enter complete business address" required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label required">MOA Purpose</label>
+                                <select id="moaPurpose" class="form-select" required>
+                                    <option value="">-- Select Purpose --</option>
+                                    <option value="incubation">Business Incubation Program</option>
+                                    <option value="coworking">Co-working Space Usage</option>
+                                    <option value="mentorship">Mentorship Program</option>
+                                    <option value="partnership">Partnership Agreement</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label required">Duration</label>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                    <div>
+                                        <label style="font-size: 12px; color: #6B7280;">Start Date</label>
+                                        <input type="date" id="moaStartDate" class="form-input" required>
+                                    </div>
+                                    <div>
+                                        <label style="font-size: 12px; color: #6B7280;">End Date</label>
+                                        <input type="date" id="moaEndDate" class="form-input" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Monthly Fee (if applicable)</label>
+                                <input type="number" id="moaFee" class="form-input" placeholder="0.00" step="0.01" min="0">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Special Terms/Conditions</label>
+                                <textarea id="moaTerms" class="form-input" rows="3" placeholder="Enter any special terms or conditions..."></textarea>
+                            </div>
+                            <button type="button" class="btn-modal primary" style="width: 100%;" onclick="generateMoaPreview()">
+                                <i class="fas fa-eye"></i> Generate Preview
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <!-- Preview Section -->
+                    <div>
+                        <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #1F2937;">
+                            <i class="fas fa-file-alt" style="color: #7B1D3A; margin-right: 8px;"></i>MOA Preview
+                        </h4>
+                        <div id="moaPreviewContent" style="background: white; border: 1px solid #E5E7EB; border-radius: 8px; padding: 24px; font-size: 12px; line-height: 1.6; max-height: 500px; overflow-y: auto;">
+                            <div style="text-align: center; color: #9CA3AF; padding: 40px;">
+                                <i class="fas fa-file-alt" style="font-size: 48px; margin-bottom: 16px;"></i>
+                                <p>Fill in the form and click "Generate Preview" to see the MOA document</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal secondary" onclick="closeMoaTemplateModal()">Cancel</button>
+                <button class="btn-modal" style="background: #3B82F6; color: white;" onclick="printMoa()">
+                    <i class="fas fa-print"></i> Print MOA
+                </button>
+                <button class="btn-modal primary" onclick="downloadMoaAsPdf()">
+                    <i class="fas fa-download"></i> Download PDF
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Payment Details Modal -->
+    <div id="paymentDetailsModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-credit-card" style="margin-right: 8px;"></i>Payment Submission Details</h3>
+                <button class="modal-close" onclick="closePaymentDetailsModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="paymentDetailsContent">
+                <!-- Payment details will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal secondary" onclick="closePaymentDetailsModal()">Close</button>
+                <a id="paymentProofBtn" href="#" target="_blank" class="btn-modal" style="background: #6366F1; color: white; text-decoration: none;">
+                    <i class="fas fa-receipt"></i> View Proof
+                </a>
+                <button class="btn-modal primary" onclick="openReviewPaymentModal()">
+                    <i class="fas fa-clipboard-check"></i> Review Payment
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Review Payment Modal -->
+    <div id="reviewPaymentModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-clipboard-check" style="margin-right: 8px;"></i>Review Payment</h3>
+                <button class="modal-close" onclick="closeReviewPaymentModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="reviewPaymentForm">
+                    <input type="hidden" id="reviewPaymentId">
+                    
+                    <div class="form-group">
+                        <label class="form-label">Payment Info</label>
+                        <div id="reviewPaymentInfo" style="background: #F3F4F6; padding: 12px; border-radius: 8px; font-size: 14px;"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label required">Verification Action</label>
+                        <select id="reviewPaymentAction" class="form-select" required>
+                            <option value="">-- Select Action --</option>
+                            <option value="under_review">Mark as Under Review</option>
+                            <option value="approved">Verify Payment</option>
+                            <option value="rejected">Reject Payment</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Admin Notes</label>
+                        <textarea id="reviewPaymentNotes" class="form-input" rows="3" placeholder="Add notes for this verification..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal secondary" onclick="closeReviewPaymentModal()">Cancel</button>
+                <button class="btn-modal primary" onclick="submitPaymentReview()">
+                    <i class="fas fa-check"></i> Submit Review
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== ISSUES & COMPLAINTS MODALS ========== -->
+
+    <!-- View Room Issue Details Modal -->
+    <div id="roomIssueDetailsModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 650px;">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-exclamation-circle" style="margin-right: 8px;"></i>Room Issue Details</h3>
+                <button class="modal-close" onclick="closeRoomIssueDetailsModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="roomIssueDetailsContent">
+                <!-- Issue details will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal secondary" onclick="closeRoomIssueDetailsModal()">Close</button>
+                <button class="btn-modal primary" onclick="openUpdateIssueStatusModal()">
+                    <i class="fas fa-edit"></i> Update Status
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Update Issue Status Modal -->
+    <div id="updateIssueStatusModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-edit" style="margin-right: 8px;"></i>Update Issue Status</h3>
+                <button class="modal-close" onclick="closeUpdateIssueStatusModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="updateIssueStatusForm">
+                    <input type="hidden" id="updateIssueId">
+                    
+                    <div class="form-group">
+                        <label class="form-label">Issue Info</label>
+                        <div id="updateIssueInfo" style="background: #F3F4F6; padding: 12px; border-radius: 8px; font-size: 14px;"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label required">New Status</label>
+                        <select id="updateIssueNewStatus" class="form-select" required>
+                            <option value="">-- Select Status --</option>
+                            <option value="pending">Pending</option>
+                            <option value="in_progress">In Progress</option>
+                            <option value="resolved">Resolved</option>
+                            <option value="closed">Closed</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Assigned To (Optional)</label>
+                        <input type="text" id="updateIssueAssignee" class="form-input" placeholder="Enter assignee name">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Resolution Notes</label>
+                        <textarea id="updateIssueNotes" class="form-input" rows="3" placeholder="Add resolution notes or updates..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal secondary" onclick="closeUpdateIssueStatusModal()">Cancel</button>
+                <button class="btn-modal primary" onclick="submitIssueStatusUpdate()">
+                    <i class="fas fa-check"></i> Update Status
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== SCHOOL MANAGEMENT MODALS ========== -->
+
+    <!-- School Management Modal -->
+    <div id="schoolManagementModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 900px; max-height: 90vh;">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-university" style="margin-right: 8px;"></i>School Management</h3>
+                <button class="modal-close" onclick="closeSchoolManagementModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+                <!-- Add New School Button -->
+                <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                    <h4 style="margin: 0; color: #1F2937; font-size: 16px;">
+                        <i class="fas fa-list" style="color: #7B1D3A; margin-right: 8px;"></i>Registered Schools
+                    </h4>
+                    <button onclick="openAddSchoolForm()" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; border: none; padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-plus"></i> Add New School
+                    </button>
+                </div>
+
+                <!-- Add/Edit School Form (Hidden by default) -->
+                <div id="schoolFormContainer" style="display: none; background: #F9FAFB; border-radius: 12px; padding: 20px; margin-bottom: 20px; border: 2px solid #E5E7EB;">
+                    <h5 style="margin: 0 0 16px 0; color: #1F2937;" id="schoolFormTitle">
+                        <i class="fas fa-plus-circle" style="color: #10B981; margin-right: 8px;"></i>Add New School
+                    </h5>
+                    <form id="schoolForm">
+                        <input type="hidden" id="schoolFormId">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div class="form-group" style="margin-bottom: 12px;">
+                                <label class="form-label required">School Name</label>
+                                <input type="text" id="schoolFormName" class="form-input" placeholder="e.g., University of the Philippines Cebu" required>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 12px;">
+                                <label class="form-label required">Required Hours</label>
+                                <input type="number" id="schoolFormHours" class="form-input" placeholder="e.g., 500" min="1" max="2000" required>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 12px;">
+                                <label class="form-label">Max Interns</label>
+                                <input type="number" id="schoolFormMaxInterns" class="form-input" placeholder="Leave empty for unlimited" min="1">
+                                <small style="color: #6B7280; font-size: 11px;">Maximum number of interns allowed (leave empty for no limit)</small>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 12px;">
+                                <label class="form-label"></label>Contact Person</label>
+                                <input type="text" id="schoolFormContactPerson" class="form-input" placeholder="e.g., Dr. Juan Dela Cruz">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 12px;">
+                                <label class="form-label">Contact Email</label>
+                                <input type="email" id="schoolFormContactEmail" class="form-input" placeholder="e.g., contact@school.edu.ph">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 12px;">
+                                <label class="form-label">Contact Phone</label>
+                                <input type="text" id="schoolFormContactPhone" class="form-input" placeholder="e.g., 09XX XXX XXXX">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 12px;">
+                                <label class="form-label">Notes</label>
+                                <input type="text" id="schoolFormNotes" class="form-input" placeholder="Any additional notes...">
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 12px; margin-top: 16px;">
+                            <button type="button" onclick="cancelSchoolForm()" style="background: #E5E7EB; color: #374151; border: none; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;">
+                                Cancel
+                            </button>
+                            <button type="submit" style="background: linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;">
+                                <i class="fas fa-save" style="margin-right: 6px;"></i><span id="schoolFormSubmitText">Save School</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Schools Table -->
+                <div id="schoolsTableContainer">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #F3F4F6;">
+                                <th style="padding: 12px 16px; text-align: left; font-size: 13px; font-weight: 600; color: #6B7280;">School Name</th>
+                                <th style="padding: 12px 16px; text-align: center; font-size: 13px; font-weight: 600; color: #6B7280;">Req. Hours</th>
+                                <th style="padding: 12px 16px; text-align: center; font-size: 13px; font-weight: 600; color: #6B7280;">Interns</th>
+                                <th style="padding: 12px 16px; text-align: center; font-size: 13px; font-weight: 600; color: #6B7280;">Capacity</th>
+                                <th style="padding: 12px 16px; text-align: center; font-size: 13px; font-weight: 600; color: #6B7280;">Total Rendered</th>
+                                <th style="padding: 12px 16px; text-align: left; font-size: 13px; font-weight: 600; color: #6B7280;">Contact Person</th>
+                                <th style="padding: 12px 16px; text-align: center; font-size: 13px; font-weight: 600; color: #6B7280;">Status</th>
+                                <th style="padding: 12px 16px; text-align: center; font-size: 13px; font-weight: 600; color: #6B7280;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="schoolsTableBody">
+                            @forelse($schools ?? [] as $school)
+                            <tr id="school-row-{{ $school->id }}" style="border-bottom: 1px solid #E5E7EB;">
+                                <td style="padding: 14px 16px;">
+                                    <div style="display: flex; align-items: center; gap: 12px;">
+                                        <div style="width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, #7B1D3A, #5a1428); display: flex; align-items: center; justify-content: center;">
+                                            <i class="fas fa-university" style="color: #FFBF00; font-size: 16px;"></i>
+                                        </div>
+                                        <div>
+                                            <div style="font-weight: 600; color: #1F2937;">{{ $school->name }}</div>
+                                            @if($school->contact_email)
+                                            <div style="font-size: 12px; color: #6B7280;">{{ $school->contact_email }}</div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style="padding: 14px 16px; text-align: center;">
+                                    <span style="background: #DBEAFE; color: #1E40AF; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 600;">{{ $school->required_hours }} hrs</span>
+                                </td>
+                                <td style="padding: 14px 16px; text-align: center;">
+                                    <div style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
+                                        <span style="font-weight: 700; color: #1F2937; font-size: 18px;">{{ $school->total_interns ?? 0 }}</span>
+                                        @if(($school->pending_interns ?? 0) > 0)
+                                        <span style="background: #FEF3C7; color: #92400E; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600;">+{{ $school->pending_interns }} pending</span>
+                                        @endif
+                                    </div>
+                                </td>
+                                <td style="padding: 14px 16px; text-align: center;">
+                                    @if($school->max_interns)
+                                        @php
+                                            $currentInterns = $school->total_interns ?? 0;
+                                            $maxInterns = $school->max_interns;
+                                            $percentage = ($currentInterns / $maxInterns) * 100;
+                                            $isFull = $currentInterns >= $maxInterns;
+                                            $isNearFull = $percentage >= 80;
+                                        @endphp
+                                        <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+                                            <span style="font-weight: 600; font-size: 13px; {{ $isFull ? 'color: #DC2626;' : ($isNearFull ? 'color: #D97706;' : 'color: #059669;') }}">
+                                                {{ $currentInterns }}/{{ $maxInterns }}
+                                            </span>
+                                            <div style="width: 60px; height: 6px; background: #E5E7EB; border-radius: 3px; overflow: hidden;">
+                                                <div style="width: {{ min($percentage, 100) }}%; height: 100%; background: {{ $isFull ? '#DC2626' : ($isNearFull ? '#D97706' : '#059669') }}; border-radius: 3px;"></div>
+                                            </div>
+                                            @if($isFull)
+                                            <span style="background: #FEE2E2; color: #DC2626; padding: 2px 6px; border-radius: 8px; font-size: 9px; font-weight: 600;">FULL</span>
+                                            @endif
+                                        </div>
+                                    @else
+                                        <span style="color: #9CA3AF; font-style: italic; font-size: 12px;">Unlimited</span>
+                                    @endif
+                                </td>
+                                <td style="padding: 14px 16px; text-align: center;">
+                                    <span style="font-weight: 600; color: #059669;">{{ number_format($school->total_rendered_hours ?? 0) }} hrs</span>
+                                </td>
+                                <td style="padding: 14px 16px;">
+                                    @if($school->contact_person)
+                                    <div style="font-weight: 500; color: #1F2937;">{{ $school->contact_person }}</div>
+                                    @if($school->contact_phone)
+                                    <div style="font-size: 12px; color: #6B7280;">{{ $school->contact_phone }}</div>
+                                    @endif
+                                    @else
+                                    <span style="color: #9CA3AF; font-style: italic;">Not set</span>
+                                    @endif
+                                </td>
+                                <td style="padding: 14px 16px; text-align: center;">
+                                    <span style="padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; {{ $school->status === 'Active' ? 'background: #D1FAE5; color: #065F46;' : 'background: #FEE2E2; color: #991B1B;' }}">
+                                        {{ $school->status }}
+                                    </span>
+                                </td>
+                                <td style="padding: 14px 16px; text-align: center;">
+                                    <div style="display: flex; justify-content: center; gap: 6px;">
+                                        <button onclick="editSchool({{ $school->id }}, '{{ addslashes($school->name) }}', {{ $school->required_hours }}, {{ $school->max_interns ?? 'null' }}, '{{ addslashes($school->contact_person ?? '') }}', '{{ addslashes($school->contact_email ?? '') }}', '{{ addslashes($school->contact_phone ?? '') }}', '{{ addslashes($school->notes ?? '') }}')" style="background: #DBEAFE; color: #1E40AF; border: none; width: 32px; height: 32px; border-radius: 6px; cursor: pointer;" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button onclick="toggleSchoolStatus({{ $school->id }})" style="background: {{ $school->status === 'Active' ? '#FEF3C7' : '#D1FAE5' }}; color: {{ $school->status === 'Active' ? '#92400E' : '#065F46' }}; border: none; width: 32px; height: 32px; border-radius: 6px; cursor: pointer;" title="{{ $school->status === 'Active' ? 'Deactivate' : 'Activate' }}">
+                                            <i class="fas {{ $school->status === 'Active' ? 'fa-toggle-off' : 'fa-toggle-on' }}"></i>
+                                        </button>
+                                        @if(($school->total_interns ?? 0) == 0)
+                                        <button onclick="deleteSchool({{ $school->id }}, '{{ addslashes($school->name) }}')" style="background: #FEE2E2; color: #991B1B; border: none; width: 32px; height: 32px; border-radius: 6px; cursor: pointer;" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                        @endif
+                                    </div>
+                                </td>
+                            </tr>
+                            @empty
+                            <tr id="noSchoolsRow">
+                                <td colspan="8" style="padding: 40px; text-align: center; color: #9CA3AF;">
+                                    <i class="fas fa-university" style="font-size: 40px; margin-bottom: 12px; display: block;"></i>
+                                    No schools registered yet. Click "Add New School" to get started.
+                                </td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal secondary" onclick="closeSchoolManagementModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reject Intern Modal -->
+    <div id="rejectInternModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 450px;">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-user-times" style="margin-right: 8px; color: #DC2626;"></i>Reject Intern</h3>
+                <button class="modal-close" onclick="closeRejectInternModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="rejectInternId">
+                <div style="background: #FEE2E2; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+                    <p style="margin: 0; color: #991B1B; font-size: 14px;">
+                        <i class="fas fa-exclamation-triangle" style="margin-right: 8px;"></i>
+                        You are about to reject <strong id="rejectInternName"></strong>'s application.
+                    </p>
+                </div>
+                <div class="form-group">
+                    <label class="form-label required">Reason for Rejection</label>
+                    <textarea id="rejectInternReason" class="form-input" rows="3" placeholder="Please provide a reason for rejection..." required></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal secondary" onclick="closeRejectInternModal()">Cancel</button>
+                <button class="btn-modal primary" onclick="submitRejectIntern()" style="background: linear-gradient(135deg, #DC2626, #B91C1C);">
+                    <i class="fas fa-times"></i> Reject Intern
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Authentication is handled server-side by Laravel middleware
         // User data is passed from the controller
@@ -4317,7 +5606,230 @@
             if (userRoleEl) {
                 userRoleEl.textContent = 'Administrator';
             }
+
+            // Load notifications on page load
+            loadNotifications();
         });
+
+        // Notification System
+        let notifications = [];
+        let previousBookingCount = 0;
+        let previousStartupCount = 0;
+        let previousIssueCount = 0;
+        let isFirstLoad = true;
+
+        function toggleNotificationDropdown() {
+            const dropdown = document.getElementById('notificationDropdown');
+            dropdown.classList.toggle('active');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const wrapper = document.querySelector('.notification-wrapper');
+            const dropdown = document.getElementById('notificationDropdown');
+            if (wrapper && dropdown && !wrapper.contains(event.target)) {
+                dropdown.classList.remove('active');
+            }
+        });
+
+        async function loadNotifications() {
+            try {
+                // Fetch pending bookings
+                const bookingsResponse = await fetch('/admin/bookings');
+                const bookings = await bookingsResponse.json();
+                const pendingBookings = bookings.filter(b => b.status === 'pending');
+
+                // Fetch startup submissions
+                const startupsResponse = await fetch('/admin/startup-submissions');
+                const startups = await startupsResponse.json();
+                const pendingStartups = startups.filter(s => s.status === 'pending');
+
+                // Fetch room issues
+                const issuesResponse = await fetch('/admin/room-issues');
+                const issues = await issuesResponse.json();
+                const pendingIssues = issues.filter(i => i.status === 'pending' || i.status === 'in_progress');
+
+                // Check for new items and show toast notifications
+                if (!isFirstLoad) {
+                    // New bookings
+                    if (pendingBookings.length > previousBookingCount) {
+                        const newCount = pendingBookings.length - previousBookingCount;
+                        const latestBooking = pendingBookings[0];
+                        showToast('info', `🗓️ New Booking Request${newCount > 1 ? 's' : ''}!`, 
+                            newCount > 1 
+                                ? `${newCount} new booking requests need your attention.` 
+                                : `${latestBooking.agency_name} wants to book for ${latestBooking.event_name}.`,
+                            6000);
+                        playNotificationSound();
+                    }
+
+                    // New startups
+                    if (pendingStartups.length > previousStartupCount) {
+                        const newCount = pendingStartups.length - previousStartupCount;
+                        const latestStartup = pendingStartups[0];
+                        showToast('success', `🚀 New Startup Application${newCount > 1 ? 's' : ''}!`,
+                            newCount > 1
+                                ? `${newCount} new startup applications need review.`
+                                : `${latestStartup.startup_name} has applied for incubation.`,
+                            6000);
+                        playNotificationSound();
+                    }
+
+                    // New issues
+                    if (pendingIssues.length > previousIssueCount) {
+                        const newCount = pendingIssues.length - previousIssueCount;
+                        const latestIssue = pendingIssues[0];
+                        showToast('warning', `⚠️ New Issue Reported${newCount > 1 ? 's' : ''}!`,
+                            newCount > 1
+                                ? `${newCount} new issues require attention.`
+                                : `Issue at ${latestIssue.room_location}: ${latestIssue.category}`,
+                            6000);
+                        playNotificationSound();
+                    }
+                } else {
+                    // First load - show summary if there are pending items
+                    if (pendingBookings.length > 0) {
+                        showToast('info', '🗓️ Pending Bookings', 
+                            `You have ${pendingBookings.length} booking request${pendingBookings.length > 1 ? 's' : ''} awaiting approval.`,
+                            5000);
+                    }
+                }
+
+                // Update previous counts
+                previousBookingCount = pendingBookings.length;
+                previousStartupCount = pendingStartups.length;
+                previousIssueCount = pendingIssues.length;
+                isFirstLoad = false;
+
+                // Build notifications array
+                notifications = [];
+
+                pendingBookings.forEach(booking => {
+                    notifications.push({
+                        type: 'booking',
+                        icon: 'fa-calendar-check',
+                        title: 'New Booking Request',
+                        text: `${booking.agency_name} - ${booking.event_name}`,
+                        time: formatTimeAgo(booking.created_at),
+                        page: 'scheduler'
+                    });
+                });
+
+                pendingStartups.forEach(startup => {
+                    notifications.push({
+                        type: 'startup',
+                        icon: 'fa-rocket',
+                        title: 'New Startup Application',
+                        text: `${startup.startup_name} - ${startup.industry}`,
+                        time: formatTimeAgo(startup.created_at),
+                        page: 'incubatee-tracker'
+                    });
+                });
+
+                pendingIssues.forEach(issue => {
+                    notifications.push({
+                        type: 'issue',
+                        icon: 'fa-exclamation-circle',
+                        title: issue.status === 'pending' ? 'New Issue Reported' : 'Issue In Progress',
+                        text: `${issue.room_location} - ${issue.category}`,
+                        time: formatTimeAgo(issue.created_at),
+                        page: 'issues-management'
+                    });
+                });
+
+                renderNotifications();
+            } catch (error) {
+                console.error('Error loading notifications:', error);
+            }
+        }
+
+        // Simple notification sound using Web Audio API
+        function playNotificationSound() {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = 880; // A5 note
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.3);
+            } catch (e) {
+                // Audio not supported or blocked
+                console.log('Notification sound not available');
+            }
+        }
+
+        function formatTimeAgo(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return `${diffMins}m ago`;
+            if (diffHours < 24) return `${diffHours}h ago`;
+            if (diffDays < 7) return `${diffDays}d ago`;
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        }
+
+        function renderNotifications() {
+            const list = document.getElementById('notificationList');
+            const badge = document.getElementById('notificationBadge');
+            const count = notifications.length;
+
+            // Update badge
+            badge.textContent = count > 99 ? '99+' : count;
+            badge.classList.toggle('hidden', count === 0);
+
+            // Render list
+            if (count === 0) {
+                list.innerHTML = `
+                    <div class="notification-empty">
+                        <i class="fas fa-bell-slash"></i>
+                        <p>No new notifications</p>
+                    </div>
+                `;
+            } else {
+                list.innerHTML = notifications.map(notif => `
+                    <div class="notification-item" onclick="handleNotificationClick('${notif.page}')">
+                        <div class="notification-icon ${notif.type}">
+                            <i class="fas ${notif.icon}"></i>
+                        </div>
+                        <div class="notification-content">
+                            <div class="notification-title">${notif.title}</div>
+                            <div class="notification-text">${notif.text}</div>
+                            <div class="notification-time">${notif.time}</div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function handleNotificationClick(page) {
+            document.getElementById('notificationDropdown').classList.remove('active');
+            // Navigate to the relevant page
+            const fakeEvent = { preventDefault: () => {} };
+            loadPage(fakeEvent, page);
+        }
+
+        function markAllAsRead() {
+            notifications = [];
+            renderNotifications();
+            showToast('success', 'Notifications Cleared', 'All notifications have been marked as read.');
+        }
+
+        // Refresh notifications every 30 seconds
+        setInterval(loadNotifications, 30000);
 
         // Logout function - uses Laravel logout
         function handleLogout(event) {
@@ -4438,42 +5950,1069 @@
 
         // ===== INCUBATEE TRACKER FUNCTIONS =====
         
+        function switchIncubateeTab(tabType) {
+            const moaTable = document.getElementById('moa-table');
+            const paymentsTable = document.getElementById('payments-table');
+            const moaBtn = document.getElementById('moaTabBtn');
+            const paymentsBtn = document.getElementById('paymentsTabBtn');
+            
+            if (tabType === 'moa') {
+                moaTable.style.display = 'block';
+                paymentsTable.style.display = 'none';
+                moaBtn.classList.add('active');
+                paymentsBtn.classList.remove('active');
+            } else if (tabType === 'payments') {
+                moaTable.style.display = 'none';
+                paymentsTable.style.display = 'block';
+                moaBtn.classList.remove('active');
+                paymentsBtn.classList.add('active');
+            }
+        }
+        
         function filterIncubatees() {
-            console.log('Filtering incubatees...');
-            // Filter logic here
+            const statusFilter = document.getElementById('incubateeStatusFilter').value;
+            const rows = document.querySelectorAll('.incubatee-row');
+            
+            rows.forEach(row => {
+                const status = row.getAttribute('data-status');
+                const matchStatus = statusFilter === 'all' || status === statusFilter;
+                row.style.display = matchStatus ? '' : 'none';
+            });
         }
 
         function searchIncubatees() {
-            console.log('Searching incubatees...');
-            // Search logic here
+            const searchTerm = document.getElementById('incubateeSearchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('.incubatee-row');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
         }
 
-        function openNewMOAModal() {
-            alert('New MOA Modal - Feature coming soon!\n\nThis will allow you to:\n- Select incubatee project\n- Upload MOA document\n- Set agreement dates\n- Define deliverables\n- Set payment schedule\n- Add special terms');
+        // ========== STARTUP DATA FOR MODALS ==========
+        @php
+            $startupDocumentsData = isset($startupDocuments) ? $startupDocuments->map(function($d) {
+                return [
+                    'id' => $d->id,
+                    'tracking_code' => $d->tracking_code,
+                    'company_name' => $d->company_name,
+                    'contact_person' => $d->contact_person,
+                    'email' => $d->email,
+                    'phone' => $d->phone,
+                    'document_type' => $d->document_type,
+                    'original_filename' => $d->original_filename,
+                    'file_path' => $d->file_path,
+                    'notes' => $d->notes,
+                    'status' => $d->status,
+                    'admin_notes' => $d->admin_notes,
+                    'created_at' => $d->created_at->format('M d, Y h:i A'),
+                    'reviewed_at' => $d->reviewed_at ? $d->reviewed_at->format('M d, Y h:i A') : null,
+                ];
+            })->keyBy('id')->toArray() : [];
+
+            $moaRequestsData = isset($moaRequests) ? $moaRequests->map(function($m) {
+                return [
+                    'id' => $m->id,
+                    'tracking_code' => $m->tracking_code,
+                    'company_name' => $m->company_name,
+                    'contact_person' => $m->contact_person,
+                    'email' => $m->email,
+                    'phone' => $m->phone,
+                    'moa_purpose' => $m->moa_purpose,
+                    'moa_details' => $m->moa_details,
+                    'notes' => $m->notes,
+                    'status' => $m->status,
+                    'admin_notes' => $m->admin_notes,
+                    'created_at' => $m->created_at->format('M d, Y h:i A'),
+                    'reviewed_at' => $m->reviewed_at ? $m->reviewed_at->format('M d, Y h:i A') : null,
+                ];
+            })->keyBy('id')->toArray() : [];
+
+            $paymentSubmissionsData = isset($paymentSubmissions) ? $paymentSubmissions->map(function($p) {
+                return [
+                    'id' => $p->id,
+                    'tracking_code' => $p->tracking_code,
+                    'company_name' => $p->company_name,
+                    'contact_person' => $p->contact_person,
+                    'email' => $p->email,
+                    'phone' => $p->phone,
+                    'invoice_number' => $p->invoice_number,
+                    'amount' => $p->amount,
+                    'payment_proof_path' => $p->payment_proof_path,
+                    'notes' => $p->notes,
+                    'status' => $p->status,
+                    'admin_notes' => $p->admin_notes,
+                    'created_at' => $p->created_at->format('M d, Y h:i A'),
+                    'reviewed_at' => $p->reviewed_at ? $p->reviewed_at->format('M d, Y h:i A') : null,
+                ];
+            })->keyBy('id')->toArray() : [];
+
+            $roomIssuesData = isset($roomIssues) ? $roomIssues->map(function($r) {
+                return [
+                    'id' => $r->id,
+                    'tracking_code' => $r->tracking_code,
+                    'company_name' => $r->company_name,
+                    'contact_person' => $r->contact_person,
+                    'email' => $r->email,
+                    'phone' => $r->phone,
+                    'room_number' => $r->room_number,
+                    'issue_type' => $r->issue_type,
+                    'issue_type_label' => $r->issue_type_label,
+                    'description' => $r->description,
+                    'photo_path' => $r->photo_path,
+                    'priority' => $r->priority,
+                    'status' => $r->status,
+                    'status_label' => $r->status_label,
+                    'admin_notes' => $r->admin_notes,
+                    'created_at' => $r->created_at->format('M d, Y h:i A'),
+                    'resolved_at' => $r->resolved_at ? $r->resolved_at->format('M d, Y h:i A') : null,
+                ];
+            })->keyBy('id')->toArray() : [];
+        @endphp
+        
+        const startupDocumentsData = @json($startupDocumentsData);
+        const moaRequestsData = @json($moaRequestsData);
+        const paymentSubmissionsData = @json($paymentSubmissionsData);
+        const roomIssuesData = @json($roomIssuesData);
+        
+        let currentDocId = null;
+        let currentMoaId = null;
+        let currentPaymentId = null;
+        let currentIssueId = null;
+
+        // ========== DOCUMENT DETAILS MODAL FUNCTIONS ==========
+        
+        function viewDocumentDetails(docId) {
+            const doc = startupDocumentsData[docId];
+            if (!doc) {
+                alert('Document not found');
+                return;
+            }
+            
+            currentDocId = docId;
+            
+            const statusColors = {
+                'pending': { bg: '#FEF3C7', text: '#92400E' },
+                'under_review': { bg: '#DBEAFE', text: '#1E40AF' },
+                'approved': { bg: '#DCFCE7', text: '#166534' },
+                'rejected': { bg: '#FEE2E2', text: '#991B1B' }
+            };
+            const color = statusColors[doc.status] || { bg: '#E5E7EB', text: '#374151' };
+            
+            const content = `
+                <div style="display: grid; gap: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid #E5E7EB;">
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280;">Tracking Code</div>
+                            <div style="font-size: 18px; font-weight: 700; color: #7B1D3A;">${doc.tracking_code}</div>
+                        </div>
+                        <span style="background: ${color.bg}; color: ${color.text}; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                            ${doc.status.replace('_', ' ').toUpperCase()}
+                        </span>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Company Name</div>
+                            <div style="font-weight: 600;">${doc.company_name}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Contact Person</div>
+                            <div style="font-weight: 600;">${doc.contact_person}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Email</div>
+                            <div>${doc.email}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Phone</div>
+                            <div>${doc.phone || 'N/A'}</div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: #F9FAFB; padding: 16px; border-radius: 8px;">
+                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 8px;">Document Information</div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                            <div>
+                                <span style="font-weight: 600;">Type:</span> ${doc.document_type}
+                            </div>
+                            <div>
+                                <span style="font-weight: 600;">File:</span> ${doc.original_filename}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${doc.notes ? `
+                    <div>
+                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Submitter Notes</div>
+                        <div style="background: #F3F4F6; padding: 12px; border-radius: 8px;">${doc.notes}</div>
+                    </div>
+                    ` : ''}
+                    
+                    ${doc.admin_notes ? `
+                    <div>
+                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Admin Notes</div>
+                        <div style="background: #FEF3C7; padding: 12px; border-radius: 8px;">${doc.admin_notes}</div>
+                    </div>
+                    ` : ''}
+                    
+                    <div style="display: flex; gap: 16px; font-size: 12px; color: #6B7280;">
+                        <div><i class="fas fa-calendar"></i> Submitted: ${doc.created_at}</div>
+                        ${doc.reviewed_at ? `<div><i class="fas fa-check-circle"></i> Reviewed: ${doc.reviewed_at}</div>` : ''}
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('documentDetailsContent').innerHTML = content;
+            document.getElementById('documentDownloadBtn').href = '/storage/' + doc.file_path;
+            document.getElementById('documentDetailsModal').style.display = 'flex';
+        }
+        
+        function closeDocumentDetailsModal() {
+            document.getElementById('documentDetailsModal').style.display = 'none';
+            currentDocId = null;
+        }
+        
+        function openReviewDocumentModal(docId = null) {
+            const id = docId || currentDocId;
+            const doc = startupDocumentsData[id];
+            if (!doc) return;
+            
+            document.getElementById('reviewDocId').value = id;
+            document.getElementById('reviewDocInfo').innerHTML = `
+                <strong>${doc.tracking_code}</strong><br>
+                ${doc.company_name} - ${doc.document_type}
+            `;
+            document.getElementById('reviewDocAction').value = '';
+            document.getElementById('reviewDocNotes').value = '';
+            
+            closeDocumentDetailsModal();
+            document.getElementById('reviewDocumentModal').style.display = 'flex';
+        }
+        
+        function closeReviewDocumentModal() {
+            document.getElementById('reviewDocumentModal').style.display = 'none';
+        }
+        
+        function toggleReviewNotes() {
+            const action = document.getElementById('reviewDocAction').value;
+            document.getElementById('reviewNotesGroup').style.display = action === 'rejected' ? 'block' : 'block';
+        }
+        
+        function submitDocumentReview() {
+            const docId = document.getElementById('reviewDocId').value;
+            const action = document.getElementById('reviewDocAction').value;
+            const notes = document.getElementById('reviewDocNotes').value;
+            
+            if (!action) {
+                alert('Please select a review action');
+                return;
+            }
+            
+            // Disable button and show loading
+            const submitBtn = document.querySelector('#reviewDocumentModal .btn-primary');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+            
+            fetch(`/admin/submissions/${docId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    status: action,
+                    admin_notes: notes
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(`Document ${data.submission.tracking_code} has been ${action === 'approved' ? 'approved' : action === 'rejected' ? 'rejected' : 'updated'}!`);
+                    closeReviewDocumentModal();
+                    location.reload();
+                } else {
+                    alert(data.message || 'Failed to update submission');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while updating the submission');
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            });
         }
 
-        function viewIncubateeDetails(incubateeId) {
-            alert(`Viewing Incubatee #${incubateeId} Details\n\nThis will show:\n- Project information\n- MOA details and documents\n- Complete payment history\n- Deliverables checklist\n- Compliance status\n- Team members\n- Activity timeline`);
+        // ========== MOA DETAILS MODAL FUNCTIONS ==========
+        
+        function viewMoaDetails(moaId) {
+            const moa = moaRequestsData[moaId];
+            if (!moa) {
+                alert('MOA request not found');
+                return;
+            }
+            
+            currentMoaId = moaId;
+            
+            const statusColors = {
+                'pending': { bg: '#FEF3C7', text: '#92400E' },
+                'under_review': { bg: '#DBEAFE', text: '#1E40AF' },
+                'approved': { bg: '#DCFCE7', text: '#166534' },
+                'rejected': { bg: '#FEE2E2', text: '#991B1B' }
+            };
+            const color = statusColors[moa.status] || { bg: '#E5E7EB', text: '#374151' };
+            
+            const content = `
+                <div style="display: grid; gap: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid #E5E7EB;">
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280;">Tracking Code</div>
+                            <div style="font-size: 18px; font-weight: 700; color: #7B1D3A;">${moa.tracking_code}</div>
+                        </div>
+                        <span style="background: ${color.bg}; color: ${color.text}; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                            ${moa.status.replace('_', ' ').toUpperCase()}
+                        </span>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Company/Startup Name</div>
+                            <div style="font-weight: 600;">${moa.company_name}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Contact Person</div>
+                            <div style="font-weight: 600;">${moa.contact_person}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Email</div>
+                            <div>${moa.email}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Phone</div>
+                            <div>${moa.phone || 'N/A'}</div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: #F9FAFB; padding: 16px; border-radius: 8px;">
+                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 8px;">MOA Purpose</div>
+                        <div style="font-weight: 600; font-size: 16px; color: #7B1D3A;">${moa.moa_purpose}</div>
+                    </div>
+                    
+                    <div>
+                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">MOA Details</div>
+                        <div style="background: #F3F4F6; padding: 12px; border-radius: 8px; white-space: pre-wrap;">${moa.moa_details}</div>
+                    </div>
+                    
+                    ${moa.notes ? `
+                    <div>
+                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Additional Notes</div>
+                        <div style="background: #F3F4F6; padding: 12px; border-radius: 8px;">${moa.notes}</div>
+                    </div>
+                    ` : ''}
+                    
+                    ${moa.admin_notes ? `
+                    <div>
+                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Admin Notes</div>
+                        <div style="background: #FEF3C7; padding: 12px; border-radius: 8px;">${moa.admin_notes}</div>
+                    </div>
+                    ` : ''}
+                    
+                    <div style="display: flex; gap: 16px; font-size: 12px; color: #6B7280;">
+                        <div><i class="fas fa-calendar"></i> Submitted: ${moa.created_at}</div>
+                        ${moa.reviewed_at ? `<div><i class="fas fa-check-circle"></i> Reviewed: ${moa.reviewed_at}</div>` : ''}
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('moaDetailsContent').innerHTML = content;
+            document.getElementById('moaDetailsModal').style.display = 'flex';
+        }
+        
+        function closeMoaDetailsModal() {
+            document.getElementById('moaDetailsModal').style.display = 'none';
+            currentMoaId = null;
+        }
+        
+        function openReviewMoaModal() {
+            const moa = moaRequestsData[currentMoaId];
+            if (!moa) return;
+            
+            document.getElementById('reviewMoaId').value = currentMoaId;
+            document.getElementById('reviewMoaInfo').innerHTML = `
+                <strong>${moa.tracking_code}</strong><br>
+                ${moa.company_name} - ${moa.moa_purpose}
+            `;
+            document.getElementById('reviewMoaAction').value = '';
+            document.getElementById('reviewMoaNotes').value = '';
+            
+            closeMoaDetailsModal();
+            document.getElementById('reviewMoaModal').style.display = 'flex';
+        }
+        
+        function closeReviewMoaModal() {
+            document.getElementById('reviewMoaModal').style.display = 'none';
+        }
+        
+        function submitMoaReview() {
+            const moaId = document.getElementById('reviewMoaId').value;
+            const action = document.getElementById('reviewMoaAction').value;
+            const notes = document.getElementById('reviewMoaNotes').value;
+            
+            if (!action) {
+                alert('Please select a review action');
+                return;
+            }
+            
+            // Disable button and show loading
+            const submitBtn = document.querySelector('#reviewMoaModal .btn-primary');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+            
+            fetch(`/admin/submissions/${moaId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    status: action,
+                    admin_notes: notes
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(`MOA Request ${data.submission.tracking_code} has been ${action === 'approved' ? 'approved' : action === 'rejected' ? 'rejected' : 'updated'}!`);
+                    closeReviewMoaModal();
+                    location.reload();
+                } else {
+                    alert(data.message || 'Failed to update MOA request');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while updating the MOA request');
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            });
+        }
+        
+        function generateMoaFromTemplate() {
+            const moa = moaRequestsData[currentMoaId];
+            closeMoaDetailsModal();
+            
+            // Pre-fill the template form with MOA data
+            if (moa) {
+                document.getElementById('moaCompanyName').value = moa.company_name;
+                document.getElementById('moaRepresentative').value = moa.contact_person;
+                // Set purpose based on moa_purpose
+                const purposeMap = {
+                    'Incubation Program': 'incubation',
+                    'Co-working Space': 'coworking',
+                    'Mentorship': 'mentorship',
+                    'Partnership': 'partnership'
+                };
+                document.getElementById('moaPurpose').value = purposeMap[moa.moa_purpose] || 'other';
+            }
+            
+            document.getElementById('moaTemplateModal').style.display = 'flex';
+        }
+
+        // ========== MOA TEMPLATE MODAL FUNCTIONS ==========
+        
+        function closeMoaTemplateModal() {
+            document.getElementById('moaTemplateModal').style.display = 'none';
+        }
+        
+        function openMoaTemplateModal() {
+            // Clear the form for a fresh MOA
+            document.getElementById('moaCompanyName').value = '';
+            document.getElementById('moaRepresentative').value = '';
+            document.getElementById('moaPosition').value = '';
+            document.getElementById('moaAddress').value = '';
+            document.getElementById('moaPurpose').value = '';
+            document.getElementById('moaStartDate').value = '';
+            document.getElementById('moaEndDate').value = '';
+            document.getElementById('moaFee').value = '';
+            document.getElementById('moaTerms').value = '';
+            document.getElementById('moaPreviewContent').innerHTML = '<p style="color: #6B7280; font-style: italic;">Fill in the form and click "Generate Preview" to see the MOA document.</p>';
+            
+            document.getElementById('moaTemplateModal').style.display = 'flex';
+        }
+        
+        function generateMoaPreview() {
+            const companyName = document.getElementById('moaCompanyName').value;
+            const representative = document.getElementById('moaRepresentative').value;
+            const position = document.getElementById('moaPosition').value;
+            const address = document.getElementById('moaAddress').value;
+            const purpose = document.getElementById('moaPurpose').value;
+            const startDate = document.getElementById('moaStartDate').value;
+            const endDate = document.getElementById('moaEndDate').value;
+            const fee = document.getElementById('moaFee').value;
+            const terms = document.getElementById('moaTerms').value;
+            
+            if (!companyName || !representative || !position || !address || !purpose || !startDate || !endDate) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            const purposeLabels = {
+                'incubation': 'Business Incubation Program',
+                'coworking': 'Co-working Space Usage',
+                'mentorship': 'Mentorship Program',
+                'partnership': 'Partnership Agreement',
+                'other': 'Other Services'
+            };
+            
+            const formatDate = (dateStr) => {
+                const d = new Date(dateStr);
+                return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+            };
+            
+            const preview = `
+                <div style="text-align: center; margin-bottom: 24px;">
+                    <img src="/images/up-cebu-logo.png" alt="UP Cebu Logo" style="height: 60px; margin-bottom: 12px;" onerror="this.style.display='none'">
+                    <h2 style="font-size: 18px; font-weight: 700; color: #7B1D3A; margin: 0;">UNIVERSITY OF THE PHILIPPINES CEBU</h2>
+                    <p style="font-size: 12px; color: #6B7280; margin: 4px 0;">Gorordo Avenue, Lahug, Cebu City 6000</p>
+                    <h3 style="font-size: 16px; font-weight: 700; margin: 16px 0 0 0; text-decoration: underline;">MEMORANDUM OF AGREEMENT</h3>
+                </div>
+                
+                <div style="text-align: justify; font-size: 12px; line-height: 1.8;">
+                    <p><strong>KNOW ALL MEN BY THESE PRESENTS:</strong></p>
+                    
+                    <p>This Memorandum of Agreement (MOA) is entered into by and between:</p>
+                    
+                    <p style="margin-left: 20px;">
+                        <strong>UNIVERSITY OF THE PHILIPPINES CEBU</strong>, a constituent unit of the University of the Philippines System, 
+                        represented herein by its Chancellor, with office address at Gorordo Avenue, Lahug, Cebu City 6000, 
+                        hereinafter referred to as "<strong>UP CEBU</strong>";
+                    </p>
+                    
+                    <p style="text-align: center;">- and -</p>
+                    
+                    <p style="margin-left: 20px;">
+                        <strong>${companyName.toUpperCase()}</strong>, represented herein by <strong>${representative}</strong>, 
+                        ${position}, with business address at ${address}, 
+                        hereinafter referred to as the "<strong>PARTNER</strong>";
+                    </p>
+                    
+                    <p><strong>WITNESSETH:</strong></p>
+                    
+                    <p><strong>WHEREAS</strong>, UP CEBU, through its Technology Business Incubator, aims to support and nurture startup 
+                    enterprises and innovative business ventures;</p>
+                    
+                    <p><strong>WHEREAS</strong>, the PARTNER desires to avail of the ${purposeLabels[purpose]} offered by UP CEBU;</p>
+                    
+                    <p><strong>NOW, THEREFORE</strong>, for and in consideration of the foregoing premises and the mutual covenants 
+                    herein contained, the parties agree as follows:</p>
+                    
+                    <p><strong>ARTICLE I - PURPOSE</strong></p>
+                    <p>This MOA is entered into for the purpose of: <strong>${purposeLabels[purpose]}</strong></p>
+                    
+                    <p><strong>ARTICLE II - TERM</strong></p>
+                    <p>This Agreement shall be effective from <strong>${formatDate(startDate)}</strong> to <strong>${formatDate(endDate)}</strong>, 
+                    unless sooner terminated by either party upon thirty (30) days prior written notice.</p>
+                    
+                    ${fee ? `
+                    <p><strong>ARTICLE III - FEES</strong></p>
+                    <p>The PARTNER agrees to pay a monthly fee of <strong>₱${parseFloat(fee).toLocaleString('en-US', {minimumFractionDigits: 2})}</strong> 
+                    for the duration of this agreement, payable on or before the 5th day of each month.</p>
+                    ` : ''}
+                    
+                    <p><strong>ARTICLE IV - OBLIGATIONS</strong></p>
+                    <p>Both parties shall comply with all applicable laws, rules, and regulations, and shall perform their 
+                    respective obligations under this Agreement in good faith.</p>
+                    
+                    ${terms ? `
+                    <p><strong>ARTICLE V - SPECIAL TERMS</strong></p>
+                    <p>${terms}</p>
+                    ` : ''}
+                    
+                    <p><strong>IN WITNESS WHEREOF</strong>, the parties have hereunto set their hands this _____ day of ____________, 20____.</p>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 40px;">
+                        <div style="text-align: center;">
+                            <p style="margin-bottom: 40px;"><strong>FOR UP CEBU:</strong></p>
+                            <div style="border-top: 1px solid #000; padding-top: 8px;">
+                                <strong>DR. LIZA L. CORRO</strong><br>
+                                <span style="font-size: 11px;">Chancellor</span>
+                            </div>
+                        </div>
+                        <div style="text-align: center;">
+                            <p style="margin-bottom: 40px;"><strong>FOR THE PARTNER:</strong></p>
+                            <div style="border-top: 1px solid #000; padding-top: 8px;">
+                                <strong>${representative.toUpperCase()}</strong><br>
+                                <span style="font-size: 11px;">${position}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 40px;">
+                        <p><strong>SIGNED IN THE PRESENCE OF:</strong></p>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 20px;">
+                            <div style="border-top: 1px solid #000; padding-top: 8px; text-align: center;">Witness 1</div>
+                            <div style="border-top: 1px solid #000; padding-top: 8px; text-align: center;">Witness 2</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('moaPreviewContent').innerHTML = preview;
+        }
+        
+        function printMoa() {
+            const content = document.getElementById('moaPreviewContent').innerHTML;
+            if (content.includes('Fill in the form')) {
+                alert('Please generate a preview first');
+                return;
+            }
+            
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>MOA - ${document.getElementById('moaCompanyName').value}</title>
+                    <style>
+                        body { font-family: 'Times New Roman', serif; padding: 40px; max-width: 800px; margin: 0 auto; }
+                        @media print { body { padding: 20px; } }
+                    </style>
+                </head>
+                <body>${content}</body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        }
+        
+        function downloadMoaAsPdf() {
+            alert('PDF download feature requires a PDF library like jsPDF or server-side generation.\n\nFor now, please use the Print function and select "Save as PDF" as the destination.');
+            printMoa();
+        }
+
+        // ========== PAYMENT DETAILS MODAL FUNCTIONS ==========
+        
+        function viewPaymentDetails(paymentId) {
+            const payment = paymentSubmissionsData[paymentId];
+            if (!payment) {
+                alert('Payment submission not found');
+                return;
+            }
+            
+            currentPaymentId = paymentId;
+            
+            const statusColors = {
+                'pending': { bg: '#FEF3C7', text: '#92400E' },
+                'under_review': { bg: '#DBEAFE', text: '#1E40AF' },
+                'approved': { bg: '#DCFCE7', text: '#166534' },
+                'rejected': { bg: '#FEE2E2', text: '#991B1B' }
+            };
+            const color = statusColors[payment.status] || { bg: '#E5E7EB', text: '#374151' };
+            
+            const content = `
+                <div style="display: grid; gap: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid #E5E7EB;">
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280;">Tracking Code</div>
+                            <div style="font-size: 18px; font-weight: 700; color: #7B1D3A;">${payment.tracking_code}</div>
+                        </div>
+                        <span style="background: ${color.bg}; color: ${color.text}; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                            ${payment.status === 'approved' ? 'VERIFIED' : payment.status.replace('_', ' ').toUpperCase()}
+                        </span>
+                    </div>
+                    
+                    <div style="background: linear-gradient(135deg, #10B981, #059669); color: white; padding: 20px; border-radius: 12px; text-align: center;">
+                        <div style="font-size: 12px; opacity: 0.9;">Payment Amount</div>
+                        <div style="font-size: 32px; font-weight: 700;">₱${parseFloat(payment.amount).toLocaleString('en-US', {minimumFractionDigits: 2})}</div>
+                        <div style="font-size: 14px; margin-top: 8px;">Invoice #${payment.invoice_number}</div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Company Name</div>
+                            <div style="font-weight: 600;">${payment.company_name}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Contact Person</div>
+                            <div style="font-weight: 600;">${payment.contact_person}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Email</div>
+                            <div>${payment.email}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Phone</div>
+                            <div>${payment.phone || 'N/A'}</div>
+                        </div>
+                    </div>
+                    
+                    ${payment.notes ? `
+                    <div>
+                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Submitter Notes</div>
+                        <div style="background: #F3F4F6; padding: 12px; border-radius: 8px;">${payment.notes}</div>
+                    </div>
+                    ` : ''}
+                    
+                    ${payment.admin_notes ? `
+                    <div>
+                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Admin Notes</div>
+                        <div style="background: #FEF3C7; padding: 12px; border-radius: 8px;">${payment.admin_notes}</div>
+                    </div>
+                    ` : ''}
+                    
+                    <div style="display: flex; gap: 16px; font-size: 12px; color: #6B7280;">
+                        <div><i class="fas fa-calendar"></i> Submitted: ${payment.created_at}</div>
+                        ${payment.reviewed_at ? `<div><i class="fas fa-check-circle"></i> Verified: ${payment.reviewed_at}</div>` : ''}
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('paymentDetailsContent').innerHTML = content;
+            document.getElementById('paymentProofBtn').href = payment.payment_proof_path ? '/storage/' + payment.payment_proof_path : '#';
+            document.getElementById('paymentDetailsModal').style.display = 'flex';
+        }
+        
+        function closePaymentDetailsModal() {
+            document.getElementById('paymentDetailsModal').style.display = 'none';
+            currentPaymentId = null;
+        }
+        
+        function openReviewPaymentModal() {
+            const payment = paymentSubmissionsData[currentPaymentId];
+            if (!payment) return;
+            
+            document.getElementById('reviewPaymentId').value = currentPaymentId;
+            document.getElementById('reviewPaymentInfo').innerHTML = `
+                <strong>${payment.tracking_code}</strong><br>
+                ${payment.company_name} - ₱${parseFloat(payment.amount).toLocaleString('en-US', {minimumFractionDigits: 2})}
+            `;
+            document.getElementById('reviewPaymentAction').value = '';
+            document.getElementById('reviewPaymentNotes').value = '';
+            
+            closePaymentDetailsModal();
+            document.getElementById('reviewPaymentModal').style.display = 'flex';
+        }
+        
+        function closeReviewPaymentModal() {
+            document.getElementById('reviewPaymentModal').style.display = 'none';
+        }
+        
+        function submitPaymentReview() {
+            const paymentId = document.getElementById('reviewPaymentId').value;
+            const action = document.getElementById('reviewPaymentAction').value;
+            const notes = document.getElementById('reviewPaymentNotes').value;
+            
+            if (!action) {
+                alert('Please select a verification action');
+                return;
+            }
+            
+            // Disable button and show loading
+            const submitBtn = document.querySelector('#reviewPaymentModal .btn-primary');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+            
+            fetch(`/admin/submissions/${paymentId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    status: action,
+                    admin_notes: notes
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(`Payment ${data.submission.tracking_code} has been ${action === 'approved' ? 'verified' : action === 'rejected' ? 'rejected' : 'updated'}!`);
+                    closeReviewPaymentModal();
+                    location.reload();
+                } else {
+                    alert(data.message || 'Failed to update payment submission');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while updating the payment submission');
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            });
+        }
+
+        // ========== ROOM ISSUE DETAILS MODAL FUNCTIONS ==========
+        
+        function viewRoomIssueDetails(issueId) {
+            const issue = roomIssuesData[issueId];
+            if (!issue) {
+                alert('Issue not found');
+                return;
+            }
+            
+            currentIssueId = issueId;
+            
+            const statusColors = {
+                'pending': { bg: '#FEE2E2', text: '#991B1B' },
+                'in_progress': { bg: '#FEF3C7', text: '#92400E' },
+                'resolved': { bg: '#DCFCE7', text: '#166534' },
+                'closed': { bg: '#E5E7EB', text: '#374151' }
+            };
+            const color = statusColors[issue.status] || { bg: '#E5E7EB', text: '#374151' };
+            
+            const priorityColors = {
+                'urgent': '#DC2626',
+                'high': '#F59E0B',
+                'medium': '#3B82F6',
+                'low': '#10B981'
+            };
+            
+            const content = `
+                <div style="display: grid; gap: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid #E5E7EB;">
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280;">Tracking Code</div>
+                            <div style="font-size: 18px; font-weight: 700; color: #7B1D3A;">${issue.tracking_code}</div>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <span style="background: ${priorityColors[issue.priority] || '#6B7280'}; color: white; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;">
+                                ${issue.priority.toUpperCase()}
+                            </span>
+                            <span style="background: ${color.bg}; color: ${color.text}; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;">
+                                ${issue.status_label}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div style="background: linear-gradient(135deg, #7B1D3A, #5a1428); color: white; padding: 16px; border-radius: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-size: 12px; opacity: 0.9;">Room Number</div>
+                                <div style="font-size: 24px; font-weight: 700;">${issue.room_number}</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 12px; opacity: 0.9;">Issue Type</div>
+                                <div style="font-size: 16px; font-weight: 600;">${issue.issue_type_label}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Issue Description</div>
+                        <div style="background: #F3F4F6; padding: 12px; border-radius: 8px; white-space: pre-wrap;">${issue.description}</div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Company Name</div>
+                            <div style="font-weight: 600;">${issue.company_name}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Reported By</div>
+                            <div style="font-weight: 600;">${issue.contact_person}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Email</div>
+                            <div>${issue.email}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Phone</div>
+                            <div>${issue.phone || 'N/A'}</div>
+                        </div>
+                    </div>
+                    
+                    ${issue.photo_path ? `
+                    <div>
+                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 8px;">Photo Evidence</div>
+                        <a href="/storage/${issue.photo_path}" target="_blank">
+                            <img src="/storage/${issue.photo_path}" alt="Issue Photo" style="max-width: 100%; max-height: 200px; border-radius: 8px; border: 1px solid #E5E7EB;">
+                        </a>
+                    </div>
+                    ` : ''}
+                    
+                    ${issue.admin_notes ? `
+                    <div>
+                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Resolution Notes</div>
+                        <div style="background: #FEF3C7; padding: 12px; border-radius: 8px;">${issue.admin_notes}</div>
+                    </div>
+                    ` : ''}
+                    
+                    <div style="display: flex; gap: 16px; font-size: 12px; color: #6B7280;">
+                        <div><i class="fas fa-calendar"></i> Reported: ${issue.created_at}</div>
+                        ${issue.resolved_at ? `<div><i class="fas fa-check-circle"></i> Resolved: ${issue.resolved_at}</div>` : ''}
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('roomIssueDetailsContent').innerHTML = content;
+            document.getElementById('roomIssueDetailsModal').style.display = 'flex';
+        }
+        
+        function closeRoomIssueDetailsModal() {
+            document.getElementById('roomIssueDetailsModal').style.display = 'none';
+            currentIssueId = null;
+        }
+        
+        function openUpdateIssueStatusModal() {
+            const issue = roomIssuesData[currentIssueId];
+            if (!issue) return;
+            
+            document.getElementById('updateIssueId').value = currentIssueId;
+            document.getElementById('updateIssueInfo').innerHTML = `
+                <strong>${issue.tracking_code}</strong><br>
+                Room ${issue.room_number} - ${issue.issue_type_label}
+            `;
+            document.getElementById('updateIssueNewStatus').value = issue.status;
+            document.getElementById('updateIssueAssignee').value = '';
+            document.getElementById('updateIssueNotes').value = issue.admin_notes || '';
+            
+            closeRoomIssueDetailsModal();
+            document.getElementById('updateIssueStatusModal').style.display = 'flex';
+        }
+        
+        function closeUpdateIssueStatusModal() {
+            document.getElementById('updateIssueStatusModal').style.display = 'none';
+        }
+        
+        function updateIssueStatus(issueId) {
+            currentIssueId = issueId;
+            openUpdateIssueStatusModal();
+        }
+        
+        function submitIssueStatusUpdate() {
+            const issueId = document.getElementById('updateIssueId').value;
+            const newStatus = document.getElementById('updateIssueNewStatus').value;
+            const assignee = document.getElementById('updateIssueAssignee').value;
+            const notes = document.getElementById('updateIssueNotes').value;
+            
+            if (!newStatus) {
+                alert('Please select a new status');
+                return;
+            }
+            
+            // Disable button and show loading
+            const submitBtn = document.querySelector('#updateIssueStatusModal .btn-primary');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+            
+            fetch(`/admin/room-issues/${issueId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    status: newStatus,
+                    admin_notes: notes,
+                    assignee: assignee
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(`Issue ${data.issue.tracking_code} has been updated to: ${data.issue.status_label}!`);
+                    closeUpdateIssueStatusModal();
+                    location.reload();
+                } else {
+                    alert(data.message || 'Failed to update issue');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while updating the issue');
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            });
         }
 
         // ===== ISSUES MANAGEMENT FUNCTIONS =====
         
         function filterIssues() {
-            console.log('Filtering issues...');
-            // Filter logic here
+            const statusFilter = document.getElementById('issueStatusFilter').value;
+            const typeFilter = document.getElementById('issueTypeFilter').value;
+            const priorityFilter = document.getElementById('issuePriorityFilter').value;
+            const rows = document.querySelectorAll('.issue-row');
+            
+            rows.forEach(row => {
+                const status = row.getAttribute('data-status');
+                const type = row.getAttribute('data-type');
+                const priority = row.getAttribute('data-priority');
+                
+                const matchStatus = statusFilter === 'all' || status === statusFilter;
+                const matchType = typeFilter === 'all' || type === typeFilter;
+                const matchPriority = priorityFilter === 'all' || priority === priorityFilter;
+                
+                row.style.display = (matchStatus && matchType && matchPriority) ? '' : 'none';
+            });
         }
 
         function searchIssues() {
-            console.log('Searching issues...');
-            // Search logic here
+            const searchTerm = document.getElementById('issueSearchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('.issue-row');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        }
+        
+        // ===== DOCUMENT TRACKING FUNCTIONS =====
+        
+        function filterDocuments() {
+            const statusFilter = document.getElementById('documentStatusFilter').value;
+            const typeFilter = document.getElementById('documentTypeFilter').value;
+            const rows = document.querySelectorAll('.document-row');
+            
+            rows.forEach(row => {
+                const status = row.getAttribute('data-status');
+                const type = row.getAttribute('data-type');
+                
+                const matchStatus = statusFilter === 'all' || status === statusFilter;
+                const matchType = typeFilter === 'all' || type === typeFilter;
+                
+                row.style.display = (matchStatus && matchType) ? '' : 'none';
+            });
         }
 
-        function openReportIssueModal() {
-            alert('Report Issue Modal - Feature coming soon!\n\nThis will allow you to:\n- Select issue type (Facility/Equipment/Network/Security/Other)\n- Enter issue title and description\n- Upload photos\n- Set priority level\n- Specify location/area affected');
+        function searchDocuments() {
+            const searchTerm = document.getElementById('documentSearchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('.document-row');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
         }
-
-        function viewIssueDetails(issueId) {
-            alert(`Viewing Issue #${issueId} Details\n\nThis will show:\n- Complete issue description\n- Photos and attachments\n- Reporter information\n- Assignment details\n- Status history\n- Resolution notes\n- Communication thread`);
+        
+        // Review submission - routes to appropriate modal based on type
+        function reviewSubmission(submissionId, type) {
+            if (type === 'moa') {
+                currentMoaId = submissionId;
+                openReviewMoaModal();
+            } else if (type === 'finance') {
+                currentPaymentId = submissionId;
+                openReviewPaymentModal();
+            } else if (type === 'document') {
+                currentDocId = submissionId;
+                openReviewDocumentModal(submissionId);
+            }
         }
 
         // ============================================
@@ -4511,6 +7050,90 @@
         let schedulerCurrentYear = new Date().getFullYear();
         const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
+        // ========== TOAST NOTIFICATION SYSTEM ==========
+        function showToast(type, title, message, duration = 5000) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            
+            const icons = {
+                success: 'fa-check-circle',
+                error: 'fa-times-circle',
+                warning: 'fa-exclamation-triangle',
+                info: 'fa-info-circle'
+            };
+            
+            toast.innerHTML = `
+                <i class="fas ${icons[type]} toast-icon"></i>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close" onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div class="toast-progress"></div>
+            `;
+            
+            container.appendChild(toast);
+            
+            // Auto remove after duration
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.remove();
+                }
+            }, duration);
+        }
+
+        // ========== CONFIRMATION MODAL SYSTEM ==========
+        let confirmCallback = null;
+        
+        function showConfirmModal(options) {
+            const { type = 'warning', title, message, confirmText = 'Confirm', onConfirm } = options;
+            
+            const modal = document.getElementById('confirmModal');
+            const iconEl = document.getElementById('confirmModalIcon');
+            const titleEl = document.getElementById('confirmModalTitle');
+            const messageEl = document.getElementById('confirmModalMessage');
+            const confirmBtn = document.getElementById('confirmModalBtn');
+            
+            // Set icon based on type
+            const icons = {
+                warning: { icon: 'fa-exclamation-triangle', class: 'warning' },
+                danger: { icon: 'fa-trash-alt', class: 'danger' },
+                info: { icon: 'fa-question-circle', class: 'info' }
+            };
+            
+            const iconConfig = icons[type] || icons.warning;
+            iconEl.className = `confirm-modal-icon ${iconConfig.class}`;
+            iconEl.innerHTML = `<i class="fas ${iconConfig.icon}"></i>`;
+            
+            titleEl.textContent = title;
+            messageEl.textContent = message;
+            confirmBtn.innerHTML = `<i class="fas fa-check"></i> ${confirmText}`;
+            
+            // Set button style based on type
+            confirmBtn.className = 'confirm-modal-btn confirm';
+            if (type === 'info') {
+                confirmBtn.classList.add('success');
+            }
+            
+            confirmCallback = onConfirm;
+            modal.classList.add('active');
+        }
+        
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').classList.remove('active');
+            confirmCallback = null;
+        }
+        
+        function executeConfirmAction() {
+            if (confirmCallback) {
+                confirmCallback();
+            }
+            closeConfirmModal();
+        }
+
         // Switch between booking tabs
         function switchBookingTab(tabName) {
             // Remove active from all tabs
@@ -4536,10 +7159,185 @@
             }
         }
 
+        // Booking Action Modal Functions
+        function openBookingActionModal(id, agencyName, date, time, purpose, contactPerson, email, phone, notes, attachmentUrl, status, adminEmailed) {
+            document.getElementById('currentBookingId').value = id;
+            document.getElementById('modalAgencyName').textContent = agencyName;
+            document.getElementById('modalBookingDate').textContent = date;
+            document.getElementById('modalBookingTime').textContent = time;
+            document.getElementById('modalPurpose').textContent = purpose;
+            document.getElementById('modalContactPerson').textContent = contactPerson;
+            document.getElementById('modalEmail').textContent = email;
+            document.getElementById('modalPhone').textContent = phone;
+            document.getElementById('modalNotes').textContent = notes || 'No notes provided';
+            
+            // Handle attachment
+            const attachmentSection = document.getElementById('modalAttachmentSection');
+            const attachmentLink = document.getElementById('modalAttachmentLink');
+            if (attachmentUrl) {
+                attachmentSection.style.display = 'block';
+                attachmentLink.href = attachmentUrl;
+            } else {
+                attachmentSection.style.display = 'none';
+            }
+            
+            // Handle status badge and buttons
+            const statusBadge = document.getElementById('modalStatusBadge');
+            const approveBtn = document.getElementById('btnApproveBooking');
+            const rejectBtn = document.getElementById('btnRejectBooking');
+            const emailNotificationSection = document.getElementById('emailNotificationSection');
+            const emailSentSection = document.getElementById('emailSentSection');
+            
+            // Reset sections
+            emailNotificationSection.style.display = 'none';
+            emailSentSection.style.display = 'none';
+            
+            if (status === 'pending') {
+                statusBadge.style.background = '#FEF3C7';
+                statusBadge.style.color = '#D97706';
+                statusBadge.textContent = 'Pending';
+                approveBtn.style.display = 'inline-flex';
+                rejectBtn.style.display = 'inline-flex';
+            } else if (status === 'approved') {
+                statusBadge.style.background = '#D1FAE5';
+                statusBadge.style.color = '#059669';
+                statusBadge.textContent = 'Approved';
+                approveBtn.style.display = 'none';
+                rejectBtn.style.display = 'none';
+                
+                // Show email notification section based on admin_emailed status
+                if (adminEmailed) {
+                    emailSentSection.style.display = 'block';
+                } else {
+                    emailNotificationSection.style.display = 'block';
+                    // Generate email preview
+                    generateEmailPreview(agencyName, date, time, purpose, email);
+                }
+            } else {
+                statusBadge.style.background = '#FEE2E2';
+                statusBadge.style.color = '#DC2626';
+                statusBadge.textContent = 'Rejected';
+                approveBtn.style.display = 'none';
+                rejectBtn.style.display = 'none';
+            }
+            
+            document.getElementById('bookingActionModal').classList.add('active');
+        }
+        
+        function generateEmailPreview(agencyName, date, time, purpose, email) {
+            const subject = `Booking Approved - ${purpose} on ${date}`;
+            const body = `Dear ${agencyName},
+
+We are pleased to inform you that your booking request has been APPROVED.
+
+📅 BOOKING DETAILS:
+━━━━━━━━━━━━━━━━━━━━
+Date: ${date}
+Time: ${time}
+Purpose: ${purpose}
+
+Please arrive at least 15 minutes before your scheduled time. If you need to reschedule or cancel, please contact us as soon as possible.
+
+We look forward to seeing you!
+
+Best regards,
+UP Cebu Innovation & Technology Hub
+University of the Philippines Cebu
+📧 info@upcebu.edu.ph
+📞 +63 32 123 4567`;
+
+            document.getElementById('emailPreviewTo').textContent = email;
+            document.getElementById('emailPreviewSubject').textContent = subject;
+            document.getElementById('emailPreviewBody').textContent = body;
+            
+            // Store for copy/mail functions
+            document.getElementById('currentBookingEmail').value = email;
+            document.getElementById('currentBookingAgency').value = agencyName;
+            document.getElementById('currentBookingDate').value = date;
+            document.getElementById('currentBookingTime').value = time;
+            document.getElementById('currentBookingPurpose').value = purpose;
+        }
+        
+        function copyEmailContent() {
+            const email = document.getElementById('currentBookingEmail').value;
+            const subject = document.getElementById('emailPreviewSubject').textContent;
+            const body = document.getElementById('emailPreviewBody').textContent;
+            
+            const fullContent = `To: ${email}\nSubject: ${subject}\n\n${body}`;
+            
+            navigator.clipboard.writeText(fullContent).then(() => {
+                showToast('success', 'Copied!', 'Email content copied to clipboard. Paste it into your email application.');
+            }).catch(err => {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = fullContent;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showToast('success', 'Copied!', 'Email content copied to clipboard.');
+            });
+        }
+        
+        function openMailClient() {
+            const email = document.getElementById('currentBookingEmail').value;
+            const subject = encodeURIComponent(document.getElementById('emailPreviewSubject').textContent);
+            const body = encodeURIComponent(document.getElementById('emailPreviewBody').textContent);
+            
+            window.open(`mailto:${email}?subject=${subject}&body=${body}`, '_blank');
+            showToast('info', 'Email App Opened', 'Your default email application should now open with the pre-filled content.');
+        }
+        
+        function markAsEmailed() {
+            const bookingId = document.getElementById('currentBookingId').value;
+            
+            fetch(`/admin/bookings/${bookingId}/send-email`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('success', 'Marked as Emailed', 'Email notification status has been updated.');
+                    // Update UI
+                    document.getElementById('emailNotificationSection').style.display = 'none';
+                    document.getElementById('emailSentSection').style.display = 'block';
+                } else {
+                    showToast('error', 'Error', data.message || 'Failed to update status.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('error', 'Error', 'An error occurred while updating the status.');
+            });
+        }
+        
+        function closeBookingActionModal() {
+            document.getElementById('bookingActionModal').classList.remove('active');
+        }
+        
+        function confirmApproveBooking() {
+            const bookingId = document.getElementById('currentBookingId').value;
+            approveBooking(bookingId);
+        }
+        
+        function confirmRejectBooking() {
+            const bookingId = document.getElementById('currentBookingId').value;
+            showConfirmModal({
+                type: 'danger',
+                title: 'Reject Booking?',
+                message: 'This booking request will be rejected. The booker will not be able to use this time slot. This action cannot be undone.',
+                confirmText: 'Reject Booking',
+                onConfirm: () => rejectBooking(bookingId)
+            });
+        }
+
         // Approve booking
         function approveBooking(bookingId) {
-            if (!confirm('Approve this booking request?')) return;
-            
             fetch(`/admin/bookings/${bookingId}/approve`, {
                 method: 'POST',
                 headers: {
@@ -4551,28 +7349,27 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('Booking approved successfully!');
+                    closeBookingActionModal();
+                    showToast('success', 'Booking Approved!', 'You can now send an email notification to the booker.');
                     // Remove from pending table
                     const row = document.getElementById(`booking-row-${bookingId}`);
                     if (row) row.remove();
                     // Update pending count
                     updatePendingCount(-1);
                     // Reload to update all views
-                    setTimeout(() => window.location.reload(), 500);
+                    setTimeout(() => window.location.reload(), 1500);
                 } else {
-                    alert(data.message || 'Failed to approve booking.');
+                    showToast('error', 'Error', data.message || 'Failed to approve booking.');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('An error occurred while approving the booking.');
+                showToast('error', 'Error', 'An error occurred while approving the booking.');
             });
         }
 
         // Reject booking
         function rejectBooking(bookingId) {
-            if (!confirm('Reject this booking request? This action cannot be undone.')) return;
-            
             fetch(`/admin/bookings/${bookingId}/reject`, {
                 method: 'POST',
                 headers: {
@@ -4584,25 +7381,34 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('Booking rejected.');
+                    closeBookingActionModal();
+                    showToast('warning', 'Booking Rejected', 'The booking request has been rejected.');
                     const row = document.getElementById(`booking-row-${bookingId}`);
                     if (row) row.remove();
                     updatePendingCount(-1);
-                    setTimeout(() => window.location.reload(), 500);
+                    setTimeout(() => window.location.reload(), 1500);
                 } else {
-                    alert(data.message || 'Failed to reject booking.');
+                    showToast('error', 'Error', data.message || 'Failed to reject booking.');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('An error occurred while rejecting the booking.');
+                showToast('error', 'Error', 'An error occurred while rejecting the booking.');
             });
         }
 
         // Delete booking
         function deleteBooking(bookingId) {
-            if (!confirm('Are you sure you want to permanently delete this booking?')) return;
-            
+            showConfirmModal({
+                type: 'danger',
+                title: 'Delete Booking?',
+                message: 'This will permanently delete the booking record. This action cannot be undone.',
+                confirmText: 'Delete',
+                onConfirm: () => executeDeleteBooking(bookingId)
+            });
+        }
+        
+        function executeDeleteBooking(bookingId) {
             fetch(`/admin/bookings/${bookingId}`, {
                 method: 'DELETE',
                 headers: {
@@ -4614,15 +7420,15 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('Booking deleted successfully.');
-                    window.location.reload();
+                    showToast('success', 'Deleted', 'Booking has been permanently deleted.');
+                    setTimeout(() => window.location.reload(), 1500);
                 } else {
-                    alert(data.message || 'Failed to delete booking.');
+                    showToast('error', 'Error', data.message || 'Failed to delete booking.');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('An error occurred while deleting the booking.');
+                showToast('error', 'Error', 'An error occurred while deleting the booking.');
             });
         }
 
@@ -5654,46 +8460,108 @@
             console.log(`Loading task page ${currentTaskPage}`);
         }
 
-        // Bar Chart - Intern Progress
+        // Bar Chart - Intern Progress (Smooth Modern Style)
         const barCtx = document.getElementById('barChart').getContext('2d');
+        
+        // Create gradients for bars
+        const maroonGradient = barCtx.createLinearGradient(0, 0, 0, 400);
+        maroonGradient.addColorStop(0, 'rgba(123, 29, 58, 0.9)');
+        maroonGradient.addColorStop(1, 'rgba(123, 29, 58, 0.4)');
+        
+        const goldGradient = barCtx.createLinearGradient(0, 0, 0, 400);
+        goldGradient.addColorStop(0, 'rgba(255, 191, 0, 0.9)');
+        goldGradient.addColorStop(1, 'rgba(255, 191, 0, 0.4)');
+        
         const barChart = new Chart(barCtx, {
             type: 'bar',
             data: {
-                labels: ['January', 'February', 'March', 'April', 'May', 'June'],
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
                 datasets: [{
                     label: 'Active Interns',
                     data: [185, 195, 210, 225, 235, 245],
-                    backgroundColor: 'rgba(123, 29, 58, 0.8)',
+                    backgroundColor: maroonGradient,
                     borderColor: '#7B1D3A',
-                    borderWidth: 2,
-                    borderRadius: 8
+                    borderWidth: 0,
+                    borderRadius: 8,
+                    borderSkipped: false,
+                    barPercentage: 0.6,
+                    categoryPercentage: 0.7
                 }, {
                     label: 'Completed Tasks',
                     data: [165, 180, 190, 205, 215, 230],
-                    backgroundColor: 'rgba(255, 191, 0, 0.8)',
+                    backgroundColor: goldGradient,
                     borderColor: '#FFBF00',
-                    borderWidth: 2,
-                    borderRadius: 8
+                    borderWidth: 0,
+                    borderRadius: 8,
+                    borderSkipped: false,
+                    barPercentage: 0.6,
+                    categoryPercentage: 0.7
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: true,
+                animation: {
+                    duration: 1000,
+                    easing: 'easeOutQuart'
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
                 plugins: {
                     legend: {
                         display: true,
-                        position: 'bottom'
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true,
+                            pointStyle: 'circle',
+                            font: {
+                                size: 12,
+                                weight: '500'
+                            }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(31, 41, 55, 0.95)',
+                        titleFont: { size: 13, weight: '600' },
+                        bodyFont: { size: 12 },
+                        padding: 12,
+                        cornerRadius: 10,
+                        displayColors: true,
+                        boxPadding: 6
                     }
                 },
                 scales: {
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            font: { size: 11, weight: '500' },
+                            color: '#6B7280',
+                            padding: 8
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false,
+                            drawBorder: false
+                        },
+                        ticks: {
+                            font: { size: 11, weight: '500' },
+                            color: '#6B7280',
+                            padding: 8
+                        }
                     }
                 }
             }
         });
 
-        // Pie Chart - System Usage
+        // Pie Chart - System Usage (Smooth Doughnut Style)
         const pieCtx = document.getElementById('pieChart').getContext('2d');
         const pieChart = new Chart(pieCtx, {
             type: 'doughnut',
@@ -5704,25 +8572,353 @@
                     backgroundColor: [
                         '#7B1D3A',
                         '#FFBF00',
-                        '#FFA500',
+                        '#F97316',
                         '#10B981',
                         '#3B82F6'
                     ],
-                    borderWidth: 3,
-                    borderColor: '#fff'
+                    hoverBackgroundColor: [
+                        '#5a1428',
+                        '#E5A800',
+                        '#EA580C',
+                        '#059669',
+                        '#2563EB'
+                    ],
+                    borderWidth: 0,
+                    spacing: 4,
+                    borderRadius: 6
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: true,
+                cutout: '65%',
+                animation: {
+                    animateRotate: true,
+                    animateScale: true,
+                    duration: 1000,
+                    easing: 'easeOutQuart'
+                },
                 plugins: {
                     legend: {
                         display: true,
-                        position: 'bottom'
+                        position: 'bottom',
+                        labels: {
+                            padding: 16,
+                            usePointStyle: true,
+                            pointStyle: 'circle',
+                            font: {
+                                size: 11,
+                                weight: '500'
+                            }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(31, 41, 55, 0.95)',
+                        titleFont: { size: 13, weight: '600' },
+                        bodyFont: { size: 12 },
+                        padding: 12,
+                        cornerRadius: 10,
+                        displayColors: true,
+                        boxPadding: 6,
+                        callbacks: {
+                            label: function(context) {
+                                return ' ' + context.label + ': ' + context.parsed + '%';
+                            }
+                        }
                     }
                 }
             }
         });
+
+        // ===== SCHOOL MANAGEMENT FUNCTIONS =====
+
+        function openSchoolManagementModal() {
+            document.getElementById('schoolManagementModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSchoolManagementModal() {
+            document.getElementById('schoolManagementModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+            cancelSchoolForm();
+        }
+
+        function openAddSchoolForm() {
+            document.getElementById('schoolFormContainer').style.display = 'block';
+            document.getElementById('schoolFormTitle').innerHTML = '<i class="fas fa-plus-circle" style="color: #10B981; margin-right: 8px;"></i>Add New School';
+            document.getElementById('schoolFormSubmitText').textContent = 'Save School';
+            document.getElementById('schoolFormId').value = '';
+            document.getElementById('schoolForm').reset();
+        }
+
+        function cancelSchoolForm() {
+            document.getElementById('schoolFormContainer').style.display = 'none';
+            document.getElementById('schoolForm').reset();
+            document.getElementById('schoolFormId').value = '';
+        }
+
+        function editSchool(id, name, hours, maxInterns, contactPerson, contactEmail, contactPhone, notes) {
+            document.getElementById('schoolFormContainer').style.display = 'block';
+            document.getElementById('schoolFormTitle').innerHTML = '<i class="fas fa-edit" style="color: #7B1D3A; margin-right: 8px;"></i>Edit School';
+            document.getElementById('schoolFormSubmitText').textContent = 'Update School';
+            document.getElementById('schoolFormId').value = id;
+            document.getElementById('schoolFormName').value = name;
+            document.getElementById('schoolFormHours').value = hours;
+            document.getElementById('schoolFormMaxInterns').value = maxInterns || '';
+            document.getElementById('schoolFormContactPerson').value = contactPerson;
+            document.getElementById('schoolFormContactEmail').value = contactEmail;
+            document.getElementById('schoolFormContactPhone').value = contactPhone;
+            document.getElementById('schoolFormNotes').value = notes;
+        }
+
+        document.getElementById('schoolForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formId = document.getElementById('schoolFormId').value;
+            const isEdit = formId !== '';
+            const url = isEdit ? `/admin/schools/${formId}` : '/admin/schools';
+            const method = isEdit ? 'PUT' : 'POST';
+
+            const data = {
+                name: document.getElementById('schoolFormName').value,
+                required_hours: parseInt(document.getElementById('schoolFormHours').value),
+                max_interns: document.getElementById('schoolFormMaxInterns').value ? parseInt(document.getElementById('schoolFormMaxInterns').value) : null,
+                contact_person: document.getElementById('schoolFormContactPerson').value || null,
+                contact_email: document.getElementById('schoolFormContactEmail').value || null,
+                contact_phone: document.getElementById('schoolFormContactPhone').value || null,
+                notes: document.getElementById('schoolFormNotes').value || null,
+            };
+
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showToast(result.message, 'success');
+                    cancelSchoolForm();
+                    // Reload page to refresh schools list
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showToast(result.message || 'An error occurred', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('An error occurred while saving the school', 'error');
+            }
+        });
+
+        async function toggleSchoolStatus(schoolId) {
+            try {
+                const response = await fetch(`/admin/schools/${schoolId}/toggle-status`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showToast(result.message, 'success');
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showToast(result.message || 'An error occurred', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('An error occurred', 'error');
+            }
+        }
+
+        async function deleteSchool(schoolId, schoolName) {
+            if (!confirm(`Are you sure you want to delete "${schoolName}"? This action cannot be undone.`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/admin/schools/${schoolId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showToast(result.message, 'success');
+                    document.getElementById(`school-row-${schoolId}`).remove();
+                } else {
+                    showToast(result.message || 'An error occurred', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('An error occurred while deleting the school', 'error');
+            }
+        }
+
+        // ===== INTERN APPROVAL FUNCTIONS =====
+
+        function togglePendingSchoolGroup(contentId) {
+            const content = document.getElementById(contentId);
+            const schoolId = contentId.replace('pending-school-content-', '');
+            const icon = document.getElementById(`icon-pending-${schoolId}`);
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                if (icon) icon.style.transform = 'rotate(0deg)';
+            } else {
+                content.style.display = 'none';
+                if (icon) icon.style.transform = 'rotate(-90deg)';
+            }
+        }
+
+        async function approveAllBySchool(schoolId, schoolName) {
+            if (!confirm(`Approve all pending interns from "${schoolName}"?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/admin/interns/school/${schoolId}/approve-all`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showToast(result.message, 'success');
+                    // Remove the entire school pending group
+                    const schoolGroup = document.getElementById(`pending-school-${schoolId}`);
+                    if (schoolGroup) {
+                        schoolGroup.remove();
+                    }
+                    // Reload to update all counts
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    showToast(result.message || 'An error occurred', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('An error occurred while approving interns', 'error');
+            }
+        }
+
+        async function approveIntern(internId) {
+            try {
+                const response = await fetch(`/admin/interns/${internId}/approve`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showToast(result.message, 'success');
+                    document.getElementById(`pending-intern-${internId}`).remove();
+                    // Update pending count
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    showToast(result.message || 'An error occurred', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('An error occurred while approving the intern', 'error');
+            }
+        }
+
+        function openRejectInternModal(internId, internName) {
+            document.getElementById('rejectInternId').value = internId;
+            document.getElementById('rejectInternName').textContent = internName;
+            document.getElementById('rejectInternReason').value = '';
+            document.getElementById('rejectInternModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeRejectInternModal() {
+            document.getElementById('rejectInternModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        async function submitRejectIntern() {
+            const internId = document.getElementById('rejectInternId').value;
+            const reason = document.getElementById('rejectInternReason').value;
+
+            if (!reason.trim()) {
+                showToast('Please provide a reason for rejection', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/admin/interns/${internId}/reject`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ rejection_reason: reason })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showToast(result.message, 'success');
+                    closeRejectInternModal();
+                    document.getElementById(`pending-intern-${internId}`).remove();
+                    // Update pending count
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    showToast(result.message || 'An error occurred', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('An error occurred while rejecting the intern', 'error');
+            }
+        }
     </script>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="confirm-modal-overlay">
+        <div class="confirm-modal">
+            <div class="confirm-modal-header">
+                <div id="confirmModalIcon" class="confirm-modal-icon warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h3 id="confirmModalTitle" class="confirm-modal-title">Are you sure?</h3>
+            </div>
+            <div class="confirm-modal-body">
+                <p id="confirmModalMessage" class="confirm-modal-message">This action cannot be undone.</p>
+            </div>
+            <div class="confirm-modal-footer">
+                <button class="confirm-modal-btn cancel" onclick="closeConfirmModal()">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <button id="confirmModalBtn" class="confirm-modal-btn confirm" onclick="executeConfirmAction()">
+                    <i class="fas fa-check"></i> Confirm
+                </button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

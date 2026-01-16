@@ -3,10 +3,13 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\AdminStartupController;
 use App\Http\Controllers\InternController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\BlockedDateController;
+use App\Http\Controllers\StartupController;
+use App\Http\Controllers\SchoolController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -20,6 +23,9 @@ Route::get('/bookings/check-availability', [BookingController::class, 'checkAvai
 Route::get('/blocked-dates/check/{date}', [BlockedDateController::class, 'check'])->name('blocked.check');
 Route::get('/blocked-dates', [BlockedDateController::class, 'index'])->name('blocked.index');
 
+// Public route to get active schools for intern registration dropdown
+Route::get('/schools/active', [SchoolController::class, 'getActiveSchools'])->name('schools.active');
+
 // Intern Portal Routes (No Login Required)
 Route::get('/intern', [InternController::class, 'index'])->name('intern.portal');
 Route::post('/intern/register', [InternController::class, 'register'])->name('intern.register');
@@ -29,9 +35,14 @@ Route::post('/intern/update-profile', [InternController::class, 'updateProfile']
 Route::post('/intern/time-in', [InternController::class, 'timeIn'])->name('intern.timein');
 Route::post('/intern/time-out', [InternController::class, 'timeOut'])->name('intern.timeout');
 
-Route::get('/startup', function () {
-    return view('portals.startup');
-})->name('startup.portal');
+// Startup Portal Routes (No Login Required)
+Route::get('/startup', [StartupController::class, 'index'])->name('startup.portal');
+Route::post('/startup/document', [StartupController::class, 'submitDocument'])->name('startup.document');
+Route::post('/startup/room-issue', [StartupController::class, 'submitRoomIssue'])->name('startup.room-issue');
+Route::post('/startup/moa', [StartupController::class, 'submitMoa'])->name('startup.moa');
+Route::post('/startup/payment', [StartupController::class, 'submitPayment'])->name('startup.payment');
+Route::post('/startup/track', [StartupController::class, 'track'])->name('startup.track');
+Route::get('/startup/moa-template', [StartupController::class, 'downloadMoaTemplate'])->name('startup.moa-template');
 
 Route::get('/agency', function () {
     return view('portals.agency');
@@ -58,6 +69,7 @@ Route::middleware(['admin'])->group(function () {
     // Booking management routes (Admin)
     Route::get('/admin/bookings/pending', [BookingController::class, 'pending'])->name('admin.bookings.pending');
     Route::post('/admin/bookings/{booking}/approve', [BookingController::class, 'approve'])->name('admin.bookings.approve');
+    Route::post('/admin/bookings/{booking}/send-email', [BookingController::class, 'sendEmailNotification'])->name('admin.bookings.sendEmail');
 
     // Blocked dates management (Admin)
     Route::get('/admin/blocked-dates', [BlockedDateController::class, 'index'])->name('admin.blocked.index');
@@ -65,4 +77,27 @@ Route::middleware(['admin'])->group(function () {
     Route::delete('/admin/blocked-dates/{blockedDate}', [BlockedDateController::class, 'destroy'])->name('admin.blocked.destroy');
     Route::post('/admin/bookings/{booking}/reject', [BookingController::class, 'reject'])->name('admin.bookings.reject');
     Route::delete('/admin/bookings/{booking}', [BookingController::class, 'destroy'])->name('admin.bookings.destroy');
+
+    // Startup Submissions Management (Admin)
+    Route::get('/admin/submissions/{submission}', [AdminStartupController::class, 'getSubmission'])->name('admin.submissions.show');
+    Route::put('/admin/submissions/{submission}', [AdminStartupController::class, 'updateSubmission'])->name('admin.submissions.update');
+    Route::delete('/admin/submissions/{submission}', [AdminStartupController::class, 'deleteSubmission'])->name('admin.submissions.destroy');
+
+    // Room Issues Management (Admin)
+    Route::get('/admin/room-issues/{roomIssue}', [AdminStartupController::class, 'getRoomIssue'])->name('admin.room-issues.show');
+    Route::put('/admin/room-issues/{roomIssue}', [AdminStartupController::class, 'updateRoomIssue'])->name('admin.room-issues.update');
+    Route::delete('/admin/room-issues/{roomIssue}', [AdminStartupController::class, 'deleteRoomIssue'])->name('admin.room-issues.destroy');
+
+    // School Management Routes (Admin)
+    Route::get('/admin/schools', [SchoolController::class, 'index'])->name('admin.schools.index');
+    Route::post('/admin/schools', [SchoolController::class, 'store'])->name('admin.schools.store');
+    Route::put('/admin/schools/{school}', [SchoolController::class, 'update'])->name('admin.schools.update');
+    Route::delete('/admin/schools/{school}', [SchoolController::class, 'destroy'])->name('admin.schools.destroy');
+    Route::post('/admin/schools/{school}/toggle-status', [SchoolController::class, 'toggleStatus'])->name('admin.schools.toggleStatus');
+
+    // Intern Approval Routes (Admin)
+    Route::get('/admin/interns/pending', [SchoolController::class, 'getPendingInterns'])->name('admin.interns.pending');
+    Route::post('/admin/interns/{intern}/approve', [SchoolController::class, 'approveIntern'])->name('admin.interns.approve');
+    Route::post('/admin/interns/{intern}/reject', [SchoolController::class, 'rejectIntern'])->name('admin.interns.reject');
+    Route::post('/admin/interns/school/{school}/approve-all', [SchoolController::class, 'approveAllBySchool'])->name('admin.interns.approveAllBySchool');
 });

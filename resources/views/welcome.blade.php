@@ -138,6 +138,191 @@
         /* Responsive */
         @media (max-width: 1024px) { .calendar-container { grid-template-columns: 1fr; } .portal-cards { grid-template-columns: 1fr; } .footer-content { grid-template-columns: 1fr 1fr; } }
         @media (max-width: 768px) { .nav-links { display: none; } .mobile-menu-btn { display: block; } .hero h1 { font-size: 32px; } .hero p { font-size: 16px; } .section-header h2 { font-size: 28px; } .footer-content { grid-template-columns: 1fr; } .form-row { grid-template-columns: 1fr; } }
+
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: 100px;
+            right: 24px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 400px;
+        }
+        .toast {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 16px 20px;
+            border-radius: 12px;
+            background: white;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+            animation: toastSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            transform-origin: right center;
+        }
+        .toast.hiding {
+            animation: toastSlideOut 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes toastSlideIn {
+            from { opacity: 0; transform: translateX(100%) scale(0.8); }
+            to { opacity: 1; transform: translateX(0) scale(1); }
+        }
+        @keyframes toastSlideOut {
+            from { opacity: 1; transform: translateX(0) scale(1); }
+            to { opacity: 0; transform: translateX(100%) scale(0.8); }
+        }
+        .toast-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 12px;
+        }
+        .toast.success .toast-icon { background: #DEF7EC; color: #03543F; }
+        .toast.error .toast-icon { background: #FDE8E8; color: #9B1C1C; }
+        .toast.warning .toast-icon { background: #FDF6B2; color: #8E4B10; }
+        .toast.info .toast-icon { background: #E1EFFE; color: #1E429F; }
+        .toast-content { flex: 1; min-width: 0; }
+        .toast-title {
+            font-weight: 600;
+            font-size: 14px;
+            color: #1F2937;
+            margin-bottom: 2px;
+        }
+        .toast-message {
+            font-size: 13px;
+            color: #6B7280;
+            line-height: 1.4;
+        }
+        .toast-close {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #9CA3AF;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .toast-close:hover {
+            background: #F3F4F6;
+            color: #4B5563;
+        }
+        .toast-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            border-radius: 0 0 12px 12px;
+            animation: toastProgress linear forwards;
+        }
+        .toast.success .toast-progress { background: #10B981; }
+        .toast.error .toast-progress { background: #EF4444; }
+        .toast.warning .toast-progress { background: #F59E0B; }
+        .toast.info .toast-progress { background: #3B82F6; }
+        @keyframes toastProgress {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
+
+        /* Confirmation Modal */
+        .confirm-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10001;
+            backdrop-filter: blur(4px);
+        }
+        .confirm-modal-overlay.active {
+            display: flex;
+        }
+        .confirm-modal {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            animation: confirmModalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+        }
+        @keyframes confirmModalIn {
+            from { opacity: 0; transform: scale(0.9) translateY(-20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .confirm-modal-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 28px;
+        }
+        .confirm-modal-icon.danger { background: #FEE2E2; color: #DC2626; }
+        .confirm-modal-icon.warning { background: #FEF3C7; color: #D97706; }
+        .confirm-modal-icon.info { background: #DBEAFE; color: #2563EB; }
+        .confirm-modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1F2937;
+            margin-bottom: 8px;
+        }
+        .confirm-modal-message {
+            font-size: 14px;
+            color: #6B7280;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+        .confirm-modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+        .confirm-modal-btn {
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+        .confirm-modal-btn.cancel {
+            background: #F3F4F6;
+            color: #4B5563;
+        }
+        .confirm-modal-btn.cancel:hover {
+            background: #E5E7EB;
+        }
+        .confirm-modal-btn.confirm {
+            background: #DC2626;
+            color: white;
+        }
+        .confirm-modal-btn.confirm:hover {
+            background: #B91C1C;
+        }
+        .confirm-modal-btn.confirm.primary {
+            background: #7B1D3A;
+        }
+        .confirm-modal-btn.confirm.primary:hover {
+            background: #5a1428;
+        }
     </style>
 </head>
 <body>
@@ -288,8 +473,8 @@
                         <input type="text" class="form-input" id="agencyName" name="agency_name" placeholder="e.g. Department of Science & Technology" required>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">School Name / Event Name <span class="required">*</span></label>
-                        <input type="text" class="form-input" id="eventName" name="event_name" placeholder="e.g. CTU Main Campus / Tech Workshop" required>
+                        <label class="form-label">Purpose <span class="required">*</span></label>
+                        <input type="text" class="form-input" id="eventName" name="event_name" placeholder="e.g. Facility Tour / Partnership Meeting / Tech Workshop" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Contact Person <span class="required">*</span></label>
@@ -338,8 +523,13 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Purpose / Notes (Optional)</label>
-                        <textarea class="form-input form-textarea" id="purpose" name="purpose" placeholder="Briefly describe the purpose of your visit..."></textarea>
+                        <label class="form-label">Notes (Optional)</label>
+                        <textarea class="form-input form-textarea" id="purpose" name="purpose" placeholder="Additional notes or special requirements..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Attach PDF (Optional)</label>
+                        <input type="file" class="form-input" id="attachment" name="attachment" accept=".pdf" style="padding: 10px;">
+                        <small style="color: #6B7280; font-size: 12px; margin-top: 4px; display: block;">Accepted format: PDF only (Max 5MB)</small>
                     </div>
                 </form>
             </div>
@@ -350,7 +540,99 @@
         </div>
     </div>
 
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Confirmation Modal -->
+    <div class="confirm-modal-overlay" id="confirmModalOverlay">
+        <div class="confirm-modal">
+            <div class="confirm-modal-icon danger" id="confirmModalIcon">
+                <i class="fas fa-exclamation-triangle" id="confirmModalIconInner"></i>
+            </div>
+            <h3 class="confirm-modal-title" id="confirmModalTitle">Are you sure?</h3>
+            <p class="confirm-modal-message" id="confirmModalMessage">This action cannot be undone.</p>
+            <div class="confirm-modal-buttons">
+                <button class="confirm-modal-btn cancel" onclick="closeConfirmModal(false)">Cancel</button>
+                <button class="confirm-modal-btn confirm" id="confirmModalBtn" onclick="closeConfirmModal(true)">Confirm</button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // Toast Notification System
+        function showToast(type, title, message, duration = 4000) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const icons = {
+                success: 'fa-check',
+                error: 'fa-times',
+                warning: 'fa-exclamation',
+                info: 'fa-info'
+            };
+            
+            toast.innerHTML = `
+                <div class="toast-icon"><i class="fas ${icons[type]}"></i></div>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close" onclick="dismissToast(this.parentElement)"><i class="fas fa-times"></i></button>
+                <div class="toast-progress" style="animation-duration: ${duration}ms"></div>
+            `;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => dismissToast(toast), duration);
+        }
+        
+        function dismissToast(toast) {
+            if (toast && !toast.classList.contains('hiding')) {
+                toast.classList.add('hiding');
+                setTimeout(() => toast.remove(), 300);
+            }
+        }
+
+        // Confirmation Modal System
+        let confirmResolve = null;
+        
+        function showConfirmModal(options) {
+            return new Promise((resolve) => {
+                confirmResolve = resolve;
+                
+                const overlay = document.getElementById('confirmModalOverlay');
+                const icon = document.getElementById('confirmModalIcon');
+                const iconInner = document.getElementById('confirmModalIconInner');
+                const title = document.getElementById('confirmModalTitle');
+                const message = document.getElementById('confirmModalMessage');
+                const confirmBtn = document.getElementById('confirmModalBtn');
+                
+                // Set content
+                title.textContent = options.title || 'Are you sure?';
+                message.textContent = options.message || 'This action cannot be undone.';
+                confirmBtn.textContent = options.confirmText || 'Confirm';
+                
+                // Set icon type
+                icon.className = 'confirm-modal-icon ' + (options.type || 'danger');
+                const iconMap = { danger: 'fa-exclamation-triangle', warning: 'fa-exclamation-circle', info: 'fa-question-circle' };
+                iconInner.className = 'fas ' + (iconMap[options.type] || iconMap.danger);
+                
+                // Set button style
+                confirmBtn.className = 'confirm-modal-btn confirm' + (options.type === 'info' ? ' primary' : '');
+                
+                overlay.classList.add('active');
+            });
+        }
+        
+        function closeConfirmModal(result) {
+            document.getElementById('confirmModalOverlay').classList.remove('active');
+            if (confirmResolve) {
+                confirmResolve(result);
+                confirmResolve = null;
+            }
+        }
+
         let currentDate = new Date();
         let currentMonth = currentDate.getMonth();
         let currentYear = currentDate.getFullYear();
@@ -429,7 +711,7 @@
         }
 
         function showBlockedMessage(reason) {
-            alert(`This date is not available for booking.\nReason: ${reason}`);
+            showToast('warning', 'Date Unavailable', `This date is not available for booking. Reason: ${reason}`);
         }
 
         function renderUpcomingEvents() {
@@ -473,21 +755,39 @@
             const form = document.getElementById('bookingForm');
             if (!form.checkValidity()) { form.reportValidity(); return; }
             
-            const formData = {
-                agency_name: document.getElementById('agencyName').value,
-                event_name: document.getElementById('eventName').value,
-                contact_person: document.getElementById('contactPerson').value,
-                phone: document.getElementById('phone').value,
-                email: document.getElementById('email').value,
-                booking_date: document.getElementById('bookingDate').value,
-                time_start: document.getElementById('timeStart').value,
-                time_end: document.getElementById('timeEnd').value,
-                purpose: document.getElementById('purpose').value
-            };
+            // Check file size if attachment is provided
+            const attachmentInput = document.getElementById('attachment');
+            if (attachmentInput.files.length > 0) {
+                const file = attachmentInput.files[0];
+                if (file.size > 5 * 1024 * 1024) {
+                    showToast('error', 'File Too Large', 'File size must not exceed 5MB.');
+                    return;
+                }
+                if (file.type !== 'application/pdf') {
+                    showToast('error', 'Invalid File Type', 'Only PDF files are allowed.');
+                    return;
+                }
+            }
+
+            // Use FormData for file upload
+            const formData = new FormData();
+            formData.append('agency_name', document.getElementById('agencyName').value);
+            formData.append('event_name', document.getElementById('eventName').value);
+            formData.append('contact_person', document.getElementById('contactPerson').value);
+            formData.append('phone', document.getElementById('phone').value);
+            formData.append('email', document.getElementById('email').value);
+            formData.append('booking_date', document.getElementById('bookingDate').value);
+            formData.append('time_start', document.getElementById('timeStart').value);
+            formData.append('time_end', document.getElementById('timeEnd').value);
+            formData.append('purpose', document.getElementById('purpose').value);
+            
+            if (attachmentInput.files.length > 0) {
+                formData.append('attachment', attachmentInput.files[0]);
+            }
 
             // Check if end time is after start time
-            if (formData.time_start >= formData.time_end) {
-                alert('End time must be after start time.');
+            if (document.getElementById('timeStart').value >= document.getElementById('timeEnd').value) {
+                showToast('error', 'Invalid Time', 'End time must be after start time.');
                 return;
             }
 
@@ -495,25 +795,24 @@
                 const response = await fetch('/bookings', {
                     method: 'POST',
                     headers: { 
-                        'Content-Type': 'application/json', 
                         'Accept': 'application/json', 
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content 
                     },
-                    body: JSON.stringify(formData)
+                    body: formData
                 });
                 const data = await response.json();
                 
                 if (data.success) { 
-                    alert(data.message); 
+                    showToast('success', 'Booking Submitted!', data.message || 'Your booking request has been submitted successfully.');
                     closeBookingModal(); 
                     loadBookings(); 
                 } else { 
                     // Show specific error messages for conflicts or blocked dates
-                    alert(data.message || 'Failed to submit booking. Please try again.');
+                    showToast('error', 'Booking Failed', data.message || 'Failed to submit booking. Please try again.');
                 }
             } catch (error) { 
                 console.error('Error:', error); 
-                alert('Error submitting booking. Please try again.'); 
+                showToast('error', 'Error', 'Error submitting booking. Please try again.'); 
             }
         }
 
