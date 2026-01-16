@@ -315,6 +315,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 24px;
+            flex-wrap: wrap;
         }
 
         .page-title {
@@ -489,6 +491,11 @@
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
         }
 
         @media (max-width: 768px) {
@@ -523,7 +530,7 @@
                 <p style="color: #6B7280; font-size: 15px; margin-bottom: 24px; max-width: 400px; margin-left: auto; margin-right: auto;">
                     Your registration is being reviewed by the administrator. Please check back later or contact your school coordinator.
                 </p>
-                
+
                 <div style="background: #F9FAFB; border-radius: 12px; padding: 20px; margin-bottom: 24px; text-align: left;">
                     <h4 style="color: #7B1D3A; font-size: 14px; font-weight: 600; margin-bottom: 16px;">
                         <i class="fas fa-info-circle" style="margin-right: 8px;"></i>Your Registration Details
@@ -554,7 +561,7 @@
                         <i class="fas fa-sign-out-alt" style="margin-right: 8px;"></i>Switch Account
                     </button>
                 </form>
-                
+
                 <div style="text-align: center; margin-top: 24px;">
                     <a href="{{ route('home') }}" style="color: #6B7280; text-decoration: none; font-size: 14px;">
                         <i class="fas fa-arrow-left" style="margin-right: 6px;"></i>
@@ -576,7 +583,7 @@
                 <p style="color: #6B7280; font-size: 15px; margin-bottom: 24px; max-width: 400px; margin-left: auto; margin-right: auto;">
                     Unfortunately, your application has been rejected. Please review the reason below and contact your school coordinator if you have any questions.
                 </p>
-                
+
                 <div style="background: #FEE2E2; border-radius: 12px; padding: 20px; margin-bottom: 24px; text-align: left;">
                     <h4 style="color: #991B1B; font-size: 14px; font-weight: 600; margin-bottom: 8px;">
                         <i class="fas fa-exclamation-triangle" style="margin-right: 8px;"></i>Rejection Reason
@@ -606,7 +613,7 @@
                         <i class="fas fa-redo" style="margin-right: 8px;"></i>Try Another Account
                     </button>
                 </form>
-                
+
                 <div style="text-align: center; margin-top: 24px;">
                     <a href="{{ route('home') }}" style="color: #6B7280; text-decoration: none; font-size: 14px;">
                         <i class="fas fa-arrow-left" style="margin-right: 6px;"></i>
@@ -740,8 +747,8 @@
                             @foreach($schools ?? [] as $school)
                                 @php
                                     $isFull = $school->max_interns && !$school->hasCapacity();
-                                    $capacityInfo = $school->max_interns 
-                                        ? " - {$school->getRemainingSlots()} slots remaining" 
+                                    $capacityInfo = $school->max_interns
+                                        ? " - {$school->getRemainingSlots()} slots remaining"
                                         : '';
                                 @endphp
                                 @if(!$isFull)
@@ -1067,7 +1074,7 @@
                     <div id="currentDate" style="font-size: 18px; opacity: 0.9;">
                         Loading...
                     </div>
-                    
+
                     <div id="attendanceButtonsContainer" style="margin-top: 32px; display: flex; justify-content: center; gap: 16px;">
                         <!-- Time In Button -->
                         <form action="{{ route('intern.timein') }}" method="POST" id="timeInForm" style="display: {{ (!$todayAttendance || !$todayAttendance->time_in) ? 'block' : 'none' }};">
@@ -1077,7 +1084,7 @@
                                 <span id="timeInText">TIME IN</span>
                             </button>
                         </form>
-                        
+
                         <!-- Time Out Button -->
                         <form action="{{ route('intern.timeout') }}" method="POST" id="timeOutForm" style="display: {{ ($todayAttendance && $todayAttendance->time_in && !$todayAttendance->time_out) ? 'block' : 'none' }};">
                             @csrf
@@ -1086,7 +1093,7 @@
                                 <span id="timeOutText">TIME OUT</span>
                             </button>
                         </form>
-                        
+
                         <!-- Already completed for today -->
                         <div id="attendanceComplete" style="display: {{ ($todayAttendance && $todayAttendance->time_in && $todayAttendance->time_out) ? 'block' : 'none' }}; background: rgba(255,255,255,0.2); padding: 16px 48px; border-radius: 12px;">
                             <i class="fas fa-check-circle" style="margin-right: 8px;"></i>
@@ -1122,7 +1129,7 @@
                         </div>
                         <div>
                             <p style="font-size: 12px; opacity: 0.7;">HOURS TODAY</p>
-                            <p id="summaryHours" style="font-size: 24px; font-weight: 600;" 
+                            <p id="summaryHours" style="font-size: 24px; font-weight: 600;"
                                data-time-in="{{ $todayAttendance->time_in }}"
                                data-time-out="{{ $todayAttendance->time_out }}"
                                data-is-working="{{ ($todayAttendance->time_in && !$todayAttendance->time_out) ? 'true' : 'false' }}">
@@ -1158,11 +1165,11 @@
                                 // Calculate hours from time_in and time_out
                                 $hoursWorked = 0;
                                 $displayStatus = 'Absent';
-                                
+
                                 if ($record->time_in) {
                                     $timeIn = \Carbon\Carbon::parse($record->time_in);
                                     $timeOut = $record->time_out ? \Carbon\Carbon::parse($record->time_out) : null;
-                                    
+
                                     if ($timeOut) {
                                         $hoursWorked = round($timeOut->diffInMinutes($timeIn) / 60, 2);
                                     } else {
@@ -1170,7 +1177,7 @@
                                         $now = \Carbon\Carbon::now('Asia/Manila');
                                         $hoursWorked = round($now->diffInMinutes($timeIn) / 60, 2);
                                     }
-                                    
+
                                     // Determine status based on hours and time in
                                     if ($timeOut) {
                                         if ($hoursWorked >= 8) {
@@ -1181,7 +1188,7 @@
                                     } else {
                                         $displayStatus = 'Present'; // Still working
                                     }
-                                    
+
                                     // Check if late (after 9 AM)
                                     if ($timeIn->hour >= 9 && $timeOut) {
                                         $displayStatus = 'Late';
@@ -1279,7 +1286,7 @@
                                         {{ strlen($task->description ?? '') > 40 ? substr($task->description, 0, 40) . '...' : $task->description }}
                                     </td>
                                     <td style="padding: 14px 16px; text-align: center;">
-                                        <span style="display: inline-block; background: 
+                                        <span style="display: inline-block; background:
                                             @if($task->priority === 'High') #FEE2E2; color: #991B1B;
                                             @elseif($task->priority === 'Medium') #FEF3C7; color: #92400E;
                                             @else #D1FAE5; color: #065F46;
@@ -1305,7 +1312,7 @@
                                         @endif
                                     </td>
                                     <td style="padding: 14px 16px; text-align: center;">
-                                        <span style="display: inline-block; background: 
+                                        <span style="display: inline-block; background:
                                             @if($task->status === 'Completed') #D1FAE5; color: #065F46;
                                             @elseif($task->status === 'In Progress') #FEF3C7; color: #92400E;
                                             @else #E5E7EB; color: #6B7280;
@@ -1427,13 +1434,13 @@
             document.querySelectorAll('.page-content').forEach(page => {
                 page.classList.remove('active');
             });
-            
+
             // Show selected page
             const targetPage = document.getElementById(pageId);
             if (targetPage) {
                 targetPage.classList.add('active');
             }
-            
+
             // Update menu active state
             if (updateMenu) {
                 document.querySelectorAll('.menu-item').forEach(item => {
@@ -1476,19 +1483,19 @@
 
         // Prevent spam on attendance buttons
         let isSubmitting = false;
-        
+
         // Initialize attendance form handlers
         document.addEventListener('DOMContentLoaded', function() {
             const timeInForm = document.getElementById('timeInForm');
             const timeOutForm = document.getElementById('timeOutForm');
-            
+
             if (timeInForm) {
                 timeInForm.addEventListener('submit', function(e) {
                     e.preventDefault();
                     handleAttendanceSubmit(this, 'in');
                 });
             }
-            
+
             if (timeOutForm) {
                 timeOutForm.addEventListener('submit', function(e) {
                     e.preventDefault();
@@ -1496,33 +1503,33 @@
                 });
             }
         });
-        
+
         function handleAttendanceSubmit(form, type) {
             if (isSubmitting) {
                 return false; // Prevent double submission
             }
-            
+
             isSubmitting = true;
-            
+
             const btn = form.querySelector('button');
             const icon = type === 'in' ? document.getElementById('timeInIcon') : document.getElementById('timeOutIcon');
             const text = type === 'in' ? document.getElementById('timeInText') : document.getElementById('timeOutText');
-            
+
             // Disable button and show loading state
             btn.disabled = true;
             btn.style.opacity = '0.7';
             btn.style.cursor = 'not-allowed';
-            
+
             if (icon) {
                 icon.className = 'fas fa-spinner fa-spin';
             }
             if (text) {
                 text.textContent = type === 'in' ? 'TIMING IN...' : 'TIMING OUT...';
             }
-            
+
             // Get form data
             const formData = new FormData(form);
-            
+
             // Submit via AJAX
             fetch(form.action, {
                 method: 'POST',
@@ -1545,29 +1552,29 @@
                         // Transition from Time In to Time Out
                         document.getElementById('timeInForm').style.display = 'none';
                         document.getElementById('timeOutForm').style.display = 'block';
-                        
+
                         // Reset Time In button for future and prepare Time Out button
                         resetButton(btn, icon, text, type);
-                        
+
                         // Update the today's summary with live tracking enabled
                         updateTodaySummary(data.time_in, null, null, data.raw_time_in);
-                        
+
                         // Show success notification
                         showAttendanceNotification('Time In recorded successfully!', 'success');
                     } else {
                         // Transition from Time Out to Complete
                         document.getElementById('timeOutForm').style.display = 'none';
                         document.getElementById('attendanceComplete').style.display = 'block';
-                        
+
                         // Update the today's summary (stops live tracking)
                         updateTodaySummary(data.time_in, data.time_out, data.hours_worked);
-                        
+
                         // Show success notification
                         showAttendanceNotification('Time Out recorded successfully!', 'success');
-                        
+
                         // Reset Time Out button for future use
                         resetButton(btn, icon, text, type);
-                        
+
                         // Reload page after time out to show updated status
                         if (data.reload) {
                             setTimeout(() => {
@@ -1589,10 +1596,10 @@
             .finally(() => {
                 isSubmitting = false;
             });
-            
+
             return false;
         }
-        
+
         function resetButton(btn, icon, text, type) {
             btn.disabled = false;
             btn.style.opacity = '1';
@@ -1604,11 +1611,11 @@
                 text.textContent = type === 'in' ? 'TIME IN' : 'TIME OUT';
             }
         }
-        
+
         function updateTodaySummary(timeIn, timeOut, hoursWorked, rawTimeIn = null) {
             // Check if summary section exists, if not create it
             let summaryContainer = document.getElementById('todaySummary');
-            
+
             if (!summaryContainer) {
                 // Create the summary section
                 const buttonContainer = document.getElementById('attendanceButtonsContainer');
@@ -1631,7 +1638,7 @@
                 `;
                 buttonContainer.parentNode.insertBefore(summaryContainer, buttonContainer.nextSibling);
             }
-            
+
             // Update values
             if (timeIn) {
                 const timeInEl = document.getElementById('summaryTimeIn');
@@ -1641,14 +1648,14 @@
                 const timeOutEl = document.getElementById('summaryTimeOut');
                 if (timeOutEl) timeOutEl.textContent = timeOut;
             }
-            
+
             const hoursEl = document.getElementById('summaryHours');
             if (hoursEl) {
                 if (hoursWorked !== undefined && hoursWorked !== null) {
                     hoursEl.textContent = parseFloat(hoursWorked).toFixed(2);
                     hoursEl.dataset.isWorking = 'false'; // Stop live updates when timed out
                 }
-                
+
                 // Set up live tracking if rawTimeIn is provided (just timed in)
                 if (rawTimeIn && !timeOut) {
                     hoursEl.dataset.timeIn = rawTimeIn;
@@ -1656,7 +1663,7 @@
                 }
             }
         }
-        
+
         function showAttendanceNotification(message, type) {
             // Create notification element
             const notification = document.createElement('div');
@@ -1675,7 +1682,7 @@
                 gap: 10px;
                 box-shadow: 0 10px 40px rgba(0,0,0,0.2);
             `;
-            
+
             if (type === 'success') {
                 notification.style.background = 'linear-gradient(135deg, #10B981 0%, #059669 100%)';
                 notification.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
@@ -1683,9 +1690,9 @@
                 notification.style.background = 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)';
                 notification.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
             }
-            
+
             document.body.appendChild(notification);
-            
+
             // Remove after 3 seconds
             setTimeout(() => {
                 notification.style.animation = 'slideOut 0.3s ease';
@@ -1702,7 +1709,7 @@
                 second: '2-digit',
                 hour12: true
             };
-            
+
             const dateOptions = {
                 timeZone: 'Asia/Manila',
                 weekday: 'long',
@@ -1710,14 +1717,14 @@
                 month: 'long',
                 day: 'numeric'
             };
-            
+
             const now = new Date();
             const timeString = now.toLocaleTimeString('en-US', options);
             const dateString = now.toLocaleDateString('en-US', dateOptions);
-            
+
             const timeElement = document.getElementById('currentTime');
             const dateElement = document.getElementById('currentDate');
-            
+
             if (timeElement) timeElement.textContent = timeString;
             if (dateElement) dateElement.textContent = dateString;
         }
@@ -1726,27 +1733,27 @@
         function updateLiveHours() {
             const hoursElement = document.getElementById('summaryHours');
             if (!hoursElement) return;
-            
+
             const isWorking = hoursElement.dataset.isWorking === 'true';
             const timeIn = hoursElement.dataset.timeIn;
-            
+
             if (!isWorking || !timeIn) return;
-            
+
             // Parse time_in (format: HH:MM:SS)
             const today = new Date();
             const [hours, minutes, seconds] = timeIn.split(':').map(Number);
-            
+
             // Create time_in date in Manila timezone
             const timeInDate = new Date();
             timeInDate.setHours(hours, minutes, seconds, 0);
-            
+
             // Get current Manila time
             const manilaTime = new Date(today.toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
-            
+
             // Calculate difference in hours
             const diffMs = manilaTime - timeInDate;
             const diffHours = Math.max(0, diffMs / (1000 * 60 * 60));
-            
+
             hoursElement.textContent = diffHours.toFixed(2);
         }
 

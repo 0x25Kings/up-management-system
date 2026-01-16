@@ -208,6 +208,7 @@
 
         .page-content {
             display: none;
+            padding: 32px 48px;
         }
 
         .page-content.active {
@@ -500,14 +501,16 @@
             gap: 16px;
             align-items: center;
             flex-wrap: wrap;
+            justify-content: flex-start;
         }
 
         .filter-group {
             display: flex;
             gap: 12px;
             align-items: center;
-            flex: 1;
-            min-width: 200px;
+            flex: 0 1 auto;
+            min-width: auto;
+            white-space: nowrap;
         }
 
         .filter-label {
@@ -536,8 +539,9 @@
 
         .filter-search {
             position: relative;
-            flex: 2;
+            flex: 1 1 250px;
             min-width: 250px;
+            margin-left: auto;
         }
 
         .filter-search input {
@@ -1344,6 +1348,8 @@
 
         .dashboard-content {
             padding: 32px;
+            padding-left: 48px;
+            padding-right: 48px;
         }
 
         .stats-grid {
@@ -1904,7 +1910,7 @@
             cursor: pointer;
             transition: all 0.2s ease;
         }
-        
+
         .clickable-day:hover {
             background: #F3F4F6 !important;
             transform: scale(1.02);
@@ -1914,7 +1920,7 @@
             cursor: pointer;
             transition: all 0.15s ease;
         }
-        
+
         .mini-day:hover:not(.other-month) {
             background: #7B1D3A20;
             transform: scale(1.1);
@@ -2077,13 +2083,45 @@
             .calendar-layout {
                 grid-template-columns: 1fr;
             }
-            
+
             .calendar-sidebar {
                 order: 2;
             }
-            
+
             .calendar-main {
                 order: 1;
+            }
+
+            .filter-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-group {
+                width: 100%;
+                min-width: 100%;
+                justify-content: space-between;
+            }
+
+            .filter-search {
+                width: 100%;
+                margin-left: 0;
+                min-width: 100%;
+                flex: none;
+            }
+
+            .filter-btn {
+                width: 100%;
+            }
+
+            .dashboard-content {
+                padding: 24px;
+                padding-left: 24px;
+                padding-right: 24px;
+            }
+
+            .page-content {
+                padding: 24px;
             }
         }
 
@@ -2372,17 +2410,17 @@
                         <i class="fas fa-list"></i>
                         <span>Intern List</span>
                     </a>
-                    
+
                     <a href="#" class="submenu-item" onclick="loadPage(event, 'time-attendance')">
                         <i class="fas fa-clock"></i>
                         <span>Time & Attendance</span>
                     </a>
-                   
+
                     <a href="#" class="submenu-item" onclick="loadPage(event, 'task-assignment')">
                         <i class="fas fa-tasks"></i>
                         <span>Task Assignment</span>
                     </a>
-                    
+
                 </div>
             </div>
             <a href="#" class="menu-item" onclick="loadPage(event, 'research-tracking')">
@@ -2401,7 +2439,7 @@
                 <i class="fas fa-file-alt"></i>
                 <span>Digital Records</span>
             </a>
-            
+
             <a href="#" class="menu-item" onclick="loadPage(event, 'scheduler')">
                 <i class="fas fa-calendar-alt"></i>
                 <span>Scheduler</span>
@@ -2677,7 +2715,7 @@
                         return $intern->schoolRelation->name ?? $intern->school ?? 'Unknown School';
                     });
                 @endphp
-                
+
                 @if(($pendingInterns ?? collect())->count() > 0)
                 <div id="pendingInternsSection" style="margin-bottom: 24px;">
                     <div style="background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%); color: white; padding: 16px 20px; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center;">
@@ -2849,7 +2887,7 @@
                                 @endif
                                 @if($school->contact_person)
                                 <p style="margin: 12px 0 0; font-size: 12px; color: #6B7280;">
-                                    <i class="fas fa-user"></i> Contact: {{ $school->contact_person }} 
+                                    <i class="fas fa-user"></i> Contact: {{ $school->contact_person }}
                                     @if($school->contact_phone) | {{ $school->contact_phone }} @endif
                                 </p>
                                 @endif
@@ -3283,7 +3321,7 @@
                                 <td>{{ $task->intern->school ?? 'N/A' }}</td>
                                 <td style="font-weight: 600;">{{ \Carbon\Carbon::parse($task->due_date)->format('M d, Y') }}</td>
                                 <td>
-                                    <span class="status-badge" style="background: 
+                                    <span class="status-badge" style="background:
                                         @if($task->priority === 'High') #FEE2E2; color: #991B1B;
                                         @elseif($task->priority === 'Medium') #FEF3C7; color: #92400E;
                                         @else #D1FAE5; color: #065F46;
@@ -3300,7 +3338,7 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <span class="status-badge" style="background: 
+                                    <span class="status-badge" style="background:
                                         @if($task->status === 'Completed') #D1FAE5; color: #065F46;
                                         @elseif($task->status === 'In Progress') #FEF3C7; color: #92400E;
                                         @else #E5E7EB; color: #6B7280;
@@ -3328,7 +3366,7 @@
                             @endforelse
                         </tbody>
                     </table>
-                    
+
                     <!-- Pagination -->
                     <div style="display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-top: 1px solid #E5E7EB;">
                         <div style="color: #6B7280; font-size: 14px;">
@@ -4403,7 +4441,7 @@
                         </button>
                     </div>
                     @endif
-                    
+
                     @php
                         $emailedCount = $allBookings->where('admin_emailed', true)->count();
                     @endphp
@@ -4416,7 +4454,7 @@
                         </div>
                     </div>
                     @endif
-                    
+
                     <div class="table-card">
                         <table>
                             <thead>
@@ -4813,7 +4851,7 @@
                             <div style="font-size: 12px; color: #78350F;">The booker has not been notified about the approval.</div>
                         </div>
                     </div>
-                    
+
                     <!-- Email Preview -->
                     <div style="background: white; border: 1px solid #E5E7EB; border-radius: 8px; padding: 16px; margin-bottom: 16px; max-height: 200px; overflow-y: auto;">
                         <div style="font-size: 12px; color: #6B7280; margin-bottom: 8px;">
@@ -4824,7 +4862,7 @@
                         </div>
                         <div id="emailPreviewBody" style="font-size: 13px; color: #374151; white-space: pre-line; line-height: 1.6;"></div>
                     </div>
-                    
+
                     <!-- Action Buttons -->
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                         <button class="btn-modal" onclick="copyEmailContent()" style="background: #3B82F6; color: white; width: 100%;">
@@ -5028,7 +5066,7 @@
             <div class="modal-body">
                 <form id="reviewDocumentForm">
                     <input type="hidden" id="reviewDocId">
-                    
+
                     <div class="form-group">
                         <label class="form-label">Document Info</label>
                         <div id="reviewDocInfo" style="background: #F3F4F6; padding: 12px; border-radius: 8px; font-size: 14px;"></div>
@@ -5097,7 +5135,7 @@
             <div class="modal-body">
                 <form id="reviewMoaForm">
                     <input type="hidden" id="reviewMoaId">
-                    
+
                     <div class="form-group">
                         <label class="form-label">MOA Info</label>
                         <div id="reviewMoaInfo" style="background: #F3F4F6; padding: 12px; border-radius: 8px; font-size: 14px;"></div>
@@ -5198,7 +5236,7 @@
                             </button>
                         </form>
                     </div>
-                    
+
                     <!-- Preview Section -->
                     <div>
                         <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #1F2937;">
@@ -5261,7 +5299,7 @@
             <div class="modal-body">
                 <form id="reviewPaymentForm">
                     <input type="hidden" id="reviewPaymentId">
-                    
+
                     <div class="form-group">
                         <label class="form-label">Payment Info</label>
                         <div id="reviewPaymentInfo" style="background: #F3F4F6; padding: 12px; border-radius: 8px; font-size: 14px;"></div>
@@ -5327,7 +5365,7 @@
             <div class="modal-body">
                 <form id="updateIssueStatusForm">
                     <input type="hidden" id="updateIssueId">
-                    
+
                     <div class="form-group">
                         <label class="form-label">Issue Info</label>
                         <div id="updateIssueInfo" style="background: #F3F4F6; padding: 12px; border-radius: 8px; font-size: 14px;"></div>
@@ -5655,9 +5693,9 @@
                     if (pendingBookings.length > previousBookingCount) {
                         const newCount = pendingBookings.length - previousBookingCount;
                         const latestBooking = pendingBookings[0];
-                        showToast('info', `🗓️ New Booking Request${newCount > 1 ? 's' : ''}!`, 
-                            newCount > 1 
-                                ? `${newCount} new booking requests need your attention.` 
+                        showToast('info', `🗓️ New Booking Request${newCount > 1 ? 's' : ''}!`,
+                            newCount > 1
+                                ? `${newCount} new booking requests need your attention.`
                                 : `${latestBooking.agency_name} wants to book for ${latestBooking.event_name}.`,
                             6000);
                         playNotificationSound();
@@ -5689,7 +5727,7 @@
                 } else {
                     // First load - show summary if there are pending items
                     if (pendingBookings.length > 0) {
-                        showToast('info', '🗓️ Pending Bookings', 
+                        showToast('info', '🗓️ Pending Bookings',
                             `You have ${pendingBookings.length} booking request${pendingBookings.length > 1 ? 's' : ''} awaiting approval.`,
                             5000);
                     }
@@ -5749,16 +5787,16 @@
                 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 const oscillator = audioContext.createOscillator();
                 const gainNode = audioContext.createGain();
-                
+
                 oscillator.connect(gainNode);
                 gainNode.connect(audioContext.destination);
-                
+
                 oscillator.frequency.value = 880; // A5 note
                 oscillator.type = 'sine';
-                
+
                 gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
                 gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
-                
+
                 oscillator.start(audioContext.currentTime);
                 oscillator.stop(audioContext.currentTime + 0.3);
             } catch (e) {
@@ -5841,10 +5879,10 @@
         function toggleSubmenu(event, submenuId) {
             event.preventDefault();
             event.stopPropagation();
-            
+
             const submenu = document.getElementById(submenuId);
             const icon = document.getElementById(submenuId + 'Icon');
-            
+
             // Toggle the submenu
             submenu.classList.toggle('open');
             icon.classList.toggle('open');
@@ -5854,10 +5892,10 @@
         function toggleSubSubmenu(event, subSubmenuId) {
             event.preventDefault();
             event.stopPropagation();
-            
+
             const subSubmenu = document.getElementById(subSubmenuId);
             const icon = document.getElementById(subSubmenuId + 'Icon');
-            
+
             // Toggle the sub-submenu
             subSubmenu.classList.toggle('open');
             if (icon) {
@@ -5868,18 +5906,18 @@
         // Load page function
         function loadPage(event, pageId) {
             event.preventDefault();
-            
+
             // Hide all pages
             document.querySelectorAll('.page-content').forEach(page => {
                 page.classList.remove('active');
             });
-            
+
             // Show selected page
             const selectedPage = document.getElementById(pageId);
             if (selectedPage) {
                 selectedPage.classList.add('active');
             }
-            
+
             // Update breadcrumb
             const breadcrumb = document.querySelector('.breadcrumb');
             if (pageId === 'intern-list') {
@@ -5904,15 +5942,15 @@
         }
 
         // ===== RESEARCH TRACKING FUNCTIONS =====
-        
+
         function switchResearchView(viewType) {
             const kanbanView = document.getElementById('kanban-view');
             const listView = document.getElementById('list-view');
-            
+
             // Update active tab
             document.querySelectorAll('.filter-tab').forEach(tab => tab.classList.remove('active'));
             event.target.closest('.filter-tab').classList.add('active');
-            
+
             if (viewType === 'kanban') {
                 kanbanView.style.display = 'grid';
                 listView.style.display = 'none';
@@ -5949,13 +5987,13 @@
         }
 
         // ===== INCUBATEE TRACKER FUNCTIONS =====
-        
+
         function switchIncubateeTab(tabType) {
             const moaTable = document.getElementById('moa-table');
             const paymentsTable = document.getElementById('payments-table');
             const moaBtn = document.getElementById('moaTabBtn');
             const paymentsBtn = document.getElementById('paymentsTabBtn');
-            
+
             if (tabType === 'moa') {
                 moaTable.style.display = 'block';
                 paymentsTable.style.display = 'none';
@@ -5968,11 +6006,11 @@
                 paymentsBtn.classList.add('active');
             }
         }
-        
+
         function filterIncubatees() {
             const statusFilter = document.getElementById('incubateeStatusFilter').value;
             const rows = document.querySelectorAll('.incubatee-row');
-            
+
             rows.forEach(row => {
                 const status = row.getAttribute('data-status');
                 const matchStatus = statusFilter === 'all' || status === statusFilter;
@@ -5983,7 +6021,7 @@
         function searchIncubatees() {
             const searchTerm = document.getElementById('incubateeSearchInput').value.toLowerCase();
             const rows = document.querySelectorAll('.incubatee-row');
-            
+
             rows.forEach(row => {
                 const text = row.textContent.toLowerCase();
                 row.style.display = text.includes(searchTerm) ? '' : 'none';
@@ -6070,28 +6108,28 @@
                 ];
             })->keyBy('id')->toArray() : [];
         @endphp
-        
+
         const startupDocumentsData = @json($startupDocumentsData);
         const moaRequestsData = @json($moaRequestsData);
         const paymentSubmissionsData = @json($paymentSubmissionsData);
         const roomIssuesData = @json($roomIssuesData);
-        
+
         let currentDocId = null;
         let currentMoaId = null;
         let currentPaymentId = null;
         let currentIssueId = null;
 
         // ========== DOCUMENT DETAILS MODAL FUNCTIONS ==========
-        
+
         function viewDocumentDetails(docId) {
             const doc = startupDocumentsData[docId];
             if (!doc) {
                 alert('Document not found');
                 return;
             }
-            
+
             currentDocId = docId;
-            
+
             const statusColors = {
                 'pending': { bg: '#FEF3C7', text: '#92400E' },
                 'under_review': { bg: '#DBEAFE', text: '#1E40AF' },
@@ -6099,7 +6137,7 @@
                 'rejected': { bg: '#FEE2E2', text: '#991B1B' }
             };
             const color = statusColors[doc.status] || { bg: '#E5E7EB', text: '#374151' };
-            
+
             const content = `
                 <div style="display: grid; gap: 16px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid #E5E7EB;">
@@ -6111,7 +6149,7 @@
                             ${doc.status.replace('_', ' ').toUpperCase()}
                         </span>
                     </div>
-                    
+
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                         <div>
                             <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Company Name</div>
@@ -6130,7 +6168,7 @@
                             <div>${doc.phone || 'N/A'}</div>
                         </div>
                     </div>
-                    
+
                     <div style="background: #F9FAFB; padding: 16px; border-radius: 8px;">
                         <div style="font-size: 12px; color: #6B7280; margin-bottom: 8px;">Document Information</div>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
@@ -6142,43 +6180,43 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     ${doc.notes ? `
                     <div>
                         <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Submitter Notes</div>
                         <div style="background: #F3F4F6; padding: 12px; border-radius: 8px;">${doc.notes}</div>
                     </div>
                     ` : ''}
-                    
+
                     ${doc.admin_notes ? `
                     <div>
                         <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Admin Notes</div>
                         <div style="background: #FEF3C7; padding: 12px; border-radius: 8px;">${doc.admin_notes}</div>
                     </div>
                     ` : ''}
-                    
+
                     <div style="display: flex; gap: 16px; font-size: 12px; color: #6B7280;">
                         <div><i class="fas fa-calendar"></i> Submitted: ${doc.created_at}</div>
                         ${doc.reviewed_at ? `<div><i class="fas fa-check-circle"></i> Reviewed: ${doc.reviewed_at}</div>` : ''}
                     </div>
                 </div>
             `;
-            
+
             document.getElementById('documentDetailsContent').innerHTML = content;
             document.getElementById('documentDownloadBtn').href = '/storage/' + doc.file_path;
             document.getElementById('documentDetailsModal').style.display = 'flex';
         }
-        
+
         function closeDocumentDetailsModal() {
             document.getElementById('documentDetailsModal').style.display = 'none';
             currentDocId = null;
         }
-        
+
         function openReviewDocumentModal(docId = null) {
             const id = docId || currentDocId;
             const doc = startupDocumentsData[id];
             if (!doc) return;
-            
+
             document.getElementById('reviewDocId').value = id;
             document.getElementById('reviewDocInfo').innerHTML = `
                 <strong>${doc.tracking_code}</strong><br>
@@ -6186,36 +6224,36 @@
             `;
             document.getElementById('reviewDocAction').value = '';
             document.getElementById('reviewDocNotes').value = '';
-            
+
             closeDocumentDetailsModal();
             document.getElementById('reviewDocumentModal').style.display = 'flex';
         }
-        
+
         function closeReviewDocumentModal() {
             document.getElementById('reviewDocumentModal').style.display = 'none';
         }
-        
+
         function toggleReviewNotes() {
             const action = document.getElementById('reviewDocAction').value;
             document.getElementById('reviewNotesGroup').style.display = action === 'rejected' ? 'block' : 'block';
         }
-        
+
         function submitDocumentReview() {
             const docId = document.getElementById('reviewDocId').value;
             const action = document.getElementById('reviewDocAction').value;
             const notes = document.getElementById('reviewDocNotes').value;
-            
+
             if (!action) {
                 alert('Please select a review action');
                 return;
             }
-            
+
             // Disable button and show loading
             const submitBtn = document.querySelector('#reviewDocumentModal .btn-primary');
             const originalText = submitBtn.innerHTML;
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
-            
+
             fetch(`/admin/submissions/${docId}`, {
                 method: 'PUT',
                 headers: {
@@ -6249,16 +6287,16 @@
         }
 
         // ========== MOA DETAILS MODAL FUNCTIONS ==========
-        
+
         function viewMoaDetails(moaId) {
             const moa = moaRequestsData[moaId];
             if (!moa) {
                 alert('MOA request not found');
                 return;
             }
-            
+
             currentMoaId = moaId;
-            
+
             const statusColors = {
                 'pending': { bg: '#FEF3C7', text: '#92400E' },
                 'under_review': { bg: '#DBEAFE', text: '#1E40AF' },
@@ -6266,7 +6304,7 @@
                 'rejected': { bg: '#FEE2E2', text: '#991B1B' }
             };
             const color = statusColors[moa.status] || { bg: '#E5E7EB', text: '#374151' };
-            
+
             const content = `
                 <div style="display: grid; gap: 16px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid #E5E7EB;">
@@ -6278,7 +6316,7 @@
                             ${moa.status.replace('_', ' ').toUpperCase()}
                         </span>
                     </div>
-                    
+
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                         <div>
                             <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Company/Startup Name</div>
@@ -6297,51 +6335,51 @@
                             <div>${moa.phone || 'N/A'}</div>
                         </div>
                     </div>
-                    
+
                     <div style="background: #F9FAFB; padding: 16px; border-radius: 8px;">
                         <div style="font-size: 12px; color: #6B7280; margin-bottom: 8px;">MOA Purpose</div>
                         <div style="font-weight: 600; font-size: 16px; color: #7B1D3A;">${moa.moa_purpose}</div>
                     </div>
-                    
+
                     <div>
                         <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">MOA Details</div>
                         <div style="background: #F3F4F6; padding: 12px; border-radius: 8px; white-space: pre-wrap;">${moa.moa_details}</div>
                     </div>
-                    
+
                     ${moa.notes ? `
                     <div>
                         <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Additional Notes</div>
                         <div style="background: #F3F4F6; padding: 12px; border-radius: 8px;">${moa.notes}</div>
                     </div>
                     ` : ''}
-                    
+
                     ${moa.admin_notes ? `
                     <div>
                         <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Admin Notes</div>
                         <div style="background: #FEF3C7; padding: 12px; border-radius: 8px;">${moa.admin_notes}</div>
                     </div>
                     ` : ''}
-                    
+
                     <div style="display: flex; gap: 16px; font-size: 12px; color: #6B7280;">
                         <div><i class="fas fa-calendar"></i> Submitted: ${moa.created_at}</div>
                         ${moa.reviewed_at ? `<div><i class="fas fa-check-circle"></i> Reviewed: ${moa.reviewed_at}</div>` : ''}
                     </div>
                 </div>
             `;
-            
+
             document.getElementById('moaDetailsContent').innerHTML = content;
             document.getElementById('moaDetailsModal').style.display = 'flex';
         }
-        
+
         function closeMoaDetailsModal() {
             document.getElementById('moaDetailsModal').style.display = 'none';
             currentMoaId = null;
         }
-        
+
         function openReviewMoaModal() {
             const moa = moaRequestsData[currentMoaId];
             if (!moa) return;
-            
+
             document.getElementById('reviewMoaId').value = currentMoaId;
             document.getElementById('reviewMoaInfo').innerHTML = `
                 <strong>${moa.tracking_code}</strong><br>
@@ -6349,31 +6387,31 @@
             `;
             document.getElementById('reviewMoaAction').value = '';
             document.getElementById('reviewMoaNotes').value = '';
-            
+
             closeMoaDetailsModal();
             document.getElementById('reviewMoaModal').style.display = 'flex';
         }
-        
+
         function closeReviewMoaModal() {
             document.getElementById('reviewMoaModal').style.display = 'none';
         }
-        
+
         function submitMoaReview() {
             const moaId = document.getElementById('reviewMoaId').value;
             const action = document.getElementById('reviewMoaAction').value;
             const notes = document.getElementById('reviewMoaNotes').value;
-            
+
             if (!action) {
                 alert('Please select a review action');
                 return;
             }
-            
+
             // Disable button and show loading
             const submitBtn = document.querySelector('#reviewMoaModal .btn-primary');
             const originalText = submitBtn.innerHTML;
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
-            
+
             fetch(`/admin/submissions/${moaId}`, {
                 method: 'PUT',
                 headers: {
@@ -6405,11 +6443,11 @@
                 submitBtn.innerHTML = originalText;
             });
         }
-        
+
         function generateMoaFromTemplate() {
             const moa = moaRequestsData[currentMoaId];
             closeMoaDetailsModal();
-            
+
             // Pre-fill the template form with MOA data
             if (moa) {
                 document.getElementById('moaCompanyName').value = moa.company_name;
@@ -6423,16 +6461,16 @@
                 };
                 document.getElementById('moaPurpose').value = purposeMap[moa.moa_purpose] || 'other';
             }
-            
+
             document.getElementById('moaTemplateModal').style.display = 'flex';
         }
 
         // ========== MOA TEMPLATE MODAL FUNCTIONS ==========
-        
+
         function closeMoaTemplateModal() {
             document.getElementById('moaTemplateModal').style.display = 'none';
         }
-        
+
         function openMoaTemplateModal() {
             // Clear the form for a fresh MOA
             document.getElementById('moaCompanyName').value = '';
@@ -6445,10 +6483,10 @@
             document.getElementById('moaFee').value = '';
             document.getElementById('moaTerms').value = '';
             document.getElementById('moaPreviewContent').innerHTML = '<p style="color: #6B7280; font-style: italic;">Fill in the form and click "Generate Preview" to see the MOA document.</p>';
-            
+
             document.getElementById('moaTemplateModal').style.display = 'flex';
         }
-        
+
         function generateMoaPreview() {
             const companyName = document.getElementById('moaCompanyName').value;
             const representative = document.getElementById('moaRepresentative').value;
@@ -6459,12 +6497,12 @@
             const endDate = document.getElementById('moaEndDate').value;
             const fee = document.getElementById('moaFee').value;
             const terms = document.getElementById('moaTerms').value;
-            
+
             if (!companyName || !representative || !position || !address || !purpose || !startDate || !endDate) {
                 alert('Please fill in all required fields');
                 return;
             }
-            
+
             const purposeLabels = {
                 'incubation': 'Business Incubation Program',
                 'coworking': 'Co-working Space Usage',
@@ -6472,12 +6510,12 @@
                 'partnership': 'Partnership Agreement',
                 'other': 'Other Services'
             };
-            
+
             const formatDate = (dateStr) => {
                 const d = new Date(dateStr);
                 return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
             };
-            
+
             const preview = `
                 <div style="text-align: center; margin-bottom: 24px;">
                     <img src="/images/up-cebu-logo.png" alt="UP Cebu Logo" style="height: 60px; margin-bottom: 12px;" onerror="this.style.display='none'">
@@ -6485,60 +6523,60 @@
                     <p style="font-size: 12px; color: #6B7280; margin: 4px 0;">Gorordo Avenue, Lahug, Cebu City 6000</p>
                     <h3 style="font-size: 16px; font-weight: 700; margin: 16px 0 0 0; text-decoration: underline;">MEMORANDUM OF AGREEMENT</h3>
                 </div>
-                
+
                 <div style="text-align: justify; font-size: 12px; line-height: 1.8;">
                     <p><strong>KNOW ALL MEN BY THESE PRESENTS:</strong></p>
-                    
+
                     <p>This Memorandum of Agreement (MOA) is entered into by and between:</p>
-                    
+
                     <p style="margin-left: 20px;">
-                        <strong>UNIVERSITY OF THE PHILIPPINES CEBU</strong>, a constituent unit of the University of the Philippines System, 
-                        represented herein by its Chancellor, with office address at Gorordo Avenue, Lahug, Cebu City 6000, 
+                        <strong>UNIVERSITY OF THE PHILIPPINES CEBU</strong>, a constituent unit of the University of the Philippines System,
+                        represented herein by its Chancellor, with office address at Gorordo Avenue, Lahug, Cebu City 6000,
                         hereinafter referred to as "<strong>UP CEBU</strong>";
                     </p>
-                    
+
                     <p style="text-align: center;">- and -</p>
-                    
+
                     <p style="margin-left: 20px;">
-                        <strong>${companyName.toUpperCase()}</strong>, represented herein by <strong>${representative}</strong>, 
-                        ${position}, with business address at ${address}, 
+                        <strong>${companyName.toUpperCase()}</strong>, represented herein by <strong>${representative}</strong>,
+                        ${position}, with business address at ${address},
                         hereinafter referred to as the "<strong>PARTNER</strong>";
                     </p>
-                    
+
                     <p><strong>WITNESSETH:</strong></p>
-                    
-                    <p><strong>WHEREAS</strong>, UP CEBU, through its Technology Business Incubator, aims to support and nurture startup 
+
+                    <p><strong>WHEREAS</strong>, UP CEBU, through its Technology Business Incubator, aims to support and nurture startup
                     enterprises and innovative business ventures;</p>
-                    
+
                     <p><strong>WHEREAS</strong>, the PARTNER desires to avail of the ${purposeLabels[purpose]} offered by UP CEBU;</p>
-                    
-                    <p><strong>NOW, THEREFORE</strong>, for and in consideration of the foregoing premises and the mutual covenants 
+
+                    <p><strong>NOW, THEREFORE</strong>, for and in consideration of the foregoing premises and the mutual covenants
                     herein contained, the parties agree as follows:</p>
-                    
+
                     <p><strong>ARTICLE I - PURPOSE</strong></p>
                     <p>This MOA is entered into for the purpose of: <strong>${purposeLabels[purpose]}</strong></p>
-                    
+
                     <p><strong>ARTICLE II - TERM</strong></p>
-                    <p>This Agreement shall be effective from <strong>${formatDate(startDate)}</strong> to <strong>${formatDate(endDate)}</strong>, 
+                    <p>This Agreement shall be effective from <strong>${formatDate(startDate)}</strong> to <strong>${formatDate(endDate)}</strong>,
                     unless sooner terminated by either party upon thirty (30) days prior written notice.</p>
-                    
+
                     ${fee ? `
                     <p><strong>ARTICLE III - FEES</strong></p>
-                    <p>The PARTNER agrees to pay a monthly fee of <strong>₱${parseFloat(fee).toLocaleString('en-US', {minimumFractionDigits: 2})}</strong> 
+                    <p>The PARTNER agrees to pay a monthly fee of <strong>₱${parseFloat(fee).toLocaleString('en-US', {minimumFractionDigits: 2})}</strong>
                     for the duration of this agreement, payable on or before the 5th day of each month.</p>
                     ` : ''}
-                    
+
                     <p><strong>ARTICLE IV - OBLIGATIONS</strong></p>
-                    <p>Both parties shall comply with all applicable laws, rules, and regulations, and shall perform their 
+                    <p>Both parties shall comply with all applicable laws, rules, and regulations, and shall perform their
                     respective obligations under this Agreement in good faith.</p>
-                    
+
                     ${terms ? `
                     <p><strong>ARTICLE V - SPECIAL TERMS</strong></p>
                     <p>${terms}</p>
                     ` : ''}
-                    
+
                     <p><strong>IN WITNESS WHEREOF</strong>, the parties have hereunto set their hands this _____ day of ____________, 20____.</p>
-                    
+
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 40px;">
                         <div style="text-align: center;">
                             <p style="margin-bottom: 40px;"><strong>FOR UP CEBU:</strong></p>
@@ -6555,7 +6593,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div style="margin-top: 40px;">
                         <p><strong>SIGNED IN THE PRESENCE OF:</strong></p>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 20px;">
@@ -6565,17 +6603,17 @@
                     </div>
                 </div>
             `;
-            
+
             document.getElementById('moaPreviewContent').innerHTML = preview;
         }
-        
+
         function printMoa() {
             const content = document.getElementById('moaPreviewContent').innerHTML;
             if (content.includes('Fill in the form')) {
                 alert('Please generate a preview first');
                 return;
             }
-            
+
             const printWindow = window.open('', '_blank');
             printWindow.document.write(`
                 <!DOCTYPE html>
@@ -6593,23 +6631,23 @@
             printWindow.document.close();
             printWindow.print();
         }
-        
+
         function downloadMoaAsPdf() {
             alert('PDF download feature requires a PDF library like jsPDF or server-side generation.\n\nFor now, please use the Print function and select "Save as PDF" as the destination.');
             printMoa();
         }
 
         // ========== PAYMENT DETAILS MODAL FUNCTIONS ==========
-        
+
         function viewPaymentDetails(paymentId) {
             const payment = paymentSubmissionsData[paymentId];
             if (!payment) {
                 alert('Payment submission not found');
                 return;
             }
-            
+
             currentPaymentId = paymentId;
-            
+
             const statusColors = {
                 'pending': { bg: '#FEF3C7', text: '#92400E' },
                 'under_review': { bg: '#DBEAFE', text: '#1E40AF' },
@@ -6617,7 +6655,7 @@
                 'rejected': { bg: '#FEE2E2', text: '#991B1B' }
             };
             const color = statusColors[payment.status] || { bg: '#E5E7EB', text: '#374151' };
-            
+
             const content = `
                 <div style="display: grid; gap: 16px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid #E5E7EB;">
@@ -6629,13 +6667,13 @@
                             ${payment.status === 'approved' ? 'VERIFIED' : payment.status.replace('_', ' ').toUpperCase()}
                         </span>
                     </div>
-                    
+
                     <div style="background: linear-gradient(135deg, #10B981, #059669); color: white; padding: 20px; border-radius: 12px; text-align: center;">
                         <div style="font-size: 12px; opacity: 0.9;">Payment Amount</div>
                         <div style="font-size: 32px; font-weight: 700;">₱${parseFloat(payment.amount).toLocaleString('en-US', {minimumFractionDigits: 2})}</div>
                         <div style="font-size: 14px; margin-top: 8px;">Invoice #${payment.invoice_number}</div>
                     </div>
-                    
+
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                         <div>
                             <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Company Name</div>
@@ -6654,42 +6692,42 @@
                             <div>${payment.phone || 'N/A'}</div>
                         </div>
                     </div>
-                    
+
                     ${payment.notes ? `
                     <div>
                         <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Submitter Notes</div>
                         <div style="background: #F3F4F6; padding: 12px; border-radius: 8px;">${payment.notes}</div>
                     </div>
                     ` : ''}
-                    
+
                     ${payment.admin_notes ? `
                     <div>
                         <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Admin Notes</div>
                         <div style="background: #FEF3C7; padding: 12px; border-radius: 8px;">${payment.admin_notes}</div>
                     </div>
                     ` : ''}
-                    
+
                     <div style="display: flex; gap: 16px; font-size: 12px; color: #6B7280;">
                         <div><i class="fas fa-calendar"></i> Submitted: ${payment.created_at}</div>
                         ${payment.reviewed_at ? `<div><i class="fas fa-check-circle"></i> Verified: ${payment.reviewed_at}</div>` : ''}
                     </div>
                 </div>
             `;
-            
+
             document.getElementById('paymentDetailsContent').innerHTML = content;
             document.getElementById('paymentProofBtn').href = payment.payment_proof_path ? '/storage/' + payment.payment_proof_path : '#';
             document.getElementById('paymentDetailsModal').style.display = 'flex';
         }
-        
+
         function closePaymentDetailsModal() {
             document.getElementById('paymentDetailsModal').style.display = 'none';
             currentPaymentId = null;
         }
-        
+
         function openReviewPaymentModal() {
             const payment = paymentSubmissionsData[currentPaymentId];
             if (!payment) return;
-            
+
             document.getElementById('reviewPaymentId').value = currentPaymentId;
             document.getElementById('reviewPaymentInfo').innerHTML = `
                 <strong>${payment.tracking_code}</strong><br>
@@ -6697,31 +6735,31 @@
             `;
             document.getElementById('reviewPaymentAction').value = '';
             document.getElementById('reviewPaymentNotes').value = '';
-            
+
             closePaymentDetailsModal();
             document.getElementById('reviewPaymentModal').style.display = 'flex';
         }
-        
+
         function closeReviewPaymentModal() {
             document.getElementById('reviewPaymentModal').style.display = 'none';
         }
-        
+
         function submitPaymentReview() {
             const paymentId = document.getElementById('reviewPaymentId').value;
             const action = document.getElementById('reviewPaymentAction').value;
             const notes = document.getElementById('reviewPaymentNotes').value;
-            
+
             if (!action) {
                 alert('Please select a verification action');
                 return;
             }
-            
+
             // Disable button and show loading
             const submitBtn = document.querySelector('#reviewPaymentModal .btn-primary');
             const originalText = submitBtn.innerHTML;
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
-            
+
             fetch(`/admin/submissions/${paymentId}`, {
                 method: 'PUT',
                 headers: {
@@ -6755,16 +6793,16 @@
         }
 
         // ========== ROOM ISSUE DETAILS MODAL FUNCTIONS ==========
-        
+
         function viewRoomIssueDetails(issueId) {
             const issue = roomIssuesData[issueId];
             if (!issue) {
                 alert('Issue not found');
                 return;
             }
-            
+
             currentIssueId = issueId;
-            
+
             const statusColors = {
                 'pending': { bg: '#FEE2E2', text: '#991B1B' },
                 'in_progress': { bg: '#FEF3C7', text: '#92400E' },
@@ -6772,14 +6810,14 @@
                 'closed': { bg: '#E5E7EB', text: '#374151' }
             };
             const color = statusColors[issue.status] || { bg: '#E5E7EB', text: '#374151' };
-            
+
             const priorityColors = {
                 'urgent': '#DC2626',
                 'high': '#F59E0B',
                 'medium': '#3B82F6',
                 'low': '#10B981'
             };
-            
+
             const content = `
                 <div style="display: grid; gap: 16px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid #E5E7EB;">
@@ -6796,7 +6834,7 @@
                             </span>
                         </div>
                     </div>
-                    
+
                     <div style="background: linear-gradient(135deg, #7B1D3A, #5a1428); color: white; padding: 16px; border-radius: 12px;">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <div>
@@ -6809,12 +6847,12 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div>
                         <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Issue Description</div>
                         <div style="background: #F3F4F6; padding: 12px; border-radius: 8px; white-space: pre-wrap;">${issue.description}</div>
                     </div>
-                    
+
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                         <div>
                             <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Company Name</div>
@@ -6833,7 +6871,7 @@
                             <div>${issue.phone || 'N/A'}</div>
                         </div>
                     </div>
-                    
+
                     ${issue.photo_path ? `
                     <div>
                         <div style="font-size: 12px; color: #6B7280; margin-bottom: 8px;">Photo Evidence</div>
@@ -6842,34 +6880,34 @@
                         </a>
                     </div>
                     ` : ''}
-                    
+
                     ${issue.admin_notes ? `
                     <div>
                         <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Resolution Notes</div>
                         <div style="background: #FEF3C7; padding: 12px; border-radius: 8px;">${issue.admin_notes}</div>
                     </div>
                     ` : ''}
-                    
+
                     <div style="display: flex; gap: 16px; font-size: 12px; color: #6B7280;">
                         <div><i class="fas fa-calendar"></i> Reported: ${issue.created_at}</div>
                         ${issue.resolved_at ? `<div><i class="fas fa-check-circle"></i> Resolved: ${issue.resolved_at}</div>` : ''}
                     </div>
                 </div>
             `;
-            
+
             document.getElementById('roomIssueDetailsContent').innerHTML = content;
             document.getElementById('roomIssueDetailsModal').style.display = 'flex';
         }
-        
+
         function closeRoomIssueDetailsModal() {
             document.getElementById('roomIssueDetailsModal').style.display = 'none';
             currentIssueId = null;
         }
-        
+
         function openUpdateIssueStatusModal() {
             const issue = roomIssuesData[currentIssueId];
             if (!issue) return;
-            
+
             document.getElementById('updateIssueId').value = currentIssueId;
             document.getElementById('updateIssueInfo').innerHTML = `
                 <strong>${issue.tracking_code}</strong><br>
@@ -6878,37 +6916,37 @@
             document.getElementById('updateIssueNewStatus').value = issue.status;
             document.getElementById('updateIssueAssignee').value = '';
             document.getElementById('updateIssueNotes').value = issue.admin_notes || '';
-            
+
             closeRoomIssueDetailsModal();
             document.getElementById('updateIssueStatusModal').style.display = 'flex';
         }
-        
+
         function closeUpdateIssueStatusModal() {
             document.getElementById('updateIssueStatusModal').style.display = 'none';
         }
-        
+
         function updateIssueStatus(issueId) {
             currentIssueId = issueId;
             openUpdateIssueStatusModal();
         }
-        
+
         function submitIssueStatusUpdate() {
             const issueId = document.getElementById('updateIssueId').value;
             const newStatus = document.getElementById('updateIssueNewStatus').value;
             const assignee = document.getElementById('updateIssueAssignee').value;
             const notes = document.getElementById('updateIssueNotes').value;
-            
+
             if (!newStatus) {
                 alert('Please select a new status');
                 return;
             }
-            
+
             // Disable button and show loading
             const submitBtn = document.querySelector('#updateIssueStatusModal .btn-primary');
             const originalText = submitBtn.innerHTML;
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
-            
+
             fetch(`/admin/room-issues/${issueId}`, {
                 method: 'PUT',
                 headers: {
@@ -6943,22 +6981,22 @@
         }
 
         // ===== ISSUES MANAGEMENT FUNCTIONS =====
-        
+
         function filterIssues() {
             const statusFilter = document.getElementById('issueStatusFilter').value;
             const typeFilter = document.getElementById('issueTypeFilter').value;
             const priorityFilter = document.getElementById('issuePriorityFilter').value;
             const rows = document.querySelectorAll('.issue-row');
-            
+
             rows.forEach(row => {
                 const status = row.getAttribute('data-status');
                 const type = row.getAttribute('data-type');
                 const priority = row.getAttribute('data-priority');
-                
+
                 const matchStatus = statusFilter === 'all' || status === statusFilter;
                 const matchType = typeFilter === 'all' || type === typeFilter;
                 const matchPriority = priorityFilter === 'all' || priority === priorityFilter;
-                
+
                 row.style.display = (matchStatus && matchType && matchPriority) ? '' : 'none';
             });
         }
@@ -6966,27 +7004,27 @@
         function searchIssues() {
             const searchTerm = document.getElementById('issueSearchInput').value.toLowerCase();
             const rows = document.querySelectorAll('.issue-row');
-            
+
             rows.forEach(row => {
                 const text = row.textContent.toLowerCase();
                 row.style.display = text.includes(searchTerm) ? '' : 'none';
             });
         }
-        
+
         // ===== DOCUMENT TRACKING FUNCTIONS =====
-        
+
         function filterDocuments() {
             const statusFilter = document.getElementById('documentStatusFilter').value;
             const typeFilter = document.getElementById('documentTypeFilter').value;
             const rows = document.querySelectorAll('.document-row');
-            
+
             rows.forEach(row => {
                 const status = row.getAttribute('data-status');
                 const type = row.getAttribute('data-type');
-                
+
                 const matchStatus = statusFilter === 'all' || status === statusFilter;
                 const matchType = typeFilter === 'all' || type === typeFilter;
-                
+
                 row.style.display = (matchStatus && matchType) ? '' : 'none';
             });
         }
@@ -6994,13 +7032,13 @@
         function searchDocuments() {
             const searchTerm = document.getElementById('documentSearchInput').value.toLowerCase();
             const rows = document.querySelectorAll('.document-row');
-            
+
             rows.forEach(row => {
                 const text = row.textContent.toLowerCase();
                 row.style.display = text.includes(searchTerm) ? '' : 'none';
             });
         }
-        
+
         // Review submission - routes to appropriate modal based on type
         function reviewSubmission(submissionId, type) {
             if (type === 'moa') {
@@ -7018,7 +7056,7 @@
         // ============================================
         // Booking & Scheduler Functions
         // ============================================
-        
+
         // Booking data from server
         @php
             $approvedBookingsData = isset($allBookings) ? $allBookings->where('status', 'approved')->map(function($b) {
@@ -7045,7 +7083,7 @@
         @endphp
         let schedulerBookings = @json($approvedBookingsData);
         let blockedDates = @json($blockedDatesData);
-        
+
         let schedulerCurrentMonth = new Date().getMonth();
         let schedulerCurrentYear = new Date().getFullYear();
         const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -7055,14 +7093,14 @@
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
             toast.className = `toast toast-${type}`;
-            
+
             const icons = {
                 success: 'fa-check-circle',
                 error: 'fa-times-circle',
                 warning: 'fa-exclamation-triangle',
                 info: 'fa-info-circle'
             };
-            
+
             toast.innerHTML = `
                 <i class="fas ${icons[type]} toast-icon"></i>
                 <div class="toast-content">
@@ -7074,9 +7112,9 @@
                 </button>
                 <div class="toast-progress"></div>
             `;
-            
+
             container.appendChild(toast);
-            
+
             // Auto remove after duration
             setTimeout(() => {
                 if (toast.parentElement) {
@@ -7087,46 +7125,46 @@
 
         // ========== CONFIRMATION MODAL SYSTEM ==========
         let confirmCallback = null;
-        
+
         function showConfirmModal(options) {
             const { type = 'warning', title, message, confirmText = 'Confirm', onConfirm } = options;
-            
+
             const modal = document.getElementById('confirmModal');
             const iconEl = document.getElementById('confirmModalIcon');
             const titleEl = document.getElementById('confirmModalTitle');
             const messageEl = document.getElementById('confirmModalMessage');
             const confirmBtn = document.getElementById('confirmModalBtn');
-            
+
             // Set icon based on type
             const icons = {
                 warning: { icon: 'fa-exclamation-triangle', class: 'warning' },
                 danger: { icon: 'fa-trash-alt', class: 'danger' },
                 info: { icon: 'fa-question-circle', class: 'info' }
             };
-            
+
             const iconConfig = icons[type] || icons.warning;
             iconEl.className = `confirm-modal-icon ${iconConfig.class}`;
             iconEl.innerHTML = `<i class="fas ${iconConfig.icon}"></i>`;
-            
+
             titleEl.textContent = title;
             messageEl.textContent = message;
             confirmBtn.innerHTML = `<i class="fas fa-check"></i> ${confirmText}`;
-            
+
             // Set button style based on type
             confirmBtn.className = 'confirm-modal-btn confirm';
             if (type === 'info') {
                 confirmBtn.classList.add('success');
             }
-            
+
             confirmCallback = onConfirm;
             modal.classList.add('active');
         }
-        
+
         function closeConfirmModal() {
             document.getElementById('confirmModal').classList.remove('active');
             confirmCallback = null;
         }
-        
+
         function executeConfirmAction() {
             if (confirmCallback) {
                 confirmCallback();
@@ -7142,12 +7180,12 @@
             });
             // Add active to clicked tab
             event.target.closest('.filter-tab').classList.add('active');
-            
+
             // Hide all tab contents
             document.querySelectorAll('.booking-tab-content').forEach(content => {
                 content.style.display = 'none';
             });
-            
+
             // Show selected tab
             if (tabName === 'pending') {
                 document.getElementById('pendingBookingsTab').style.display = 'block';
@@ -7170,7 +7208,7 @@
             document.getElementById('modalEmail').textContent = email;
             document.getElementById('modalPhone').textContent = phone;
             document.getElementById('modalNotes').textContent = notes || 'No notes provided';
-            
+
             // Handle attachment
             const attachmentSection = document.getElementById('modalAttachmentSection');
             const attachmentLink = document.getElementById('modalAttachmentLink');
@@ -7180,18 +7218,18 @@
             } else {
                 attachmentSection.style.display = 'none';
             }
-            
+
             // Handle status badge and buttons
             const statusBadge = document.getElementById('modalStatusBadge');
             const approveBtn = document.getElementById('btnApproveBooking');
             const rejectBtn = document.getElementById('btnRejectBooking');
             const emailNotificationSection = document.getElementById('emailNotificationSection');
             const emailSentSection = document.getElementById('emailSentSection');
-            
+
             // Reset sections
             emailNotificationSection.style.display = 'none';
             emailSentSection.style.display = 'none';
-            
+
             if (status === 'pending') {
                 statusBadge.style.background = '#FEF3C7';
                 statusBadge.style.color = '#D97706';
@@ -7204,7 +7242,7 @@
                 statusBadge.textContent = 'Approved';
                 approveBtn.style.display = 'none';
                 rejectBtn.style.display = 'none';
-                
+
                 // Show email notification section based on admin_emailed status
                 if (adminEmailed) {
                     emailSentSection.style.display = 'block';
@@ -7220,10 +7258,10 @@
                 approveBtn.style.display = 'none';
                 rejectBtn.style.display = 'none';
             }
-            
+
             document.getElementById('bookingActionModal').classList.add('active');
         }
-        
+
         function generateEmailPreview(agencyName, date, time, purpose, email) {
             const subject = `Booking Approved - ${purpose} on ${date}`;
             const body = `Dear ${agencyName},
@@ -7249,7 +7287,7 @@ University of the Philippines Cebu
             document.getElementById('emailPreviewTo').textContent = email;
             document.getElementById('emailPreviewSubject').textContent = subject;
             document.getElementById('emailPreviewBody').textContent = body;
-            
+
             // Store for copy/mail functions
             document.getElementById('currentBookingEmail').value = email;
             document.getElementById('currentBookingAgency').value = agencyName;
@@ -7257,14 +7295,14 @@ University of the Philippines Cebu
             document.getElementById('currentBookingTime').value = time;
             document.getElementById('currentBookingPurpose').value = purpose;
         }
-        
+
         function copyEmailContent() {
             const email = document.getElementById('currentBookingEmail').value;
             const subject = document.getElementById('emailPreviewSubject').textContent;
             const body = document.getElementById('emailPreviewBody').textContent;
-            
+
             const fullContent = `To: ${email}\nSubject: ${subject}\n\n${body}`;
-            
+
             navigator.clipboard.writeText(fullContent).then(() => {
                 showToast('success', 'Copied!', 'Email content copied to clipboard. Paste it into your email application.');
             }).catch(err => {
@@ -7278,19 +7316,19 @@ University of the Philippines Cebu
                 showToast('success', 'Copied!', 'Email content copied to clipboard.');
             });
         }
-        
+
         function openMailClient() {
             const email = document.getElementById('currentBookingEmail').value;
             const subject = encodeURIComponent(document.getElementById('emailPreviewSubject').textContent);
             const body = encodeURIComponent(document.getElementById('emailPreviewBody').textContent);
-            
+
             window.open(`mailto:${email}?subject=${subject}&body=${body}`, '_blank');
             showToast('info', 'Email App Opened', 'Your default email application should now open with the pre-filled content.');
         }
-        
+
         function markAsEmailed() {
             const bookingId = document.getElementById('currentBookingId').value;
-            
+
             fetch(`/admin/bookings/${bookingId}/send-email`, {
                 method: 'POST',
                 headers: {
@@ -7315,16 +7353,16 @@ University of the Philippines Cebu
                 showToast('error', 'Error', 'An error occurred while updating the status.');
             });
         }
-        
+
         function closeBookingActionModal() {
             document.getElementById('bookingActionModal').classList.remove('active');
         }
-        
+
         function confirmApproveBooking() {
             const bookingId = document.getElementById('currentBookingId').value;
             approveBooking(bookingId);
         }
-        
+
         function confirmRejectBooking() {
             const bookingId = document.getElementById('currentBookingId').value;
             showConfirmModal({
@@ -7407,7 +7445,7 @@ University of the Philippines Cebu
                 onConfirm: () => executeDeleteBooking(bookingId)
             });
         }
-        
+
         function executeDeleteBooking(bookingId) {
             fetch(`/admin/bookings/${bookingId}`, {
                 method: 'DELETE',
@@ -7463,14 +7501,14 @@ University of the Philippines Cebu
         function filterBookings() {
             const searchValue = document.getElementById('searchBookings').value.toLowerCase();
             const statusFilter = document.getElementById('filterBookingStatus').value;
-            
+
             document.querySelectorAll('#allBookingsBody .booking-row').forEach(row => {
                 const searchText = row.getAttribute('data-search');
                 const status = row.getAttribute('data-status');
-                
+
                 const matchesSearch = !searchValue || searchText.includes(searchValue);
                 const matchesStatus = !statusFilter || status === statusFilter;
-                
+
                 row.style.display = (matchesSearch && matchesStatus) ? '' : 'none';
             });
         }
@@ -7500,17 +7538,17 @@ University of the Philippines Cebu
             const mainTitleEl = document.getElementById('schedulerMainTitle');
             const miniCalEl = document.getElementById('schedulerMiniCalendar');
             const mainCalEl = document.getElementById('schedulerCalendarGrid');
-            
+
             const monthYear = `${monthNames[schedulerCurrentMonth]} ${schedulerCurrentYear}`;
             if (titleEl) titleEl.textContent = monthYear;
             if (mainTitleEl) mainTitleEl.textContent = monthYear;
-            
+
             const firstDay = new Date(schedulerCurrentYear, schedulerCurrentMonth, 1).getDay();
             const daysInMonth = new Date(schedulerCurrentYear, schedulerCurrentMonth + 1, 0).getDate();
             const daysInPrevMonth = new Date(schedulerCurrentYear, schedulerCurrentMonth, 0).getDate();
             const today = new Date();
             const todayString = today.toISOString().split('T')[0];
-            
+
             // Generate mini calendar
             let miniHtml = '';
             for (let i = firstDay - 1; i >= 0; i--) {
@@ -7525,7 +7563,7 @@ University of the Philippines Cebu
                 if (isToday) classes += ' today';
                 if (hasBooking) classes += ' has-events';
                 if (blockedInfo) classes += ' blocked';
-                
+
                 let style = blockedInfo ? `background: ${blockedInfo.reason_color}20; color: ${blockedInfo.reason_color}; font-weight: 600;` : '';
                 miniHtml += `<div class="${classes}" style="${style}" onclick="openBlockDateModal('${dateString}')">${day}</div>`;
             }
@@ -7534,7 +7572,7 @@ University of the Philippines Cebu
                 miniHtml += `<div class="mini-day other-month">${i}</div>`;
             }
             if (miniCalEl) miniCalEl.innerHTML = miniHtml;
-            
+
             // Generate main calendar
             let mainHtml = '';
             for (let i = firstDay - 1; i >= 0; i--) {
@@ -7545,13 +7583,13 @@ University of the Philippines Cebu
                 const isToday = dateString === todayString;
                 const dayBookings = schedulerBookings.filter(b => b.date === dateString);
                 const blockedInfo = blockedDates.find(b => b.date === dateString);
-                
+
                 let classes = 'calendar-day clickable-day';
                 if (isToday) classes += ' current-day';
                 if (blockedInfo) classes += ' blocked-day';
-                
+
                 let eventsHtml = '';
-                
+
                 // Show blocked status
                 if (blockedInfo) {
                     eventsHtml += `
@@ -7561,7 +7599,7 @@ University of the Philippines Cebu
                         </div>
                     `;
                 }
-                
+
                 // Show bookings
                 dayBookings.forEach(booking => {
                     eventsHtml += `
@@ -7571,7 +7609,7 @@ University of the Philippines Cebu
                         </div>
                     `;
                 });
-                
+
                 let dayStyle = blockedInfo ? `background: ${blockedInfo.reason_color}08;` : '';
                 mainHtml += `<div class="${classes}" style="${dayStyle}" onclick="openBlockDateModal('${dateString}')"><div class="day-number">${day}</div>${eventsHtml}</div>`;
             }
@@ -7588,7 +7626,7 @@ University of the Philippines Cebu
         function openBlockDateModal(dateString) {
             const date = new Date(dateString + 'T00:00:00');
             const formattedDate = date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-            
+
             document.getElementById('blockDateDisplay').value = formattedDate;
             document.getElementById('blockDateValue').value = dateString;
             document.getElementById('blockDateReason').value = '';
@@ -7674,7 +7712,7 @@ University of the Philippines Cebu
 
         function unblockDate() {
             if (!currentBlockDateId) return;
-            
+
             if (!confirm('Are you sure you want to unblock this date?')) return;
 
             fetch(`/admin/blocked-dates/${currentBlockDateId}`, {
@@ -7719,7 +7757,7 @@ University of the Philippines Cebu
             currentFolder = folderId;
             document.getElementById('current-path').innerHTML = `<i class="fas fa-home"></i> Root > ${folderId.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}`;
             document.getElementById('back-btn').style.display = 'flex';
-            
+
             alert(`Opening folder: ${folderId}\n\nThis will display:\n- All subfolders within this folder\n- All files in this folder\n- Breadcrumb navigation updated\n- Back button enabled`);
         }
 
@@ -7734,7 +7772,7 @@ University of the Philippines Cebu
             const gridView = document.getElementById('grid-view');
             const listView = document.getElementById('list-view');
             const viewIcon = document.getElementById('view-icon');
-            
+
             if (viewMode === 'grid') {
                 gridView.style.display = 'none';
                 listView.style.display = 'block';
@@ -7778,9 +7816,9 @@ University of the Philippines Cebu
         function toggleSchoolGroup(schoolId) {
             const table = document.getElementById(schoolId);
             const icon = document.getElementById('icon-' + schoolId);
-            
+
             if (!table) return;
-            
+
             if (table.style.display === 'none') {
                 table.style.display = 'block';
                 if (icon) icon.style.transform = 'rotate(0deg)';
@@ -7797,7 +7835,7 @@ University of the Philippines Cebu
                 tab.classList.remove('active');
             });
             event.target.closest('.filter-tab').classList.add('active');
-            
+
             // In a real application, this would filter the data
             console.log('Filtering by:', filterType);
         }
@@ -7809,12 +7847,12 @@ University of the Philippines Cebu
                 tab.classList.remove('active');
             });
             event.target.closest('.time-tab').classList.add('active');
-            
+
             // Hide all tab contents
             document.querySelectorAll('.time-tab-content').forEach(content => {
                 content.style.display = 'none';
             });
-            
+
             // Show selected tab content
             const selectedContent = document.getElementById(tabId);
             if (selectedContent) {
@@ -7878,7 +7916,7 @@ University of the Philippines Cebu
         function handleDailyOvertimeAction(action, internName, overtimeHours) {
             const actionText = action === 'approve' ? 'approved' : 'rejected';
             alert(`${overtimeHours} hour(s) overtime for ${internName} has been ${actionText}.`);
-            
+
             // In a real application, this would:
             // 1. Send request to backend
             // 2. Update database
@@ -7904,7 +7942,7 @@ University of the Philippines Cebu
             const searchInput = document.getElementById('taskSearchInput').value.toLowerCase();
             const tableBody = document.getElementById('taskTableBody');
             const rows = tableBody.getElementsByTagName('tr');
-            
+
             for (let row of rows) {
                 const taskCell = row.cells[0]?.textContent.toLowerCase();
                 const assignedCell = row.cells[1]?.textContent.toLowerCase();
@@ -7926,7 +7964,7 @@ University of the Philippines Cebu
         }
 
         // ===== TASK MODAL FUNCTIONS =====
-        
+
         // Open New Task Modal
         function openNewTaskModal() {
             document.getElementById('newTaskModal').classList.add('active');
@@ -7971,7 +8009,7 @@ University of the Philippines Cebu
                     ];
                 })->values();
             })->toArray();
-            
+
             $jsAllInterns = ($interns ?? collect())->map(function($intern) {
                 return [
                     'id' => $intern->id,
@@ -7982,7 +8020,7 @@ University of the Philippines Cebu
             })->values()->toArray();
         @endphp
         const internsBySchool = @json($jsInternsBySchool);
-        
+
         // Create a mixed schools array with all interns
         const allInterns = @json($jsAllInterns);
 
@@ -8008,14 +8046,14 @@ University of the Philippines Cebu
                 // Try to find matching school key (case insensitive, slug match)
                 const schoolKeys = Object.keys(internsBySchool);
                 for (const key of schoolKeys) {
-                    if (key.toLowerCase().replace(/\s+/g, '-') === schoolSelect || 
+                    if (key.toLowerCase().replace(/\s+/g, '-') === schoolSelect ||
                         key.toLowerCase().includes(schoolSelect.replace(/-/g, ' '))) {
                         interns = internsBySchool[key] || [];
                         break;
                     }
                 }
             }
-            
+
             internsGrid.innerHTML = '';
             groupLeaderSelect.innerHTML = '<option value="">-- Select Leader --</option>';
 
@@ -8027,7 +8065,7 @@ University of the Philippines Cebu
                 const label = document.createElement('label');
                 label.className = 'intern-checkbox-label';
                 label.innerHTML = `
-                    <input type="checkbox" name="groupMembers" value="${intern.id}" 
+                    <input type="checkbox" name="groupMembers" value="${intern.id}"
                            data-name="${intern.name}" data-school="${intern.school}"
                            onchange="updateLeaderDropdown()">
                     <span>${intern.name} <small style="color: #6B7280;">(${intern.school})</small></span>
@@ -8043,9 +8081,9 @@ University of the Philippines Cebu
         function updateLeaderDropdown() {
             const checkedBoxes = document.querySelectorAll('input[name="groupMembers"]:checked');
             const groupLeaderSelect = document.getElementById('groupLeader');
-            
+
             groupLeaderSelect.innerHTML = '<option value="">-- Select Leader --</option>';
-            
+
             checkedBoxes.forEach(checkbox => {
                 const option = document.createElement('option');
                 option.value = checkbox.value;
@@ -8057,7 +8095,7 @@ University of the Philippines Cebu
         // Create new task
         function createTask() {
             const form = document.getElementById('newTaskForm');
-            
+
             if (!form.checkValidity()) {
                 form.reportValidity();
                 return;
@@ -8157,7 +8195,7 @@ University of the Philippines Cebu
             };
 
             const task = tasks[taskId] || tasks[1]; // Default to first task if not found
-            
+
             let membersHtml = '';
             if (task.type === 'Group' && task.members) {
                 membersHtml = `
@@ -8288,7 +8326,7 @@ University of the Philippines Cebu
             const searchInput = document.getElementById('dailySearchInput').value.toLowerCase();
             const tableBody = document.getElementById('dailyHoursTableBody');
             const rows = tableBody.getElementsByTagName('tr');
-            
+
             for (let row of rows) {
                 const nameCell = row.cells[0]?.textContent.toLowerCase();
                 if (nameCell && nameCell.includes(searchInput)) {
@@ -8317,7 +8355,7 @@ University of the Philippines Cebu
             const searchInput = document.getElementById('timeSearchInput').value.toLowerCase();
             const tableBody = document.querySelector('#time-records tbody');
             const rows = tableBody.getElementsByTagName('tr');
-            
+
             for (let row of rows) {
                 const nameCell = row.cells[0]?.textContent.toLowerCase();
                 if (nameCell && nameCell.includes(searchInput)) {
@@ -8346,7 +8384,7 @@ University of the Philippines Cebu
             const searchInput = document.getElementById('summarySearchInput').value.toLowerCase();
             const tableBody = document.querySelector('#hours-summary tbody');
             const rows = tableBody.getElementsByTagName('tr');
-            
+
             for (let row of rows) {
                 const nameCell = row.cells[0]?.textContent.toLowerCase();
                 if (nameCell && nameCell.includes(searchInput)) {
@@ -8369,24 +8407,24 @@ University of the Philippines Cebu
         function changePage(direction) {
             const totalEntries = parseInt(document.getElementById('totalEntries').textContent);
             const totalPages = Math.ceil(totalEntries / itemsPerPage);
-            
+
             if (direction === 'next' && currentPage < totalPages) {
                 currentPage++;
             } else if (direction === 'prev' && currentPage > 1) {
                 currentPage--;
             }
-            
+
             // Update pagination display
             const start = (currentPage - 1) * itemsPerPage + 1;
             const end = Math.min(currentPage * itemsPerPage, totalEntries);
-            
+
             document.getElementById('showingStart').textContent = start;
             document.getElementById('showingEnd').textContent = end;
-            
+
             // Enable/disable buttons
             document.getElementById('prevPage').disabled = currentPage === 1;
             document.getElementById('nextPage').disabled = currentPage === totalPages;
-            
+
             // In a real application, this would load the data for the current page
             console.log(`Loading page ${currentPage}`);
         }
@@ -8395,22 +8433,22 @@ University of the Philippines Cebu
         function changeTimePage(direction) {
             const totalEntries = parseInt(document.getElementById('timeTotalEntries').textContent);
             const totalPages = Math.ceil(totalEntries / itemsPerPage);
-            
+
             if (direction === 'next' && currentTimePage < totalPages) {
                 currentTimePage++;
             } else if (direction === 'prev' && currentTimePage > 1) {
                 currentTimePage--;
             }
-            
+
             const start = (currentTimePage - 1) * itemsPerPage + 1;
             const end = Math.min(currentTimePage * itemsPerPage, totalEntries);
-            
+
             document.getElementById('timeShowingStart').textContent = start;
             document.getElementById('timeShowingEnd').textContent = end;
-            
+
             document.getElementById('timePrevPage').disabled = currentTimePage === 1;
             document.getElementById('timeNextPage').disabled = currentTimePage === totalPages;
-            
+
             console.log(`Loading time records page ${currentTimePage}`);
         }
 
@@ -8418,22 +8456,22 @@ University of the Philippines Cebu
         function changeSummaryPage(direction) {
             const totalEntries = parseInt(document.getElementById('summaryTotalEntries').textContent);
             const totalPages = Math.ceil(totalEntries / itemsPerPage);
-            
+
             if (direction === 'next' && currentSummaryPage < totalPages) {
                 currentSummaryPage++;
             } else if (direction === 'prev' && currentSummaryPage > 1) {
                 currentSummaryPage--;
             }
-            
+
             const start = (currentSummaryPage - 1) * itemsPerPage + 1;
             const end = Math.min(currentSummaryPage * itemsPerPage, totalEntries);
-            
+
             document.getElementById('summaryShowingStart').textContent = start;
             document.getElementById('summaryShowingEnd').textContent = end;
-            
+
             document.getElementById('summaryPrevPage').disabled = currentSummaryPage === 1;
             document.getElementById('summaryNextPage').disabled = currentSummaryPage === totalPages;
-            
+
             console.log(`Loading hours summary page ${currentSummaryPage}`);
         }
 
@@ -8441,37 +8479,37 @@ University of the Philippines Cebu
         function changeTaskPage(direction) {
             const totalEntries = parseInt(document.getElementById('taskTotalEntries').textContent);
             const totalPages = Math.ceil(totalEntries / itemsPerPage);
-            
+
             if (direction === 'next' && currentTaskPage < totalPages) {
                 currentTaskPage++;
             } else if (direction === 'prev' && currentTaskPage > 1) {
                 currentTaskPage--;
             }
-            
+
             const start = (currentTaskPage - 1) * itemsPerPage + 1;
             const end = Math.min(currentTaskPage * itemsPerPage, totalEntries);
-            
+
             document.getElementById('taskShowingStart').textContent = start;
             document.getElementById('taskShowingEnd').textContent = end;
-            
+
             document.getElementById('taskPrevPage').disabled = currentTaskPage === 1;
             document.getElementById('taskNextPage').disabled = currentTaskPage === totalPages;
-            
+
             console.log(`Loading task page ${currentTaskPage}`);
         }
 
         // Bar Chart - Intern Progress (Smooth Modern Style)
         const barCtx = document.getElementById('barChart').getContext('2d');
-        
+
         // Create gradients for bars
         const maroonGradient = barCtx.createLinearGradient(0, 0, 0, 400);
         maroonGradient.addColorStop(0, 'rgba(123, 29, 58, 0.9)');
         maroonGradient.addColorStop(1, 'rgba(123, 29, 58, 0.4)');
-        
+
         const goldGradient = barCtx.createLinearGradient(0, 0, 0, 400);
         goldGradient.addColorStop(0, 'rgba(255, 191, 0, 0.9)');
         goldGradient.addColorStop(1, 'rgba(255, 191, 0, 0.4)');
-        
+
         const barChart = new Chart(barCtx, {
             type: 'bar',
             data: {
@@ -8673,7 +8711,7 @@ University of the Philippines Cebu
 
         document.getElementById('schoolForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            
+
             const formId = document.getElementById('schoolFormId').value;
             const isEdit = formId !== '';
             const url = isEdit ? `/admin/schools/${formId}` : '/admin/schools';
@@ -8774,7 +8812,7 @@ University of the Philippines Cebu
             const content = document.getElementById(contentId);
             const schoolId = contentId.replace('pending-school-content-', '');
             const icon = document.getElementById(`icon-pending-${schoolId}`);
-            
+
             if (content.style.display === 'none') {
                 content.style.display = 'block';
                 if (icon) icon.style.transform = 'rotate(0deg)';
