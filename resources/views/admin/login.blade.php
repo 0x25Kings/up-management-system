@@ -38,7 +38,7 @@
     <div class="login-card w-full max-w-md p-8">
         <!-- Logo Section -->
         <div class="text-center mb-8">
-            <div class="w-20 h-20 bg-gradient-to-br from-amber-400 to-amber-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+            <div class="w-20 h-20 bg-linear-to-br from-amber-400 to-amber-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
                 <i class="fas fa-user-shield text-3xl text-white"></i>
             </div>
             <h1 class="text-2xl font-bold text-gray-800">Admin Login</h1>
@@ -66,20 +66,20 @@
         <!-- Login Form -->
         <form method="POST" action="{{ route('admin.login.submit') }}">
             @csrf
-            
+
             <!-- Email Field -->
             <div class="mb-5">
                 <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">
                     <i class="fas fa-envelope mr-2 text-gray-400"></i>Email Address
                 </label>
-                <input 
-                    type="email" 
-                    id="email" 
-                    name="email" 
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
                     value="{{ old('email') }}"
                     class="input-field w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none text-gray-700"
                     placeholder="admin@example.com"
-                    required 
+                    required
                     autofocus
                 >
             </div>
@@ -90,16 +90,16 @@
                     <i class="fas fa-lock mr-2 text-gray-400"></i>Password
                 </label>
                 <div class="relative">
-                    <input 
-                        type="password" 
-                        id="password" 
-                        name="password" 
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
                         class="input-field w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none text-gray-700 pr-12"
                         placeholder="••••••••"
                         required
                     >
-                    <button 
-                        type="button" 
+                    <button
+                        type="button"
                         onclick="togglePassword()"
                         class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                     >
@@ -117,8 +117,8 @@
             </div>
 
             <!-- Submit Button -->
-            <button 
-                type="submit" 
+            <button
+                type="submit"
                 class="btn-primary w-full py-3 text-white font-semibold rounded-lg flex items-center justify-center"
             >
                 <i class="fas fa-sign-in-alt mr-2"></i>
@@ -139,7 +139,7 @@
         function togglePassword() {
             const passwordField = document.getElementById('password');
             const toggleIcon = document.getElementById('toggleIcon');
-            
+
             if (passwordField.type === 'password') {
                 passwordField.type = 'text';
                 toggleIcon.classList.remove('fa-eye');
