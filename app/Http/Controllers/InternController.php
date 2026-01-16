@@ -20,12 +20,12 @@ class InternController extends Controller
 
         // Check if intern is already registered in this session
         $internId = $request->session()->get('intern_id');
-        
+
         if ($internId) {
             $intern = Intern::with(['attendances' => function($query) {
                 $query->orderBy('date', 'desc')->limit(10);
             }, 'schoolRelation'])->find($internId);
-            
+
             if ($intern) {
                 // Check if intern is pending approval
                 if ($intern->isPending()) {
@@ -57,7 +57,7 @@ class InternController extends Controller
                 $todayAttendance = $intern->today_attendance;
                 $attendanceHistory = $intern->attendances()->orderBy('date', 'desc')->limit(10)->get();
                 $tasks = $intern->tasks()->orderBy('due_date', 'asc')->get();
-                
+
                 return view('portals.intern', [
                     'intern' => $intern,
                     'showDashboard' => true,
@@ -97,14 +97,14 @@ class InternController extends Controller
 
         // Get school and check capacity
         $school = \App\Models\School::find($validated['school_id']);
-        
+
         // Check if school is at capacity
         if ($school->max_interns && !$school->hasCapacity()) {
             return back()->withInput()->withErrors([
                 'school_id' => "Sorry, {$school->name} has reached its maximum capacity of {$school->max_interns} interns. Please contact the administrator."
             ]);
         }
-        
+
         // Generate reference code
         $validated['reference_code'] = Intern::generateReferenceCode();
         $validated['school'] = $school->name; // Keep school name for backward compatibility
@@ -159,7 +159,7 @@ class InternController extends Controller
     public function updateProfile(Request $request)
     {
         $internId = $request->session()->get('intern_id');
-        
+
         if (!$internId) {
             return redirect()->route('intern.portal');
         }
@@ -185,9 +185,9 @@ class InternController extends Controller
     public function timeIn(Request $request)
     {
         $internId = $request->session()->get('intern_id');
-        
+
         $expectsJson = $request->ajax() || $request->wantsJson() || $request->expectsJson();
-        
+
         if (!$internId) {
             if ($expectsJson) {
                 return response()->json(['success' => false, 'message' => 'Session expired. Please login again.'], 401);
@@ -226,7 +226,7 @@ class InternController extends Controller
                         'status' => $now->hour >= 9 ? 'Late' : 'Present',
                     ]
                 );
-                
+
                 // If record was found (not created), update it
                 if (!$attendance->wasRecentlyCreated && !$attendance->time_in) {
                     $attendance->time_in = $now->format('H:i:s');
@@ -243,14 +243,14 @@ class InternController extends Controller
                 $attendance = Attendance::where('intern_id', $intern->id)
                     ->whereDate('date', $today)
                     ->first();
-                    
+
                 if ($attendance && $attendance->time_in) {
                     if ($expectsJson) {
                         return response()->json(['success' => false, 'message' => 'You have already timed in today.']);
                     }
                     return back()->with('error', 'You have already timed in today.');
                 }
-                
+
                 if ($expectsJson) {
                     return response()->json(['success' => false, 'message' => 'An error occurred. Please try again.']);
                 }
@@ -279,7 +279,7 @@ class InternController extends Controller
     {
         $internId = $request->session()->get('intern_id');
         $expectsJson = $request->ajax() || $request->wantsJson() || $request->expectsJson();
-        
+
         if (!$internId) {
             if ($expectsJson) {
                 return response()->json(['success' => false, 'message' => 'Session expired. Please login again.'], 401);
@@ -351,5 +351,44 @@ class InternController extends Controller
 
         return redirect()->route('intern.portal', ['page' => 'attendance'])
             ->with('success', $message);
+    }
+
+    /**
+     * Get intern details for admin view
+     */
+    public function show($id)
+    {
+        try {
+            $intern = Intern::with('schoolRelation')->findOrFail($id);
+
+            return response()->json([
+                'success' => true,
+                'intern' => [
+                    'id' => $intern->id,
+                    'name' => $intern->name,
+                    'email' => $intern->email,
+                    'phone' => $intern->phone,
+                    'age' => $intern->age,
+                    'gender' => $intern->gender,
+                    'school' => $intern->schoolRelation->name ?? $intern->school ?? 'N/A',
+                    'course' => $intern->course,
+                    'year_level' => $intern->year_level,
+                    'address' => $intern->address,
+                    'reference_code' => $intern->reference_code,
+                    'status' => $intern->status,
+                    'completed_hours' => $intern->completed_hours,
+                    'required_hours' => $intern->required_hours,
+                    'progress_percentage' => $intern->progress_percentage,
+                    'start_date' => $intern->start_date,
+                    'end_date' => $intern->end_date,
+                    'created_at' => $intern->created_at,
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Intern not found'
+            ], 404);
+        }
     }
 }

@@ -72,6 +72,22 @@ class Intern extends Model
     }
 
     /**
+     * Get all document folders for this intern
+     */
+    public function documentFolders()
+    {
+        return $this->hasMany(DocumentFolder::class);
+    }
+
+    /**
+     * Get all documents for this intern
+     */
+    public function documents()
+    {
+        return $this->hasMany(Document::class);
+    }
+
+    /**
      * Check if intern is pending approval
      */
     public function isPending(): bool

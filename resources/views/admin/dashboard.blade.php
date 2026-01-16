@@ -1741,6 +1741,9 @@
         }
 
         .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 20px;
             padding-bottom: 16px;
             border-bottom: 1px solid #E5E7EB;
@@ -1748,15 +1751,17 @@
 
         .full-calendar {
             width: 100%;
+            overflow-x: auto;
+            border: 1px solid #E5E7EB;
+            border-radius: 8px;
         }
 
         .calendar-weekdays {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 1px;
-            margin-bottom: 1px;
-            background: #E5E7EB;
-            border-radius: 4px 4px 0 0;
+            gap: 0;
+            background: #F9FAFB;
+            border-bottom: 1px solid #E5E7EB;
         }
 
         .weekday {
@@ -1766,23 +1771,37 @@
             font-size: 13px;
             font-weight: 600;
             color: #6B7280;
+            border-right: 1px solid #E5E7EB;
+            box-sizing: border-box;
+        }
+
+        .weekday:last-child {
+            border-right: none;
         }
 
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 1px;
-            background: #E5E7EB;
-            border-radius: 0 0 4px 4px;
+            gap: 0;
+            background: white;
         }
 
         .calendar-day {
             background: white;
             min-height: 100px;
+            max-height: 150px;
             padding: 8px;
             position: relative;
             cursor: pointer;
             transition: all 0.2s;
+            overflow-y: auto;
+            border-right: 1px solid #E5E7EB;
+            border-bottom: 1px solid #E5E7EB;
+            box-sizing: border-box;
+        }
+
+        .calendar-day:nth-child(7n) {
+            border-right: none;
         }
 
         .calendar-day:hover {
@@ -1799,7 +1818,15 @@
 
         .calendar-day.current-day {
             background: #FEF3C7;
-            border: 2px solid #FFBF00;
+        }
+
+        .calendar-day.current-day .day-number {
+            color: #7B1D3A;
+            font-weight: 700;
+        }
+
+        .calendar-day.blocked-day {
+            position: relative;
         }
 
         .day-number {
@@ -1826,11 +1853,16 @@
             font-size: 11px;
             cursor: pointer;
             transition: all 0.2s;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .calendar-event:hover {
             transform: translateX(2px);
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            white-space: normal;
+            z-index: 10;
         }
 
         .calendar-event.meeting {
@@ -1861,11 +1893,17 @@
         .calendar-event .event-time {
             font-weight: 600;
             color: #374151;
+            display: block;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .calendar-event .event-name {
             color: #1F2937;
             font-weight: 500;
+            display: block;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .room-status {
@@ -2868,7 +2906,7 @@
                                         </td>
                                         <td>
                                             <div class="action-buttons">
-                                                <button class="btn-action btn-view" title="View"><i class="fas fa-eye"></i></button>
+                                                <button class="btn-action btn-view" onclick="viewInternDetails({{ $intern->id }})" title="View"><i class="fas fa-eye"></i></button>
                                                 <button class="btn-action btn-edit" title="Edit"><i class="fas fa-edit"></i></button>
                                             </div>
                                         </td>
@@ -4379,9 +4417,14 @@
 
             <!-- Scheduler Page -->
             <div id="scheduler" class="page-content">
-                <div style="margin-bottom: 24px;">
-                    <h2 style="font-size: 28px; font-weight: 700; color: #1F2937; margin-bottom: 8px;">Agency Bookings & Calendar</h2>
-                    <p style="color: #6B7280; font-size: 14px;">Manage agency booking requests and view scheduled appointments</p>
+                <div style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: start;">
+                    <div>
+                        <h2 style="font-size: 28px; font-weight: 700; color: #1F2937; margin-bottom: 8px;">Scheduler & Events</h2>
+                        <p style="color: #6B7280; font-size: 14px;">Manage agency bookings, events, and calendar</p>
+                    </div>
+                    <button onclick="showCreateEventModal()" style="background: linear-gradient(135deg, #7B1D3A, #5a1428); padding: 12px 24px; border-radius: 8px; border: none; color: white; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.3s ease;">
+                        <i class="fas fa-plus"></i> Create Event
+                    </button>
                 </div>
 
                 <!-- Stats Overview -->
@@ -4424,6 +4467,9 @@
                         </button>
                         <button class="filter-tab" onclick="switchBookingTab('calendar')">
                             <i class="fas fa-calendar"></i> Calendar View
+                        </button>
+                        <button class="filter-tab" onclick="switchBookingTab('events')">
+                            <i class="fas fa-calendar-plus"></i> Events
                         </button>
                         <button class="filter-tab" onclick="switchBookingTab('all')">
                             <i class="fas fa-list"></i> All Bookings
@@ -4595,6 +4641,25 @@
                                     <h3 style="font-size: 24px; font-weight: 700; color: #1F2937; margin: 0;" id="schedulerMainTitle">January 2026</h3>
                                     <button class="cal-nav-btn" onclick="schedulerNextMonth()"><i class="fas fa-chevron-right"></i></button>
                                 </div>
+                                <button onclick="showCreateEventModal()" style="background: linear-gradient(135deg, #7B1D3A, #5a1428); padding: 10px 20px; border-radius: 8px; border: none; color: white; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.3s ease;">
+                                    <i class="fas fa-plus"></i> Add Event
+                                </button>
+                            </div>
+
+                            <!-- Calendar Legend -->
+                            <div style="display: flex; gap: 20px; margin-bottom: 16px; padding: 12px; background: #F9FAFB; border-radius: 8px; font-size: 13px;">
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <div style="width: 12px; height: 12px; background: #3B82F6; border-radius: 2px;"></div>
+                                    <span style="color: #6B7280;">Bookings</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <div style="width: 12px; height: 12px; background: #10B981; border-radius: 2px;"></div>
+                                    <span style="color: #6B7280;">Events</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <div style="width: 12px; height: 12px; background: #EF4444; border-radius: 2px;"></div>
+                                    <span style="color: #6B7280;">Blocked</span>
+                                </div>
                             </div>
 
                             <!-- Month View Calendar -->
@@ -4709,6 +4774,16 @@
                                 @endforelse
                             </tbody>
                         </table>
+                    </div>
+                </div>
+
+                <!-- Events Tab -->
+                <div id="eventsTab" class="booking-tab-content" style="display: none;">
+                    <div id="eventsListContainer" style="display: flex; flex-direction: column; gap: 16px;">
+                        <div style="text-align: center; padding: 60px 20px; color: #9CA3AF;">
+                            <i class="fas fa-spinner fa-spin" style="font-size: 48px; margin-bottom: 16px;"></i>
+                            <p style="font-size: 16px;">Loading events...</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -5630,6 +5705,172 @@
         </div>
     </div>
 
+    <!-- View Intern Details Modal -->
+    <div id="internDetailsModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-user-graduate" style="margin-right: 8px; color: #7B1D3A;"></i>Intern Details</h3>
+                <button class="modal-close" onclick="closeInternDetailsModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+                <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 24px; padding: 20px; background: linear-gradient(135deg, #FEF3C7, #FDE68A); border-radius: 12px;">
+                    <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #FFBF00, #FFA500); display: flex; align-items: center; justify-content: center; color: #7B1D3A; font-weight: 700; font-size: 32px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" id="internDetailAvatar">
+                        A
+                    </div>
+                    <div style="flex: 1;">
+                        <h4 style="margin: 0 0 4px 0; font-size: 22px; font-weight: 700; color: #1F2937;" id="internDetailName">Loading...</h4>
+                        <p style="margin: 0; color: #6B7280; font-size: 14px;" id="internDetailRefCode">REF-000000</p>
+                        <div style="margin-top: 8px;">
+                            <span class="status-badge" id="internDetailStatus" style="padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">Active</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+                    <div style="background: white; border: 1px solid #E5E7EB; border-radius: 8px; padding: 16px;">
+                        <div style="color: #6B7280; font-size: 12px; margin-bottom: 4px;">Email</div>
+                        <div style="color: #1F2937; font-weight: 600;" id="internDetailEmail">-</div>
+                    </div>
+                    <div style="background: white; border: 1px solid #E5E7EB; border-radius: 8px; padding: 16px;">
+                        <div style="color: #6B7280; font-size: 12px; margin-bottom: 4px;">Phone</div>
+                        <div style="color: #1F2937; font-weight: 600;" id="internDetailPhone">-</div>
+                    </div>
+                    <div style="background: white; border: 1px solid #E5E7EB; border-radius: 8px; padding: 16px;">
+                        <div style="color: #6B7280; font-size: 12px; margin-bottom: 4px;">School</div>
+                        <div style="color: #1F2937; font-weight: 600;" id="internDetailSchool">-</div>
+                    </div>
+                    <div style="background: white; border: 1px solid #E5E7EB; border-radius: 8px; padding: 16px;">
+                        <div style="color: #6B7280; font-size: 12px; margin-bottom: 4px;">Course</div>
+                        <div style="color: #1F2937; font-weight: 600;" id="internDetailCourse">-</div>
+                    </div>
+                </div>
+
+                <div style="background: white; border: 1px solid #E5E7EB; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+                    <h5 style="margin: 0 0 16px 0; font-size: 14px; font-weight: 700; color: #1F2937;"><i class="fas fa-clock" style="margin-right: 8px; color: #7B1D3A;"></i>Hours Progress</h5>
+                    <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 12px;">
+                        <div class="progress-bar-container" style="flex: 1; height: 12px;">
+                            <div class="progress-bar" id="internDetailProgress" style="width: 0%;"></div>
+                        </div>
+                        <span style="font-weight: 700; color: #7B1D3A; font-size: 16px;" id="internDetailProgressPercent">0%</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 13px; color: #6B7280;">
+                        <span><strong id="internDetailCompletedHours">0</strong> hours completed</span>
+                        <span><strong id="internDetailRequiredHours">0</strong> hours required</span>
+                    </div>
+                </div>
+
+                <div style="background: white; border: 1px solid #E5E7EB; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+                    <h5 style="margin: 0 0 12px 0; font-size: 14px; font-weight: 700; color: #1F2937;"><i class="fas fa-calendar" style="margin-right: 8px; color: #7B1D3A;"></i>Timeline</h5>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                        <div>
+                            <div style="color: #6B7280; font-size: 12px; margin-bottom: 4px;">Start Date</div>
+                            <div style="color: #1F2937; font-weight: 600;" id="internDetailStartDate">-</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="color: #6B7280; font-size: 12px; margin-bottom: 4px;">End Date</div>
+                            <div style="color: #1F2937; font-weight: 600;" id="internDetailEndDate">-</div>
+                        </div>
+                    </div>
+                    <div>
+                        <div style="color: #6B7280; font-size: 12px; margin-bottom: 4px;">Registered On</div>
+                        <div style="color: #1F2937; font-weight: 600;" id="internDetailRegisteredOn">-</div>
+                    </div>
+                </div>
+
+                <div style="background: white; border: 1px solid #E5E7EB; border-radius: 8px; padding: 20px;">
+                    <h5 style="margin: 0 0 12px 0; font-size: 14px; font-weight: 700; color: #1F2937;"><i class="fas fa-info-circle" style="margin-right: 8px; color: #7B1D3A;"></i>Additional Information</h5>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div>
+                            <div style="color: #6B7280; font-size: 12px; margin-bottom: 4px;">Year Level</div>
+                            <div style="color: #1F2937; font-weight: 600;" id="internDetailYearLevel">-</div>
+                        </div>
+                        <div>
+                            <div style="color: #6B7280; font-size: 12px; margin-bottom: 4px;">Address</div>
+                            <div style="color: #1F2937; font-weight: 600;" id="internDetailAddress">-</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal secondary" onclick="closeInternDetailsModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create/Edit Event Modal -->
+    <div id="eventModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; align-items: center; justify-content: center;">
+        <div style="background: white; border-radius: 16px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+            <div style="background: linear-gradient(135deg, #7B1D3A, #5a1428); padding: 24px; color: white; border-radius: 16px 16px 0 0; display: flex; justify-content: space-between; align-items: center;">
+                <h2 id="eventModalTitle" style="margin: 0; font-size: 20px; font-weight: 700;">Create Event</h2>
+                <button onclick="closeEventModal()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-size: 18px; transition: all 0.3s ease;">&times;</button>
+            </div>
+            <div style="padding: 24px;">
+                <input type="hidden" id="eventId">
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">Event Title *</label>
+                    <input type="text" id="eventTitle" style="width: 100%; padding: 12px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 14px;" placeholder="Enter event title">
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">Description</label>
+                    <textarea id="eventDescription" style="width: 100%; padding: 12px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 14px; resize: vertical; min-height: 100px;" placeholder="Enter event description"></textarea>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+                    <div>
+                        <label id="startDateLabel" style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">Start Date & Time *</label>
+                        <input type="datetime-local" id="eventStartDate" style="width: 100%; padding: 12px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 14px;">
+                    </div>
+                    <div>
+                        <label id="endDateLabel" style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">End Date & Time *</label>
+                        <input type="datetime-local" id="eventEndDate" style="width: 100%; padding: 12px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 14px;">
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" id="eventAllDay" onchange="toggleAllDayEvent()" style="width: 18px; height: 18px; cursor: pointer;">
+                        <span style="font-size: 14px; font-weight: 600; color: #374151;">All Day Event</span>
+                    </label>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">Location</label>
+                    <input type="text" id="eventLocation" style="width: 100%; padding: 12px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 14px;" placeholder="Enter event location">
+                </div>
+
+                <div style="margin-bottom: 24px;">
+                    <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">Color</label>
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                        <input type="color" id="eventColor" value="#3B82F6" style="width: 60px; height: 40px; border: 1px solid #E5E7EB; border-radius: 6px; cursor: pointer;">
+                        <div style="display: flex; gap: 8px;">
+                            <button type="button" onclick="document.getElementById('eventColor').value='#3B82F6'" style="width: 32px; height: 32px; background: #3B82F6; border: 2px solid #E5E7EB; border-radius: 6px; cursor: pointer;"></button>
+                            <button type="button" onclick="document.getElementById('eventColor').value='#10B981'" style="width: 32px; height: 32px; background: #10B981; border: 2px solid #E5E7EB; border-radius: 6px; cursor: pointer;"></button>
+                            <button type="button" onclick="document.getElementById('eventColor').value='#F59E0B'" style="width: 32px; height: 32px; background: #F59E0B; border: 2px solid #E5E7EB; border-radius: 6px; cursor: pointer;"></button>
+                            <button type="button" onclick="document.getElementById('eventColor').value='#EF4444'" style="width: 32px; height: 32px; background: #EF4444; border: 2px solid #E5E7EB; border-radius: 6px; cursor: pointer;"></button>
+                            <button type="button" onclick="document.getElementById('eventColor').value='#8B5CF6'" style="width: 32px; height: 32px; background: #8B5CF6; border: 2px solid #E5E7EB; border-radius: 6px; cursor: pointer;"></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 12px; justify-content: space-between; align-items: center;">
+                    <button id="eventDeleteBtn" onclick="deleteEventFromModal()" style="padding: 12px 24px; background: #FEE2E2; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; color: #DC2626; display: none; align-items: center; gap: 8px;">
+                        <i class="fas fa-trash"></i> Delete Event
+                    </button>
+                    <div style="display: flex; gap: 12px;">
+                        <button onclick="closeEventModal()" style="padding: 12px 24px; background: #F3F4F6; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; color: #374151;">Cancel</button>
+                        <button onclick="saveEvent()" style="padding: 12px 24px; background: linear-gradient(135deg, #7B1D3A, #5a1428); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-save"></i> Save Event
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Authentication is handled server-side by Laravel middleware
         // User data is passed from the controller
@@ -5979,7 +6220,7 @@
             } else if (pageId === 'digital-records') {
                 breadcrumb.innerHTML = 'Dashboard > <span>Digital Records</span>';
             } else if (pageId === 'scheduler') {
-                breadcrumb.innerHTML = 'Dashboard > <span>Event Scheduler</span>';
+                breadcrumb.innerHTML = 'Dashboard > <span>Scheduler & Events</span>';
             } else if (pageId === 'dashboard-overview') {
                 breadcrumb.innerHTML = 'Dashboard > <span>Overview</span>';
             }
@@ -7127,6 +7368,7 @@
         @endphp
         let schedulerBookings = @json($approvedBookingsData);
         let blockedDates = @json($blockedDatesData);
+        let schedulerEvents = [];
 
         let schedulerCurrentMonth = new Date().getMonth();
         let schedulerCurrentYear = new Date().getFullYear();
@@ -7235,7 +7477,10 @@
                 document.getElementById('pendingBookingsTab').style.display = 'block';
             } else if (tabName === 'calendar') {
                 document.getElementById('calendarViewTab').style.display = 'block';
-                renderSchedulerCalendar();
+                loadSchedulerEvents();
+            } else if (tabName === 'events') {
+                document.getElementById('eventsTab').style.display = 'block';
+                loadAdminEvents();
             } else if (tabName === 'all') {
                 document.getElementById('allBookingsTab').style.display = 'block';
             }
@@ -7576,6 +7821,24 @@ University of the Philippines Cebu
             renderSchedulerCalendar();
         }
 
+        // Load events for scheduler calendar
+        async function loadSchedulerEvents() {
+            try {
+                const response = await fetch('/intern/events', {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                });
+                const data = await response.json();
+                schedulerEvents = data.events || [];
+                renderSchedulerCalendar();
+            } catch (error) {
+                console.error('Error loading events:', error);
+                renderSchedulerCalendar();
+            }
+        }
+
         // Render scheduler calendar
         function renderSchedulerCalendar() {
             const titleEl = document.getElementById('schedulerMonthTitle');
@@ -7602,10 +7865,14 @@ University of the Philippines Cebu
                 const dateString = `${schedulerCurrentYear}-${String(schedulerCurrentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 const isToday = dateString === todayString;
                 const hasBooking = schedulerBookings.some(b => b.date === dateString);
+                const hasEvent = schedulerEvents.some(e => {
+                    const eventStart = new Date(e.start_date);
+                    return eventStart.toISOString().split('T')[0] === dateString;
+                });
                 const blockedInfo = blockedDates.find(b => b.date === dateString);
                 let classes = 'mini-day';
                 if (isToday) classes += ' today';
-                if (hasBooking) classes += ' has-events';
+                if (hasBooking || hasEvent) classes += ' has-events';
                 if (blockedInfo) classes += ' blocked';
 
                 let style = blockedInfo ? `background: ${blockedInfo.reason_color}20; color: ${blockedInfo.reason_color}; font-weight: 600;` : '';
@@ -7647,9 +7914,26 @@ University of the Philippines Cebu
                 // Show bookings
                 dayBookings.forEach(booking => {
                     eventsHtml += `
-                        <div class="calendar-event meeting" onclick="event.stopPropagation(); viewBookingDetails(${booking.id})" style="cursor: pointer;">
+                        <div class="calendar-event meeting" onclick="event.stopPropagation(); viewBookingDetails(${booking.id})" style="cursor: pointer; background: #DBEAFE; border-left-color: #3B82F6;">
                             <div class="event-time">${booking.time.split(' - ')[0]}</div>
                             <div class="event-name">${booking.agency}</div>
+                        </div>
+                    `;
+                });
+
+                // Show events
+                const dayEvents = schedulerEvents.filter(e => {
+                    const eventStart = new Date(e.start_date);
+                    return eventStart.toISOString().split('T')[0] === dateString;
+                });
+
+                dayEvents.forEach(event => {
+                    const eventStart = new Date(event.start_date);
+                    const timeStr = event.all_day ? '' : eventStart.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+                    eventsHtml += `
+                        <div class="calendar-event" onclick="event.stopPropagation(); editEvent(${event.id})" style="cursor: pointer; background: ${event.color}20; border-left-color: ${event.color};">
+                            ${timeStr ? `<div class="event-time">${timeStr}</div>` : ''}
+                            <div class="event-name">${escapeHtml(event.title)}</div>
                         </div>
                     `;
                 });
@@ -8978,6 +9262,396 @@ University of the Philippines Cebu
                 console.error('Error:', error);
                 showToast('An error occurred while rejecting the intern', 'error');
             }
+        }
+
+        // View Intern Details
+        async function viewInternDetails(internId) {
+            try {
+                const response = await fetch(`/admin/interns/${internId}`, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch intern details');
+                }
+
+                const data = await response.json();
+                const intern = data.intern;
+
+                // Populate modal with intern data
+                document.getElementById('internDetailAvatar').textContent = intern.name.charAt(0).toUpperCase();
+                document.getElementById('internDetailName').textContent = intern.name;
+                document.getElementById('internDetailRefCode').textContent = intern.reference_code || 'N/A';
+                document.getElementById('internDetailEmail').textContent = intern.email || '-';
+                document.getElementById('internDetailPhone').textContent = intern.phone || '-';
+                document.getElementById('internDetailSchool').textContent = intern.school || '-';
+                document.getElementById('internDetailCourse').textContent = intern.course || '-';
+                document.getElementById('internDetailYearLevel').textContent = intern.year_level || '-';
+                document.getElementById('internDetailAddress').textContent = intern.address || '-';
+
+                // Hours progress
+                const completedHours = intern.completed_hours || 0;
+                const requiredHours = intern.required_hours || 0;
+                const progressPercent = requiredHours > 0 ? Math.round((completedHours / requiredHours) * 100) : 0;
+
+                document.getElementById('internDetailCompletedHours').textContent = completedHours;
+                document.getElementById('internDetailRequiredHours').textContent = requiredHours;
+                document.getElementById('internDetailProgressPercent').textContent = progressPercent + '%';
+                document.getElementById('internDetailProgress').style.width = progressPercent + '%';
+
+                // Timeline
+                document.getElementById('internDetailStartDate').textContent = intern.start_date
+                    ? new Date(intern.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                    : '-';
+                document.getElementById('internDetailEndDate').textContent = intern.end_date
+                    ? new Date(intern.end_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                    : '-';
+                document.getElementById('internDetailRegisteredOn').textContent = intern.created_at
+                    ? new Date(intern.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                    : '-';
+
+                // Status badge
+                const statusBadge = document.getElementById('internDetailStatus');
+                statusBadge.textContent = intern.status || 'Unknown';
+
+                if (intern.status === 'Active') {
+                    statusBadge.style.background = '#D1FAE5';
+                    statusBadge.style.color = '#065F46';
+                } else if (intern.status === 'Completed') {
+                    statusBadge.style.background = '#DBEAFE';
+                    statusBadge.style.color = '#1E40AF';
+                } else {
+                    statusBadge.style.background = '#FEE2E2';
+                    statusBadge.style.color = '#991B1B';
+                }
+
+                // Show modal
+                document.getElementById('internDetailsModal').classList.add('active');
+                document.body.style.overflow = 'hidden';
+
+            } catch (error) {
+                console.error('Error fetching intern details:', error);
+                showToast('error', 'Error', 'Failed to load intern details');
+            }
+        }
+
+        function closeInternDetailsModal() {
+            document.getElementById('internDetailsModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Events Management Functions
+        function loadAdminEvents() {
+            fetch('/intern/events', {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                displayAdminEvents(data.events || []);
+            })
+            .catch(error => {
+                console.error('Error loading events:', error);
+                document.getElementById('eventsListContainer').innerHTML = `
+                    <div style="text-align: center; padding: 60px 20px; color: #9CA3AF;">
+                        <i class="fas fa-calendar" style="font-size: 48px; margin-bottom: 16px;"></i>
+                        <p style="font-size: 16px;">No events found</p>
+                    </div>
+                `;
+            });
+        }
+
+        function displayAdminEvents(events) {
+            const container = document.getElementById('eventsListContainer');
+
+            if (!events || events.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 60px 20px; color: #9CA3AF;">
+                        <i class="fas fa-calendar" style="font-size: 48px; margin-bottom: 16px;"></i>
+                        <p style="font-size: 16px;">No events created yet</p>
+                        <p style="font-size: 14px; margin-top: 8px;">Click "Create Event" to add your first event</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            events.forEach(event => {
+                const startDate = new Date(event.start_date);
+                const endDate = new Date(event.end_date);
+                const dateStr = startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                const timeStr = event.all_day ? 'All Day' : `${startDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })} - ${endDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`;
+
+                html += `
+                    <div style="background: white; border-radius: 12px; padding: 20px; border: 1px solid #E5E7EB; border-left: 4px solid ${event.color};">
+                        <div style="display: flex; justify-content: space-between; align-items: start; gap: 16px;">
+                            <div style="flex: 1;">
+                                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                                    <div style="width: 12px; height: 12px; background: ${event.color}; border-radius: 50%;"></div>
+                                    <h3 style="font-size: 18px; font-weight: 600; color: #1F2937; margin: 0;">${escapeHtml(event.title)}</h3>
+                                </div>
+                                ${event.description ? `<p style="color: #6B7280; font-size: 14px; margin-bottom: 12px;">${escapeHtml(event.description)}</p>` : ''}
+                                <div style="display: flex; flex-wrap: wrap; gap: 16px; font-size: 14px; color: #6B7280;">
+                                    <div style="display: flex; align-items: center; gap: 6px;">
+                                        <i class="fas fa-calendar"></i>
+                                        <span>${dateStr}</span>
+                                    </div>
+                                    ${!event.all_day ? `<div style="display: flex; align-items: center; gap: 6px;">
+                                        <i class="fas fa-clock"></i>
+                                        <span>${timeStr}</span>
+                                    </div>` : ''}
+                                    ${event.location ? `<div style="display: flex; align-items: center; gap: 6px;"><i class="fas fa-map-marker-alt"></i><span>${escapeHtml(event.location)}</span></div>` : ''}
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 8px;">
+                                <button onclick="editEvent(${event.id})" style="padding: 8px 12px; background: #F3F4F6; border: none; border-radius: 6px; cursor: pointer; color: #374151; font-size: 14px; display: flex; align-items: center; gap: 6px; transition: all 0.2s;">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                                <button onclick="deleteEvent(${event.id})" style="padding: 8px 12px; background: #FEE2E2; border: none; border-radius: 6px; cursor: pointer; color: #DC2626; font-size: 14px; display: flex; align-items: center; gap: 6px; transition: all 0.2s;">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function toggleAllDayEvent() {
+            const isAllDay = document.getElementById('eventAllDay').checked;
+            const startInput = document.getElementById('eventStartDate');
+            const endInput = document.getElementById('eventEndDate');
+            const startLabel = document.getElementById('startDateLabel');
+            const endLabel = document.getElementById('endDateLabel');
+
+            if (isAllDay) {
+                // Switch to date-only inputs
+                const startValue = startInput.value ? startInput.value.split('T')[0] : '';
+                const endValue = endInput.value ? endInput.value.split('T')[0] : '';
+
+                startInput.type = 'date';
+                endInput.type = 'date';
+                startInput.value = startValue;
+                endInput.value = endValue;
+
+                startLabel.textContent = 'Start Date *';
+                endLabel.textContent = 'End Date *';
+            } else {
+                // Switch to datetime inputs
+                const startValue = startInput.value ? startInput.value + 'T09:00' : '';
+                const endValue = endInput.value ? endInput.value + 'T17:00' : '';
+
+                startInput.type = 'datetime-local';
+                endInput.type = 'datetime-local';
+                startInput.value = startValue;
+                endInput.value = endValue;
+
+                startLabel.textContent = 'Start Date & Time *';
+                endLabel.textContent = 'End Date & Time *';
+            }
+        }
+
+        function showCreateEventModal() {
+            document.getElementById('eventId').value = '';
+            document.getElementById('eventModalTitle').textContent = 'Create Event';
+            document.getElementById('eventTitle').value = '';
+            document.getElementById('eventDeleteBtn').style.display = 'none';
+            document.getElementById('eventDescription').value = '';
+            document.getElementById('eventStartDate').value = '';
+            document.getElementById('eventEndDate').value = '';
+            document.getElementById('eventLocation').value = '';
+            document.getElementById('eventColor').value = '#3B82F6';
+            document.getElementById('eventAllDay').checked = false;
+
+            // Reset to datetime-local inputs
+            document.getElementById('eventStartDate').type = 'datetime-local';
+            document.getElementById('eventEndDate').type = 'datetime-local';
+            document.getElementById('startDateLabel').textContent = 'Start Date & Time *';
+            document.getElementById('endDateLabel').textContent = 'End Date & Time *';
+
+            document.getElementById('eventModal').style.display = 'flex';
+        }
+
+        function closeEventModal() {
+            document.getElementById('eventModal').style.display = 'none';
+        }
+
+        async function editEvent(eventId) {
+            try {
+                const response = await fetch(`/intern/events`);
+                const data = await response.json();
+                const event = data.events.find(e => e.id === eventId);
+
+                if (event) {
+                    document.getElementById('eventId').value = event.id;
+                    document.getElementById('eventModalTitle').textContent = 'Edit Event';
+                    document.getElementById('eventTitle').value = event.title;
+                    document.getElementById('eventDeleteBtn').style.display = 'flex';
+                    document.getElementById('eventDescription').value = event.description || '';
+                    document.getElementById('eventLocation').value = event.location || '';
+                    document.getElementById('eventColor').value = event.color;
+                    document.getElementById('eventAllDay').checked = event.all_day;
+
+                    // Set input type and values based on all_day
+                    if (event.all_day) {
+                        document.getElementById('eventStartDate').type = 'date';
+                        document.getElementById('eventEndDate').type = 'date';
+                        document.getElementById('eventStartDate').value = event.start_date.split(' ')[0];
+                        document.getElementById('eventEndDate').value = event.end_date.split(' ')[0];
+                        document.getElementById('startDateLabel').textContent = 'Start Date *';
+                        document.getElementById('endDateLabel').textContent = 'End Date *';
+                    } else {
+                        document.getElementById('eventStartDate').type = 'datetime-local';
+                        document.getElementById('eventEndDate').type = 'datetime-local';
+                        document.getElementById('eventStartDate').value = new Date(event.start_date).toISOString().slice(0, 16);
+                        document.getElementById('eventEndDate').value = new Date(event.end_date).toISOString().slice(0, 16);
+                        document.getElementById('startDateLabel').textContent = 'Start Date & Time *';
+                        document.getElementById('endDateLabel').textContent = 'End Date & Time *';
+                    }
+
+                    document.getElementById('eventModal').style.display = 'flex';
+                }
+            } catch (error) {
+                console.error('Error loading event:', error);
+                showToast('error', 'Error', 'Failed to load event details');
+            }
+        }
+
+        async function saveEvent() {
+            const eventId = document.getElementById('eventId').value;
+            const title = document.getElementById('eventTitle').value.trim();
+            const description = document.getElementById('eventDescription').value.trim();
+            const startDate = document.getElementById('eventStartDate').value;
+            const endDate = document.getElementById('eventEndDate').value;
+            const location = document.getElementById('eventLocation').value.trim();
+            const color = document.getElementById('eventColor').value;
+            const allDay = document.getElementById('eventAllDay').checked;
+
+            if (!title || !startDate || !endDate) {
+                showToast('error', 'Validation Error', 'Please fill in all required fields');
+                return;
+            }
+
+            const data = {
+                title,
+                description,
+                start_date: startDate,
+                end_date: endDate,
+                location,
+                color,
+                all_day: allDay
+            };
+
+            try {
+                const url = eventId ? `/admin/events/${eventId}` : '/admin/events';
+                const method = eventId ? 'PUT' : 'POST';
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showToast('success', 'Success', result.message);
+                    closeEventModal();
+                    loadAdminEvents();
+                    loadSchedulerEvents();
+                } else {
+                    const errors = result.errors;
+                    if (errors) {
+                        const firstError = Object.values(errors)[0][0];
+                        showToast('error', 'Validation Error', firstError);
+                    } else {
+                        showToast('error', 'Error', 'Error saving event');
+                    }
+                }
+            } catch (error) {
+                console.error('Error saving event:', error);
+                showToast('error', 'Error', 'An error occurred while saving the event');
+            }
+        }
+
+        async function deleteEvent(eventId) {
+            if (!confirm('Are you sure you want to delete this event?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/admin/events/${eventId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showToast('success', 'Success', result.message);
+                    loadAdminEvents();
+                    loadSchedulerEvents();
+                } else {
+                    showToast('error', 'Error', 'Error deleting event');
+                }
+            } catch (error) {
+                console.error('Error deleting event:', error);
+                showToast('error', 'Error', 'An error occurred while deleting the event');
+            }
+        }
+
+        async function deleteEventFromModal() {
+            const eventId = document.getElementById('eventId').value;
+            if (!eventId) return;
+
+            if (!confirm('Are you sure you want to delete this event?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/admin/events/${eventId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showToast('success', 'Success', result.message);
+                    closeEventModal();
+                    loadAdminEvents();
+                    loadSchedulerEvents();
+                } else {
+                    showToast('error', 'Error', 'Error deleting event');
+                }
+            } catch (error) {
+                console.error('Error deleting event:', error);
+                showToast('error', 'Error', 'An error occurred while deleting the event');
+            }
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
     </script>
 

@@ -745,16 +745,18 @@
                         <select name="school_id" required>
                             <option value="">Select your school</option>
                             @foreach($schools ?? [] as $school)
-                                @php
-                                    $isFull = $school->max_interns && !$school->hasCapacity();
-                                    $capacityInfo = $school->max_interns
-                                        ? " - {$school->getRemainingSlots()} slots remaining"
-                                        : '';
-                                @endphp
-                                @if(!$isFull)
-                                <option value="{{ $school->id }}" {{ old('school_id') == $school->id ? 'selected' : '' }}>
-                                    {{ $school->name }} ({{ $school->required_hours }} hrs required{{ $capacityInfo }})
-                                </option>
+                                @if($school && is_object($school))
+                                    @php
+                                        $isFull = ($school->max_interns ?? null) && !$school->hasCapacity();
+                                        $capacityInfo = ($school->max_interns ?? null)
+                                            ? " - {$school->getRemainingSlots()} slots remaining"
+                                            : '';
+                                    @endphp
+                                    @if(!$isFull)
+                                    <option value="{{ $school->id }}" {{ old('school_id') == $school->id ? 'selected' : '' }}>
+                                        {{ $school->name }} ({{ $school->required_hours }} hrs required{{ $capacityInfo }})
+                                    </option>
+                                    @endif
                                 @endif
                             @endforeach
                         </select>
@@ -1068,7 +1070,8 @@
                                     'icon' => 'fa-clock',
                                     'title' => 'Time In Logged',
                                     'description' => 'Logged in at ' . \Carbon\Carbon::parse($todayAttendance->time_in)->format('h:i A'),
-                                    'time' => \Carbon\Carbon::parse($todayAttendance->time_in)->diffForHumans()
+                                    'time' => \Carbon\Carbon::parse($todayAttendance->time_in)->diffForHumans(),
+                                    'timestamp' => $todayAttendance->time_in
                                 ];
                             }
 
@@ -1078,20 +1081,56 @@
                                     'icon' => 'fa-sign-out-alt',
                                     'title' => 'Time Out Logged',
                                     'description' => 'Logged out at ' . \Carbon\Carbon::parse($todayAttendance->time_out)->format('h:i A'),
-                                    'time' => \Carbon\Carbon::parse($todayAttendance->time_out)->diffForHumans()
+                                    'time' => \Carbon\Carbon::parse($todayAttendance->time_out)->diffForHumans(),
+                                    'timestamp' => $todayAttendance->time_out
+                                ];
+                            }
+
+                            // Get recent document uploads
+                            $recentDocuments = \App\Models\Document::where('intern_id', $intern->id)
+                                ->orderBy('created_at', 'desc')
+                                ->take(5)
+                                ->get();
+
+                            foreach ($recentDocuments as $document) {
+                                $recentActivities[] = [
+                                    'type' => 'document',
+                                    'icon' => 'fa-file-upload',
+                                    'title' => 'Document Uploaded',
+                                    'description' => $document->name . ' (' . $document->file_size . ')',
+                                    'time' => $document->created_at->diffForHumans(),
+                                    'timestamp' => $document->created_at
+                                ];
+                            }
+
+                            // Get recent folder creations
+                            $recentFolders = \App\Models\DocumentFolder::where('intern_id', $intern->id)
+                                ->orderBy('created_at', 'desc')
+                                ->take(5)
+                                ->get();
+
+                            foreach ($recentFolders as $folder) {
+                                $recentActivities[] = [
+                                    'type' => 'folder',
+                                    'icon' => 'fa-folder-plus',
+                                    'title' => 'Folder Created',
+                                    'description' => $folder->name,
+                                    'time' => $folder->created_at->diffForHumans(),
+                                    'timestamp' => $folder->created_at
                                 ];
                             }
 
                             // Get recent tasks
                             if ($intern->tasks) {
-                                foreach ($intern->tasks->sortByDesc('updated_at')->take(3) as $task) {
+                                foreach ($intern->tasks->sortByDesc('updated_at')->take(5) as $task) {
                                     if ($task->status === 'Completed') {
                                         $recentActivities[] = [
                                             'type' => 'task',
                                             'icon' => 'fa-check-circle',
                                             'title' => 'Task Completed',
                                             'description' => $task->title,
-                                            'time' => $task->updated_at->diffForHumans()
+                                            'time' => $task->updated_at->diffForHumans(),
+                                            'timestamp' => $task->updated_at
                                         ];
                                     }
                                 }
@@ -1099,28 +1138,48 @@
 
                             // Get recent attendance
                             if ($attendanceHistory) {
-                                foreach ($attendanceHistory->sortByDesc('created_at')->take(2) as $attendance) {
+                                foreach ($attendanceHistory->sortByDesc('created_at')->take(5) as $attendance) {
                                     if ($attendance->time_in && $attendance->time_out && $attendance->date !== today()->toDateString()) {
                                         $recentActivities[] = [
                                             'type' => 'attendance',
                                             'icon' => 'fa-calendar-check',
                                             'title' => 'Attendance Logged',
                                             'description' => \Carbon\Carbon::parse($attendance->date)->format('F d, Y'),
-                                            'time' => \Carbon\Carbon::parse($attendance->date)->diffForHumans()
+                                            'time' => \Carbon\Carbon::parse($attendance->date)->diffForHumans(),
+                                            'timestamp' => $attendance->created_at
                                         ];
                                     }
                                 }
                             }
 
-                            $recentActivities = collect($recentActivities)->take(5);
+                            // Sort by timestamp (most recent first) and limit to 5
+                            $recentActivities = collect($recentActivities)->sortByDesc(function($activity) {
+                                return $activity['timestamp'] ?? null;
+                            })->take(5);
                         @endphp
 
                         @if($recentActivities->count() > 0)
                         <div style="display: flex; flex-direction: column; gap: 12px;">
                             @foreach($recentActivities as $activity)
-                            <div style="padding: 12px; background: #F9FAFB; border-radius: 8px; border-left: 4px solid #7B1D3A;">
+                            @php
+                                $iconBg = match($activity['type']) {
+                                    'document' => '#DBEAFE',
+                                    'folder' => '#FEF3C7',
+                                    'task' => '#D1FAE5',
+                                    'attendance' => '#EDE9FE',
+                                    default => '#F3F4F6'
+                                };
+                                $iconColor = match($activity['type']) {
+                                    'document' => '#3B82F6',
+                                    'folder' => '#F59E0B',
+                                    'task' => '#10B981',
+                                    'attendance' => '#7C3AED',
+                                    default => '#6B7280'
+                                };
+                            @endphp
+                            <div style="padding: 12px; background: #F9FAFB; border-radius: 8px; border-left: 4px solid {{ $iconColor }};">
                                 <div style="display: flex; align-items: flex-start; gap: 12px;">
-                                    <div style="width: 40px; height: 40px; background: #EDE9FE; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #7C3AED; flex-shrink: 0;">
+                                    <div style="width: 40px; height: 40px; background: {{ $iconBg }}; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: {{ $iconColor }}; flex-shrink: 0;">
                                         <i class="fas {{ $activity['icon'] }}"></i>
                                     </div>
                                     <div style="flex: 1;">
@@ -1554,10 +1613,11 @@
 
             <div class="content-card">
                 <div class="content-card-body">
-                    <div style="text-align: center; padding: 50px; color: #9CA3AF;">
-                        <i class="fas fa-calendar" style="font-size: 50px; margin-bottom: 16px;"></i>
-                        <p style="font-size: 16px;">No scheduled events</p>
-                        <p style="font-size: 14px; margin-top: 8px;">Your schedule and events will appear here</p>
+                    <div id="scheduleCalendar">
+                        <div style="text-align: center; padding: 50px; color: #9CA3AF;">
+                            <i class="fas fa-spinner fa-spin" style="font-size: 50px; margin-bottom: 16px;"></i>
+                            <p style="font-size: 16px;">Loading schedule...</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1568,24 +1628,643 @@
             <div class="page-header">
                 <div>
                     <h1 class="page-title">Documents</h1>
-                    <p class="page-subtitle">Upload and manage your documents</p>
+                    <p class="page-subtitle">Organize and manage your documents with folders</p>
                 </div>
-                <button class="btn-primary">
-                    <i class="fas fa-upload" style="margin-right: 6px;"></i>
-                    Upload Document
-                </button>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn-primary" onclick="showCreateFolderModal()">
+                        <i class="fas fa-folder-plus" style="margin-right: 6px;"></i>
+                        New Folder
+                    </button>
+                    <button class="btn-primary" onclick="document.getElementById('fileUpload').click()">
+                        <i class="fas fa-upload" style="margin-right: 6px;"></i>
+                        Upload Document
+                    </button>
+                    <input type="file" id="fileUpload" style="display: none;" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.jpg,.jpeg,.png,.gif,.zip,.rar,.ppt,.pptx,.csv" onchange="handleFileUpload(event)">
+                </div>
             </div>
 
-            <div class="content-card">
-                <div class="content-card-body">
+            <div id="documentContainer" class="content-card">
+                <div class="content-card-body" id="documentsContent">
                     <div style="text-align: center; padding: 50px; color: #9CA3AF;">
                         <i class="fas fa-folder-open" style="font-size: 50px; margin-bottom: 16px;"></i>
-                        <p style="font-size: 16px;">No documents uploaded yet</p>
-                        <p style="font-size: 14px; margin-top: 8px;">Upload your internship requirements and documents here</p>
+                        <p style="font-size: 16px;">No folders or documents yet</p>
+                        <p style="font-size: 14px; margin-top: 8px;">Create a folder or upload documents to get started</p>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- Create Folder Modal -->
+        <div id="createFolderModal" class="modal" style="display: none;">
+            <div class="modal-content" style="width: 90%; max-width: 500px; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+                <div class="modal-header" style="padding: 20px; border-bottom: 1px solid #E5E7EB; display: flex; justify-content: space-between; align-items: center;">
+                    <h2 style="margin: 0; font-size: 18px; font-weight: 600;">Create New Folder</h2>
+                    <button onclick="closeCreateFolderModal()" style="background: none; border: none; cursor: pointer; font-size: 24px; color: #6B7280;">&times;</button>
+                </div>
+                <div class="modal-body" style="padding: 20px;">
+                    <div class="form-group">
+                        <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">Folder Name</label>
+                        <input type="text" id="folderName" style="width: 100%; padding: 10px 12px; border: 1px solid #E5E7EB; border-radius: 6px; font-size: 14px;" placeholder="Enter folder name">
+                    </div>
+                    <div class="form-group">
+                        <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">Color</label>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <input type="color" id="folderColor" value="#3B82F6" style="width: 50px; height: 40px; border: 1px solid #E5E7EB; border-radius: 6px; cursor: pointer;">
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <div style="width: 30px; height: 30px; background-color: #3B82F6; border-radius: 6px; border: 2px solid #E5E7EB;"></div>
+                                <span style="font-size: 12px; color: #6B7280;">Preview</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">Description (Optional)</label>
+                        <textarea id="folderDescription" style="width: 100%; padding: 10px 12px; border: 1px solid #E5E7EB; border-radius: 6px; font-size: 14px; resize: vertical; min-height: 80px;" placeholder="Add a description..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer" style="padding: 15px 20px; border-top: 1px solid #E5E7EB; display: flex; justify-content: flex-end; gap: 10px;">
+                    <button onclick="closeCreateFolderModal()" style="padding: 10px 20px; background-color: #E5E7EB; color: #374151; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">Cancel</button>
+                    <button onclick="createFolder()" style="padding: 10px 20px; background-color: #7B1D3A; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">Create Folder</button>
+                </div>
+            </div>
+        </div>
+
+        <style>
+            .folder-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 16px;
+                margin-bottom: 24px;
+            }
+
+            .folder-card {
+                cursor: pointer;
+                transition: all 0.3s ease;
+                position: relative;
+                user-select: none;
+                text-align: center;
+            }
+
+            .folder-card:hover {
+                transform: scale(1.05);
+            }
+
+            .folder-card-header {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .folder-icon {
+                font-size: 64px;
+            }
+
+            .folder-menu {
+                background: none;
+                border: none;
+                cursor: pointer;
+                font-size: 18px;
+                color: #6B7280;
+                padding: 4px 8px;
+                border-radius: 4px;
+                transition: background-color 0.2s;
+            }
+
+            .folder-menu:hover {
+                background-color: rgba(0, 0, 0, 0.1);
+            }
+
+            .folder-name {
+                font-weight: 600;
+                font-size: 14px;
+                color: #1F2937;
+                margin-bottom: 4px;
+                word-break: break-word;
+            }
+
+            .folder-count {
+                font-size: 12px;
+                color: #9CA3AF;
+            }
+
+            .documents-list {
+                background: white;
+                border-radius: 8px;
+                padding: 16px;
+            }
+
+            .document-item {
+                display: flex;
+                align-items: center;
+                padding: 12px;
+                border-bottom: 1px solid #E5E7EB;
+                transition: background-color 0.2s;
+            }
+
+            .document-item:last-child {
+                border-bottom: none;
+            }
+
+            .document-item:hover {
+                background-color: #F9FAFB;
+            }
+
+            .document-icon {
+                font-size: 24px;
+                width: 40px;
+                text-align: center;
+                margin-right: 12px;
+                color: #6B7280;
+            }
+
+            .document-info {
+                flex: 1;
+            }
+
+            .document-name {
+                font-weight: 500;
+                font-size: 14px;
+                color: #1F2937;
+                margin-bottom: 4px;
+                word-break: break-all;
+            }
+
+            .document-meta {
+                font-size: 12px;
+                color: #9CA3AF;
+            }
+
+            .document-actions {
+                display: flex;
+                gap: 8px;
+            }
+
+            .doc-btn {
+                background: none;
+                border: none;
+                cursor: pointer;
+                color: #6B7280;
+                font-size: 16px;
+                padding: 4px 8px;
+                border-radius: 4px;
+                transition: all 0.2s;
+            }
+
+            .doc-btn:hover {
+                background-color: #E5E7EB;
+                color: #1F2937;
+            }
+
+            .modal {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 1000;
+            }
+
+            .modal-content {
+                background: white;
+                border-radius: 8px;
+            }
+
+            .modal-header {
+                border-bottom: 1px solid #E5E7EB;
+            }
+
+            .modal-body {
+                padding: 20px;
+            }
+
+            .modal-footer {
+                border-top: 1px solid #E5E7EB;
+                display: flex;
+                justify-content: flex-end;
+                gap: 10px;
+                padding: 15px 20px;
+            }
+
+            .color-preview {
+                width: 100%;
+                height: 4px;
+                border-radius: 2px;
+                margin-top: 8px;
+            }
+        </style>
+
+        <script>
+            let currentFolderId = null;
+            let allFolders = [];
+            let allDocuments = [];
+
+            // Color change preview
+            document.addEventListener('DOMContentLoaded', function() {
+                const colorInput = document.getElementById('folderColor');
+                if (colorInput) {
+                    colorInput.addEventListener('change', function() {
+                        updateColorPreview();
+                    });
+                }
+                loadDocuments();
+            });
+
+            function updateColorPreview() {
+                const color = document.getElementById('folderColor').value;
+                const previews = document.querySelectorAll('[data-color-preview]');
+                previews.forEach(preview => {
+                    preview.style.backgroundColor = color;
+                });
+            }
+
+            function showCreateFolderModal() {
+                document.getElementById('createFolderModal').style.display = 'flex';
+            }
+
+            function closeCreateFolderModal() {
+                document.getElementById('createFolderModal').style.display = 'none';
+                document.getElementById('folderName').value = '';
+                document.getElementById('folderDescription').value = '';
+                document.getElementById('folderColor').value = '#3B82F6';
+            }
+
+            function createFolder() {
+                const name = document.getElementById('folderName').value.trim();
+                const color = document.getElementById('folderColor').value;
+                const description = document.getElementById('folderDescription').value.trim();
+
+                if (!name) {
+                    alert('Please enter a folder name');
+                    return;
+                }
+
+                console.log('Creating folder:', { name, color, description, currentFolderId });
+
+                fetch('{{ route("documents.folder.create") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({
+                        name: name,
+                        color: color,
+                        description: description,
+                        parent_folder_id: currentFolderId
+                    })
+                })
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            console.error('Error response:', text);
+                            throw new Error(`HTTP error! status: ${response.status}, body: ${text}`);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Response data:', data);
+                    if (data.success) {
+                        closeCreateFolderModal();
+                        loadDocuments();
+                        showNotification('Folder created successfully', 'success');
+                    } else {
+                        showNotification(data.message || 'Failed to create folder', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('Error creating folder: ' + error.message, 'error');
+                });
+            }
+
+            function handleFileUpload(event) {
+                const files = event.target.files;
+                if (files.length === 0) return;
+
+                let uploaded = 0;
+                for (let file of files) {
+                    uploadDocument(file);
+                }
+
+                // Reset input
+                event.target.value = '';
+            }
+
+            function uploadDocument(file) {
+                const formData = new FormData();
+                formData.append('file', file);
+                if (currentFolderId) {
+                    formData.append('folder_id', currentFolderId);
+                }
+
+                fetch('{{ route("documents.upload") }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            throw new Error(`HTTP error! status: ${response.status}, body: ${text}`);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        loadDocuments();
+                        showNotification('Document uploaded successfully', 'success');
+                    } else {
+                        showNotification(data.message || 'Failed to upload document', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('Error uploading document: ' + error.message, 'error');
+                });
+            }
+
+            function loadDocuments() {
+                const baseUrl = '{{ url("/intern/documents") }}';
+                const url = currentFolderId
+                    ? `${baseUrl}/folder/${currentFolderId}`
+                    : baseUrl;
+
+                fetch(url, {
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            throw new Error(`HTTP error! status: ${response.status}, body: ${text}`);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        renderDocuments(data);
+                    } else {
+                        console.error('Error loading documents:', data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading documents:', error);
+                    showNotification('Error loading documents: ' + error.message, 'error');
+                });
+            }
+
+            function renderDocuments(data) {
+                const container = document.getElementById('documentsContent');
+                let html = '';
+
+                // Add back button if in a subfolder
+                if (currentFolderId) {
+                    html += '<div style="margin-bottom: 20px;">';
+                    html += '<button onclick="currentFolderId = null; loadDocuments()" style="display: inline-flex; align-items: center; padding: 10px 16px; background: linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 14px; box-shadow: 0 2px 8px rgba(123, 29, 58, 0.2); transition: all 0.3s ease;" onmouseover="this.style.transform=\'translateY(-2px)\'; this.style.boxShadow=\'0 4px 12px rgba(123, 29, 58, 0.3)\';" onmouseout="this.style.transform=\'translateY(0)\'; this.style.boxShadow=\'0 2px 8px rgba(123, 29, 58, 0.2)\';">';
+                    html += '<i class="fas fa-arrow-left" style="margin-right: 8px;"></i>';
+                    html += '<span>Back to Parent Folder</span>';
+                    html += '</button>';
+                    html += '</div>';
+                }
+
+                // Render folders
+                if (data.folders && data.folders.length > 0) {
+                    html += '<div class="folder-grid">';
+                    data.folders.forEach(folder => {
+                        const docsCount = folder.documents ? folder.documents.length : 0;
+                        html += `
+                            <div class="folder-card" ondblclick="openFolder(${folder.id})" style="position: relative;">
+                                <div style="position: absolute; top: 5px; right: 5px; z-index: 10;">
+                                    <button class="folder-menu" onclick="event.stopPropagation(); toggleFolderMenu(${folder.id})">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <div id="menu-${folder.id}" class="folder-menu-dropdown" style="display: none; position: absolute; right: 0; top: 30px; background: white; border: 1px solid #E5E7EB; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 10; min-width: 150px;">
+                                        <button onclick="openFolder(${folder.id})" style="display: block; width: 100%; text-align: left; padding: 10px 16px; border: none; background: none; cursor: pointer; font-size: 14px; color: #374151; border-bottom: 1px solid #E5E7EB;">Open</button>
+                                        <button onclick="deleteFolder(${folder.id})" style="display: block; width: 100%; text-align: left; padding: 10px 16px; border: none; background: none; cursor: pointer; font-size: 14px; color: #DC2626;">Delete</button>
+                                    </div>
+                                </div>
+                                <div class="folder-card-header">
+                                    <div class="folder-icon" style="color: ${folder.color};"><i class="fas fa-folder"></i></div>
+                                    <div class="folder-name" style="font-weight: 600; font-size: 13px; color: #1F2937;">${escapeHtml(folder.name)}</div>
+                                    <div class="folder-count" style="font-size: 11px; color: #9CA3AF;">${docsCount} item${docsCount !== 1 ? 's' : ''}</div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                }
+
+                // Render documents
+                if (data.documents && data.documents.length > 0) {
+                    html += '<div style="margin-top: 24px;"><h3 style="font-size: 16px; font-weight: 600; margin-bottom: 12px; color: #1F2937;">Documents</h3>';
+                    html += '<div class="documents-list">';
+                    data.documents.forEach(doc => {
+                        const iconClass = getFileIcon(doc.file_type);
+                        html += `
+                            <div class="document-item">
+                                <div class="document-icon"><i class="${iconClass}"></i></div>
+                                <div class="document-info">
+                                    <div class="document-name">${escapeHtml(doc.name)}</div>
+                                    <div class="document-meta">${doc.file_size} • ${new Date(doc.created_at).toLocaleDateString()}</div>
+                                </div>
+                                <div class="document-actions">
+                                    <button class="doc-btn" onclick="downloadDocument(${doc.id})" title="Download">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                    <button class="doc-btn" onclick="deleteDocument(${doc.id})" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    html += '</div></div>';
+                }
+
+                // Show empty state if no content
+                if ((!data.folders || data.folders.length === 0) && (!data.documents || data.documents.length === 0)) {
+                    html = '<div style="text-align: center; padding: 50px; color: #9CA3AF;">';
+                    html += '<i class="fas fa-folder-open" style="font-size: 50px; margin-bottom: 16px;"></i>';
+                    html += '<p style="font-size: 16px;">No items in this folder</p>';
+                    html += '<p style="font-size: 14px; margin-top: 8px;">Upload documents or create subfolders</p>';
+                    html += '</div>';
+                }
+
+                container.innerHTML = html;
+            }
+
+            function toggleFolderMenu(folderId) {
+                const menu = document.getElementById(`menu-${folderId}`);
+                const allMenus = document.querySelectorAll('.folder-menu-dropdown');
+                allMenus.forEach(m => m.style.display = 'none');
+                if (menu) menu.style.display = 'block';
+            }
+
+            function openFolder(folderId) {
+                currentFolderId = folderId;
+                loadDocuments();
+            }
+
+            function deleteFolder(folderId) {
+                if (confirm('Are you sure you want to delete this folder and all its contents?')) {
+                    const baseUrl = '{{ url("/intern/documents") }}';
+                    fetch(`${baseUrl}/folder/${folderId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            loadDocuments();
+                            showNotification('Folder deleted successfully', 'success');
+                        } else {
+                            showNotification(data.message || 'Failed to delete folder', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showNotification('Error deleting folder', 'error');
+                    });
+                }
+            }
+
+            function deleteDocument(documentId) {
+                if (confirm('Are you sure you want to delete this document?')) {
+                    const baseUrl = '{{ url("/intern/documents") }}';
+                    fetch(`${baseUrl}/${documentId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            loadDocuments();
+                            showNotification('Document deleted successfully', 'success');
+                        } else {
+                            showNotification(data.message || 'Failed to delete document', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showNotification('Error deleting document', 'error');
+                    });
+                }
+            }
+
+            function downloadDocument(documentId) {
+                const baseUrl = '{{ url("/intern/documents") }}';
+                window.location.href = `${baseUrl}/${documentId}/download`;
+            }
+
+            function getFileIcon(mimeType) {
+                const iconMap = {
+                    'application/pdf': 'fas fa-file-pdf',
+                    'application/msword': 'fas fa-file-word',
+                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'fas fa-file-word',
+                    'application/vnd.ms-excel': 'fas fa-file-excel',
+                    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'fas fa-file-excel',
+                    'text/plain': 'fas fa-file-alt',
+                    'image/jpeg': 'fas fa-file-image',
+                    'image/png': 'fas fa-file-image',
+                    'image/gif': 'fas fa-file-image',
+                    'application/zip': 'fas fa-file-archive',
+                    'application/x-rar-compressed': 'fas fa-file-archive'
+                };
+                return iconMap[mimeType] || 'fas fa-file';
+            }
+
+            function escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            function showNotification(message, type = 'info') {
+                // Use existing notification system if available, otherwise create a toast
+                if (window.showAlert) {
+                    window.showAlert(message, type);
+                } else {
+                    // Create a simple toast notification
+                    const toast = document.createElement('div');
+                    toast.style.cssText = `
+                        position: fixed;
+                        bottom: 20px;
+                        right: 20px;
+                        padding: 16px 20px;
+                        border-radius: 8px;
+                        color: white;
+                        font-size: 14px;
+                        z-index: 9999;
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                        animation: slideIn 0.3s ease-out;
+                    `;
+
+                    if (type === 'success') {
+                        toast.style.backgroundColor = '#10B981';
+                    } else if (type === 'error') {
+                        toast.style.backgroundColor = '#EF4444';
+                    } else if (type === 'warning') {
+                        toast.style.backgroundColor = '#F59E0B';
+                    } else {
+                        toast.style.backgroundColor = '#3B82F6';
+                    }
+
+                    toast.textContent = message;
+                    document.body.appendChild(toast);
+
+                    setTimeout(() => {
+                        toast.style.animation = 'slideOut 0.3s ease-out';
+                        setTimeout(() => toast.remove(), 300);
+                    }, 4000);
+                }
+            }
+
+            // Add animations
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideIn {
+                    from {
+                        transform: translateX(400px);
+                        opacity: 0;
+                    }
+                    to {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                }
+                @keyframes slideOut {
+                    from {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                    to {
+                        transform: translateX(400px);
+                        opacity: 0;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+
+            // Close menus when clicking outside
+            document.addEventListener('click', function() {
+                document.querySelectorAll('.folder-menu-dropdown').forEach(m => m.style.display = 'none');
+            });
+        </script>
     </main>
 
     <script>
@@ -1611,6 +2290,132 @@
                     }
                 });
             }
+
+            // Load page-specific data
+            if (pageId === 'schedule') {
+                loadEvents();
+            }
+        }
+
+        // Load events for schedule page
+        function loadEvents() {
+            fetch('{{ url("/intern/events") }}', {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                displayEvents(data.events || []);
+            })
+            .catch(error => {
+                console.error('Error loading events:', error);
+                document.getElementById('scheduleCalendar').innerHTML = `
+                    <div style="text-align: center; padding: 50px; color: #9CA3AF;">
+                        <i class="fas fa-calendar" style="font-size: 50px; margin-bottom: 16px;"></i>
+                        <p style="font-size: 16px;">No scheduled events</p>
+                        <p style="font-size: 14px; margin-top: 8px;">Your schedule and events will appear here</p>
+                    </div>
+                `;
+            });
+        }
+
+        function displayEvents(events) {
+            const container = document.getElementById('scheduleCalendar');
+
+            if (!events || events.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 50px; color: #9CA3AF;">
+                        <i class="fas fa-calendar" style="font-size: 50px; margin-bottom: 16px;"></i>
+                        <p style="font-size: 16px;">No scheduled events</p>
+                        <p style="font-size: 14px; margin-top: 8px;">Your schedule and events will appear here</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Group events by date
+            const eventsByDate = {};
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            events.forEach(event => {
+                const startDate = new Date(event.start_date);
+                const dateKey = startDate.toISOString().split('T')[0];
+
+                if (!eventsByDate[dateKey]) {
+                    eventsByDate[dateKey] = [];
+                }
+                eventsByDate[dateKey].push(event);
+            });
+
+            // Sort dates
+            const sortedDates = Object.keys(eventsByDate).sort();
+
+            let html = '<div style="display: flex; flex-direction: column; gap: 20px;">';
+
+            sortedDates.forEach(dateKey => {
+                const events = eventsByDate[dateKey];
+                const dateObj = new Date(dateKey);
+                const isToday = dateObj.toISOString().split('T')[0] === today.toISOString().split('T')[0];
+                const isPast = dateObj < today;
+
+                const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
+                const monthDay = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+                html += `
+                    <div style="background: white; border-radius: 12px; padding: 20px; border: 1px solid #E5E7EB; ${isPast ? 'opacity: 0.6;' : ''}">
+                        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #E5E7EB;">
+                            <div style="background: ${isToday ? 'linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%)' : '#F3F4F6'}; color: ${isToday ? 'white' : '#374151'}; width: 60px; height: 60px; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 700;">
+                                <div style="font-size: 11px; text-transform: uppercase;">${dateObj.toLocaleDateString('en-US', { month: 'short' })}</div>
+                                <div style="font-size: 24px;">${dateObj.getDate()}</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 18px; font-weight: 600; color: #1F2937;">${dayName}</div>
+                                <div style="font-size: 14px; color: #6B7280;">${monthDay}</div>
+                                ${isToday ? '<span style="display: inline-block; margin-top: 4px; padding: 2px 8px; background: #FFBF00; color: #7B1D3A; border-radius: 4px; font-size: 11px; font-weight: 600;">TODAY</span>' : ''}
+                            </div>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 12px;">
+                `;
+
+                events.forEach(event => {
+                    const startTime = new Date(event.start_date);
+                    const endTime = new Date(event.end_date);
+                    const timeStr = event.all_day ? 'All Day' : `${startTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })} - ${endTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`;
+
+                    html += `
+                        <div style="display: flex; gap: 12px; padding: 14px; background: #F9FAFB; border-radius: 8px; border-left: 4px solid ${event.color};">
+                            <div style="flex-shrink: 0; width: 10px; height: 10px; background: ${event.color}; border-radius: 50%; margin-top: 5px;"></div>
+                            <div style="flex: 1;">
+                                <div style="font-size: 15px; font-weight: 600; color: #1F2937; margin-bottom: 4px;">${escapeHtml(event.title)}</div>
+                                <div style="font-size: 13px; color: #6B7280; display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                                    <i class="fas fa-clock" style="font-size: 11px;"></i>
+                                    ${timeStr}
+                                </div>
+                                ${event.location ? `<div style="font-size: 13px; color: #6B7280; display: flex; align-items: center; gap: 8px; margin-bottom: 4px;"><i class="fas fa-map-marker-alt" style="font-size: 11px;"></i>${escapeHtml(event.location)}</div>` : ''}
+                                ${event.description ? `<div style="font-size: 13px; color: #4B5563; margin-top: 8px;">${escapeHtml(event.description)}</div>` : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += `
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
 
         // Check URL for page parameter and auto-navigate

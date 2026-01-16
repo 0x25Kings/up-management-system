@@ -10,6 +10,8 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\BlockedDateController;
 use App\Http\Controllers\StartupController;
 use App\Http\Controllers\SchoolController;
+use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\EventController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -34,6 +36,19 @@ Route::post('/intern/clear-session', [InternController::class, 'clearSession'])-
 Route::post('/intern/update-profile', [InternController::class, 'updateProfile'])->name('intern.update');
 Route::post('/intern/time-in', [InternController::class, 'timeIn'])->name('intern.timein');
 Route::post('/intern/time-out', [InternController::class, 'timeOut'])->name('intern.timeout');
+
+// Document Management Routes (Intern)
+Route::post('/intern/documents/folder', [DocumentController::class, 'createFolder'])->name('documents.folder.create');
+Route::post('/intern/documents/upload', [DocumentController::class, 'uploadDocument'])->name('documents.upload');
+Route::get('/intern/documents', [DocumentController::class, 'getFolders'])->name('documents.list');
+Route::get('/intern/documents/folder/{folderId}', [DocumentController::class, 'getFolderContents'])->name('documents.folder');
+Route::put('/intern/documents/folder/{folderId}', [DocumentController::class, 'updateFolder'])->name('documents.folder.update');
+Route::delete('/intern/documents/folder/{folderId}', [DocumentController::class, 'deleteFolder'])->name('documents.folder.delete');
+Route::delete('/intern/documents/{documentId}', [DocumentController::class, 'deleteDocument'])->name('documents.delete');
+Route::get('/intern/documents/{documentId}/download', [DocumentController::class, 'downloadDocument'])->name('documents.download');
+
+// Event Routes (Intern - Read Only)
+Route::get('/intern/events', [EventController::class, 'index'])->name('events.index');
 
 // Startup Portal Routes (No Login Required)
 Route::get('/startup', [StartupController::class, 'index'])->name('startup.portal');
@@ -110,7 +125,13 @@ Route::middleware(['admin'])->group(function () {
 
     // Intern Approval Routes (Admin)
     Route::get('/admin/interns/pending', [SchoolController::class, 'getPendingInterns'])->name('admin.interns.pending');
+    Route::get('/admin/interns/{intern}', [InternController::class, 'show'])->name('admin.interns.show');
     Route::post('/admin/interns/{intern}/approve', [SchoolController::class, 'approveIntern'])->name('admin.interns.approve');
     Route::post('/admin/interns/{intern}/reject', [SchoolController::class, 'rejectIntern'])->name('admin.interns.reject');
     Route::post('/admin/interns/school/{school}/approve-all', [SchoolController::class, 'approveAllBySchool'])->name('admin.interns.approveAllBySchool');
+
+    // Event Management Routes (Admin)
+    Route::post('/admin/events', [EventController::class, 'store'])->name('admin.events.store');
+    Route::put('/admin/events/{event}', [EventController::class, 'update'])->name('admin.events.update');
+    Route::delete('/admin/events/{event}', [EventController::class, 'destroy'])->name('admin.events.destroy');
 });
