@@ -656,21 +656,55 @@
 
                 <!-- Access with Reference Code (Primary Section) -->
                 <div class="access-code-section" style="background: linear-gradient(135deg, rgba(123, 29, 58, 0.05) 0%, rgba(255, 191, 0, 0.1) 100%); border: 2px solid rgba(123, 29, 58, 0.15); margin-top: 0; margin-bottom: 24px;">
-                    <form action="{{ route('intern.access') }}" method="POST">
+                    <form action="{{ route('intern.access') }}" method="POST" id="accessForm">
                         @csrf
                         <h4 style="font-size: 16px; font-weight: 600; color: #7B1D3A; margin-bottom: 16px;">
                             <i class="fas fa-key" style="color: #FFBF00; margin-right: 8px;"></i>
                             Access Your Dashboard
                         </h4>
                         <p style="font-size: 13px; color: #6B7280; margin-bottom: 16px;">
-                            Already registered? Enter your reference code to access your intern dashboard.
+                            Already registered? Enter your reference code to access your dashboard.
+                            <br><span style="color: #9CA3AF; font-size: 12px;">Intern: INT-XXXX-XXXXXX | Team Leader: TL-XXXX-XXXX</span>
                         </p>
+                        
+                        @if(session('show_password'))
+                        <!-- Team Leader Password Entry -->
+                        <div style="background: #F0FDF4; border: 2px solid #86EFAC; border-radius: 12px; padding: 16px; margin-bottom: 16px;">
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                                <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #FFBF00, #FFA500); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-user-tie" style="color: #7B1D3A;"></i>
+                                </div>
+                                <div>
+                                    <div style="font-weight: 600; color: #166534;">Team Leader Access</div>
+                                    <div style="font-size: 13px; color: #15803D;">{{ session('tl_name') }}</div>
+                                </div>
+                            </div>
+                            <input type="hidden" name="reference_code" value="{{ old('reference_code') }}">
+                            <div style="display: flex; gap: 12px;">
+                                <input type="password" name="password" placeholder="Enter your password" style="flex: 1; padding: 14px 16px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px;" autofocus>
+                                <button type="submit" class="btn-primary" style="padding: 14px 24px; background: linear-gradient(135deg, #7B1D3A, #5a1428);">
+                                    <i class="fas fa-unlock" style="margin-right: 6px;"></i> Login
+                                </button>
+                            </div>
+                            @error('password')
+                                <div style="color: #DC2626; font-size: 13px; margin-top: 8px;">{{ $message }}</div>
+                            @enderror
+                            <a href="{{ route('intern.portal') }}" style="display: inline-block; margin-top: 12px; color: #6B7280; font-size: 13px; text-decoration: none;">
+                                <i class="fas fa-arrow-left" style="margin-right: 4px;"></i> Use different code
+                            </a>
+                        </div>
+                        @else
+                        <!-- Regular Reference Code Entry -->
                         <div style="display: flex; gap: 12px;">
-                            <input type="text" name="reference_code" placeholder="Enter reference code (e.g., INT-2026-XXXXXX)" style="flex: 1; padding: 14px 16px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px;">
+                            <input type="text" name="reference_code" value="{{ old('reference_code') }}" placeholder="Enter reference code (e.g., INT-2026-XXXXXX)" style="flex: 1; padding: 14px 16px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px;">
                             <button type="submit" class="btn-primary" style="padding: 14px 24px;">
                                 <i class="fas fa-sign-in-alt" style="margin-right: 6px;"></i> Access
                             </button>
                         </div>
+                        @error('reference_code')
+                            <div style="color: #DC2626; font-size: 13px; margin-top: 8px;">{{ $message }}</div>
+                        @enderror
+                        @endif
                     </form>
                 </div>
 
@@ -817,7 +851,8 @@
             }
         });
 
-        @if($errors->any())
+        // Only open registration modal if there are registration form errors (not reference code errors)
+        @if($errors->any() && !$errors->has('reference_code') && !$errors->has('password'))
             openRegistrationModal();
         @endif
     </script>
@@ -2775,8 +2810,8 @@
                         }
                     });
 
-                    // Fetch task details from backend
-                    fetch(`/admin/tasks/${taskId}`, {
+                    // Fetch task details from backend (using intern route)
+                    fetch(`/intern/tasks/${taskId}`, {
                         method: 'GET',
                         headers: {
                             'Accept': 'application/json',
@@ -2898,7 +2933,7 @@
             formData.append('_method', 'PUT');
             formData.append('_token', csrfToken);
 
-            fetch(`/admin/tasks/${taskId}`, {
+            fetch(`/intern/tasks/${taskId}`, {
                 method: 'POST',
                 body: formData,
                 headers: {
@@ -2958,7 +2993,7 @@
 
             const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
 
-            fetch(`/admin/tasks/${taskId}/complete`, {
+            fetch(`/intern/tasks/${taskId}/complete`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -2989,7 +3024,7 @@
 
             const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
 
-            fetch(`/admin/tasks/${taskId}`, {
+            fetch(`/intern/tasks/${taskId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
