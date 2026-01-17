@@ -13,12 +13,9 @@ use App\Models\BlockedDate;
 use App\Models\StartupSubmission;
 use App\Models\RoomIssue;
 use App\Models\School;
-
 use App\Models\Document;
-
 use App\Models\User;
 use App\Models\TeamLeaderReport;
-
 use Carbon\Carbon;
 
 class AdminDashboardController extends Controller
@@ -607,7 +604,7 @@ class AdminDashboardController extends Controller
      */
     public function getInternsBySchool($schoolId)
     {
-        $interns = \App\Models\Intern::where('school_id', $schoolId)
+        $interns = Intern::where('school_id', $schoolId)
             ->where('status', 'Active')
             ->where('approval_status', 'approved')
             ->orderBy('name')
@@ -640,7 +637,7 @@ class AdminDashboardController extends Controller
             'password' => 'required|string|min:8',
         ]);
 
-        $intern = \App\Models\Intern::findOrFail($request->intern_id);
+        $intern = Intern::findOrFail($request->intern_id);
 
         // Check if school already has a team leader
         $existingTeamLeader = User::where('role', User::ROLE_TEAM_LEADER)

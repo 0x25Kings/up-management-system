@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\BlockedDate;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class BlockedDateController extends Controller
 {
@@ -17,7 +18,7 @@ class BlockedDateController extends Controller
             ->map(function ($blocked) {
                 return [
                     'id' => $blocked->id,
-                    'date' => $blocked->blocked_date->format('Y-m-d'),
+                    'date' => \Carbon\Carbon::parse($blocked->blocked_date)->format('Y-m-d'),
                     'reason' => $blocked->reason,
                     'reason_label' => $blocked->reason_label,
                     'reason_color' => $blocked->reason_color,
@@ -51,7 +52,7 @@ class BlockedDateController extends Controller
             'blocked_date' => $validated['blocked_date'],
             'reason' => $validated['reason'],
             'description' => $validated['description'],
-            'created_by' => auth()->id(),
+            'created_by' => Auth::id(),
         ]);
 
         return response()->json([
@@ -59,7 +60,7 @@ class BlockedDateController extends Controller
             'message' => 'Date blocked successfully.',
             'blockedDate' => [
                 'id' => $blockedDate->id,
-                'date' => $blockedDate->blocked_date->format('Y-m-d'),
+                'date' => \Carbon\Carbon::parse($blockedDate->blocked_date)->format('Y-m-d'),
                 'reason' => $blockedDate->reason,
                 'reason_label' => $blockedDate->reason_label,
                 'reason_color' => $blockedDate->reason_color,
