@@ -2433,7 +2433,7 @@
         </div>
 
         <nav class="sidebar-menu">
-            <a href="#" class="menu-item active">
+            <a href="#" class="menu-item active" onclick="loadPage(event, 'dashboard-overview')">
                 <i class="fas fa-chart-line"></i>
                 <span>Dashboard</span>
             </a>
@@ -2549,10 +2549,10 @@
                     <div class="stat-icon">
                         <i class="fas fa-user-graduate"></i>
                     </div>
-                    <div class="stat-value">245</div>
+                    <div class="stat-value">{{ $activeInterns ?? 0 }}</div>
                     <div class="stat-label">Active Interns</div>
                     <div class="stat-change positive">
-                        <i class="fas fa-arrow-up"></i> +12.5% from last month
+                        <i class="fas fa-check-circle"></i> Currently Active
                     </div>
                 </div>
 
@@ -2560,10 +2560,10 @@
                     <div class="stat-icon">
                         <i class="fas fa-clipboard-list"></i>
                     </div>
-                    <div class="stat-value">89</div>
+                    <div class="stat-value">{{ $startupDocuments->count() ?? 0 }}</div>
                     <div class="stat-label">Research Projects</div>
                     <div class="stat-change positive">
-                        <i class="fas fa-arrow-up"></i> +5.3% from last month
+                        <i class="fas fa-flask"></i> Document Submissions
                     </div>
                 </div>
 
@@ -2571,10 +2571,10 @@
                     <div class="stat-icon">
                         <i class="fas fa-folder-open"></i>
                     </div>
-                    <div class="stat-value">1,156</div>
+                    <div class="stat-value">{{ $totalDocuments ?? 0 }}</div>
                     <div class="stat-label">Digital Records</div>
                     <div class="stat-change positive">
-                        <i class="fas fa-arrow-up"></i> +8.1% from last month
+                        <i class="fas fa-file-alt"></i> Total Documents
                     </div>
                 </div>
 
@@ -2582,10 +2582,10 @@
                     <div class="stat-icon">
                         <i class="fas fa-rocket"></i>
                     </div>
-                    <div class="stat-value">34</div>
+                    <div class="stat-value">{{ $activeIncubatees ?? 0 }}</div>
                     <div class="stat-label">Incubatees</div>
                     <div class="stat-change positive">
-                        <i class="fas fa-arrow-up"></i> +3.2% from last month
+                        <i class="fas fa-briefcase"></i> Active Companies
                     </div>
                 </div>
             </div>
@@ -3026,8 +3026,12 @@
                                 <tr data-attendance-id="{{ $attendance->id }}" data-time-in="{{ $attendance->raw_time_in }}" data-timed-out="{{ $attendance->time_out ? 'true' : 'false' }}">
                                     <td>
                                         <div style="display: flex; align-items: center; gap: 12px;">
-                                            <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #FFBF00, #FFA500); display: flex; align-items: center; justify-content: center; color: #7B1D3A; font-weight: 700;">
-                                                {{ strtoupper(substr($attendance->intern->name ?? 'U', 0, 1)) }}
+                                            <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #FFBF00, #FFA500); display: flex; align-items: center; justify-content: center; color: #7B1D3A; font-weight: 700; overflow: hidden;">
+                                                @if($attendance->intern->profile_picture ?? null)
+                                                    <img src="{{ asset('storage/' . $attendance->intern->profile_picture) }}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
+                                                @else
+                                                    {{ strtoupper(substr($attendance->intern->name ?? 'U', 0, 1)) }}
+                                                @endif
                                             </div>
                                             <div class="intern-info">
                                                 <span class="intern-name" style="font-weight: 600;">{{ $attendance->intern->name ?? 'Unknown' }}</span>
@@ -3242,8 +3246,12 @@
                                 <tr>
                                     <td>
                                         <div style="display: flex; align-items: center; gap: 12px;">
-                                            <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #FFBF00, #FFA500); display: flex; align-items: center; justify-content: center; color: #7B1D3A; font-weight: 700;">
-                                                {{ strtoupper(substr($intern->name, 0, 1)) }}
+                                            <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #FFBF00, #FFA500); display: flex; align-items: center; justify-content: center; color: #7B1D3A; font-weight: 700; overflow: hidden;">
+                                                @if($intern->profile_picture ?? null)
+                                                    <img src="{{ asset('storage/' . $intern->profile_picture) }}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
+                                                @else
+                                                    {{ strtoupper(substr($intern->name, 0, 1)) }}
+                                                @endif
                                             </div>
                                             <span style="font-weight: 600;">{{ $intern->name }}</span>
                                         </div>
@@ -5967,6 +5975,52 @@
                 userRoleEl.textContent = 'Administrator';
             }
 
+            // Restore current page after refresh
+            const savedPage = localStorage.getItem('adminCurrentPage');
+            if (savedPage) {
+                // Hide all pages first
+                document.querySelectorAll('.page-content').forEach(page => {
+                    page.classList.remove('active');
+                });
+
+                // Show the saved page
+                const pageElement = document.getElementById(savedPage);
+                if (pageElement) {
+                    pageElement.classList.add('active');
+
+                    // Update breadcrumb
+                    const breadcrumb = document.querySelector('.breadcrumb');
+                    if (breadcrumb) {
+                        if (savedPage === 'intern-list') {
+                            breadcrumb.innerHTML = 'Dashboard > Intern Management > <span>Intern List</span>';
+                        } else if (savedPage === 'time-attendance') {
+                            breadcrumb.innerHTML = 'Dashboard > Intern Management > <span>Time & Attendance</span>';
+                        } else if (savedPage === 'task-assignment') {
+                            breadcrumb.innerHTML = 'Dashboard > Intern Management > <span>Task Assignment</span>';
+                        } else if (savedPage === 'research-tracking') {
+                            breadcrumb.innerHTML = 'Dashboard > <span>Research Tracking</span>';
+                        } else if (savedPage === 'incubatee-tracker') {
+                            breadcrumb.innerHTML = 'Dashboard > <span>Incubatee Tracker</span>';
+                        } else if (savedPage === 'issues-management') {
+                            breadcrumb.innerHTML = 'Dashboard > <span>Issues & Complaints</span>';
+                        } else if (savedPage === 'digital-records') {
+                            breadcrumb.innerHTML = 'Dashboard > <span>Digital Records</span>';
+                        } else if (savedPage === 'scheduler') {
+                            breadcrumb.innerHTML = 'Dashboard > <span>Scheduler & Events</span>';
+                        }
+                    }
+
+                    // Update active menu item
+                    document.querySelectorAll('.menu-item, .submenu-item').forEach(item => {
+                        item.classList.remove('active');
+                    });
+                    const activeMenuItem = document.querySelector(`[onclick*="'${savedPage}'"]`);
+                    if (activeMenuItem) {
+                        activeMenuItem.classList.add('active');
+                    }
+                }
+            }
+
             // Restore dashboard state after page refresh
             const savedTab = localStorage.getItem('activeDashboardTab');
 
@@ -6274,6 +6328,20 @@
             const selectedPage = document.getElementById(pageId);
             if (selectedPage) {
                 selectedPage.classList.add('active');
+            }
+
+            // Save current page to localStorage
+            localStorage.setItem('adminCurrentPage', pageId);
+
+            // Update active menu item
+            document.querySelectorAll('.menu-item, .submenu-item').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            // Find and activate the clicked menu item
+            const clickedItem = event.target.closest('.menu-item, .submenu-item');
+            if (clickedItem) {
+                clickedItem.classList.add('active');
             }
 
             // Update breadcrumb

@@ -7,6 +7,7 @@ use App\Models\Intern;
 use App\Models\Attendance;
 use App\Models\Task;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 class InternController extends Controller
 {
@@ -201,7 +202,7 @@ class InternController extends Controller
 
         // Delete old profile picture if exists
         if ($intern->profile_picture) {
-            \Storage::disk('public')->delete($intern->profile_picture);
+            Storage::disk('public')->delete($intern->profile_picture);
         }
 
         // Store new profile picture
