@@ -5136,14 +5136,14 @@
 
     <!-- Team Leader Modal (Manual Entry - for external coordinators) -->
     <div id="teamLeaderModal" class="modal-overlay">
-        <div class="modal-content" style="max-width: 500px;">
+        <div class="modal-content" style="max-width: 600px;">
             <div class="modal-header">
                 <h3 class="modal-title" id="teamLeaderModalTitle"><i class="fas fa-user-tie" style="margin-right: 8px;"></i>Add Team Leader</h3>
                 <button class="modal-close" onclick="closeTeamLeaderModal()">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
                 <form id="teamLeaderForm">
                     <input type="hidden" id="teamLeaderId">
                     
@@ -5168,6 +5168,155 @@
                         <select id="teamLeaderSchool" class="form-input" required>
                             <option value="">-- Select School --</option>
                         </select>
+                    </div>
+
+                    <!-- Module Permissions Section -->
+                    <div class="form-group" id="permissionsSection" style="margin-top: 20px; border-top: 1px solid #E5E7EB; padding-top: 20px;">
+                        <label class="form-label" style="font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-key" style="color: #7B1D3A;"></i>
+                            Module Access Permissions
+                        </label>
+                        <p style="font-size: 12px; color: #6B7280; margin-bottom: 16px;">Grant this Team Leader access to specific admin modules</p>
+                        
+                        <div id="permissionsList" style="display: grid; gap: 12px;">
+                            <!-- Scheduler -->
+                            <div class="permission-item" style="background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px; padding: 12px;">
+                                <div style="display: flex; align-items: center; justify-content: space-between;">
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <i class="fas fa-calendar-alt" style="color: #7B1D3A; width: 20px;"></i>
+                                        <div>
+                                            <div style="font-weight: 600; font-size: 13px; color: #1F2937;">Scheduler</div>
+                                            <div style="font-size: 11px; color: #6B7280;">Manage room bookings and calendar events</div>
+                                        </div>
+                                    </div>
+                                    <div style="display: flex; gap: 12px;">
+                                        <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                                            <input type="checkbox" id="perm_scheduler_view" name="permissions[scheduler][can_view]" style="accent-color: #7B1D3A;">
+                                            <span style="font-size: 11px; color: #374151;">View</span>
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                                            <input type="checkbox" id="perm_scheduler_edit" name="permissions[scheduler][can_edit]" style="accent-color: #7B1D3A;">
+                                            <span style="font-size: 11px; color: #374151;">Edit</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Research Tracking -->
+                            <div class="permission-item" style="background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px; padding: 12px;">
+                                <div style="display: flex; align-items: center; justify-content: space-between;">
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <i class="fas fa-flask" style="color: #7B1D3A; width: 20px;"></i>
+                                        <div>
+                                            <div style="font-weight: 600; font-size: 13px; color: #1F2937;">Research Tracking</div>
+                                            <div style="font-size: 11px; color: #6B7280;">View and manage research projects</div>
+                                        </div>
+                                    </div>
+                                    <div style="display: flex; gap: 12px;">
+                                        <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                                            <input type="checkbox" id="perm_research_tracking_view" name="permissions[research_tracking][can_view]" style="accent-color: #7B1D3A;">
+                                            <span style="font-size: 11px; color: #374151;">View</span>
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                                            <input type="checkbox" id="perm_research_tracking_edit" name="permissions[research_tracking][can_edit]" style="accent-color: #7B1D3A;">
+                                            <span style="font-size: 11px; color: #374151;">Edit</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Incubatee Tracker -->
+                            <div class="permission-item" style="background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px; padding: 12px;">
+                                <div style="display: flex; align-items: center; justify-content: space-between;">
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <i class="fas fa-rocket" style="color: #7B1D3A; width: 20px;"></i>
+                                        <div>
+                                            <div style="font-weight: 600; font-size: 13px; color: #1F2937;">Incubatee Tracker</div>
+                                            <div style="font-size: 11px; color: #6B7280;">Track startup submissions and progress</div>
+                                        </div>
+                                    </div>
+                                    <div style="display: flex; gap: 12px;">
+                                        <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                                            <input type="checkbox" id="perm_incubatee_tracker_view" name="permissions[incubatee_tracker][can_view]" style="accent-color: #7B1D3A;">
+                                            <span style="font-size: 11px; color: #374151;">View</span>
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                                            <input type="checkbox" id="perm_incubatee_tracker_edit" name="permissions[incubatee_tracker][can_edit]" style="accent-color: #7B1D3A;">
+                                            <span style="font-size: 11px; color: #374151;">Edit</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Issues & Complaints -->
+                            <div class="permission-item" style="background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px; padding: 12px;">
+                                <div style="display: flex; align-items: center; justify-content: space-between;">
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <i class="fas fa-exclamation-triangle" style="color: #7B1D3A; width: 20px;"></i>
+                                        <div>
+                                            <div style="font-weight: 600; font-size: 13px; color: #1F2937;">Issues & Complaints</div>
+                                            <div style="font-size: 11px; color: #6B7280;">Handle room issues and complaints</div>
+                                        </div>
+                                    </div>
+                                    <div style="display: flex; gap: 12px;">
+                                        <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                                            <input type="checkbox" id="perm_issues_management_view" name="permissions[issues_management][can_view]" style="accent-color: #7B1D3A;">
+                                            <span style="font-size: 11px; color: #374151;">View</span>
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                                            <input type="checkbox" id="perm_issues_management_edit" name="permissions[issues_management][can_edit]" style="accent-color: #7B1D3A;">
+                                            <span style="font-size: 11px; color: #374151;">Edit</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Digital Records -->
+                            <div class="permission-item" style="background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px; padding: 12px;">
+                                <div style="display: flex; align-items: center; justify-content: space-between;">
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <i class="fas fa-file-alt" style="color: #7B1D3A; width: 20px;"></i>
+                                        <div>
+                                            <div style="font-weight: 600; font-size: 13px; color: #1F2937;">Digital Records</div>
+                                            <div style="font-size: 11px; color: #6B7280;">Access and manage digital documents</div>
+                                        </div>
+                                    </div>
+                                    <div style="display: flex; gap: 12px;">
+                                        <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                                            <input type="checkbox" id="perm_digital_records_view" name="permissions[digital_records][can_view]" style="accent-color: #7B1D3A;">
+                                            <span style="font-size: 11px; color: #374151;">View</span>
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                                            <input type="checkbox" id="perm_digital_records_edit" name="permissions[digital_records][can_edit]" style="accent-color: #7B1D3A;">
+                                            <span style="font-size: 11px; color: #374151;">Edit</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Full Intern Management -->
+                            <div class="permission-item" style="background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px; padding: 12px;">
+                                <div style="display: flex; align-items: center; justify-content: space-between;">
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <i class="fas fa-briefcase" style="color: #7B1D3A; width: 20px;"></i>
+                                        <div>
+                                            <div style="font-weight: 600; font-size: 13px; color: #1F2937;">Full Intern Management</div>
+                                            <div style="font-size: 11px; color: #6B7280;">Full access to all intern data (not just own school)</div>
+                                        </div>
+                                    </div>
+                                    <div style="display: flex; gap: 12px;">
+                                        <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                                            <input type="checkbox" id="perm_intern_management_view" name="permissions[intern_management][can_view]" style="accent-color: #7B1D3A;">
+                                            <span style="font-size: 11px; color: #374151;">View</span>
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                                            <input type="checkbox" id="perm_intern_management_edit" name="permissions[intern_management][can_edit]" style="accent-color: #7B1D3A;">
+                                            <span style="font-size: 11px; color: #374151;">Edit</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div id="referenceCodeDisplay" style="display: none; background: #F0FDF4; border: 1px solid #86EFAC; border-radius: 8px; padding: 16px; margin-top: 16px;">
@@ -6842,6 +6991,9 @@
             document.getElementById('teamLeaderId').value = '';
             refCodeDisplay.style.display = 'none';
             
+            // Reset all permission checkboxes
+            resetPermissionCheckboxes();
+            
             if (id) {
                 title.innerHTML = '<i class="fas fa-user-tie" style="margin-right: 8px;"></i>Edit Team Leader';
                 const tl = teamLeadersData.find(t => t.id === id);
@@ -6856,6 +7008,9 @@
                         document.getElementById('referenceCodeValue').textContent = tl.reference_code;
                         refCodeDisplay.style.display = 'block';
                     }
+                    
+                    // Load permissions for this team leader
+                    loadTeamLeaderPermissions(id);
                 }
             } else {
                 title.innerHTML = '<i class="fas fa-user-tie" style="margin-right: 8px;"></i>Add Team Leader';
@@ -6863,6 +7018,53 @@
             }
             
             modal.style.display = 'flex';
+        }
+
+        function resetPermissionCheckboxes() {
+            const modules = ['scheduler', 'research_tracking', 'incubatee_tracker', 'issues_management', 'digital_records', 'intern_management'];
+            modules.forEach(module => {
+                const viewCheckbox = document.getElementById(`perm_${module}_view`);
+                const editCheckbox = document.getElementById(`perm_${module}_edit`);
+                if (viewCheckbox) viewCheckbox.checked = false;
+                if (editCheckbox) editCheckbox.checked = false;
+            });
+        }
+
+        async function loadTeamLeaderPermissions(userId) {
+            try {
+                const response = await fetch(`/admin/api/team-leaders/${userId}/permissions`);
+                const data = await response.json();
+                
+                if (data.permissions) {
+                    Object.keys(data.permissions).forEach(module => {
+                        const perm = data.permissions[module];
+                        const viewCheckbox = document.getElementById(`perm_${module}_view`);
+                        const editCheckbox = document.getElementById(`perm_${module}_edit`);
+                        
+                        if (viewCheckbox) viewCheckbox.checked = perm.can_view;
+                        if (editCheckbox) editCheckbox.checked = perm.can_edit;
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading permissions:', error);
+            }
+        }
+
+        function getPermissionsFromForm() {
+            const modules = ['scheduler', 'research_tracking', 'incubatee_tracker', 'issues_management', 'digital_records', 'intern_management'];
+            const permissions = {};
+            
+            modules.forEach(module => {
+                const viewCheckbox = document.getElementById(`perm_${module}_view`);
+                const editCheckbox = document.getElementById(`perm_${module}_edit`);
+                
+                permissions[module] = {
+                    can_view: viewCheckbox ? viewCheckbox.checked : false,
+                    can_edit: editCheckbox ? editCheckbox.checked : false
+                };
+            });
+            
+            return permissions;
         }
 
         function editTeamLeader(id) {
@@ -7158,6 +7360,7 @@
             const email = document.getElementById('teamLeaderEmail').value;
             const password = document.getElementById('teamLeaderPassword').value;
             const school_id = document.getElementById('teamLeaderSchool').value;
+            const permissions = getPermissionsFromForm();
 
             if (!name || !email || !school_id) {
                 showToast('error', 'Validation Error', 'Please fill in all required fields');
@@ -7169,7 +7372,7 @@
                 return;
             }
 
-            const data = { name, email, school_id };
+            const data = { name, email, school_id, permissions };
             if (password) data.password = password;
 
             try {

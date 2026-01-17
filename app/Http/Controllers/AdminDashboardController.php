@@ -16,6 +16,7 @@ use App\Models\School;
 use App\Models\User;
 use App\Models\TeamLeaderReport;
 use App\Models\Document;
+use App\Models\UserPermission;
 use Carbon\Carbon;
 
 class AdminDashboardController extends Controller
@@ -456,6 +457,11 @@ class AdminDashboardController extends Controller
             'is_active' => true,
         ]);
 
+        // Handle permissions if provided
+        if ($request->has('permissions')) {
+            $teamLeader->syncModulePermissions($request->permissions, Auth::id());
+        }
+
         return response()->json([
             'success' => true,
             'message' => 'Team Leader created successfully.',
@@ -496,6 +502,11 @@ class AdminDashboardController extends Controller
 
         if ($request->filled('password')) {
             $user->update(['password' => Hash::make($request->password)]);
+        }
+
+        // Handle permissions
+        if ($request->has('permissions')) {
+            $user->syncModulePermissions($request->permissions, Auth::id());
         }
 
         return response()->json(['success' => true, 'message' => 'Team Leader updated successfully.']);
@@ -688,6 +699,50 @@ class AdminDashboardController extends Controller
                 'email' => $teamLeader->email,
                 'reference_code' => $teamLeader->reference_code,
             ]
+        ]);
+    }
+
+    /**
+     * Get available modules for permissions
+     */
+    public function getAvailableModules()
+    {
+        return response()->json([
+            'modules' => UserPermission::getAvailableModules()
+        ]);
+    }
+
+    /**
+     * Get team leader permissions
+     */
+    public function getTeamLeaderPermissions(User $user)
+    {
+        if ($user->role !== User::ROLE_TEAM_LEADER) {
+            return response()->json(['error' => 'Invalid team leader.'], 422);
+        }
+
+        return response()->json([
+            'permissions' => $user->getPermissionsArray(),
+            'modules' => UserPermission::getAvailableModules()
+        ]);
+    }
+
+    /**
+     * Update team leader permissions
+     */
+    public function updateTeamLeaderPermissions(Request $request, User $user)
+    {
+        if ($user->role !== User::ROLE_TEAM_LEADER) {
+            return response()->json(['error' => 'Invalid team leader.'], 422);
+        }
+
+        $permissions = $request->input('permissions', []);
+        $user->syncModulePermissions($permissions, Auth::id());
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Permissions updated successfully.',
+            'permissions' => $user->getPermissionsArray()
         ]);
     }
 }

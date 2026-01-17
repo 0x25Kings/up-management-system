@@ -673,6 +673,56 @@
                 @endif
             </a>
 
+            @if(count($viewableModules) > 0)
+            <div class="menu-section" style="margin-top: 20px; border-top: 1px solid rgba(255, 215, 0, 0.2); padding-top: 20px;">
+                <i class="fas fa-key" style="margin-right: 4px;"></i> Granted Access
+            </div>
+            
+            @if(in_array('scheduler', $viewableModules))
+            <a class="menu-item" data-page="scheduler">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Scheduler</span>
+                @if(isset($schedulerData['pendingBookings']) && $schedulerData['pendingBookings'] > 0)
+                    <span class="menu-badge" style="background: var(--gold-dark); color: var(--maroon);">{{ $schedulerData['pendingBookings'] }}</span>
+                @endif
+            </a>
+            @endif
+
+            @if(in_array('research_tracking', $viewableModules))
+            <a class="menu-item" data-page="research-tracking">
+                <i class="fas fa-flask"></i>
+                <span>Research Tracking</span>
+            </a>
+            @endif
+
+            @if(in_array('incubatee_tracker', $viewableModules))
+            <a class="menu-item" data-page="incubatee-tracker">
+                <i class="fas fa-rocket"></i>
+                <span>Incubatee Tracker</span>
+                @if(isset($incubateeData['pendingSubmissions']) && $incubateeData['pendingSubmissions'] > 0)
+                    <span class="menu-badge" style="background: var(--gold-dark); color: var(--maroon);">{{ $incubateeData['pendingSubmissions'] }}</span>
+                @endif
+            </a>
+            @endif
+
+            @if(in_array('issues_management', $viewableModules))
+            <a class="menu-item" data-page="issues-management">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>Issues & Complaints</span>
+                @if(isset($issuesData['pendingIssues']) && $issuesData['pendingIssues'] > 0)
+                    <span class="menu-badge" style="background: #DC2626; color: white;">{{ $issuesData['pendingIssues'] }}</span>
+                @endif
+            </a>
+            @endif
+
+            @if(in_array('digital_records', $viewableModules))
+            <a class="menu-item" data-page="digital-records">
+                <i class="fas fa-file-alt"></i>
+                <span>Digital Records</span>
+            </a>
+            @endif
+            @endif
+
             <div style="flex-grow: 1;"></div>
 
             <form action="{{ route('admin.logout') }}" method="POST" id="logoutForm">
@@ -1291,6 +1341,261 @@
                 </div>
             </div>
         </div>
+
+        {{-- ==================== GRANTED ACCESS PAGES ==================== --}}
+
+        {{-- SCHEDULER PAGE --}}
+        @if(in_array('scheduler', $viewableModules))
+        <div id="scheduler" class="page-content">
+            <div class="stats-grid">
+                <div class="stat-card maroon">
+                    <div class="stat-icon maroon"><i class="fas fa-calendar-alt"></i></div>
+                    <div class="stat-value">{{ isset($schedulerData['bookings']) ? $schedulerData['bookings']->count() : 0 }}</div>
+                    <div class="stat-label">Recent Bookings</div>
+                </div>
+                <div class="stat-card gold">
+                    <div class="stat-icon gold"><i class="fas fa-clock"></i></div>
+                    <div class="stat-value">{{ $schedulerData['pendingBookings'] ?? 0 }}</div>
+                    <div class="stat-label">Pending Bookings</div>
+                </div>
+                <div class="stat-card green">
+                    <div class="stat-icon green"><i class="fas fa-calendar-check"></i></div>
+                    <div class="stat-value">{{ isset($schedulerData['events']) ? $schedulerData['events']->count() : 0 }}</div>
+                    <div class="stat-label">Recent Events</div>
+                </div>
+                <div class="stat-card maroon">
+                    <div class="stat-icon maroon"><i class="fas fa-ban"></i></div>
+                    <div class="stat-value">{{ isset($schedulerData['blockedDates']) ? $schedulerData['blockedDates']->count() : 0 }}</div>
+                    <div class="stat-label">Blocked Dates</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-calendar-alt"></i> Recent Bookings</h3>
+                    @if(in_array('scheduler', $editableModules))
+                    <span class="badge badge-success"><i class="fas fa-edit"></i> Edit Access</span>
+                    @else
+                    <span class="badge badge-info"><i class="fas fa-eye"></i> View Only</span>
+                    @endif
+                </div>
+                <div class="card-body" style="padding: 0; overflow-x: auto;">
+                    @if(isset($schedulerData['bookings']) && $schedulerData['bookings']->count() > 0)
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Organization</th>
+                                <th>Contact</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Room</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($schedulerData['bookings'] as $booking)
+                            <tr>
+                                <td><strong>{{ $booking->organization_name }}</strong></td>
+                                <td>{{ $booking->contact_person }}</td>
+                                <td>{{ \Carbon\Carbon::parse($booking->booking_date)->format('M d, Y') }}</td>
+                                <td>{{ $booking->start_time }} - {{ $booking->end_time }}</td>
+                                <td>{{ $booking->room_type }}</td>
+                                <td>
+                                    <span class="badge badge-{{ $booking->status === 'approved' ? 'success' : ($booking->status === 'pending' ? 'warning' : 'danger') }}">
+                                        {{ ucfirst($booking->status) }}
+                                    </span>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                    @else
+                    <div class="empty-state">
+                        <i class="fas fa-calendar-alt"></i>
+                        <h4>No bookings found</h4>
+                        <p>There are no room bookings to display</p>
+                    </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+        @endif
+
+        {{-- RESEARCH TRACKING PAGE --}}
+        @if(in_array('research_tracking', $viewableModules))
+        <div id="research-tracking" class="page-content">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-flask"></i> Research Tracking</h3>
+                    @if(in_array('research_tracking', $editableModules))
+                    <span class="badge badge-success"><i class="fas fa-edit"></i> Edit Access</span>
+                    @else
+                    <span class="badge badge-info"><i class="fas fa-eye"></i> View Only</span>
+                    @endif
+                </div>
+                <div class="card-body">
+                    <div class="empty-state">
+                        <i class="fas fa-flask"></i>
+                        <h4>Research Tracking Module</h4>
+                        <p>You have been granted access to the Research Tracking module. This feature will be fully integrated soon.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endif
+
+        {{-- INCUBATEE TRACKER PAGE --}}
+        @if(in_array('incubatee_tracker', $viewableModules))
+        <div id="incubatee-tracker" class="page-content">
+            <div class="stats-grid">
+                <div class="stat-card maroon">
+                    <div class="stat-icon maroon"><i class="fas fa-rocket"></i></div>
+                    <div class="stat-value">{{ $incubateeData['totalSubmissions'] ?? 0 }}</div>
+                    <div class="stat-label">Total Submissions</div>
+                </div>
+                <div class="stat-card gold">
+                    <div class="stat-icon gold"><i class="fas fa-hourglass-half"></i></div>
+                    <div class="stat-value">{{ $incubateeData['pendingSubmissions'] ?? 0 }}</div>
+                    <div class="stat-label">Pending Review</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-rocket"></i> Startup Submissions</h3>
+                    @if(in_array('incubatee_tracker', $editableModules))
+                    <span class="badge badge-success"><i class="fas fa-edit"></i> Edit Access</span>
+                    @else
+                    <span class="badge badge-info"><i class="fas fa-eye"></i> View Only</span>
+                    @endif
+                </div>
+                <div class="card-body" style="padding: 0; overflow-x: auto;">
+                    @if(isset($incubateeData['submissions']) && $incubateeData['submissions']->count() > 0)
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Startup Name</th>
+                                <th>Type</th>
+                                <th>Contact</th>
+                                <th>Submitted</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($incubateeData['submissions'] as $submission)
+                            <tr>
+                                <td><strong>{{ $submission->startup_name }}</strong></td>
+                                <td><span class="badge badge-info">{{ ucfirst($submission->submission_type) }}</span></td>
+                                <td>{{ $submission->contact_person }}</td>
+                                <td>{{ $submission->created_at->format('M d, Y') }}</td>
+                                <td>
+                                    <span class="badge badge-{{ $submission->status === 'approved' ? 'success' : ($submission->status === 'pending' ? 'warning' : 'danger') }}">
+                                        {{ ucfirst($submission->status) }}
+                                    </span>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                    @else
+                    <div class="empty-state">
+                        <i class="fas fa-rocket"></i>
+                        <h4>No submissions found</h4>
+                        <p>There are no startup submissions to display</p>
+                    </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+        @endif
+
+        {{-- ISSUES MANAGEMENT PAGE --}}
+        @if(in_array('issues_management', $viewableModules))
+        <div id="issues-management" class="page-content">
+            <div class="stats-grid">
+                <div class="stat-card maroon">
+                    <div class="stat-icon maroon"><i class="fas fa-exclamation-triangle"></i></div>
+                    <div class="stat-value">{{ $issuesData['totalIssues'] ?? 0 }}</div>
+                    <div class="stat-label">Total Issues</div>
+                </div>
+                <div class="stat-card gold">
+                    <div class="stat-icon gold"><i class="fas fa-clock"></i></div>
+                    <div class="stat-value">{{ $issuesData['pendingIssues'] ?? 0 }}</div>
+                    <div class="stat-label">Pending Issues</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-exclamation-triangle"></i> Room Issues & Complaints</h3>
+                    @if(in_array('issues_management', $editableModules))
+                    <span class="badge badge-success"><i class="fas fa-edit"></i> Edit Access</span>
+                    @else
+                    <span class="badge badge-info"><i class="fas fa-eye"></i> View Only</span>
+                    @endif
+                </div>
+                <div class="card-body" style="padding: 0; overflow-x: auto;">
+                    @if(isset($issuesData['issues']) && $issuesData['issues']->count() > 0)
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Startup</th>
+                                <th>Issue Type</th>
+                                <th>Description</th>
+                                <th>Reported</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($issuesData['issues'] as $issue)
+                            <tr>
+                                <td><strong>{{ $issue->startup_name }}</strong></td>
+                                <td><span class="badge badge-info">{{ ucfirst($issue->issue_type) }}</span></td>
+                                <td>{{ Str::limit($issue->description, 50) }}</td>
+                                <td>{{ $issue->created_at->format('M d, Y') }}</td>
+                                <td>
+                                    <span class="badge badge-{{ $issue->status === 'resolved' ? 'success' : ($issue->status === 'pending' ? 'warning' : 'info') }}">
+                                        {{ ucfirst($issue->status) }}
+                                    </span>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                    @else
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h4>No issues found</h4>
+                        <p>There are no room issues or complaints to display</p>
+                    </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+        @endif
+
+        {{-- DIGITAL RECORDS PAGE --}}
+        @if(in_array('digital_records', $viewableModules))
+        <div id="digital-records" class="page-content">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-file-alt"></i> Digital Records</h3>
+                    @if(in_array('digital_records', $editableModules))
+                    <span class="badge badge-success"><i class="fas fa-edit"></i> Edit Access</span>
+                    @else
+                    <span class="badge badge-info"><i class="fas fa-eye"></i> View Only</span>
+                    @endif
+                </div>
+                <div class="card-body">
+                    <div class="empty-state">
+                        <i class="fas fa-file-alt"></i>
+                        <h4>Digital Records Module</h4>
+                        <p>You have been granted access to the Digital Records module. This feature will be fully integrated soon.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endif
     </div>
 
     <!-- ==================== MODALS ==================== -->
@@ -1635,7 +1940,12 @@
             'interns': 'My Interns',
             'tasks': 'Task Management',
             'attendance': 'Team Attendance',
-            'reports': 'My Reports'
+            'reports': 'My Reports',
+            'scheduler': 'Scheduler',
+            'research-tracking': 'Research Tracking',
+            'incubatee-tracker': 'Incubatee Tracker',
+            'issues-management': 'Issues & Complaints',
+            'digital-records': 'Digital Records'
         };
 
         menuItems.forEach(item => {

@@ -159,6 +159,11 @@ Route::middleware(['admin'])->group(function () {
     Route::delete('/admin/api/team-leaders/{user}', [AdminDashboardController::class, 'deleteTeamLeaderAjax'])->name('admin.api.team-leaders.destroy');
     Route::post('/admin/api/team-reports/{report}/review', [AdminDashboardController::class, 'reviewTeamLeaderReportAjax'])->name('admin.api.team-reports.review');
     
+    // Team Leader Permissions
+    Route::get('/admin/api/team-leaders/{user}/permissions', [AdminDashboardController::class, 'getTeamLeaderPermissions'])->name('admin.api.team-leaders.permissions');
+    Route::put('/admin/api/team-leaders/{user}/permissions', [AdminDashboardController::class, 'updateTeamLeaderPermissions'])->name('admin.api.team-leaders.permissions.update');
+    Route::get('/admin/api/available-modules', [AdminDashboardController::class, 'getAvailableModules'])->name('admin.api.available-modules');
+    
     // Intern to Team Leader promotion
     Route::get('/admin/api/schools/{school}/interns', [AdminDashboardController::class, 'getInternsBySchool'])->name('admin.api.school-interns');
     Route::post('/admin/api/team-leaders/promote-intern', [AdminDashboardController::class, 'promoteInternToTeamLeader'])->name('admin.api.team-leaders.promote');

@@ -173,4 +173,135 @@ class User extends Authenticatable
     {
         return static::where('role', self::ROLE_TEAM_LEADER);
     }
+
+    /**
+     * Get user's module permissions
+     */
+    public function permissions()
+    {
+        return $this->hasMany(UserPermission::class);
+    }
+
+    /**
+     * Check if user has permission to view a module
+     */
+    public function canViewModule(string $module): bool
+    {
+        // Super Admin has access to everything
+        if ($this->isSuperAdmin()) {
+            return true;
+        }
+
+        return $this->permissions()
+            ->where('module', $module)
+            ->where('can_view', true)
+            ->exists();
+    }
+
+    /**
+     * Check if user has permission to edit a module
+     */
+    public function canEditModule(string $module): bool
+    {
+        // Super Admin has access to everything
+        if ($this->isSuperAdmin()) {
+            return true;
+        }
+
+        return $this->permissions()
+            ->where('module', $module)
+            ->where('can_edit', true)
+            ->exists();
+    }
+
+    /**
+     * Get all modules this user can view
+     */
+    public function getViewableModules(): array
+    {
+        if ($this->isSuperAdmin()) {
+            return array_keys(UserPermission::MODULES);
+        }
+
+        return $this->permissions()
+            ->where('can_view', true)
+            ->pluck('module')
+            ->toArray();
+    }
+
+    /**
+     * Get all modules this user can edit
+     */
+    public function getEditableModules(): array
+    {
+        if ($this->isSuperAdmin()) {
+            return array_keys(UserPermission::MODULES);
+        }
+
+        return $this->permissions()
+            ->where('can_edit', true)
+            ->pluck('module')
+            ->toArray();
+    }
+
+    /**
+     * Grant permission to a module
+     */
+    public function grantModulePermission(string $module, bool $canView = true, bool $canEdit = false, ?int $grantedBy = null): UserPermission
+    {
+        return $this->permissions()->updateOrCreate(
+            ['module' => $module],
+            [
+                'can_view' => $canView,
+                'can_edit' => $canEdit,
+                'granted_by' => $grantedBy,
+                'granted_at' => now(),
+            ]
+        );
+    }
+
+    /**
+     * Revoke permission from a module
+     */
+    public function revokeModulePermission(string $module): bool
+    {
+        return $this->permissions()->where('module', $module)->delete() > 0;
+    }
+
+    /**
+     * Sync all module permissions
+     */
+    public function syncModulePermissions(array $permissions, ?int $grantedBy = null): void
+    {
+        // Remove all existing permissions
+        $this->permissions()->delete();
+
+        // Add new permissions
+        foreach ($permissions as $module => $access) {
+            if (!empty($access['can_view']) || !empty($access['can_edit'])) {
+                $this->grantModulePermission(
+                    $module,
+                    !empty($access['can_view']),
+                    !empty($access['can_edit']),
+                    $grantedBy
+                );
+            }
+        }
+    }
+
+    /**
+     * Get permissions as array for forms
+     */
+    public function getPermissionsArray(): array
+    {
+        $result = [];
+        foreach (UserPermission::MODULES as $module => $info) {
+            $permission = $this->permissions()->where('module', $module)->first();
+            $result[$module] = [
+                'can_view' => $permission ? $permission->can_view : false,
+                'can_edit' => $permission ? $permission->can_edit : false,
+            ];
+        }
+        return $result;
+    }
 }

@@ -7,6 +7,12 @@ use App\Models\Task;
 use App\Models\Attendance;
 use App\Models\TeamLeaderReport;
 use App\Models\School;
+use App\Models\Booking;
+use App\Models\BlockedDate;
+use App\Models\StartupSubmission;
+use App\Models\RoomIssue;
+use App\Models\Event;
+use App\Models\UserPermission;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
@@ -42,6 +48,11 @@ class TeamLeaderController extends Controller
         if (!$school) {
             return redirect()->route('login')->with('error', 'No school assigned to your account.');
         }
+
+        // Get user's viewable and editable modules
+        $viewableModules = $user->getViewableModules();
+        $editableModules = $user->getEditableModules();
+        $availableModules = UserPermission::getAvailableModules();
 
         // Get intern statistics
         $totalInterns = $this->getSchoolInterns()->count();
@@ -127,6 +138,39 @@ class TeamLeaderController extends Controller
             return $a->time_in && \Carbon\Carbon::parse($a->time_in)->format('H:i') > '08:00';
         })->count();
 
+        // Load data for permitted modules
+        $schedulerData = [];
+        $incubateeData = [];
+        $issuesData = [];
+
+        // If user has scheduler access, load bookings and events
+        if (in_array('scheduler', $viewableModules)) {
+            $schedulerData = [
+                'bookings' => Booking::orderBy('booking_date', 'desc')->limit(10)->get(),
+                'events' => Event::orderBy('start_date', 'desc')->limit(10)->get(),
+                'blockedDates' => BlockedDate::orderBy('date', 'desc')->get(),
+                'pendingBookings' => Booking::where('status', 'pending')->count(),
+            ];
+        }
+
+        // If user has incubatee tracker access
+        if (in_array('incubatee_tracker', $viewableModules)) {
+            $incubateeData = [
+                'submissions' => StartupSubmission::orderBy('created_at', 'desc')->limit(10)->get(),
+                'totalSubmissions' => StartupSubmission::count(),
+                'pendingSubmissions' => StartupSubmission::where('status', 'pending')->count(),
+            ];
+        }
+
+        // If user has issues management access
+        if (in_array('issues_management', $viewableModules)) {
+            $issuesData = [
+                'issues' => RoomIssue::orderBy('created_at', 'desc')->limit(10)->get(),
+                'totalIssues' => RoomIssue::count(),
+                'pendingIssues' => RoomIssue::where('status', 'pending')->count(),
+            ];
+        }
+
         return view('team-leader.dashboard', compact(
             'user',
             'school',
@@ -149,7 +193,13 @@ class TeamLeaderController extends Controller
             'todayAttendances',
             'absentToday',
             'lateToday',
-            'today'
+            'today',
+            'viewableModules',
+            'editableModules',
+            'availableModules',
+            'schedulerData',
+            'incubateeData',
+            'issuesData'
         ));
     }
 
