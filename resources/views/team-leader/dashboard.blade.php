@@ -1350,72 +1350,114 @@
             <div class="stats-grid">
                 <div class="stat-card maroon">
                     <div class="stat-icon maroon"><i class="fas fa-calendar-alt"></i></div>
-                    <div class="stat-value">{{ isset($schedulerData['bookings']) ? $schedulerData['bookings']->count() : 0 }}</div>
-                    <div class="stat-label">Recent Bookings</div>
+                    <div class="stat-value" id="tlTotalBookings">{{ isset($schedulerData['bookings']) ? $schedulerData['bookings']->count() : 0 }}</div>
+                    <div class="stat-label">Total Bookings</div>
                 </div>
                 <div class="stat-card gold">
                     <div class="stat-icon gold"><i class="fas fa-clock"></i></div>
-                    <div class="stat-value">{{ $schedulerData['pendingBookings'] ?? 0 }}</div>
+                    <div class="stat-value" id="tlPendingBookings">{{ $schedulerData['pendingBookings'] ?? 0 }}</div>
                     <div class="stat-label">Pending Bookings</div>
                 </div>
                 <div class="stat-card green">
                     <div class="stat-icon green"><i class="fas fa-calendar-check"></i></div>
-                    <div class="stat-value">{{ isset($schedulerData['events']) ? $schedulerData['events']->count() : 0 }}</div>
-                    <div class="stat-label">Recent Events</div>
+                    <div class="stat-value" id="tlTotalEvents">{{ isset($schedulerData['events']) ? $schedulerData['events']->count() : 0 }}</div>
+                    <div class="stat-label">Total Events</div>
                 </div>
-                <div class="stat-card maroon">
-                    <div class="stat-icon maroon"><i class="fas fa-ban"></i></div>
-                    <div class="stat-value">{{ isset($schedulerData['blockedDates']) ? $schedulerData['blockedDates']->count() : 0 }}</div>
+                <div class="stat-card red">
+                    <div class="stat-icon red"><i class="fas fa-ban"></i></div>
+                    <div class="stat-value" id="tlBlockedDates">{{ isset($schedulerData['blockedDates']) ? $schedulerData['blockedDates']->count() : 0 }}</div>
                     <div class="stat-label">Blocked Dates</div>
                 </div>
             </div>
 
-            <div class="card">
+            <!-- Calendar View -->
+            <div class="card" style="margin-bottom: 24px;">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-calendar-alt"></i> Recent Bookings</h3>
-                    @if(in_array('scheduler', $editableModules))
-                    <span class="badge badge-success"><i class="fas fa-edit"></i> Edit Access</span>
-                    @else
-                    <span class="badge badge-info"><i class="fas fa-eye"></i> View Only</span>
-                    @endif
-                </div>
-                <div class="card-body" style="padding: 0; overflow-x: auto;">
-                    @if(isset($schedulerData['bookings']) && $schedulerData['bookings']->count() > 0)
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Organization</th>
-                                <th>Contact</th>
-                                <th>Date</th>
-                                <th>Time</th>
-                                <th>Room</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($schedulerData['bookings'] as $booking)
-                            <tr>
-                                <td><strong>{{ $booking->organization_name }}</strong></td>
-                                <td>{{ $booking->contact_person }}</td>
-                                <td>{{ \Carbon\Carbon::parse($booking->booking_date)->format('M d, Y') }}</td>
-                                <td>{{ $booking->start_time }} - {{ $booking->end_time }}</td>
-                                <td>{{ $booking->room_type }}</td>
-                                <td>
-                                    <span class="badge badge-{{ $booking->status === 'approved' ? 'success' : ($booking->status === 'pending' ? 'warning' : 'danger') }}">
-                                        {{ ucfirst($booking->status) }}
-                                    </span>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                    @else
-                    <div class="empty-state">
-                        <i class="fas fa-calendar-alt"></i>
-                        <h4>No bookings found</h4>
-                        <p>There are no room bookings to display</p>
+                    <h3 class="card-title"><i class="fas fa-calendar"></i> Schedule Calendar</h3>
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                        @if(in_array('scheduler', $editableModules))
+                        <button onclick="tlShowCreateEventModal()" class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus"></i> Add Event
+                        </button>
+                        <span class="badge badge-success"><i class="fas fa-edit"></i> Edit Access</span>
+                        @else
+                        <span class="badge badge-info"><i class="fas fa-eye"></i> View Only</span>
+                        @endif
                     </div>
-                    @endif
+                </div>
+                <div class="card-body">
+                    <!-- Calendar Header -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                        <h3 id="tlSchedulerMonthTitle" style="font-size: 20px; font-weight: 700; color: var(--maroon);">January 2026</h3>
+                        <div style="display: flex; gap: 8px;">
+                            <button onclick="tlPreviousMonth()" style="background: white; border: 2px solid var(--maroon); color: var(--maroon); width: 40px; height: 40px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s;">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button onclick="tlNextMonth()" style="background: white; border: 2px solid var(--maroon); color: var(--maroon); width: 40px; height: 40px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s;">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Calendar Grid -->
+                    <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: #E5E7EB; border: 1px solid #E5E7EB; border-radius: 12px; overflow: hidden;">
+                        <!-- Weekday Headers -->
+                        <div style="background: var(--maroon); color: white; padding: 12px; text-align: center; font-weight: 700; font-size: 12px;">Sun</div>
+                        <div style="background: var(--maroon); color: white; padding: 12px; text-align: center; font-weight: 700; font-size: 12px;">Mon</div>
+                        <div style="background: var(--maroon); color: white; padding: 12px; text-align: center; font-weight: 700; font-size: 12px;">Tue</div>
+                        <div style="background: var(--maroon); color: white; padding: 12px; text-align: center; font-weight: 700; font-size: 12px;">Wed</div>
+                        <div style="background: var(--maroon); color: white; padding: 12px; text-align: center; font-weight: 700; font-size: 12px;">Thu</div>
+                        <div style="background: var(--maroon); color: white; padding: 12px; text-align: center; font-weight: 700; font-size: 12px;">Fri</div>
+                        <div style="background: var(--maroon); color: white; padding: 12px; text-align: center; font-weight: 700; font-size: 12px;">Sat</div>
+                    </div>
+                    <div id="tlSchedulerCalendarGrid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: #E5E7EB; border: 1px solid #E5E7EB; border-radius: 0 0 12px 12px; overflow: hidden; margin-top: 1px;">
+                        <!-- Calendar days will be rendered here by JavaScript -->
+                    </div>
+
+                    <!-- Legend -->
+                    <div style="display: flex; gap: 24px; margin-top: 20px; padding-top: 20px; border-top: 1px solid #E5E7EB; flex-wrap: wrap;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div style="width: 16px; height: 16px; background: #DBEAFE; border-left: 3px solid #3B82F6; border-radius: 4px;"></div>
+                            <span style="font-size: 13px; color: #6B7280;">Bookings</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div style="width: 16px; height: 16px; background: rgba(34, 139, 34, 0.2); border-left: 3px solid var(--forest-green); border-radius: 4px;"></div>
+                            <span style="font-size: 13px; color: #6B7280;">Events</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div style="width: 16px; height: 16px; background: #FEE2E2; border-left: 3px solid #DC2626; border-radius: 4px;"></div>
+                            <span style="font-size: 13px; color: #6B7280;">Blocked</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Events & Bookings List -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <!-- Upcoming Events -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-calendar-day"></i> Upcoming Events</h3>
+                    </div>
+                    <div class="card-body" id="tlUpcomingEventsList" style="max-height: 400px; overflow-y: auto;">
+                        <div class="empty-state">
+                            <i class="fas fa-calendar-check"></i>
+                            <p>No upcoming events</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Bookings -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-calendar-alt"></i> Recent Bookings</h3>
+                    </div>
+                    <div class="card-body" id="tlRecentBookingsList" style="max-height: 400px; overflow-y: auto;">
+                        <div class="empty-state">
+                            <i class="fas fa-calendar-alt"></i>
+                            <p>No bookings found</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -2460,6 +2502,328 @@
                 refreshData(); // Refresh immediately when tab becomes visible
             }
         });
+
+        // ==================== TEAM LEADER SCHEDULER FUNCTIONS ====================
+        let tlSchedulerCurrentYear = new Date().getFullYear();
+        let tlSchedulerCurrentMonth = new Date().getMonth();
+        let tlSchedulerEvents = [];
+        let tlSchedulerBookings = [];
+        let tlSchedulerBlockedDates = [];
+        const tlHasEditAccess = {{ in_array('scheduler', $editableModules) ? 'true' : 'false' }};
+
+        // Load scheduler data when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load scheduler data if on scheduler page
+            const schedulerMenuItem = document.querySelector('[data-page="scheduler"]');
+            if (schedulerMenuItem) {
+                schedulerMenuItem.addEventListener('click', function() {
+                    setTimeout(() => {
+                        tlLoadSchedulerData();
+                    }, 100);
+                });
+            }
+        });
+
+        async function tlLoadSchedulerData() {
+            try {
+                // Load events
+                const eventsResponse = await fetch('/intern/events');
+                if (eventsResponse.ok) {
+                    const eventsData = await eventsResponse.json();
+                    tlSchedulerEvents = eventsData.events || [];
+                }
+
+                // Load bookings
+                const bookingsResponse = await fetch('/bookings');
+                if (bookingsResponse.ok) {
+                    tlSchedulerBookings = await bookingsResponse.json();
+                }
+
+                // Load blocked dates
+                const blockedResponse = await fetch('/blocked-dates');
+                if (blockedResponse.ok) {
+                    tlSchedulerBlockedDates = await blockedResponse.json();
+                }
+
+                // Render calendar and lists
+                tlRenderSchedulerCalendar();
+                tlRenderUpcomingEvents();
+                tlRenderRecentBookings();
+
+            } catch (error) {
+                console.error('Error loading scheduler data:', error);
+            }
+        }
+
+        function tlRenderSchedulerCalendar() {
+            const titleEl = document.getElementById('tlSchedulerMonthTitle');
+            const mainCalEl = document.getElementById('tlSchedulerCalendarGrid');
+            if (!mainCalEl) return;
+
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            const monthYear = `${monthNames[tlSchedulerCurrentMonth]} ${tlSchedulerCurrentYear}`;
+            if (titleEl) titleEl.textContent = monthYear;
+
+            const firstDay = new Date(tlSchedulerCurrentYear, tlSchedulerCurrentMonth, 1).getDay();
+            const daysInMonth = new Date(tlSchedulerCurrentYear, tlSchedulerCurrentMonth + 1, 0).getDate();
+            const daysInPrevMonth = new Date(tlSchedulerCurrentYear, tlSchedulerCurrentMonth, 0).getDate();
+            const today = new Date();
+            const todayString = today.toISOString().split('T')[0];
+
+            let mainHtml = '';
+            
+            // Previous month days
+            for (let i = firstDay - 1; i >= 0; i--) {
+                mainHtml += `<div style="background: #F9FAFB; padding: 12px; min-height: 100px; color: #D1D5DB;"><div style="font-weight: 600; margin-bottom: 8px;">${daysInPrevMonth - i}</div></div>`;
+            }
+
+            // Current month days
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateString = `${tlSchedulerCurrentYear}-${String(tlSchedulerCurrentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const isToday = dateString === todayString;
+                
+                // Check for bookings on this date
+                const dayBookings = tlSchedulerBookings.filter(b => b.date === dateString);
+                
+                // Check for events spanning this date
+                const dayEvents = tlSchedulerEvents.filter(e => {
+                    const eventStart = new Date(e.start_date).toISOString().split('T')[0];
+                    const eventEnd = new Date(e.end_date).toISOString().split('T')[0];
+                    return dateString >= eventStart && dateString <= eventEnd;
+                });
+
+                // Check if blocked
+                const blockedInfo = tlSchedulerBlockedDates.find(b => b.date === dateString);
+                
+                let dayStyle = 'background: white; padding: 12px; min-height: 100px; border: 2px solid transparent;';
+                if (isToday) dayStyle = 'background: #FEF3C7; padding: 12px; min-height: 100px; border: 2px solid var(--gold);';
+                if (blockedInfo) dayStyle += ` background: ${blockedInfo.reason_color}08;`;
+
+                let eventsHtml = '';
+                
+                // Show blocked status
+                if (blockedInfo) {
+                    eventsHtml += `<div style="background: ${blockedInfo.reason_color}20; border-left: 3px solid ${blockedInfo.reason_color}; color: ${blockedInfo.reason_color}; padding: 4px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><i class="fas fa-ban" style="margin-right: 4px;"></i>${blockedInfo.reason_label}</div>`;
+                }
+
+                // Show bookings
+                dayBookings.slice(0, 2).forEach(booking => {
+                    eventsHtml += `<div style="background: #DBEAFE; border-left: 3px solid #3B82F6; color: #0369A1; padding: 4px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer;" title="${booking.agency}" onclick="tlViewBooking(${booking.id})">${booking.agency}</div>`;
+                });
+
+                // Show events
+                dayEvents.slice(0, 2).forEach(event => {
+                    const eventStart = new Date(event.start_date).toISOString().split('T')[0];
+                    const isStartDay = dateString === eventStart;
+                    const eventLabel = isStartDay ? event.title : `↔ ${event.title}`;
+                    eventsHtml += `<div style="background: ${event.color}20; border-left: 3px solid ${event.color}; color: ${event.color}; padding: 4px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer;" title="${event.title}" onclick="tlViewEvent(${event.id})">${eventLabel}</div>`;
+                });
+
+                // Show +more indicator if there are more items
+                const totalItems = dayBookings.length + dayEvents.length + (blockedInfo ? 1 : 0);
+                if (totalItems > 3) {
+                    eventsHtml += `<div style="color: #6B7280; font-size: 10px; font-weight: 600; margin-top: 2px;">+${totalItems - 3} more</div>`;
+                }
+
+                mainHtml += `<div style="${dayStyle}"><div style="font-weight: 700; margin-bottom: 8px; color: ${isToday ? 'var(--maroon)' : '#1F2937'};">${day}</div>${eventsHtml}</div>`;
+            }
+
+            // Remaining days
+            const remainingMain = 42 - (firstDay + daysInMonth);
+            for (let i = 1; i <= remainingMain; i++) {
+                mainHtml += `<div style="background: #F9FAFB; padding: 12px; min-height: 100px; color: #D1D5DB;"><div style="font-weight: 600; margin-bottom: 8px;">${i}</div></div>`;
+            }
+
+            mainCalEl.innerHTML = mainHtml;
+        }
+
+        function tlRenderUpcomingEvents() {
+            const container = document.getElementById('tlUpcomingEventsList');
+            if (!container) return;
+
+            const today = new Date().toISOString().split('T')[0];
+            const upcomingEvents = tlSchedulerEvents.filter(e => {
+                const eventStart = new Date(e.start_date).toISOString().split('T')[0];
+                return eventStart >= today;
+            }).sort((a, b) => new Date(a.start_date) - new Date(b.start_date)).slice(0, 5);
+
+            if (upcomingEvents.length === 0) {
+                container.innerHTML = `<div class="empty-state"><i class="fas fa-calendar-check"></i><p>No upcoming events</p></div>`;
+                return;
+            }
+
+            let html = '';
+            upcomingEvents.forEach(event => {
+                const startDate = new Date(event.start_date);
+                const endDate = new Date(event.end_date);
+                const dateStr = startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                const timeStr = event.all_day ? 'All Day' : startDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+                
+                html += `
+                    <div style="padding: 16px; border-radius: 12px; margin-bottom: 12px; background: ${event.color}10; border-left: 4px solid ${event.color}; cursor: pointer; transition: all 0.3s;" onclick="tlViewEvent(${event.id})">
+                        <div style="font-weight: 700; color: #1F2937; margin-bottom: 4px;">${escapeHtml(event.title)}</div>
+                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;"><i class="fas fa-calendar"></i> ${dateStr}</div>
+                        <div style="font-size: 12px; color: #6B7280;"><i class="fas fa-clock"></i> ${timeStr}</div>
+                        ${event.location ? `<div style="font-size: 12px; color: #6B7280; margin-top: 4px;"><i class="fas fa-map-marker-alt"></i> ${escapeHtml(event.location)}</div>` : ''}
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function tlRenderRecentBookings() {
+            const container = document.getElementById('tlRecentBookingsList');
+            if (!container) return;
+
+            const recentBookings = tlSchedulerBookings.slice(0, 5);
+
+            if (recentBookings.length === 0) {
+                container.innerHTML = `<div class="empty-state"><i class="fas fa-calendar-alt"></i><p>No bookings found</p></div>`;
+                return;
+            }
+
+            let html = '';
+            recentBookings.forEach(booking => {
+                const statusColor = booking.status === 'approved' ? 'var(--forest-green)' : (booking.status === 'pending' ? 'var(--gold-dark)' : '#DC2626');
+                const date = new Date(booking.date);
+                const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                
+                html += `
+                    <div style="padding: 16px; border-radius: 12px; margin-bottom: 12px; background: white; border: 1px solid #E5E7EB; cursor: pointer; transition: all 0.3s;" onclick="tlViewBooking(${booking.id})">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                            <div style="font-weight: 700; color: #1F2937;">${escapeHtml(booking.agency)}</div>
+                            <span class="badge" style="background: ${statusColor}20; color: ${statusColor}; font-size: 10px;">${booking.status.toUpperCase()}</span>
+                        </div>
+                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;"><i class="fas fa-calendar"></i> ${dateStr}</div>
+                        <div style="font-size: 12px; color: #6B7280;"><i class="fas fa-clock"></i> ${booking.time}</div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function tlPreviousMonth() {
+            tlSchedulerCurrentMonth--;
+            if (tlSchedulerCurrentMonth < 0) {
+                tlSchedulerCurrentMonth = 11;
+                tlSchedulerCurrentYear--;
+            }
+            tlRenderSchedulerCalendar();
+        }
+
+        function tlNextMonth() {
+            tlSchedulerCurrentMonth++;
+            if (tlSchedulerCurrentMonth > 11) {
+                tlSchedulerCurrentMonth = 0;
+                tlSchedulerCurrentYear++;
+            }
+            tlRenderSchedulerCalendar();
+        }
+
+        function tlViewEvent(eventId) {
+            const event = tlSchedulerEvents.find(e => e.id === eventId);
+            if (!event) return;
+
+            const startDate = new Date(event.start_date);
+            const endDate = new Date(event.end_date);
+            const dateStr = startDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+            const endDateStr = endDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+            const timeStr = event.all_day ? 'All Day' : `${startDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })} - ${endDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`;
+
+            const message = `
+                <div style="text-align: left;">
+                    <div style="margin-bottom: 16px; padding: 16px; background: ${event.color}10; border-left: 4px solid ${event.color}; border-radius: 8px;">
+                        <h3 style="color: ${event.color}; margin-bottom: 8px; font-size: 18px; font-weight: 700;">${escapeHtml(event.title)}</h3>
+                        ${event.description ? `<p style="color: #6B7280; font-size: 14px;">${escapeHtml(event.description)}</p>` : ''}
+                    </div>
+                    <div style="display: grid; grid-template-columns: auto 1fr; gap: 12px; font-size: 14px;">
+                        <div style="color: #6B7280;"><i class="fas fa-calendar"></i> Date:</div>
+                        <div style="font-weight: 600;">${dateStr}${dateStr !== endDateStr ? ` - ${endDateStr}` : ''}</div>
+                        
+                        <div style="color: #6B7280;"><i class="fas fa-clock"></i> Time:</div>
+                        <div style="font-weight: 600;">${timeStr}</div>
+                        
+                        ${event.location ? `
+                            <div style="color: #6B7280;"><i class="fas fa-map-marker-alt"></i> Location:</div>
+                            <div style="font-weight: 600;">${escapeHtml(event.location)}</div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+
+            showCustomAlert('Event Details', message);
+        }
+
+        function tlViewBooking(bookingId) {
+            const booking = tlSchedulerBookings.find(b => b.id === bookingId);
+            if (!booking) return;
+
+            const date = new Date(booking.date);
+            const dateStr = date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+            const statusColor = booking.status === 'approved' ? 'var(--forest-green)' : (booking.status === 'pending' ? 'var(--gold-dark)' : '#DC2626');
+
+            const message = `
+                <div style="text-align: left;">
+                    <div style="margin-bottom: 16px; padding: 16px; background: #DBEAFE; border-left: 4px solid #3B82F6; border-radius: 8px;">
+                        <h3 style="color: #1E40AF; margin-bottom: 8px; font-size: 18px; font-weight: 700;">${escapeHtml(booking.agency)}</h3>
+                        <span class="badge" style="background: ${statusColor}; color: white;">${booking.status.toUpperCase()}</span>
+                    </div>
+                    <div style="display: grid; grid-template-columns: auto 1fr; gap: 12px; font-size: 14px;">
+                        <div style="color: #6B7280;"><i class="fas fa-calendar"></i> Date:</div>
+                        <div style="font-weight: 600;">${dateStr}</div>
+                        
+                        <div style="color: #6B7280;"><i class="fas fa-clock"></i> Time:</div>
+                        <div style="font-weight: 600;">${booking.time}</div>
+                        
+                        ${booking.event ? `
+                            <div style="color: #6B7280;"><i class="fas fa-tag"></i> Purpose:</div>
+                            <div style="font-weight: 600;">${escapeHtml(booking.event)}</div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+
+            showCustomAlert('Booking Details', message);
+        }
+
+        function showCustomAlert(title, htmlContent) {
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 10000; display: flex; align-items: center; justify-content: center;';
+            
+            const modal = document.createElement('div');
+            modal.style.cssText = 'background: white; border-radius: 20px; max-width: 500px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.3);';
+            
+            modal.innerHTML = `
+                <div style="background: linear-gradient(135deg, var(--maroon) 0%, var(--maroon-dark) 100%); padding: 24px; color: white; border-radius: 20px 20px 0 0; display: flex; justify-content: space-between; align-items: center;">
+                    <h2 style="font-size: 18px; font-weight: 700; margin: 0;">${title}</h2>
+                    <button onclick="this.closest('.custom-alert-overlay').remove()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 18px;">&times;</button>
+                </div>
+                <div style="padding: 24px;">
+                    ${htmlContent}
+                </div>
+                <div style="padding: 16px 24px; border-top: 1px solid #E5E7EB; text-align: right;">
+                    <button onclick="this.closest('.custom-alert-overlay').remove()" class="btn btn-primary">Close</button>
+                </div>
+            `;
+            
+            overlay.className = 'custom-alert-overlay';
+            overlay.appendChild(modal);
+            document.body.appendChild(overlay);
+            
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) overlay.remove();
+            });
+        }
+
+        function tlShowCreateEventModal() {
+            if (!tlHasEditAccess) {
+                showToast('You do not have permission to create events', true);
+                return;
+            }
+            showToast('Event creation feature - Coming soon!');
+        }
     </script>
 </body>
 </html>

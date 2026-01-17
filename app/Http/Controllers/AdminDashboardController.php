@@ -485,23 +485,26 @@ class AdminDashboardController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
-            'school_id' => 'required|exists:schools,id',
+            'school_id' => 'nullable|exists:schools,id',
         ]);
 
-        // Check if school already has a different team leader
-        $existingTeamLeader = User::where('role', User::ROLE_TEAM_LEADER)
-            ->where('school_id', $request->school_id)
-            ->where('id', '!=', $user->id)
-            ->first();
+        // Only check for duplicate team leader if school_id is being changed
+        if ($request->filled('school_id') && $request->school_id != $user->school_id) {
+            $existingTeamLeader = User::where('role', User::ROLE_TEAM_LEADER)
+                ->where('school_id', $request->school_id)
+                ->where('id', '!=', $user->id)
+                ->first();
 
-        if ($existingTeamLeader) {
-            return response()->json(['error' => 'This school already has a team leader assigned.'], 422);
+            if ($existingTeamLeader) {
+                return response()->json(['error' => 'This school already has a team leader assigned.'], 422);
+            }
+
+            $user->update(['school_id' => $request->school_id]);
         }
 
         $user->update([
             'name' => $request->name,
             'email' => $request->email,
-            'school_id' => $request->school_id,
         ]);
 
         if ($request->filled('password')) {

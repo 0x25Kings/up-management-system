@@ -4534,9 +4534,7 @@
                         <h2 style="font-size: 28px; font-weight: 700; color: #1F2937; margin-bottom: 8px;">Scheduler & Events</h2>
                         <p style="color: #6B7280; font-size: 14px;">Manage agency bookings, events, and calendar</p>
                     </div>
-                    <button onclick="showCreateEventModal()" style="background: linear-gradient(135deg, #7B1D3A, #5a1428); padding: 12px 24px; border-radius: 8px; border: none; color: white; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.3s ease;">
-                        <i class="fas fa-plus"></i> Create Event
-                    </button>
+
                 </div>
 
                 <!-- Stats Overview -->
@@ -5067,7 +5065,7 @@
             <div class="modal-body">
                 <input type="hidden" id="assignTLSchoolId">
                 <input type="hidden" id="selectedInternId">
-                
+
                 <!-- School Info -->
                 <div style="background: linear-gradient(135deg, #7B1D3A, #5a1428); color: white; padding: 16px; border-radius: 12px; margin-bottom: 20px;">
                     <div style="font-size: 12px; opacity: 0.8; text-transform: uppercase;">Assigning Team Leader for</div>
@@ -5146,24 +5144,24 @@
             <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
                 <form id="teamLeaderForm">
                     <input type="hidden" id="teamLeaderId">
-                    
+
                     <div class="form-group">
                         <label class="form-label required">Full Name</label>
                         <input type="text" id="teamLeaderName" class="form-input" placeholder="Enter full name" required>
                     </div>
-                    
+
                     <div class="form-group">
                         <label class="form-label required">Email Address</label>
                         <input type="email" id="teamLeaderEmail" class="form-input" placeholder="Enter email address" required>
                     </div>
-                    
+
                     <div class="form-group" id="passwordGroup">
-                        <label class="form-label required">Password</label>
+                        <label class="form-label" id="passwordLabel">Password</label>
                         <input type="password" id="teamLeaderPassword" class="form-input" placeholder="Enter password (min 8 characters)" minlength="8">
-                        <small style="color: #6B7280; font-size: 12px; margin-top: 4px; display: block;">Leave blank when editing to keep current password</small>
+                        <small id="passwordHint" style="color: #6B7280; font-size: 12px; margin-top: 4px; display: block;">Leave blank when editing to keep current password</small>
                     </div>
-                    
-                    <div class="form-group">
+
+                    <div class="form-group" id="schoolGroup">
                         <label class="form-label required">Assigned School</label>
                         <select id="teamLeaderSchool" class="form-input" required>
                             <option value="">-- Select School --</option>
@@ -5177,7 +5175,7 @@
                             Module Access Permissions
                         </label>
                         <p style="font-size: 12px; color: #6B7280; margin-bottom: 16px;">Grant this Team Leader access to specific admin modules</p>
-                        
+
                         <div id="permissionsList" style="display: grid; gap: 12px;">
                             <!-- Scheduler -->
                             <div class="permission-item" style="background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px; padding: 12px;">
@@ -5363,9 +5361,19 @@
             <div class="modal-body">
                 <form id="blockDateForm">
                     <div class="form-group">
-                        <label class="form-label">Selected Date</label>
+                        <label class="form-label">Start Date</label>
                         <input type="text" id="blockDateDisplay" class="form-input" readonly style="background: #f9fafb;">
                         <input type="hidden" id="blockDateValue">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Number of Days to Block</label>
+                        <input type="number" id="blockDateDays" class="form-input" value="1" min="1" max="365" placeholder="e.g., 7" onchange="updateBlockDateRange()">
+                        <small style="color: #6B7280; font-size: 12px; margin-top: 4px; display: block;">Enter how many consecutive days to block starting from the selected date</small>
+                        <div id="blockDateRangeDisplay" style="margin-top: 8px; padding: 8px 12px; background: #F3F4F6; border-radius: 6px; font-size: 13px; color: #374151; display: none;">
+                            <i class="fas fa-calendar-alt" style="color: #7B1D3A; margin-right: 6px;"></i>
+                            <span id="blockDateRangeText"></span>
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -6857,7 +6865,7 @@
         }
 
         // ===== TEAM LEADER MANAGEMENT FUNCTIONS =====
-        
+
         let teamLeadersData = [];
         let schoolsData = [];
         let reportsData = [];
@@ -6868,7 +6876,7 @@
                 const data = await response.json();
                 teamLeadersData = data.teamLeaders;
                 schoolsData = data.schools;
-                
+
                 renderTeamLeadersTable();
                 updateTeamLeaderStats();
                 populateSchoolsDropdown();
@@ -6893,7 +6901,7 @@
         function renderTeamLeadersTable() {
             const tbody = document.getElementById('teamLeadersTableBody');
             const filterStatus = document.getElementById('filterTeamLeaderStatus').value;
-            
+
             let filtered = teamLeadersData;
             if (filterStatus === 'active') {
                 filtered = teamLeadersData.filter(tl => tl.is_active);
@@ -6971,7 +6979,7 @@
         function populateSchoolsDropdown() {
             const select = document.getElementById('teamLeaderSchool');
             select.innerHTML = '<option value="">-- Select School --</option>';
-            
+
             schoolsData.forEach(school => {
                 const option = document.createElement('option');
                 option.value = school.id;
@@ -6985,15 +6993,19 @@
             const title = document.getElementById('teamLeaderModalTitle');
             const form = document.getElementById('teamLeaderForm');
             const passwordGroup = document.getElementById('passwordGroup');
+            const schoolGroup = document.getElementById('schoolGroup');
             const refCodeDisplay = document.getElementById('referenceCodeDisplay');
-            
+            const passwordLabel = document.getElementById('passwordLabel');
+            const passwordInput = document.getElementById('teamLeaderPassword');
+            const passwordHint = document.getElementById('passwordHint');
+
             form.reset();
             document.getElementById('teamLeaderId').value = '';
             refCodeDisplay.style.display = 'none';
-            
+
             // Reset all permission checkboxes
             resetPermissionCheckboxes();
-            
+
             if (id) {
                 title.innerHTML = '<i class="fas fa-user-tie" style="margin-right: 8px;"></i>Edit Team Leader';
                 const tl = teamLeadersData.find(t => t.id === id);
@@ -7001,22 +7013,37 @@
                     document.getElementById('teamLeaderId').value = tl.id;
                     document.getElementById('teamLeaderName').value = tl.name;
                     document.getElementById('teamLeaderEmail').value = tl.email;
-                    document.getElementById('teamLeaderSchool').value = tl.school_id;
-                    document.getElementById('teamLeaderPassword').removeAttribute('required');
                     
+                    // Hide school field during edit - school cannot be changed
+                    schoolGroup.style.display = 'none';
+                    
+                    // Make password optional for editing
+                    passwordInput.removeAttribute('required');
+                    passwordLabel.classList.remove('required');
+                    passwordInput.placeholder = 'Leave blank to keep current password';
+                    passwordHint.style.display = 'block';
+
                     if (tl.reference_code) {
                         document.getElementById('referenceCodeValue').textContent = tl.reference_code;
                         refCodeDisplay.style.display = 'block';
                     }
-                    
+
                     // Load permissions for this team leader
                     loadTeamLeaderPermissions(id);
                 }
             } else {
                 title.innerHTML = '<i class="fas fa-user-tie" style="margin-right: 8px;"></i>Add Team Leader';
-                document.getElementById('teamLeaderPassword').setAttribute('required', 'required');
+                
+                // Show school field for new team leaders
+                schoolGroup.style.display = 'block';
+                
+                // Make password required for new team leaders
+                passwordInput.setAttribute('required', 'required');
+                passwordLabel.classList.add('required');
+                passwordInput.placeholder = 'Enter password (min 8 characters)';
+                passwordHint.style.display = 'none';
             }
-            
+
             modal.style.display = 'flex';
         }
 
@@ -7034,13 +7061,13 @@
             try {
                 const response = await fetch(`/admin/api/team-leaders/${userId}/permissions`);
                 const data = await response.json();
-                
+
                 if (data.permissions) {
                     Object.keys(data.permissions).forEach(module => {
                         const perm = data.permissions[module];
                         const viewCheckbox = document.getElementById(`perm_${module}_view`);
                         const editCheckbox = document.getElementById(`perm_${module}_edit`);
-                        
+
                         if (viewCheckbox) viewCheckbox.checked = perm.can_view;
                         if (editCheckbox) editCheckbox.checked = perm.can_edit;
                     });
@@ -7053,26 +7080,46 @@
         function getPermissionsFromForm() {
             const modules = ['scheduler', 'research_tracking', 'incubatee_tracker', 'issues_management', 'digital_records', 'intern_management'];
             const permissions = {};
-            
+
             modules.forEach(module => {
                 const viewCheckbox = document.getElementById(`perm_${module}_view`);
                 const editCheckbox = document.getElementById(`perm_${module}_edit`);
-                
+
                 permissions[module] = {
                     can_view: viewCheckbox ? viewCheckbox.checked : false,
                     can_edit: editCheckbox ? editCheckbox.checked : false
                 };
             });
-            
+
             return permissions;
         }
 
-        function editTeamLeader(id) {
-            openTeamLeaderModal(id);
+        async function editTeamLeader(id) {
+            // Ensure schools data is loaded before opening modal
+            if (schoolsData.length === 0 || teamLeadersData.length === 0) {
+                try {
+                    const response = await fetch('/admin/api/team-leaders');
+                    const data = await response.json();
+                    schoolsData = data.schools;
+                    teamLeadersData = data.teamLeaders;
+                } catch (error) {
+                    console.error('Error loading data:', error);
+                    showToast('error', 'Error', 'Failed to load team leader data');
+                    return;
+                }
+            }
+            
+            // Populate schools dropdown first
+            populateSchoolsDropdown();
+            
+            // Small delay to ensure DOM is ready
+            setTimeout(() => {
+                openTeamLeaderModal(id);
+            }, 50);
         }
 
         // ===== ASSIGN TEAM LEADER FROM INTERNS =====
-        
+
         let schoolInternsData = [];
         let currentAssignSchoolId = null;
         let currentAssignSchoolName = '';
@@ -7081,12 +7128,12 @@
         async function openTeamLeaderModalForSchool(schoolId, schoolName) {
             currentAssignSchoolId = schoolId;
             currentAssignSchoolName = schoolName;
-            
+
             const modal = document.getElementById('assignTeamLeaderModal');
             document.getElementById('assignTLSchoolId').value = schoolId;
             document.getElementById('assignTLSchoolName').textContent = schoolName;
             document.getElementById('assignTLModalTitle').innerHTML = `<i class="fas fa-user-tie" style="margin-right: 8px;"></i>Assign Team Leader`;
-            
+
             // Reset form
             document.getElementById('searchInternInput').value = '';
             document.getElementById('selectedInternId').value = '';
@@ -7095,9 +7142,9 @@
             document.getElementById('passwordSection').style.display = 'none';
             document.getElementById('btnAssignTeamLeader').disabled = true;
             document.getElementById('btnAssignTeamLeader').style.opacity = '0.5';
-            
+
             modal.style.display = 'flex';
-            
+
             // Load interns for this school
             await loadSchoolInterns(schoolId);
         }
@@ -7115,7 +7162,7 @@
                 const response = await fetch(`/admin/api/schools/${schoolId}/interns`);
                 const data = await response.json();
                 schoolInternsData = data.interns;
-                
+
                 document.getElementById('internsCount').textContent = schoolInternsData.length;
                 renderInternsList();
             } catch (error) {
@@ -7132,10 +7179,10 @@
         function renderInternsList() {
             const container = document.getElementById('internsListContainer');
             const searchTerm = document.getElementById('searchInternInput').value.toLowerCase();
-            
+
             let filtered = schoolInternsData;
             if (searchTerm) {
-                filtered = schoolInternsData.filter(intern => 
+                filtered = schoolInternsData.filter(intern =>
                     intern.name.toLowerCase().includes(searchTerm) ||
                     intern.email.toLowerCase().includes(searchTerm) ||
                     intern.course.toLowerCase().includes(searchTerm)
@@ -7153,7 +7200,7 @@
             }
 
             container.innerHTML = filtered.map(intern => `
-                <div onclick="selectIntern(${intern.id})" class="intern-select-item" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; cursor: pointer; border-bottom: 1px solid #F3F4F6; transition: all 0.2s;" 
+                <div onclick="selectIntern(${intern.id})" class="intern-select-item" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; cursor: pointer; border-bottom: 1px solid #F3F4F6; transition: all 0.2s;"
                      onmouseover="this.style.background='#F9FAFB'" onmouseout="this.style.background='white'">
                     <div style="display: flex; align-items: center; gap: 12px;">
                         <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #FFBF00, #FFA500); display: flex; align-items: center; justify-content: center; color: #7B1D3A; font-weight: 700;">
@@ -7184,12 +7231,12 @@
             document.getElementById('selectedInternAvatar').textContent = intern.name.charAt(0).toUpperCase();
             document.getElementById('selectedInternName').textContent = intern.name;
             document.getElementById('selectedInternInfo').textContent = `${intern.course} • ${intern.completed_hours}/${intern.required_hours} hrs completed`;
-            
+
             document.getElementById('selectedInternDisplay').style.display = 'block';
             document.getElementById('passwordSection').style.display = 'block';
             document.getElementById('btnAssignTeamLeader').disabled = false;
             document.getElementById('btnAssignTeamLeader').style.opacity = '1';
-            
+
             // Hide the list
             document.getElementById('internsListContainer').style.display = 'none';
         }
@@ -7201,7 +7248,7 @@
             document.getElementById('assignTLPassword').value = '';
             document.getElementById('btnAssignTeamLeader').disabled = true;
             document.getElementById('btnAssignTeamLeader').style.opacity = '0.5';
-            
+
             // Show the list again
             document.getElementById('internsListContainer').style.display = 'block';
         }
@@ -7245,10 +7292,10 @@
 
                 if (response.ok) {
                     closeAssignTeamLeaderModal();
-                    
+
                     // Show success with reference code
                     showSuccessModal(result.team_leader.name, result.reference_code);
-                    
+
                     // Refresh after showing
                     setTimeout(() => {
                         location.reload();
@@ -7290,7 +7337,7 @@
 
         function switchToManualTeamLeader() {
             closeAssignTeamLeaderModal();
-            
+
             // Load schools data if needed and open manual modal
             if (schoolsData.length === 0) {
                 fetch('/admin/api/team-leaders')
@@ -7311,43 +7358,46 @@
             const modal = document.getElementById('teamLeaderModal');
             const form = document.getElementById('teamLeaderForm');
             const refCodeDisplay = document.getElementById('referenceCodeDisplay');
-            
+
             form.reset();
             document.getElementById('teamLeaderId').value = '';
             refCodeDisplay.style.display = 'none';
             document.getElementById('teamLeaderModalTitle').innerHTML = '<i class="fas fa-user-tie" style="margin-right: 8px;"></i>Create Team Leader Account';
             document.getElementById('teamLeaderPassword').setAttribute('required', 'required');
-            
+
             // Pre-select the school if we have one
             if (currentAssignSchoolId) {
                 setTimeout(() => {
                     document.getElementById('teamLeaderSchool').value = currentAssignSchoolId;
                 }, 100);
             }
-            
+
             modal.style.display = 'flex';
         }
 
         // Edit team leader from school header
         async function editTeamLeaderFromSchool(teamLeaderId) {
             // First ensure we have the data loaded
-            if (teamLeadersData.length === 0) {
+            if (teamLeadersData.length === 0 || schoolsData.length === 0) {
                 try {
                     const response = await fetch('/admin/api/team-leaders');
                     const data = await response.json();
                     schoolsData = data.schools;
                     teamLeadersData = data.teamLeaders;
-                    populateSchoolsDropdown();
                 } catch (error) {
                     console.error('Error loading team leaders:', error);
                     showToast('error', 'Error', 'Failed to load team leaders data');
                     return;
                 }
-            } else {
-                populateSchoolsDropdown();
             }
-
-            openTeamLeaderModal(teamLeaderId);
+            
+            // Populate schools dropdown first
+            populateSchoolsDropdown();
+            
+            // Small delay to ensure DOM is ready
+            setTimeout(() => {
+                openTeamLeaderModal(teamLeaderId);
+            }, 50);
         }
 
         function closeTeamLeaderModal() {
@@ -7362,23 +7412,35 @@
             const school_id = document.getElementById('teamLeaderSchool').value;
             const permissions = getPermissionsFromForm();
 
-            if (!name || !email || !school_id) {
+            // Validate name and email (always required)
+            if (!name || !email) {
                 showToast('error', 'Validation Error', 'Please fill in all required fields');
                 return;
             }
 
-            if (!id && !password) {
-                showToast('error', 'Validation Error', 'Password is required for new team leaders');
-                return;
+            // For new team leaders, school_id and password are required
+            if (!id) {
+                if (!school_id) {
+                    showToast('error', 'Validation Error', 'Please select a school');
+                    return;
+                }
+                if (!password) {
+                    showToast('error', 'Validation Error', 'Password is required for new team leaders');
+                    return;
+                }
             }
 
-            const data = { name, email, school_id, permissions };
+            // Build data object - only include school_id for new team leaders
+            const data = { name, email, permissions };
+            if (!id && school_id) {
+                data.school_id = school_id;
+            }
             if (password) data.password = password;
 
             try {
                 const url = id ? `/admin/api/team-leaders/${id}` : '/admin/api/team-leaders';
                 const method = id ? 'PUT' : 'POST';
-                
+
                 const response = await fetch(url, {
                     method: method,
                     headers: {
@@ -7393,7 +7455,7 @@
                 if (response.ok) {
                     closeTeamLeaderModal();
                     loadTeamLeadersData();
-                    
+
                     if (result.reference_code) {
                         showToast('success', 'Success', `Team Leader created! Reference Code: ${result.reference_code}`);
                         // Refresh page to update school headers in Intern List
@@ -7415,7 +7477,7 @@
         async function toggleTeamLeaderStatus(id) {
             const tl = teamLeadersData.find(t => t.id === id);
             const action = tl.is_active ? 'deactivate' : 'activate';
-            
+
             if (!confirm(`Are you sure you want to ${action} ${tl.name}?`)) {
                 return;
             }
@@ -7476,18 +7538,18 @@
                 const response = await fetch('/admin/api/team-reports');
                 const data = await response.json();
                 reportsData = data.reports;
-                
+
                 const pendingCount = data.pendingCount;
                 const badge = document.getElementById('pendingReportsBadge');
                 const countSpan = document.getElementById('pendingReportsCount');
-                
+
                 if (pendingCount > 0) {
                     badge.style.display = 'inline-flex';
                     countSpan.textContent = pendingCount;
                 } else {
                     badge.style.display = 'none';
                 }
-                
+
                 renderReportsList();
             } catch (error) {
                 console.error('Error loading reports:', error);
@@ -7499,7 +7561,7 @@
             const container = document.getElementById('reportsListContainer');
             const filterStatus = document.getElementById('filterReportStatus').value;
             const filterType = document.getElementById('filterReportType').value;
-            
+
             let filtered = reportsData;
             if (filterStatus !== 'all') {
                 filtered = filtered.filter(r => r.status === filterStatus);
@@ -9474,8 +9536,9 @@ University of the Philippines Cebu
                 const isToday = dateString === todayString;
                 const hasBooking = schedulerBookings.some(b => b.date === dateString);
                 const hasEvent = schedulerEvents.some(e => {
-                    const eventStart = new Date(e.start_date);
-                    return eventStart.toISOString().split('T')[0] === dateString;
+                    const eventStart = new Date(e.start_date).toISOString().split('T')[0];
+                    const eventEnd = new Date(e.end_date).toISOString().split('T')[0];
+                    return dateString >= eventStart && dateString <= eventEnd;
                 });
                 const blockedInfo = blockedDates.find(b => b.date === dateString);
                 let classes = 'mini-day';
@@ -9531,17 +9594,21 @@ University of the Philippines Cebu
 
                 // Show events
                 const dayEvents = schedulerEvents.filter(e => {
-                    const eventStart = new Date(e.start_date);
-                    return eventStart.toISOString().split('T')[0] === dateString;
+                    const eventStart = new Date(e.start_date).toISOString().split('T')[0];
+                    const eventEnd = new Date(e.end_date).toISOString().split('T')[0];
+                    return dateString >= eventStart && dateString <= eventEnd;
                 });
 
                 dayEvents.forEach(event => {
                     const eventStart = new Date(event.start_date);
-                    const timeStr = event.all_day ? '' : eventStart.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+                    const eventStartDate = eventStart.toISOString().split('T')[0];
+                    const isStartDay = dateString === eventStartDate;
+                    const timeStr = (event.all_day || !isStartDay) ? '' : eventStart.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+                    const eventLabel = isStartDay ? escapeHtml(event.title) : `↔ ${escapeHtml(event.title)}`;
                     eventsHtml += `
                         <div class="calendar-event" onclick="event.stopPropagation(); editEvent(${event.id})" style="cursor: pointer; background: ${event.color}20; border-left-color: ${event.color};">
                             ${timeStr ? `<div class="event-time">${timeStr}</div>` : ''}
-                            <div class="event-name">${escapeHtml(event.title)}</div>
+                            <div class="event-name">${eventLabel}</div>
                         </div>
                     `;
                 });
@@ -9565,13 +9632,16 @@ University of the Philippines Cebu
 
             document.getElementById('blockDateDisplay').value = formattedDate;
             document.getElementById('blockDateValue').value = dateString;
+            document.getElementById('blockDateDays').value = '1';
             document.getElementById('blockDateReason').value = '';
             document.getElementById('blockDateDescription').value = '';
             document.getElementById('blockDateWarning').style.display = 'none';
             document.getElementById('blockedDateInfo').style.display = 'none';
+            document.getElementById('blockDateRangeDisplay').style.display = 'none';
             document.getElementById('blockDateSubmitBtn').style.display = 'inline-flex';
             document.getElementById('unblockDateBtn').style.display = 'none';
             currentBlockDateId = null;
+            updateBlockDateRange();
 
             // Check if date is already blocked
             const blockedInfo = blockedDates.find(b => b.date === dateString);
@@ -9605,8 +9675,37 @@ University of the Philippines Cebu
             currentBlockDateId = null;
         }
 
+        function updateBlockDateRange() {
+            const startDate = document.getElementById('blockDateValue').value;
+            const days = parseInt(document.getElementById('blockDateDays').value) || 1;
+
+            if (!startDate || days < 1) {
+                document.getElementById('blockDateRangeDisplay').style.display = 'none';
+                return;
+            }
+
+            const start = new Date(startDate + 'T00:00:00');
+            const end = new Date(start);
+            end.setDate(end.getDate() + days - 1);
+
+            const startFormatted = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            const endFormatted = end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+            const rangeDisplay = document.getElementById('blockDateRangeDisplay');
+            const rangeText = document.getElementById('blockDateRangeText');
+
+            if (days === 1) {
+                rangeText.textContent = `Blocking: ${startFormatted}`;
+            } else {
+                rangeText.textContent = `Blocking ${days} days: ${startFormatted} - ${endFormatted}`;
+            }
+
+            rangeDisplay.style.display = 'block';
+        }
+
         function submitBlockDate() {
             const dateValue = document.getElementById('blockDateValue').value;
+            const days = parseInt(document.getElementById('blockDateDays').value) || 1;
             const reason = document.getElementById('blockDateReason').value;
             const description = document.getElementById('blockDateDescription').value;
 
@@ -9615,35 +9714,68 @@ University of the Philippines Cebu
                 return;
             }
 
-            fetch('/admin/blocked-dates', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({
-                    blocked_date: dateValue,
-                    reason: reason,
-                    description: description
+            if (days < 1 || days > 365) {
+                alert('Number of days must be between 1 and 365.');
+                return;
+            }
+
+            // Generate all dates to block
+            const datesToBlock = [];
+            const startDate = new Date(dateValue + 'T00:00:00');
+
+            for (let i = 0; i < days; i++) {
+                const currentDate = new Date(startDate);
+                currentDate.setDate(currentDate.getDate() + i);
+                const dateString = currentDate.toISOString().split('T')[0];
+                datesToBlock.push(dateString);
+            }
+
+            // Block all dates
+            const promises = datesToBlock.map(date =>
+                fetch('/admin/blocked-dates', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        blocked_date: date,
+                        reason: reason,
+                        description: description
+                    })
+                }).then(response => response.json())
+            );
+
+            Promise.all(promises)
+                .then(results => {
+                    const successCount = results.filter(data => data.success).length;
+                    const failCount = results.length - successCount;
+
+                    if (successCount > 0) {
+                        // Add all successfully blocked dates to local array
+                        results.forEach(data => {
+                            if (data.success && data.blockedDate) {
+                                blockedDates.push(data.blockedDate);
+                            }
+                        });
+
+                        if (failCount === 0) {
+                            alert(`Successfully blocked ${successCount} day${successCount > 1 ? 's' : ''}!`);
+                        } else {
+                            alert(`Blocked ${successCount} day${successCount > 1 ? 's' : ''}, but ${failCount} day${failCount > 1 ? 's were' : ' was'} already blocked or failed.`);
+                        }
+
+                        closeBlockDateModal();
+                        renderSchedulerCalendar();
+                    } else {
+                        alert('Failed to block dates. Some or all dates may already be blocked.');
+                    }
                 })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Date blocked successfully!');
-                    // Add to local array
-                    blockedDates.push(data.blockedDate);
-                    closeBlockDateModal();
-                    renderSchedulerCalendar();
-                } else {
-                    alert(data.message || 'Failed to block date.');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred while blocking the date.');
-            });
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while blocking the dates.');
+                });
         }
 
         function unblockDate() {

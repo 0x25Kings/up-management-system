@@ -408,7 +408,7 @@
                     <div class="calendar-days" id="calendarDays"></div>
                     <div class="calendar-legend">
                         <div class="legend-item"><div class="legend-dot today"></div><span>Today</span></div>
-                        <div class="legend-item"><div class="legend-dot booked"></div><span>Has Bookings</span></div>
+                        <div class="legend-item"><div class="legend-dot booked"></div><span>Has Events/Bookings</span></div>
                     </div>
                 </div>
                 <div class="events-sidebar">
@@ -564,14 +564,14 @@
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
-            
+
             const icons = {
                 success: 'fa-check',
                 error: 'fa-times',
                 warning: 'fa-exclamation',
                 info: 'fa-info'
             };
-            
+
             toast.innerHTML = `
                 <div class="toast-icon"><i class="fas ${icons[type]}"></i></div>
                 <div class="toast-content">
@@ -581,12 +581,12 @@
                 <button class="toast-close" onclick="dismissToast(this.parentElement)"><i class="fas fa-times"></i></button>
                 <div class="toast-progress" style="animation-duration: ${duration}ms"></div>
             `;
-            
+
             container.appendChild(toast);
-            
+
             setTimeout(() => dismissToast(toast), duration);
         }
-        
+
         function dismissToast(toast) {
             if (toast && !toast.classList.contains('hiding')) {
                 toast.classList.add('hiding');
@@ -596,35 +596,35 @@
 
         // Confirmation Modal System
         let confirmResolve = null;
-        
+
         function showConfirmModal(options) {
             return new Promise((resolve) => {
                 confirmResolve = resolve;
-                
+
                 const overlay = document.getElementById('confirmModalOverlay');
                 const icon = document.getElementById('confirmModalIcon');
                 const iconInner = document.getElementById('confirmModalIconInner');
                 const title = document.getElementById('confirmModalTitle');
                 const message = document.getElementById('confirmModalMessage');
                 const confirmBtn = document.getElementById('confirmModalBtn');
-                
+
                 // Set content
                 title.textContent = options.title || 'Are you sure?';
                 message.textContent = options.message || 'This action cannot be undone.';
                 confirmBtn.textContent = options.confirmText || 'Confirm';
-                
+
                 // Set icon type
                 icon.className = 'confirm-modal-icon ' + (options.type || 'danger');
                 const iconMap = { danger: 'fa-exclamation-triangle', warning: 'fa-exclamation-circle', info: 'fa-question-circle' };
                 iconInner.className = 'fas ' + (iconMap[options.type] || iconMap.danger);
-                
+
                 // Set button style
                 confirmBtn.className = 'confirm-modal-btn confirm' + (options.type === 'info' ? ' primary' : '');
-                
+
                 overlay.classList.add('active');
             });
         }
-        
+
         function closeConfirmModal(result) {
             document.getElementById('confirmModalOverlay').classList.remove('active');
             if (confirmResolve) {
@@ -638,6 +638,7 @@
         let currentYear = currentDate.getFullYear();
         let selectedDate = null;
         let bookings = [];
+        let events = [];
         const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -650,7 +651,16 @@
                 // Load bookings
                 const bookingsResponse = await fetch('/bookings');
                 bookings = await bookingsResponse.json();
-                
+
+                // Load events
+                const eventsResponse = await fetch('/intern/events');
+                if (eventsResponse.ok) {
+                    const eventsData = await eventsResponse.json();
+                    events = eventsData.events || [];
+                } else {
+                    events = [];
+                }
+
                 // Load blocked dates (public route)
                 const blockedResponse = await fetch('/blocked-dates');
                 if (blockedResponse.ok) {
@@ -658,7 +668,7 @@
                 } else {
                     blockedDates = [];
                 }
-                
+
                 renderCalendar();
                 renderUpcomingEvents();
             } catch (error) {
@@ -673,13 +683,13 @@
             const calendarDays = document.getElementById('calendarDays');
             const monthDisplay = document.getElementById('currentMonth');
             monthDisplay.textContent = `${monthNames[currentMonth]} ${currentYear}`;
-            
+
             const firstDay = new Date(currentYear, currentMonth, 1).getDay();
             const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
             const daysInPrevMonth = new Date(currentYear, currentMonth, 0).getDate();
             const today = new Date();
             const todayString = today.toISOString().split('T')[0];
-            
+
             let html = '';
             for (let i = firstDay - 1; i >= 0; i--) { html += `<div class="calendar-day other-month">${daysInPrevMonth - i}</div>`; }
             for (let day = 1; day <= daysInMonth; day++) {
@@ -687,22 +697,27 @@
                 const isToday = dateString === todayString;
                 const isPast = new Date(dateString) < new Date(todayString);
                 const hasBooking = bookings.some(b => b.date === dateString);
+                const hasEvent = events.some(e => {
+                    const eventStart = new Date(e.start_date).toISOString().split('T')[0];
+                    const eventEnd = new Date(e.end_date).toISOString().split('T')[0];
+                    return dateString >= eventStart && dateString <= eventEnd;
+                });
                 const blockedInfo = blockedDates.find(b => b.date === dateString);
                 const isBlocked = !!blockedInfo;
-                
+
                 let classes = 'calendar-day';
                 if (isToday) classes += ' today';
-                if (hasBooking) classes += ' has-booking';
+                if (hasBooking || hasEvent) classes += ' has-booking';
                 if (isPast && !isToday) classes += ' disabled';
                 if (isBlocked) classes += ' blocked';
-                
+
                 // Don't allow clicking on blocked or past dates
                 const isClickable = !isPast && !isBlocked;
                 const onclick = isClickable ? `onclick="selectDate('${dateString}')"` : isBlocked ? `onclick="showBlockedMessage('${blockedInfo.reason_label}')"` : '';
-                
+
                 // Style for blocked dates
                 let style = isBlocked ? `style="background: ${blockedInfo.reason_color}15; color: ${blockedInfo.reason_color}; border: 1px solid ${blockedInfo.reason_color}40;"` : '';
-                
+
                 html += `<div class="${classes}" ${style} ${onclick}>${day}${isBlocked ? '<i class="fas fa-ban" style="font-size: 8px; margin-left: 2px; opacity: 0.7;"></i>' : ''}</div>`;
             }
             const remainingDays = 42 - (firstDay + daysInMonth);
@@ -718,15 +733,35 @@
             const eventsList = document.getElementById('eventsList');
             const today = new Date().toISOString().split('T')[0];
             const upcomingBookings = bookings.filter(b => b.date >= today).slice(0, 5);
-            if (upcomingBookings.length === 0) {
+
+            // Get upcoming events
+            const upcomingEvents = events.filter(e => {
+                const eventStart = new Date(e.start_date).toISOString().split('T')[0];
+                return eventStart >= today;
+            }).slice(0, 5);
+
+            // Combine and sort by date
+            const combined = [
+                ...upcomingBookings.map(b => ({ type: 'booking', date: b.date, title: `${b.agency} - ${b.event}`, time: b.time })),
+                ...upcomingEvents.map(e => ({
+                    type: 'event',
+                    date: new Date(e.start_date).toISOString().split('T')[0],
+                    title: e.title,
+                    time: e.all_day ? 'All Day' : new Date(e.start_date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
+                    color: e.color
+                }))
+            ].sort((a, b) => new Date(a.date) - new Date(b.date)).slice(0, 5);
+
+            if (combined.length === 0) {
                 eventsList.innerHTML = `<div class="no-events"><i class="fas fa-calendar-check"></i><p>No upcoming events</p></div>`;
                 return;
             }
-            eventsList.innerHTML = upcomingBookings.map(booking => `
-                <div class="event-item">
-                    <div class="event-date">${formatDate(booking.date)}</div>
-                    <div class="event-title">${booking.agency} - ${booking.event}</div>
-                    <div class="event-time"><i class="fas fa-clock"></i> ${booking.time}</div>
+
+            eventsList.innerHTML = combined.map(item => `
+                <div class="event-item" ${item.type === 'event' ? `style="border-left-color: ${item.color};"` : ''}>
+                    <div class="event-date">${formatDate(item.date)}</div>
+                    <div class="event-title">${item.title}</div>
+                    <div class="event-time"><i class="fas fa-clock"></i> ${item.time}</div>
                 </div>
             `).join('');
         }
@@ -754,7 +789,7 @@
         async function submitBooking() {
             const form = document.getElementById('bookingForm');
             if (!form.checkValidity()) { form.reportValidity(); return; }
-            
+
             // Check file size if attachment is provided
             const attachmentInput = document.getElementById('attachment');
             if (attachmentInput.files.length > 0) {
@@ -780,7 +815,7 @@
             formData.append('time_start', document.getElementById('timeStart').value);
             formData.append('time_end', document.getElementById('timeEnd').value);
             formData.append('purpose', document.getElementById('purpose').value);
-            
+
             if (attachmentInput.files.length > 0) {
                 formData.append('attachment', attachmentInput.files[0]);
             }
@@ -794,25 +829,25 @@
             try {
                 const response = await fetch('/bookings', {
                     method: 'POST',
-                    headers: { 
-                        'Accept': 'application/json', 
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content 
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                     },
                     body: formData
                 });
                 const data = await response.json();
-                
-                if (data.success) { 
+
+                if (data.success) {
                     showToast('success', 'Booking Submitted!', data.message || 'Your booking request has been submitted successfully.');
-                    closeBookingModal(); 
-                    loadBookings(); 
-                } else { 
+                    closeBookingModal();
+                    loadBookings();
+                } else {
                     // Show specific error messages for conflicts or blocked dates
                     showToast('error', 'Booking Failed', data.message || 'Failed to submit booking. Please try again.');
                 }
-            } catch (error) { 
-                console.error('Error:', error); 
-                showToast('error', 'Error', 'Error submitting booking. Please try again.'); 
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('error', 'Error', 'Error submitting booking. Please try again.');
             }
         }
 
