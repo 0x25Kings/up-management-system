@@ -103,6 +103,7 @@ Route::middleware(['admin'])->group(function () {
     Route::post('/admin/interns/{intern}/auto-update-tasks', [TaskController::class, 'autoUpdateInternTasks'])->name('intern.auto-update-tasks');
 
     // Booking management routes (Admin)
+    Route::get('/admin/bookings', [BookingController::class, 'getAllBookings'])->name('admin.bookings.index');
     Route::get('/admin/bookings/pending', [BookingController::class, 'pending'])->name('admin.bookings.pending');
     Route::post('/admin/bookings/{booking}/approve', [BookingController::class, 'approve'])->name('admin.bookings.approve');
     Route::post('/admin/bookings/{booking}/send-email', [BookingController::class, 'sendEmailNotification'])->name('admin.bookings.sendEmail');
@@ -158,12 +159,12 @@ Route::middleware(['admin'])->group(function () {
     Route::patch('/admin/api/team-leaders/{user}/toggle-status', [AdminDashboardController::class, 'toggleTeamLeaderStatusAjax'])->name('admin.api.team-leaders.toggle-status');
     Route::delete('/admin/api/team-leaders/{user}', [AdminDashboardController::class, 'deleteTeamLeaderAjax'])->name('admin.api.team-leaders.destroy');
     Route::post('/admin/api/team-reports/{report}/review', [AdminDashboardController::class, 'reviewTeamLeaderReportAjax'])->name('admin.api.team-reports.review');
-    
+
     // Team Leader Permissions
     Route::get('/admin/api/team-leaders/{user}/permissions', [AdminDashboardController::class, 'getTeamLeaderPermissions'])->name('admin.api.team-leaders.permissions');
     Route::put('/admin/api/team-leaders/{user}/permissions', [AdminDashboardController::class, 'updateTeamLeaderPermissions'])->name('admin.api.team-leaders.permissions.update');
     Route::get('/admin/api/available-modules', [AdminDashboardController::class, 'getAvailableModules'])->name('admin.api.available-modules');
-    
+
     // Intern to Team Leader promotion
     Route::get('/admin/api/schools/{school}/interns', [AdminDashboardController::class, 'getInternsBySchool'])->name('admin.api.school-interns');
     Route::post('/admin/api/team-leaders/promote-intern', [AdminDashboardController::class, 'promoteInternToTeamLeader'])->name('admin.api.team-leaders.promote');

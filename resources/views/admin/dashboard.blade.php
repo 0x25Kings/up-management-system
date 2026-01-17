@@ -6577,7 +6577,8 @@
             try {
                 // Fetch pending bookings
                 const bookingsResponse = await fetch('/admin/bookings');
-                const bookings = await bookingsResponse.json();
+                const bookingsData = await bookingsResponse.json();
+                const bookings = bookingsData.bookings || bookingsData;
                 const pendingBookings = bookings.filter(b => b.status === 'pending');
 
                 // Fetch startup submissions
@@ -7013,10 +7014,10 @@
                     document.getElementById('teamLeaderId').value = tl.id;
                     document.getElementById('teamLeaderName').value = tl.name;
                     document.getElementById('teamLeaderEmail').value = tl.email;
-                    
+
                     // Hide school field during edit - school cannot be changed
                     schoolGroup.style.display = 'none';
-                    
+
                     // Make password optional for editing
                     passwordInput.removeAttribute('required');
                     passwordLabel.classList.remove('required');
@@ -7033,10 +7034,10 @@
                 }
             } else {
                 title.innerHTML = '<i class="fas fa-user-tie" style="margin-right: 8px;"></i>Add Team Leader';
-                
+
                 // Show school field for new team leaders
                 schoolGroup.style.display = 'block';
-                
+
                 // Make password required for new team leaders
                 passwordInput.setAttribute('required', 'required');
                 passwordLabel.classList.add('required');
@@ -7108,10 +7109,10 @@
                     return;
                 }
             }
-            
+
             // Populate schools dropdown first
             populateSchoolsDropdown();
-            
+
             // Small delay to ensure DOM is ready
             setTimeout(() => {
                 openTeamLeaderModal(id);
@@ -7390,10 +7391,10 @@
                     return;
                 }
             }
-            
+
             // Populate schools dropdown first
             populateSchoolsDropdown();
-            
+
             // Small delay to ensure DOM is ready
             setTimeout(() => {
                 openTeamLeaderModal(teamLeaderId);

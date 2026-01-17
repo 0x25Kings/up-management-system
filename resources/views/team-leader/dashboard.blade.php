@@ -677,7 +677,7 @@
             <div class="menu-section" style="margin-top: 20px; border-top: 1px solid rgba(255, 215, 0, 0.2); padding-top: 20px;">
                 <i class="fas fa-key" style="margin-right: 4px;"></i> Granted Access
             </div>
-            
+
             @if(in_array('scheduler', $viewableModules))
             <a class="menu-item" data-page="scheduler">
                 <i class="fas fa-calendar-alt"></i>
@@ -1379,6 +1379,9 @@
                         <button onclick="tlShowCreateEventModal()" class="btn btn-primary btn-sm">
                             <i class="fas fa-plus"></i> Add Event
                         </button>
+                        <button onclick="tlOpenBlockDateModal()" class="btn btn-danger btn-sm">
+                            <i class="fas fa-ban"></i> Block Date
+                        </button>
                         <span class="badge badge-success"><i class="fas fa-edit"></i> Edit Access</span>
                         @else
                         <span class="badge badge-info"><i class="fas fa-eye"></i> View Only</span>
@@ -1966,6 +1969,125 @@
         <span id="toastMessage">Success!</span>
     </div>
 
+    {{-- Create/Edit Event Modal --}}
+    <div id="tlEventModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; align-items: center; justify-content: center;">
+        <div style="background: white; border-radius: 16px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+            <div style="background: linear-gradient(135deg, var(--maroon), var(--maroon-dark)); padding: 24px; color: white; border-radius: 16px 16px 0 0; display: flex; justify-content: space-between; align-items: center;">
+                <h2 id="tlEventModalTitle" style="margin: 0; font-size: 20px; font-weight: 700;">Create Event</h2>
+                <button onclick="tlCloseEventModal()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-size: 18px; transition: all 0.3s ease;">&times;</button>
+            </div>
+            <div style="padding: 24px;">
+                <input type="hidden" id="tlEventId">
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">Event Title *</label>
+                    <input type="text" id="tlEventTitle" style="width: 100%; padding: 12px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 14px;" placeholder="Enter event title">
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">Description</label>
+                    <textarea id="tlEventDescription" style="width: 100%; padding: 12px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 14px; resize: vertical; min-height: 100px;" placeholder="Enter event description"></textarea>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+                    <div>
+                        <label id="tlStartDateLabel" style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">Start Date & Time *</label>
+                        <input type="datetime-local" id="tlEventStartDate" style="width: 100%; padding: 12px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 14px;">
+                    </div>
+                    <div>
+                        <label id="tlEndDateLabel" style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">End Date & Time *</label>
+                        <input type="datetime-local" id="tlEventEndDate" style="width: 100%; padding: 12px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 14px;">
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" id="tlEventAllDay" onchange="tlToggleAllDayEvent()" style="width: 18px; height: 18px; cursor: pointer;">
+                        <span style="font-size: 14px; font-weight: 600; color: #374151;">All Day Event</span>
+                    </label>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">Location</label>
+                    <input type="text" id="tlEventLocation" style="width: 100%; padding: 12px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 14px;" placeholder="Enter event location">
+                </div>
+
+                <div style="margin-bottom: 24px;">
+                    <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">Color</label>
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                        <input type="color" id="tlEventColor" value="#3B82F6" style="width: 60px; height: 40px; border: 1px solid #E5E7EB; border-radius: 6px; cursor: pointer;">
+                        <div style="display: flex; gap: 8px;">
+                            <button type="button" onclick="document.getElementById('tlEventColor').value='#3B82F6'" style="width: 32px; height: 32px; background: #3B82F6; border: 2px solid #E5E7EB; border-radius: 6px; cursor: pointer;"></button>
+                            <button type="button" onclick="document.getElementById('tlEventColor').value='#10B981'" style="width: 32px; height: 32px; background: #10B981; border: 2px solid #E5E7EB; border-radius: 6px; cursor: pointer;"></button>
+                            <button type="button" onclick="document.getElementById('tlEventColor').value='#F59E0B'" style="width: 32px; height: 32px; background: #F59E0B; border: 2px solid #E5E7EB; border-radius: 6px; cursor: pointer;"></button>
+                            <button type="button" onclick="document.getElementById('tlEventColor').value='#EF4444'" style="width: 32px; height: 32px; background: #EF4444; border: 2px solid #E5E7EB; border-radius: 6px; cursor: pointer;"></button>
+                            <button type="button" onclick="document.getElementById('tlEventColor').value='#8B5CF6'" style="width: 32px; height: 32px; background: #8B5CF6; border: 2px solid #E5E7EB; border-radius: 6px; cursor: pointer;"></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 12px; justify-content: space-between; align-items: center;">
+                    <button id="tlEventDeleteBtn" onclick="tlDeleteEventFromModal()" style="padding: 12px 24px; background: #FEE2E2; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; color: #DC2626; display: none; align-items: center; gap: 8px;">
+                        <i class="fas fa-trash"></i> Delete Event
+                    </button>
+                    <div style="display: flex; gap: 12px;">
+                        <button onclick="tlCloseEventModal()" style="padding: 12px 24px; background: #F3F4F6; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; color: #374151;">Cancel</button>
+                        <button onclick="tlSaveEvent()" style="padding: 12px 24px; background: linear-gradient(135deg, var(--maroon), var(--maroon-dark)); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-save"></i> Save Event
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Block Date Modal --}}
+    <div id="tlBlockDateModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; align-items: center; justify-content: center;">
+        <div style="background: white; border-radius: 16px; width: 90%; max-width: 450px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+            <div style="background: linear-gradient(135deg, var(--maroon), var(--maroon-dark)); padding: 24px; color: white; border-radius: 16px 16px 0 0; display: flex; justify-content: space-between; align-items: center;">
+                <h2 style="margin: 0; font-size: 20px; font-weight: 700;"><i class="fas fa-calendar-times" style="margin-right: 8px;"></i>Block Date</h2>
+                <button onclick="tlCloseBlockDateModal()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-size: 18px; transition: all 0.3s ease;">&times;</button>
+            </div>
+            <div style="padding: 24px;">
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">Start Date</label>
+                    <input type="date" id="tlBlockDateValue" style="width: 100%; padding: 12px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 14px;">
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">Number of Days to Block</label>
+                    <input type="number" id="tlBlockDateDays" value="1" min="1" max="365" style="width: 100%; padding: 12px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 14px;" placeholder="e.g., 7">
+                    <small style="color: #6B7280; font-size: 12px; margin-top: 4px; display: block;">Enter how many consecutive days to block starting from the selected date</small>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">Reason *</label>
+                    <select id="tlBlockDateReason" style="width: 100%; padding: 12px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 14px;" required>
+                        <option value="">-- Select Reason --</option>
+                        <option value="unavailable">Not Available</option>
+                        <option value="no_work">No Work</option>
+                        <option value="holiday">Holiday</option>
+                        <option value="sick">Sick Day</option>
+                        <option value="maintenance">Maintenance</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div style="margin-bottom: 24px;">
+                    <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">Description (Optional)</label>
+                    <input type="text" id="tlBlockDateDescription" style="width: 100%; padding: 12px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 14px;" placeholder="e.g., Staff meeting, Building maintenance...">
+                </div>
+
+                <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                    <button onclick="tlCloseBlockDateModal()" style="padding: 12px 24px; background: #F3F4F6; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; color: #374151;">Cancel</button>
+                    <button onclick="tlSubmitBlockDate()" style="padding: 12px 24px; background: #EF4444; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-ban"></i> Block Date
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- JavaScript -->
     <script>
         // Store data for modals
@@ -2063,15 +2185,15 @@
         // ========== INTERN FUNCTIONS ==========
         function viewIntern(internId) {
             openModal('viewInternModal');
-            
+
             const intern = internsData.find(i => i.id === internId);
             if (!intern) {
                 document.getElementById('viewInternContent').innerHTML = '<p style="text-align: center; color: #DC2626;">Intern not found</p>';
                 return;
             }
 
-            const progress = intern.required_hours > 0 
-                ? Math.round((intern.completed_hours / intern.required_hours) * 100) 
+            const progress = intern.required_hours > 0
+                ? Math.round((intern.completed_hours / intern.required_hours) * 100)
                 : 0;
 
             const internTasks = tasksData.filter(t => t.intern_id === internId);
@@ -2144,7 +2266,7 @@
         function viewReport(reportId) {
             openModal('viewReportModal');
             const report = reportsData.find(r => r.id === reportId);
-            
+
             if (!report) {
                 document.getElementById('viewReportContent').innerHTML = '<p style="text-align: center; color: #DC2626;">Report not found</p>';
                 return;
@@ -2315,12 +2437,12 @@
             if (autoRefreshInterval) {
                 clearInterval(autoRefreshInterval);
             }
-            
+
             // Set up new interval
             autoRefreshInterval = setInterval(function() {
                 refreshData();
             }, REFRESH_INTERVAL);
-            
+
             console.log('Auto-refresh started (every 30 seconds)');
         }
 
@@ -2350,7 +2472,7 @@
                         'X-Requested-With': 'XMLHttpRequest'
                     }
                 });
-                
+
                 if (tasksResponse.ok) {
                     const tasksData = await tasksResponse.json();
                     if (tasksData.success) {
@@ -2396,12 +2518,12 @@
             // Update existing rows or rebuild table
             let html = '';
             tasks.forEach(task => {
-                const priorityBg = task.priority === 'High' ? '#F59E0B' : 
+                const priorityBg = task.priority === 'High' ? '#F59E0B' :
                                    (task.priority === 'Medium' ? 'var(--gold)' : 'var(--forest-green)');
                 const priorityColor = task.priority === 'Medium' ? 'var(--maroon)' : 'white';
-                
-                const statusClass = task.status === 'Completed' ? 'success' : 
-                                    (task.status === 'In Progress' ? 'info' : 
+
+                const statusClass = task.status === 'Completed' ? 'success' :
+                                    (task.status === 'In Progress' ? 'info' :
                                     (task.status === 'On Hold' ? 'danger' : 'warning'));
 
                 html += `
@@ -2475,7 +2597,7 @@
             // Update dashboard stat cards - these have specific IDs or we target by position
             // Dashboard page stats (total interns, active interns, etc.)
             const dashboardStats = document.querySelectorAll('#dashboard .stat-value');
-            
+
             // Update task overview on dashboard if it exists
             const taskOverviewValues = document.querySelectorAll('.task-overview-value');
             if (taskOverviewValues.length >= 4) {
@@ -2533,10 +2655,26 @@
                     tlSchedulerEvents = eventsData.events || [];
                 }
 
-                // Load bookings
-                const bookingsResponse = await fetch('/bookings');
+                // Load bookings (fetch from admin endpoint to get all bookings including pending)
+                const bookingsResponse = await fetch('/admin/bookings');
                 if (bookingsResponse.ok) {
-                    tlSchedulerBookings = await bookingsResponse.json();
+                    const bookingsData = await bookingsResponse.json();
+                    // Get the bookings array from response
+                    const bookingsArray = bookingsData.bookings || bookingsData;
+                    // Convert the data to match the expected format
+                    tlSchedulerBookings = bookingsArray.map(booking => ({
+                        id: booking.id,
+                        date: booking.date,
+                        time: booking.time,
+                        agency: booking.agency,
+                        event: booking.event,
+                        contact_person: booking.contact_person,
+                        email: booking.email,
+                        phone: booking.phone,
+                        purpose: booking.purpose,
+                        status: booking.status,
+                        admin_emailed: booking.admin_emailed
+                    }));
                 }
 
                 // Load blocked dates
@@ -2571,7 +2709,7 @@
             const todayString = today.toISOString().split('T')[0];
 
             let mainHtml = '';
-            
+
             // Previous month days
             for (let i = firstDay - 1; i >= 0; i--) {
                 mainHtml += `<div style="background: #F9FAFB; padding: 12px; min-height: 100px; color: #D1D5DB;"><div style="font-weight: 600; margin-bottom: 8px;">${daysInPrevMonth - i}</div></div>`;
@@ -2581,10 +2719,10 @@
             for (let day = 1; day <= daysInMonth; day++) {
                 const dateString = `${tlSchedulerCurrentYear}-${String(tlSchedulerCurrentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 const isToday = dateString === todayString;
-                
+
                 // Check for bookings on this date
                 const dayBookings = tlSchedulerBookings.filter(b => b.date === dateString);
-                
+
                 // Check for events spanning this date
                 const dayEvents = tlSchedulerEvents.filter(e => {
                     const eventStart = new Date(e.start_date).toISOString().split('T')[0];
@@ -2594,13 +2732,13 @@
 
                 // Check if blocked
                 const blockedInfo = tlSchedulerBlockedDates.find(b => b.date === dateString);
-                
+
                 let dayStyle = 'background: white; padding: 12px; min-height: 100px; border: 2px solid transparent;';
                 if (isToday) dayStyle = 'background: #FEF3C7; padding: 12px; min-height: 100px; border: 2px solid var(--gold);';
                 if (blockedInfo) dayStyle += ` background: ${blockedInfo.reason_color}08;`;
 
                 let eventsHtml = '';
-                
+
                 // Show blocked status
                 if (blockedInfo) {
                     eventsHtml += `<div style="background: ${blockedInfo.reason_color}20; border-left: 3px solid ${blockedInfo.reason_color}; color: ${blockedInfo.reason_color}; padding: 4px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><i class="fas fa-ban" style="margin-right: 4px;"></i>${blockedInfo.reason_label}</div>`;
@@ -2658,7 +2796,7 @@
                 const endDate = new Date(event.end_date);
                 const dateStr = startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
                 const timeStr = event.all_day ? 'All Day' : startDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-                
+
                 html += `
                     <div style="padding: 16px; border-radius: 12px; margin-bottom: 12px; background: ${event.color}10; border-left: 4px solid ${event.color}; cursor: pointer; transition: all 0.3s;" onclick="tlViewEvent(${event.id})">
                         <div style="font-weight: 700; color: #1F2937; margin-bottom: 4px;">${escapeHtml(event.title)}</div>
@@ -2688,7 +2826,7 @@
                 const statusColor = booking.status === 'approved' ? 'var(--forest-green)' : (booking.status === 'pending' ? 'var(--gold-dark)' : '#DC2626');
                 const date = new Date(booking.date);
                 const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-                
+
                 html += `
                     <div style="padding: 16px; border-radius: 12px; margin-bottom: 12px; background: white; border: 1px solid #E5E7EB; cursor: pointer; transition: all 0.3s;" onclick="tlViewBooking(${booking.id})">
                         <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
@@ -2732,6 +2870,20 @@
             const endDateStr = endDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
             const timeStr = event.all_day ? 'All Day' : `${startDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })} - ${endDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`;
 
+            let actionButtons = '';
+            if (tlHasEditAccess) {
+                actionButtons = `
+                    <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #E5E7EB; display: flex; gap: 12px; justify-content: flex-end;">
+                        <button onclick="this.closest('.custom-alert-overlay').remove(); tlEditEvent(${event.id})" style="padding: 10px 20px; background: var(--maroon); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button onclick="this.closest('.custom-alert-overlay').remove(); tlDeleteEvent(${event.id})" style="padding: 10px 20px; background: #FEE2E2; color: #DC2626; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                `;
+            }
+
             const message = `
                 <div style="text-align: left;">
                     <div style="margin-bottom: 16px; padding: 16px; background: ${event.color}10; border-left: 4px solid ${event.color}; border-radius: 8px;">
@@ -2741,15 +2893,16 @@
                     <div style="display: grid; grid-template-columns: auto 1fr; gap: 12px; font-size: 14px;">
                         <div style="color: #6B7280;"><i class="fas fa-calendar"></i> Date:</div>
                         <div style="font-weight: 600;">${dateStr}${dateStr !== endDateStr ? ` - ${endDateStr}` : ''}</div>
-                        
+
                         <div style="color: #6B7280;"><i class="fas fa-clock"></i> Time:</div>
                         <div style="font-weight: 600;">${timeStr}</div>
-                        
+
                         ${event.location ? `
                             <div style="color: #6B7280;"><i class="fas fa-map-marker-alt"></i> Location:</div>
                             <div style="font-weight: 600;">${escapeHtml(event.location)}</div>
                         ` : ''}
                     </div>
+                    ${actionButtons}
                 </div>
             `;
 
@@ -2764,6 +2917,91 @@
             const dateStr = date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
             const statusColor = booking.status === 'approved' ? 'var(--forest-green)' : (booking.status === 'pending' ? 'var(--gold-dark)' : '#DC2626');
 
+            let actionButtons = '';
+            if (tlHasEditAccess && booking.status === 'pending') {
+                actionButtons = `
+                    <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #E5E7EB; display: flex; gap: 12px; justify-content: flex-end;">
+                        <button onclick="this.closest('.custom-alert-overlay').remove(); tlApproveBooking(${booking.id})" style="padding: 10px 20px; background: #10B981; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-check"></i> Approve
+                        </button>
+                        <button onclick="this.closest('.custom-alert-overlay').remove(); tlRejectBooking(${booking.id})" style="padding: 10px 20px; background: #EF4444; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-times"></i> Reject
+                        </button>
+                    </div>
+                `;
+            }
+
+            // Email notification section for approved bookings
+            let emailSection = '';
+            if (booking.status === 'approved' && tlHasEditAccess) {
+                if (booking.admin_emailed) {
+                    emailSection = `
+                        <div style="margin-top: 20px; padding: 16px; background: #D1FAE5; border: 1px solid #10B981; border-radius: 12px;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <i class="fas fa-envelope-circle-check" style="font-size: 20px; color: #059669;"></i>
+                                <div>
+                                    <div style="font-weight: 600; color: #065F46;">Email Notification Sent</div>
+                                    <div style="font-size: 12px; color: #047857;">The booker has been notified about the booking status.</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    const subject = `Booking Approved - ${booking.event} on ${dateStr}`;
+                    const emailBody = `Dear ${booking.agency},
+
+We are pleased to inform you that your booking request has been APPROVED.
+
+📅 BOOKING DETAILS:
+━━━━━━━━━━━━━━━━━━━━
+Date: ${dateStr}
+Time: ${booking.time}
+Purpose: ${booking.event}
+
+Please arrive at least 15 minutes before your scheduled time. If you need to reschedule or cancel, please contact us as soon as possible.
+
+We look forward to seeing you!
+
+Best regards,
+UP Cebu Innovation & Technology Hub
+University of the Philippines Cebu
+📧 info@upcebu.edu.ph
+📞 +63 32 123 4567`;
+
+                    emailSection = `
+                        <div style="margin-top: 20px; padding: 16px; background: #FEF3C7; border: 1px solid #F59E0B; border-radius: 12px;">
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                                <i class="fas fa-envelope" style="font-size: 20px; color: #D97706;"></i>
+                                <div>
+                                    <div style="font-weight: 600; color: #92400E;">Email Not Yet Sent</div>
+                                    <div style="font-size: 12px; color: #78350F;">The booker has not been notified about the approval.</div>
+                                </div>
+                            </div>
+                            <div style="background: white; border: 1px solid #E5E7EB; border-radius: 8px; padding: 16px; margin-bottom: 16px; max-height: 200px; overflow-y: auto;">
+                                <div style="font-size: 12px; color: #6B7280; margin-bottom: 8px;">
+                                    <strong>To:</strong> ${booking.email}
+                                </div>
+                                <div style="font-size: 12px; color: #6B7280; margin-bottom: 12px;">
+                                    <strong>Subject:</strong> ${subject}
+                                </div>
+                                <div style="font-size: 13px; color: #374151; white-space: pre-line; line-height: 1.6;">${emailBody}</div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                                <button onclick="tlCopyEmailContent('${booking.email}', '${subject.replace(/'/g, "\\'")}', \`${emailBody.replace(/`/g, '\\`')}\`)" style="padding: 10px; background: #3B82F6; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                    <i class="fas fa-copy"></i> Copy to Clipboard
+                                </button>
+                                <button onclick="tlOpenMailClient('${booking.email}', '${subject.replace(/'/g, "\\'")}', \`${emailBody.replace(/`/g, '\\`')}\`)" style="padding: 10px; background: #8B5CF6; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                    <i class="fas fa-external-link-alt"></i> Open in Email App
+                                </button>
+                            </div>
+                            <button onclick="tlMarkAsEmailed(${booking.id})" style="width: 100%; padding: 10px; background: #10B981; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                <i class="fas fa-check-circle"></i> Mark as Emailed
+                            </button>
+                        </div>
+                    `;
+                }
+            }
+
             const message = `
                 <div style="text-align: left;">
                     <div style="margin-bottom: 16px; padding: 16px; background: #DBEAFE; border-left: 4px solid #3B82F6; border-radius: 8px;">
@@ -2773,28 +3011,103 @@
                     <div style="display: grid; grid-template-columns: auto 1fr; gap: 12px; font-size: 14px;">
                         <div style="color: #6B7280;"><i class="fas fa-calendar"></i> Date:</div>
                         <div style="font-weight: 600;">${dateStr}</div>
-                        
+
                         <div style="color: #6B7280;"><i class="fas fa-clock"></i> Time:</div>
                         <div style="font-weight: 600;">${booking.time}</div>
-                        
+
                         ${booking.event ? `
                             <div style="color: #6B7280;"><i class="fas fa-tag"></i> Purpose:</div>
                             <div style="font-weight: 600;">${escapeHtml(booking.event)}</div>
                         ` : ''}
+
+                        ${booking.contact_person ? `
+                            <div style="color: #6B7280;"><i class="fas fa-user"></i> Contact Person:</div>
+                            <div style="font-weight: 600;">${escapeHtml(booking.contact_person)}</div>
+                        ` : ''}
+
+                        ${booking.email ? `
+                            <div style="color: #6B7280;"><i class="fas fa-envelope"></i> Email:</div>
+                            <div style="font-weight: 600;">${booking.email}</div>
+                        ` : ''}
+
+                        ${booking.phone ? `
+                            <div style="color: #6B7280;"><i class="fas fa-phone"></i> Phone:</div>
+                            <div style="font-weight: 600;">${booking.phone}</div>
+                        ` : ''}
+
+                        ${booking.purpose ? `
+                            <div style="color: #6B7280; grid-column: 1;"><i class="fas fa-sticky-note"></i> Notes:</div>
+                            <div style="font-weight: 600; grid-column: 2;">${escapeHtml(booking.purpose)}</div>
+                        ` : ''}
                     </div>
+                    ${emailSection}
+                    ${actionButtons}
                 </div>
             `;
 
             showCustomAlert('Booking Details', message);
         }
 
+        function tlCopyEmailContent(email, subject, body) {
+            const fullContent = `To: ${email}\nSubject: ${subject}\n\n${body}`;
+
+            navigator.clipboard.writeText(fullContent).then(() => {
+                showToast('Email content copied to clipboard!');
+            }).catch(() => {
+                const textArea = document.createElement('textarea');
+                textArea.value = fullContent;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showToast('Email content copied to clipboard!');
+            });
+        }
+
+        function tlOpenMailClient(email, subject, body) {
+            const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            window.open(mailtoLink, '_blank');
+            showToast('Email app should now open with pre-filled content.');
+        }
+
+        function tlMarkAsEmailed(bookingId) {
+            fetch(`/admin/bookings/${bookingId}/send-email`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('Marked as emailed successfully!');
+                    // Update the booking in the array
+                    const booking = tlSchedulerBookings.find(b => b.id === bookingId);
+                    if (booking) {
+                        booking.admin_emailed = true;
+                    }
+                    // Close and reopen the modal to refresh
+                    document.querySelector('.custom-alert-overlay')?.remove();
+                    setTimeout(() => tlViewBooking(bookingId), 100);
+                } else {
+                    showToast(data.message || 'Failed to update status.', true);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('An error occurred while updating the status.', true);
+            });
+        }
+
         function showCustomAlert(title, htmlContent) {
             const overlay = document.createElement('div');
             overlay.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 10000; display: flex; align-items: center; justify-content: center;';
-            
+
             const modal = document.createElement('div');
             modal.style.cssText = 'background: white; border-radius: 20px; max-width: 500px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.3);';
-            
+
             modal.innerHTML = `
                 <div style="background: linear-gradient(135deg, var(--maroon) 0%, var(--maroon-dark) 100%); padding: 24px; color: white; border-radius: 20px 20px 0 0; display: flex; justify-content: space-between; align-items: center;">
                     <h2 style="font-size: 18px; font-weight: 700; margin: 0;">${title}</h2>
@@ -2807,11 +3120,11 @@
                     <button onclick="this.closest('.custom-alert-overlay').remove()" class="btn btn-primary">Close</button>
                 </div>
             `;
-            
+
             overlay.className = 'custom-alert-overlay';
             overlay.appendChild(modal);
             document.body.appendChild(overlay);
-            
+
             overlay.addEventListener('click', (e) => {
                 if (e.target === overlay) overlay.remove();
             });
@@ -2822,7 +3135,344 @@
                 showToast('You do not have permission to create events', true);
                 return;
             }
-            showToast('Event creation feature - Coming soon!');
+
+            document.getElementById('tlEventId').value = '';
+            document.getElementById('tlEventModalTitle').textContent = 'Create Event';
+            document.getElementById('tlEventTitle').value = '';
+            document.getElementById('tlEventDeleteBtn').style.display = 'none';
+            document.getElementById('tlEventDescription').value = '';
+            document.getElementById('tlEventStartDate').value = '';
+            document.getElementById('tlEventEndDate').value = '';
+            document.getElementById('tlEventLocation').value = '';
+            document.getElementById('tlEventColor').value = '#3B82F6';
+            document.getElementById('tlEventAllDay').checked = false;
+
+            // Reset to datetime-local inputs
+            document.getElementById('tlEventStartDate').type = 'datetime-local';
+            document.getElementById('tlEventEndDate').type = 'datetime-local';
+            document.getElementById('tlStartDateLabel').textContent = 'Start Date & Time *';
+            document.getElementById('tlEndDateLabel').textContent = 'End Date & Time *';
+
+            document.getElementById('tlEventModal').style.display = 'flex';
+        }
+
+        function tlCloseEventModal() {
+            document.getElementById('tlEventModal').style.display = 'none';
+        }
+
+        async function tlEditEvent(eventId) {
+            if (!tlHasEditAccess) {
+                showToast('You do not have permission to edit events', true);
+                return;
+            }
+
+            try {
+                const response = await fetch(`/intern/events`);
+                const data = await response.json();
+                const event = data.events.find(e => e.id === eventId);
+
+                if (event) {
+                    document.getElementById('tlEventId').value = event.id;
+                    document.getElementById('tlEventModalTitle').textContent = 'Edit Event';
+                    document.getElementById('tlEventTitle').value = event.title;
+                    document.getElementById('tlEventDeleteBtn').style.display = 'flex';
+                    document.getElementById('tlEventDescription').value = event.description || '';
+                    document.getElementById('tlEventLocation').value = event.location || '';
+                    document.getElementById('tlEventColor').value = event.color;
+                    document.getElementById('tlEventAllDay').checked = event.all_day;
+
+                    // Set input type and values based on all_day
+                    if (event.all_day) {
+                        document.getElementById('tlEventStartDate').type = 'date';
+                        document.getElementById('tlEventEndDate').type = 'date';
+                        document.getElementById('tlEventStartDate').value = event.start_date.split(' ')[0];
+                        document.getElementById('tlEventEndDate').value = event.end_date.split(' ')[0];
+                        document.getElementById('tlStartDateLabel').textContent = 'Start Date *';
+                        document.getElementById('tlEndDateLabel').textContent = 'End Date *';
+                    } else {
+                        document.getElementById('tlEventStartDate').type = 'datetime-local';
+                        document.getElementById('tlEventEndDate').type = 'datetime-local';
+                        document.getElementById('tlEventStartDate').value = new Date(event.start_date).toISOString().slice(0, 16);
+                        document.getElementById('tlEventEndDate').value = new Date(event.end_date).toISOString().slice(0, 16);
+                        document.getElementById('tlStartDateLabel').textContent = 'Start Date & Time *';
+                        document.getElementById('tlEndDateLabel').textContent = 'End Date & Time *';
+                    }
+
+                    document.getElementById('tlEventModal').style.display = 'flex';
+                }
+            } catch (error) {
+                console.error('Error loading event:', error);
+                showToast('Failed to load event details', true);
+            }
+        }
+
+        function tlToggleAllDayEvent() {
+            const allDay = document.getElementById('tlEventAllDay').checked;
+            const startInput = document.getElementById('tlEventStartDate');
+            const endInput = document.getElementById('tlEventEndDate');
+            const startLabel = document.getElementById('tlStartDateLabel');
+            const endLabel = document.getElementById('tlEndDateLabel');
+
+            if (allDay) {
+                startInput.type = 'date';
+                endInput.type = 'date';
+                startLabel.textContent = 'Start Date *';
+                endLabel.textContent = 'End Date *';
+            } else {
+                startInput.type = 'datetime-local';
+                endInput.type = 'datetime-local';
+                startLabel.textContent = 'Start Date & Time *';
+                endLabel.textContent = 'End Date & Time *';
+            }
+        }
+
+        async function tlSaveEvent() {
+            if (!tlHasEditAccess) {
+                showToast('You do not have permission to save events', true);
+                return;
+            }
+
+            const eventId = document.getElementById('tlEventId').value;
+            const title = document.getElementById('tlEventTitle').value.trim();
+            const description = document.getElementById('tlEventDescription').value.trim();
+            const startDate = document.getElementById('tlEventStartDate').value;
+            const endDate = document.getElementById('tlEventEndDate').value;
+            const location = document.getElementById('tlEventLocation').value.trim();
+            const color = document.getElementById('tlEventColor').value;
+            const allDay = document.getElementById('tlEventAllDay').checked;
+
+            if (!title || !startDate || !endDate) {
+                showToast('Please fill in all required fields', true);
+                return;
+            }
+
+            const data = {
+                title,
+                description,
+                start_date: startDate,
+                end_date: endDate,
+                location,
+                color,
+                all_day: allDay
+            };
+
+            try {
+                const url = eventId ? `/admin/events/${eventId}` : '/admin/events';
+                const method = eventId ? 'PUT' : 'POST';
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showToast(result.message || 'Event saved successfully');
+                    tlCloseEventModal();
+                    tlLoadSchedulerData();
+                } else {
+                    const errors = result.errors;
+                    if (errors) {
+                        const firstError = Object.values(errors)[0][0];
+                        showToast(firstError, true);
+                    } else {
+                        showToast('Error saving event', true);
+                    }
+                }
+            } catch (error) {
+                console.error('Error saving event:', error);
+                showToast('An error occurred while saving the event', true);
+            }
+        }
+
+        async function tlDeleteEvent(eventId) {
+            if (!tlHasEditAccess) {
+                showToast('You do not have permission to delete events', true);
+                return;
+            }
+
+            if (!confirm('Are you sure you want to delete this event?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/admin/events/${eventId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showToast(result.message || 'Event deleted successfully');
+                    tlLoadSchedulerData();
+                } else {
+                    showToast('Error deleting event', true);
+                }
+            } catch (error) {
+                console.error('Error deleting event:', error);
+                showToast('An error occurred while deleting the event', true);
+            }
+        }
+
+        async function tlDeleteEventFromModal() {
+            const eventId = document.getElementById('tlEventId').value;
+            if (!eventId) return;
+
+            tlCloseEventModal();
+            await tlDeleteEvent(eventId);
+        }
+
+        // ==================== BLOCK DATE FUNCTIONS ====================
+        function tlOpenBlockDateModal() {
+            if (!tlHasEditAccess) {
+                showToast('You do not have permission to block dates', true);
+                return;
+            }
+            document.getElementById('tlBlockDateValue').value = '';
+            document.getElementById('tlBlockDateDays').value = '1';
+            document.getElementById('tlBlockDateReason').value = '';
+            document.getElementById('tlBlockDateDescription').value = '';
+            document.getElementById('tlBlockDateModal').style.display = 'flex';
+        }
+
+        function tlCloseBlockDateModal() {
+            document.getElementById('tlBlockDateModal').style.display = 'none';
+        }
+
+        async function tlSubmitBlockDate() {
+            if (!tlHasEditAccess) {
+                showToast('You do not have permission to block dates', true);
+                return;
+            }
+
+            const date = document.getElementById('tlBlockDateValue').value;
+            const days = parseInt(document.getElementById('tlBlockDateDays').value) || 1;
+            const reason = document.getElementById('tlBlockDateReason').value;
+            const description = document.getElementById('tlBlockDateDescription').value;
+
+            if (!date || !reason) {
+                showToast('Please fill in all required fields', true);
+                return;
+            }
+
+            try {
+                const requests = [];
+                const startDate = new Date(date);
+
+                for (let i = 0; i < days; i++) {
+                    const currentDate = new Date(startDate);
+                    currentDate.setDate(startDate.getDate() + i);
+                    const dateStr = currentDate.toISOString().split('T')[0];
+
+                    requests.push(
+                        fetch('/admin/blocked-dates', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                date: dateStr,
+                                reason: reason,
+                                description: description
+                            })
+                        })
+                    );
+                }
+
+                const responses = await Promise.all(requests);
+                const allSuccessful = responses.every(r => r.ok);
+
+                if (allSuccessful) {
+                    showToast(days === 1 ? 'Date blocked successfully' : `${days} dates blocked successfully`);
+                    tlCloseBlockDateModal();
+                    tlLoadSchedulerData();
+                } else {
+                    showToast('Some dates could not be blocked', true);
+                }
+            } catch (error) {
+                console.error('Error blocking dates:', error);
+                showToast('An error occurred while blocking dates', true);
+            }
+        }
+
+        // ==================== BOOKING APPROVAL FUNCTIONS ====================
+        async function tlApproveBooking(bookingId) {
+            if (!tlHasEditAccess) {
+                showToast('You do not have permission to approve bookings', true);
+                return;
+            }
+
+            if (!confirm('Are you sure you want to approve this booking?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/admin/bookings/${bookingId}/approve`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showToast('Booking approved successfully');
+                    tlLoadSchedulerData();
+                } else {
+                    showToast(result.message || 'Failed to approve booking', true);
+                }
+            } catch (error) {
+                console.error('Error approving booking:', error);
+                showToast('An error occurred while approving the booking', true);
+            }
+        }
+
+        async function tlRejectBooking(bookingId) {
+            if (!tlHasEditAccess) {
+                showToast('You do not have permission to reject bookings', true);
+                return;
+            }
+
+            const reason = prompt('Please provide a reason for rejection (optional):');
+            if (reason === null) return; // User cancelled
+
+            try {
+                const response = await fetch(`/admin/bookings/${bookingId}/reject`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ reason: reason || 'No reason provided' })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showToast('Booking rejected successfully');
+                    tlLoadSchedulerData();
+                } else {
+                    showToast(result.message || 'Failed to reject booking', true);
+                }
+            } catch (error) {
+                console.error('Error rejecting booking:', error);
+                showToast('An error occurred while rejecting the booking', true);
+            }
         }
     </script>
 </body>
