@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use App\Models\Intern;
 use App\Models\Attendance;
 use App\Models\Task;
@@ -12,6 +13,8 @@ use App\Models\BlockedDate;
 use App\Models\StartupSubmission;
 use App\Models\RoomIssue;
 use App\Models\School;
+use App\Models\User;
+use App\Models\TeamLeaderReport;
 use Carbon\Carbon;
 
 class AdminDashboardController extends Controller
@@ -211,6 +214,475 @@ class AdminDashboardController extends Controller
             'success' => true,
             'message' => 'Overtime approved successfully. ' . $attendance->overtime_hours . ' hours added.',
             'overtime_hours' => $attendance->overtime_hours
+        ]);
+    }
+
+    /**
+     * List all team leaders
+     */
+    public function teamLeaders()
+    {
+        $teamLeaders = User::where('role', User::ROLE_TEAM_LEADER)
+            ->with('school')
+            ->orderBy('name')
+            ->get();
+
+        $schools = School::where('status', 'active')
+            ->orderBy('name')
+            ->get();
+
+        return view('admin.team-leaders.index', compact('teamLeaders', 'schools'));
+    }
+
+    /**
+     * Store a new team leader
+     */
+    public function storeTeamLeader(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8',
+            'school_id' => 'required|exists:schools,id',
+        ]);
+
+        // Check if school already has a team leader
+        $existingTeamLeader = User::where('role', User::ROLE_TEAM_LEADER)
+            ->where('school_id', $request->school_id)
+            ->first();
+
+        if ($existingTeamLeader) {
+            return redirect()->back()
+                ->with('error', 'This school already has a team leader assigned.')
+                ->withInput();
+        }
+
+        $teamLeader = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => User::ROLE_TEAM_LEADER,
+            'school_id' => $request->school_id,
+            'is_admin' => false,
+            'reference_code' => User::generateReferenceCode(),
+            'is_active' => true,
+        ]);
+
+        return redirect()->route('admin.team-leaders.index')
+            ->with('success', 'Team Leader created successfully. Reference Code: ' . $teamLeader->reference_code);
+    }
+
+    /**
+     * Update a team leader
+     */
+    public function updateTeamLeader(Request $request, User $user)
+    {
+        if ($user->role !== User::ROLE_TEAM_LEADER) {
+            return redirect()->back()->with('error', 'Invalid team leader.');
+        }
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'school_id' => 'required|exists:schools,id',
+        ]);
+
+        // Check if school already has a different team leader
+        $existingTeamLeader = User::where('role', User::ROLE_TEAM_LEADER)
+            ->where('school_id', $request->school_id)
+            ->where('id', '!=', $user->id)
+            ->first();
+
+        if ($existingTeamLeader) {
+            return redirect()->back()
+                ->with('error', 'This school already has a team leader assigned.')
+                ->withInput();
+        }
+
+        $user->update([
+            'name' => $request->name,
+            'email' => $request->email,
+            'school_id' => $request->school_id,
+        ]);
+
+        // Update password if provided
+        if ($request->filled('password')) {
+            $user->update(['password' => Hash::make($request->password)]);
+        }
+
+        return redirect()->route('admin.team-leaders.index')
+            ->with('success', 'Team Leader updated successfully.');
+    }
+
+    /**
+     * Delete a team leader
+     */
+    public function deleteTeamLeader(User $user)
+    {
+        if ($user->role !== User::ROLE_TEAM_LEADER) {
+            return redirect()->back()->with('error', 'Invalid team leader.');
+        }
+
+        $user->delete();
+
+        return redirect()->route('admin.team-leaders.index')
+            ->with('success', 'Team Leader deleted successfully.');
+    }
+
+    /**
+     * Toggle team leader active status
+     */
+    public function toggleTeamLeaderStatus(User $user)
+    {
+        if ($user->role !== User::ROLE_TEAM_LEADER) {
+            return redirect()->back()->with('error', 'Invalid team leader.');
+        }
+
+        $user->update(['is_active' => !$user->is_active]);
+
+        $status = $user->is_active ? 'activated' : 'deactivated';
+
+        return redirect()->route('admin.team-leaders.index')
+            ->with('success', "Team Leader {$user->name} has been {$status}.");
+    }
+
+    /**
+     * Get team leaders data for AJAX (inline dashboard)
+     */
+    public function getTeamLeadersData()
+    {
+        $teamLeaders = User::where('role', User::ROLE_TEAM_LEADER)
+            ->with('school')
+            ->orderBy('name')
+            ->get()
+            ->map(function ($tl) {
+                return [
+                    'id' => $tl->id,
+                    'name' => $tl->name,
+                    'email' => $tl->email,
+                    'reference_code' => $tl->reference_code,
+                    'school_id' => $tl->school_id,
+                    'school_name' => $tl->school->name ?? 'Not assigned',
+                    'is_active' => $tl->is_active,
+                    'interns_count' => \App\Models\Intern::where('school_id', $tl->school_id)->count(),
+                    'reports_count' => $tl->teamLeaderReports()->count(),
+                    'created_at' => $tl->created_at->format('M d, Y'),
+                ];
+            });
+
+        $schools = School::where('status', 'active')
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
+        return response()->json([
+            'teamLeaders' => $teamLeaders,
+            'schools' => $schools,
+        ]);
+    }
+
+    /**
+     * Get team reports data for AJAX (inline dashboard)
+     */
+    public function getTeamReportsData()
+    {
+        $reports = TeamLeaderReport::with(['teamLeader', 'school'])
+            ->where('status', '!=', 'draft')
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($report) {
+                return [
+                    'id' => $report->id,
+                    'title' => $report->title,
+                    'report_type' => $report->report_type,
+                    'team_leader_name' => $report->teamLeader->name ?? 'N/A',
+                    'team_leader_code' => $report->teamLeader->reference_code ?? 'N/A',
+                    'school_name' => $report->school->name ?? 'N/A',
+                    'status' => $report->status,
+                    'summary' => $report->summary,
+                    'accomplishments' => $report->accomplishments,
+                    'challenges' => $report->challenges,
+                    'recommendations' => $report->recommendations,
+                    'admin_feedback' => $report->admin_feedback,
+                    'task_statistics' => $report->task_statistics,
+                    'period_start' => $report->period_start ? $report->period_start->format('M d, Y') : null,
+                    'period_end' => $report->period_end ? $report->period_end->format('M d, Y') : null,
+                    'created_at' => $report->created_at->format('M d, Y h:i A'),
+                    'reviewed_at' => $report->reviewed_at ? $report->reviewed_at->format('M d, Y h:i A') : null,
+                ];
+            });
+
+        $pendingCount = TeamLeaderReport::where('status', 'submitted')->count();
+
+        return response()->json([
+            'reports' => $reports,
+            'pendingCount' => $pendingCount,
+        ]);
+    }
+
+    /**
+     * Store team leader via AJAX
+     */
+    public function storeTeamLeaderAjax(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8',
+            'school_id' => 'required|exists:schools,id',
+        ]);
+
+        // Check if school already has a team leader
+        $existingTeamLeader = User::where('role', User::ROLE_TEAM_LEADER)
+            ->where('school_id', $request->school_id)
+            ->first();
+
+        if ($existingTeamLeader) {
+            return response()->json(['error' => 'This school already has a team leader assigned.'], 422);
+        }
+
+        $teamLeader = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => User::ROLE_TEAM_LEADER,
+            'school_id' => $request->school_id,
+            'is_admin' => false,
+            'reference_code' => User::generateReferenceCode(),
+            'is_active' => true,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Team Leader created successfully.',
+            'reference_code' => $teamLeader->reference_code,
+        ]);
+    }
+
+    /**
+     * Update team leader via AJAX
+     */
+    public function updateTeamLeaderAjax(Request $request, User $user)
+    {
+        if ($user->role !== User::ROLE_TEAM_LEADER) {
+            return response()->json(['error' => 'Invalid team leader.'], 422);
+        }
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'school_id' => 'required|exists:schools,id',
+        ]);
+
+        // Check if school already has a different team leader
+        $existingTeamLeader = User::where('role', User::ROLE_TEAM_LEADER)
+            ->where('school_id', $request->school_id)
+            ->where('id', '!=', $user->id)
+            ->first();
+
+        if ($existingTeamLeader) {
+            return response()->json(['error' => 'This school already has a team leader assigned.'], 422);
+        }
+
+        $user->update([
+            'name' => $request->name,
+            'email' => $request->email,
+            'school_id' => $request->school_id,
+        ]);
+
+        if ($request->filled('password')) {
+            $user->update(['password' => Hash::make($request->password)]);
+        }
+
+        return response()->json(['success' => true, 'message' => 'Team Leader updated successfully.']);
+    }
+
+    /**
+     * Toggle team leader status via AJAX
+     */
+    public function toggleTeamLeaderStatusAjax(User $user)
+    {
+        if ($user->role !== User::ROLE_TEAM_LEADER) {
+            return response()->json(['error' => 'Invalid team leader.'], 422);
+        }
+
+        $user->update(['is_active' => !$user->is_active]);
+
+        return response()->json([
+            'success' => true,
+            'is_active' => $user->is_active,
+            'message' => 'Team Leader ' . ($user->is_active ? 'activated' : 'deactivated') . ' successfully.',
+        ]);
+    }
+
+    /**
+     * Delete team leader via AJAX
+     */
+    public function deleteTeamLeaderAjax(User $user)
+    {
+        if ($user->role !== User::ROLE_TEAM_LEADER) {
+            return response()->json(['error' => 'Invalid team leader.'], 422);
+        }
+
+        $user->delete();
+
+        return response()->json(['success' => true, 'message' => 'Team Leader deleted successfully.']);
+    }
+
+    /**
+     * Review report via AJAX
+     */
+    public function reviewTeamLeaderReportAjax(Request $request, TeamLeaderReport $report)
+    {
+        $request->validate([
+            'status' => 'required|in:reviewed,acknowledged',
+            'admin_feedback' => 'nullable|string',
+        ]);
+
+        $report->update([
+            'status' => $request->status,
+            'admin_feedback' => $request->admin_feedback,
+            'reviewed_by' => auth()->id(),
+            'reviewed_at' => now(),
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Report reviewed successfully.']);
+    }
+
+    /**
+     * List team leader reports
+     */
+    public function teamLeaderReports()
+    {
+        $reports = TeamLeaderReport::with(['teamLeader', 'school'])
+            ->where('status', '!=', 'draft')
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+
+        $pendingCount = TeamLeaderReport::where('status', 'submitted')->count();
+
+        return view('admin.team-reports.index', compact('reports', 'pendingCount'));
+    }
+
+    /**
+     * Show a specific team leader report
+     */
+    public function showTeamLeaderReport(TeamLeaderReport $report)
+    {
+        $report->load(['teamLeader', 'school', 'reviewer']);
+        
+        return view('admin.team-reports.show', compact('report'));
+    }
+
+    /**
+     * Review a team leader report
+     */
+    public function reviewTeamLeaderReport(Request $request, TeamLeaderReport $report)
+    {
+        $request->validate([
+            'status' => 'required|in:reviewed,acknowledged',
+            'admin_feedback' => 'nullable|string',
+        ]);
+
+        $report->update([
+            'status' => $request->status,
+            'reviewed_by' => Auth::id(),
+            'reviewed_at' => now(),
+            'admin_feedback' => $request->admin_feedback,
+        ]);
+
+        return redirect()->route('admin.team-reports.index')
+            ->with('success', 'Report ' . $request->status . ' successfully.');
+    }
+
+    /**
+     * Get interns by school for team leader selection
+     */
+    public function getInternsBySchool($schoolId)
+    {
+        $interns = \App\Models\Intern::where('school_id', $schoolId)
+            ->where('status', 'Active')
+            ->where('approval_status', 'approved')
+            ->orderBy('name')
+            ->get()
+            ->map(function ($intern) {
+                return [
+                    'id' => $intern->id,
+                    'name' => $intern->name,
+                    'email' => $intern->email,
+                    'course' => $intern->course,
+                    'completed_hours' => $intern->completed_hours,
+                    'required_hours' => $intern->required_hours,
+                    'progress' => $intern->required_hours > 0 
+                        ? round(($intern->completed_hours / $intern->required_hours) * 100) 
+                        : 0,
+                    'reference_code' => $intern->reference_code,
+                ];
+            });
+
+        return response()->json(['interns' => $interns]);
+    }
+
+    /**
+     * Promote an intern to team leader
+     */
+    public function promoteInternToTeamLeader(Request $request)
+    {
+        $request->validate([
+            'intern_id' => 'required|exists:interns,id',
+            'password' => 'required|string|min:8',
+        ]);
+
+        $intern = \App\Models\Intern::findOrFail($request->intern_id);
+
+        // Check if school already has a team leader
+        $existingTeamLeader = User::where('role', User::ROLE_TEAM_LEADER)
+            ->where('school_id', $intern->school_id)
+            ->first();
+
+        if ($existingTeamLeader) {
+            return response()->json([
+                'error' => 'This school already has a team leader assigned: ' . $existingTeamLeader->name
+            ], 422);
+        }
+
+        // Check if a user with this email already exists
+        $existingUser = User::where('email', $intern->email)->first();
+        
+        if ($existingUser) {
+            // Update existing user to team leader
+            $existingUser->update([
+                'role' => User::ROLE_TEAM_LEADER,
+                'school_id' => $intern->school_id,
+                'password' => Hash::make($request->password),
+                'reference_code' => User::generateReferenceCode(),
+                'is_admin' => false, // Ensure TL is not marked as admin
+                'is_active' => true,
+            ]);
+            $teamLeader = $existingUser;
+        } else {
+            // Create new user as team leader
+            $teamLeader = User::create([
+                'name' => $intern->name,
+                'email' => $intern->email,
+                'password' => Hash::make($request->password),
+                'role' => User::ROLE_TEAM_LEADER,
+                'school_id' => $intern->school_id,
+                'is_admin' => false,
+                'reference_code' => User::generateReferenceCode(),
+                'is_active' => true,
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => $intern->name . ' has been promoted to Team Leader!',
+            'reference_code' => $teamLeader->reference_code,
+            'team_leader' => [
+                'id' => $teamLeader->id,
+                'name' => $teamLeader->name,
+                'email' => $teamLeader->email,
+                'reference_code' => $teamLeader->reference_code,
+            ]
         ]);
     }
 }

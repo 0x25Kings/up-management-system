@@ -131,7 +131,15 @@ class InternController extends Controller
             'reference_code' => 'required|string',
         ]);
 
-        $intern = Intern::where('reference_code', $request->reference_code)->first();
+        $referenceCode = strtoupper(trim($request->reference_code));
+
+        // Check if it's a Team Leader reference code
+        if (str_starts_with($referenceCode, 'TL-')) {
+            return $this->handleTeamLeaderAccess($request, $referenceCode);
+        }
+
+        // Regular intern access
+        $intern = Intern::where('reference_code', $referenceCode)->first();
 
         if (!$intern) {
             return back()->withErrors(['reference_code' => 'Invalid reference code. Please check and try again.']);
@@ -142,6 +150,51 @@ class InternController extends Controller
 
         return redirect()->route('intern.portal')
             ->with('success', 'Welcome back, ' . $intern->name . '!');
+    }
+
+    /**
+     * Handle Team Leader access with reference code and password
+     */
+    private function handleTeamLeaderAccess(Request $request, string $referenceCode)
+    {
+        // Find the team leader by reference code
+        $teamLeader = \App\Models\User::where('reference_code', $referenceCode)
+            ->where('role', \App\Models\User::ROLE_TEAM_LEADER)
+            ->first();
+
+        if (!$teamLeader) {
+            return back()->withErrors(['reference_code' => 'Invalid Team Leader reference code.']);
+        }
+
+        // Check if password was provided
+        if (!$request->password) {
+            // Return with a flag to show password field
+            return back()
+                ->withInput(['reference_code' => $referenceCode])
+                ->with('show_password', true)
+                ->with('tl_name', $teamLeader->name);
+        }
+
+        // Verify password
+        if (!\Illuminate\Support\Facades\Hash::check($request->password, $teamLeader->password)) {
+            return back()
+                ->withInput(['reference_code' => $referenceCode])
+                ->with('show_password', true)
+                ->with('tl_name', $teamLeader->name)
+                ->withErrors(['password' => 'Incorrect password.']);
+        }
+
+        // Check if account is active
+        if (!$teamLeader->isActive()) {
+            return back()->withErrors(['reference_code' => 'Your Team Leader access has been suspended. Please contact the administrator.']);
+        }
+
+        // Log in the team leader
+        \Illuminate\Support\Facades\Auth::login($teamLeader);
+        $request->session()->regenerate();
+
+        return redirect()->route('team-leader.dashboard')
+            ->with('success', 'Welcome back, ' . $teamLeader->name . '!');
     }
 
     /**
@@ -390,5 +443,114 @@ class InternController extends Controller
                 'message' => 'Intern not found'
             ], 404);
         }
+    }
+
+    /**
+     * Get a specific task for the intern
+     */
+    public function getTask(Request $request, Task $task)
+    {
+        $internId = $request->session()->get('intern_id');
+
+        if (!$internId) {
+            return response()->json(['success' => false, 'message' => 'Session expired'], 401);
+        }
+
+        // Verify the task belongs to this intern
+        if ($task->intern_id !== (int) $internId) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        return response()->json([
+            'success' => true,
+            'task' => $task
+        ]);
+    }
+
+    /**
+     * Update a task for the intern (progress, notes, documents, status)
+     */
+    public function updateTask(Request $request, Task $task)
+    {
+        $internId = $request->session()->get('intern_id');
+
+        if (!$internId) {
+            return response()->json(['success' => false, 'message' => 'Session expired'], 401);
+        }
+
+        // Verify the task belongs to this intern
+        if ($task->intern_id !== (int) $internId) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $validated = $request->validate([
+            'status' => 'sometimes|in:Not Started,In Progress,Completed,On Hold',
+            'progress' => 'sometimes|integer|min:0|max:100',
+            'notes' => 'nullable|string',
+            'documents.*' => 'nullable|file|max:10240', // Max 10MB per file
+        ]);
+
+        // Handle document uploads
+        if ($request->hasFile('documents')) {
+            $uploadedDocs = [];
+            $path = 'tasks/documents';
+
+            foreach ($request->file('documents') as $file) {
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $file->storeAs($path, $filename, 'public');
+                $uploadedDocs[] = "{$path}/{$filename}";
+            }
+
+            // If task already has documents, merge them
+            $existingDocs = $task->documents ?? [];
+            $validated['documents'] = array_merge($existingDocs, $uploadedDocs);
+        }
+
+        // If status is being changed to 'In Progress', record the start time
+        if ($request->has('status') && $request->status === 'In Progress' && $task->status !== 'In Progress') {
+            $validated['started_at'] = now('Asia/Manila');
+        }
+
+        // If status is being changed to 'Completed', set progress to 100 and record completion date
+        if ($request->has('status') && $request->status === 'Completed') {
+            $validated['progress'] = 100;
+            $validated['completed_date'] = now('Asia/Manila');
+        }
+
+        $task->update($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Task updated successfully',
+            'task' => $task->fresh()
+        ]);
+    }
+
+    /**
+     * Mark a task as completed for the intern
+     */
+    public function completeTask(Request $request, Task $task)
+    {
+        $internId = $request->session()->get('intern_id');
+
+        if (!$internId) {
+            return response()->json(['success' => false, 'message' => 'Session expired'], 401);
+        }
+
+        // Verify the task belongs to this intern
+        if ($task->intern_id !== (int) $internId) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $task->update([
+            'status' => 'Completed',
+            'progress' => 100,
+            'completed_date' => now('Asia/Manila')
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Task marked as completed'
+        ]);
     }
 }

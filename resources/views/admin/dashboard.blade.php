@@ -2325,6 +2325,17 @@
             }
         }
 
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
         .confirm-modal-header {
             padding: 24px 24px 0;
             text-align: center;
@@ -2457,6 +2468,16 @@
                     <a href="#" class="submenu-item" onclick="loadPage(event, 'task-assignment')">
                         <i class="fas fa-tasks"></i>
                         <span>Task Assignment</span>
+                    </a>
+
+                    <a href="#" class="submenu-item" onclick="loadPage(event, 'team-leaders')">
+                        <i class="fas fa-user-tie"></i>
+                        <span>Team Leaders</span>
+                    </a>
+
+                    <a href="#" class="submenu-item" onclick="loadPage(event, 'team-reports')">
+                        <i class="fas fa-file-signature"></i>
+                        <span>Team Reports</span>
                     </a>
 
                 </div>
@@ -2840,23 +2861,51 @@
                     @foreach($schools as $school)
                     @php
                         $schoolInterns = ($interns ?? collect())->where('school_id', $school->id);
+                        $teamLeader = \App\Models\User::where('role', \App\Models\User::ROLE_TEAM_LEADER)
+                            ->where('school_id', $school->id)
+                            ->first();
                     @endphp
                     <div class="school-group" style="margin-bottom: 16px;">
-                        <div class="school-header" onclick="toggleSchoolGroup('school-{{ $school->id }}')" style="background: linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%); color: white; padding: 16px 20px; border-radius: 12px 12px 0 0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s ease;">
-                            <h4 style="margin: 0; font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 12px;">
-                                <i class="fas fa-university"></i>
-                                {{ $school->name }}
-                                @if($school->status !== 'Active')
-                                <span style="background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 10px; font-size: 10px;">Inactive</span>
-                                @endif
-                            </h4>
+                        <div class="school-header" style="background: linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%); color: white; padding: 16px 20px; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s ease;">
+                            <div onclick="toggleSchoolGroup('school-{{ $school->id }}')" style="cursor: pointer; flex: 1; display: flex; align-items: center; gap: 12px;">
+                                <h4 style="margin: 0; font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 12px;">
+                                    <i class="fas fa-university"></i>
+                                    {{ $school->name }}
+                                    @if($school->status !== 'Active')
+                                    <span style="background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 10px; font-size: 10px;">Inactive</span>
+                                    @endif
+                                </h4>
+                            </div>
                             <div style="display: flex; align-items: center; gap: 12px;">
+                                <!-- Team Leader Status -->
+                                @if($teamLeader)
+                                    <div style="display: flex; align-items: center; gap: 8px; background: rgba(16, 185, 129, 0.2); padding: 6px 12px; border-radius: 8px;">
+                                        <i class="fas fa-user-tie" style="color: #10B981;"></i>
+                                        <div style="display: flex; flex-direction: column;">
+                                            <span style="font-size: 11px; color: rgba(255,255,255,0.8);">Team Leader</span>
+                                            <span style="font-size: 12px; font-weight: 600;">{{ $teamLeader->name }}</span>
+                                        </div>
+                                        @if($teamLeader->is_active)
+                                            <span style="width: 8px; height: 8px; background: #10B981; border-radius: 50%; margin-left: 4px;" title="Active"></span>
+                                        @else
+                                            <span style="width: 8px; height: 8px; background: #EF4444; border-radius: 50%; margin-left: 4px;" title="Inactive"></span>
+                                        @endif
+                                        <button onclick="event.stopPropagation(); editTeamLeaderFromSchool({{ $teamLeader->id }})" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 24px; height: 24px; border-radius: 4px; cursor: pointer; margin-left: 4px;" title="Edit Team Leader">
+                                            <i class="fas fa-edit" style="font-size: 11px;"></i>
+                                        </button>
+                                    </div>
+                                @else
+                                    <button onclick="event.stopPropagation(); openTeamLeaderModalForSchool({{ $school->id }}, '{{ addslashes($school->name) }}')" style="display: flex; align-items: center; gap: 6px; background: rgba(251, 191, 36, 0.9); color: #7B1D3A; padding: 6px 12px; border-radius: 8px; border: none; cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.2s;" onmouseover="this.style.background='rgba(251, 191, 36, 1)'" onmouseout="this.style.background='rgba(251, 191, 36, 0.9)'">
+                                        <i class="fas fa-user-plus"></i>
+                                        Assign Team Leader
+                                    </button>
+                                @endif
                                 <span style="background: rgba(255,255,255,0.2); color: white; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;">{{ $school->required_hours }} hrs required</span>
-                                <span style="background: rgba(255,191,0,0.9); color: #7B1D3A; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;">{{ $schoolInterns->count() }} {{ $schoolInterns->count() == 1 ? 'Intern' : 'Interns' }}</span>
+                                <span onclick="event.stopPropagation(); toggleSchoolGroup('school-{{ $school->id }}')" style="background: rgba(255,191,0,0.9); color: #7B1D3A; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer;">{{ $schoolInterns->count() }} {{ $schoolInterns->count() == 1 ? 'Intern' : 'Interns' }}</span>
                                 @if(($school->pending_interns ?? 0) > 0)
                                 <span style="background: #FEE2E2; color: #991B1B; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;">+{{ $school->pending_interns }} pending</span>
                                 @endif
-                                <i class="fas fa-chevron-down school-toggle-icon" id="icon-school-{{ $school->id }}" style="transition: transform 0.3s ease;"></i>
+                                <i onclick="event.stopPropagation(); toggleSchoolGroup('school-{{ $school->id }}')" class="fas fa-chevron-down school-toggle-icon" id="icon-school-{{ $school->id }}" style="transition: transform 0.3s ease; cursor: pointer;"></i>
                             </div>
                         </div>
                         <div class="table-card" id="school-{{ $school->id }}" style="border-radius: 0 0 12px 12px; display: block; margin-top: 0;">
@@ -4788,7 +4837,292 @@
                 </div>
             </div>
         </div>
+
+            <!-- ========== TEAM LEADERS SECTION ========== -->
+            <div id="team-leaders" class="page-content">
+                <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                    <div>
+                        <h1 style="font-size: 24px; font-weight: 700; color: #1F2937; margin: 0;">Team Leaders</h1>
+                        <p style="color: #6B7280; margin-top: 4px;">Manage team leaders who supervise interns from their schools</p>
+                    </div>
+                    <button onclick="openTeamLeaderModal()" class="btn-primary" style="background: linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-plus"></i> Add Team Leader
+                    </button>
+                </div>
+
+                <!-- Stats Cards -->
+                <div id="teamLeaderStats" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
+                    <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #DBEAFE, #93C5FD); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-users" style="color: #2563EB; font-size: 20px;"></i>
+                            </div>
+                            <div>
+                                <div id="statTotalTeamLeaders" style="font-size: 28px; font-weight: 700; color: #1F2937;">0</div>
+                                <div style="font-size: 13px; color: #6B7280;">Total Team Leaders</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #D1FAE5, #6EE7B7); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-check-circle" style="color: #059669; font-size: 20px;"></i>
+                            </div>
+                            <div>
+                                <div id="statActiveTeamLeaders" style="font-size: 28px; font-weight: 700; color: #059669;">0</div>
+                                <div style="font-size: 13px; color: #6B7280;">Active</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #FEE2E2, #FCA5A5); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-ban" style="color: #DC2626; font-size: 20px;"></i>
+                            </div>
+                            <div>
+                                <div id="statInactiveTeamLeaders" style="font-size: 28px; font-weight: 700; color: #DC2626;">0</div>
+                                <div style="font-size: 13px; color: #6B7280;">Inactive</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #FEF3C7, #FCD34D); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-university" style="color: #D97706; font-size: 20px;"></i>
+                            </div>
+                            <div>
+                                <div id="statSchoolsCovered" style="font-size: 28px; font-weight: 700; color: #D97706;">0</div>
+                                <div style="font-size: 13px; color: #6B7280;">Schools Covered</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Team Leaders Table -->
+                <div class="card" style="background: white; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden;">
+                    <div style="padding: 20px 24px; border-bottom: 1px solid #E5E7EB; display: flex; justify-content: space-between; align-items: center;">
+                        <h3 style="font-size: 18px; font-weight: 700; color: #1F2937; margin: 0;">Team Leader Directory</h3>
+                        <div style="display: flex; gap: 12px; align-items: center;">
+                            <select id="filterTeamLeaderStatus" onchange="filterTeamLeaders()" style="padding: 8px 16px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 14px;">
+                                <option value="all">All Status</option>
+                                <option value="active">Active Only</option>
+                                <option value="inactive">Inactive Only</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background: #F9FAFB;">
+                                    <th style="padding: 14px 16px; text-align: left; font-weight: 600; color: #374151; font-size: 13px;">Reference Code</th>
+                                    <th style="padding: 14px 16px; text-align: left; font-weight: 600; color: #374151; font-size: 13px;">Name</th>
+                                    <th style="padding: 14px 16px; text-align: left; font-weight: 600; color: #374151; font-size: 13px;">Email</th>
+                                    <th style="padding: 14px 16px; text-align: left; font-weight: 600; color: #374151; font-size: 13px;">School</th>
+                                    <th style="padding: 14px 16px; text-align: center; font-weight: 600; color: #374151; font-size: 13px;">Interns</th>
+                                    <th style="padding: 14px 16px; text-align: center; font-weight: 600; color: #374151; font-size: 13px;">Reports</th>
+                                    <th style="padding: 14px 16px; text-align: center; font-weight: 600; color: #374151; font-size: 13px;">Status</th>
+                                    <th style="padding: 14px 16px; text-align: center; font-weight: 600; color: #374151; font-size: 13px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="teamLeadersTableBody">
+                                <tr>
+                                    <td colspan="8" style="padding: 60px; text-align: center; color: #9CA3AF;">
+                                        <i class="fas fa-spinner fa-spin" style="font-size: 32px; margin-bottom: 12px; display: block;"></i>
+                                        Loading team leaders...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== TEAM REPORTS SECTION ========== -->
+            <div id="team-reports" class="page-content">
+                <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                    <div>
+                        <h1 style="font-size: 24px; font-weight: 700; color: #1F2937; margin: 0;">Team Leader Reports</h1>
+                        <p style="color: #6B7280; margin-top: 4px;">Review and manage reports submitted by team leaders</p>
+                    </div>
+                    <div id="pendingReportsBadge" style="background: #FEF3C7; color: #92400E; padding: 8px 16px; border-radius: 20px; font-weight: 600; display: none;">
+                        <i class="fas fa-clock"></i> <span id="pendingReportsCount">0</span> Pending Review
+                    </div>
+                </div>
+
+                <!-- Reports Filters -->
+                <div style="display: flex; gap: 12px; margin-bottom: 24px;">
+                    <select id="filterReportStatus" onchange="filterReports()" style="padding: 10px 16px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 14px;">
+                        <option value="all">All Reports</option>
+                        <option value="submitted">Pending Review</option>
+                        <option value="reviewed">Reviewed</option>
+                        <option value="acknowledged">Acknowledged</option>
+                    </select>
+                    <select id="filterReportType" onchange="filterReports()" style="padding: 10px 16px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 14px;">
+                        <option value="all">All Types</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                        <option value="incident">Incident</option>
+                        <option value="special">Special</option>
+                    </select>
+                </div>
+
+                <!-- Reports List -->
+                <div id="reportsListContainer" style="display: flex; flex-direction: column; gap: 16px;">
+                    <div style="text-align: center; padding: 60px 20px; color: #9CA3AF;">
+                        <i class="fas fa-spinner fa-spin" style="font-size: 48px; margin-bottom: 16px; display: block;"></i>
+                        <p style="font-size: 16px;">Loading reports...</p>
+                    </div>
+                </div>
+            </div>
+
     </main>
+
+    <!-- Assign Team Leader Modal (Select from Interns) -->
+    <div id="assignTeamLeaderModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="assignTLModalTitle"><i class="fas fa-user-tie" style="margin-right: 8px;"></i>Assign Team Leader</h3>
+                <button class="modal-close" onclick="closeAssignTeamLeaderModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="assignTLSchoolId">
+                <input type="hidden" id="selectedInternId">
+                
+                <!-- School Info -->
+                <div style="background: linear-gradient(135deg, #7B1D3A, #5a1428); color: white; padding: 16px; border-radius: 12px; margin-bottom: 20px;">
+                    <div style="font-size: 12px; opacity: 0.8; text-transform: uppercase;">Assigning Team Leader for</div>
+                    <div id="assignTLSchoolName" style="font-size: 18px; font-weight: 700;"></div>
+                </div>
+
+                <!-- Search Box -->
+                <div class="form-group">
+                    <label class="form-label">Search Intern</label>
+                    <div style="position: relative;">
+                        <i class="fas fa-search" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #9CA3AF;"></i>
+                        <input type="text" id="searchInternInput" class="form-input" placeholder="Type to search by name..." style="padding-left: 40px;" oninput="filterInternsList()">
+                    </div>
+                </div>
+
+                <!-- Interns List -->
+                <div class="form-group">
+                    <label class="form-label">Select an Intern <span style="font-weight: normal; color: #6B7280;">(<span id="internsCount">0</span> available)</span></label>
+                    <div id="internsListContainer" style="max-height: 250px; overflow-y: auto; border: 1px solid #E5E7EB; border-radius: 10px;">
+                        <div style="text-align: center; padding: 40px; color: #9CA3AF;">
+                            <i class="fas fa-spinner fa-spin" style="font-size: 24px; margin-bottom: 8px; display: block;"></i>
+                            Loading interns...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Selected Intern Display -->
+                <div id="selectedInternDisplay" style="display: none; background: #F0FDF4; border: 1px solid #86EFAC; border-radius: 12px; padding: 16px; margin-bottom: 20px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div id="selectedInternAvatar" style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #10B981, #059669); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 18px;"></div>
+                            <div>
+                                <div id="selectedInternName" style="font-weight: 700; color: #065F46; font-size: 16px;"></div>
+                                <div id="selectedInternInfo" style="font-size: 13px; color: #047857;"></div>
+                            </div>
+                        </div>
+                        <button onclick="clearInternSelection()" style="background: #FEE2E2; color: #DC2626; border: none; width: 32px; height: 32px; border-radius: 6px; cursor: pointer;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Password Field -->
+                <div id="passwordSection" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label required">Set Login Password</label>
+                        <input type="password" id="assignTLPassword" class="form-input" placeholder="Create password for Team Leader login (min 8 characters)" minlength="8" required>
+                        <small style="color: #6B7280; font-size: 12px; margin-top: 4px; display: block;">This password will be used by the intern to login as Team Leader</small>
+                    </div>
+                </div>
+
+                <!-- Or Create New Link -->
+                <div style="text-align: center; margin-top: 16px; padding-top: 16px; border-top: 1px solid #E5E7EB;">
+                    <span style="color: #6B7280; font-size: 13px;">Need to add an external coordinator? </span>
+                    <a href="#" onclick="switchToManualTeamLeader()" style="color: #7B1D3A; font-weight: 600; font-size: 13px;">Create new account</a>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal secondary" onclick="closeAssignTeamLeaderModal()">Cancel</button>
+                <button class="btn-modal primary" id="btnAssignTeamLeader" onclick="assignInternAsTeamLeader()" disabled style="opacity: 0.5;">
+                    <i class="fas fa-user-shield"></i> Assign as Team Leader
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Team Leader Modal (Manual Entry - for external coordinators) -->
+    <div id="teamLeaderModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="teamLeaderModalTitle"><i class="fas fa-user-tie" style="margin-right: 8px;"></i>Add Team Leader</h3>
+                <button class="modal-close" onclick="closeTeamLeaderModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="teamLeaderForm">
+                    <input type="hidden" id="teamLeaderId">
+                    
+                    <div class="form-group">
+                        <label class="form-label required">Full Name</label>
+                        <input type="text" id="teamLeaderName" class="form-input" placeholder="Enter full name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label required">Email Address</label>
+                        <input type="email" id="teamLeaderEmail" class="form-input" placeholder="Enter email address" required>
+                    </div>
+                    
+                    <div class="form-group" id="passwordGroup">
+                        <label class="form-label required">Password</label>
+                        <input type="password" id="teamLeaderPassword" class="form-input" placeholder="Enter password (min 8 characters)" minlength="8">
+                        <small style="color: #6B7280; font-size: 12px; margin-top: 4px; display: block;">Leave blank when editing to keep current password</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label required">Assigned School</label>
+                        <select id="teamLeaderSchool" class="form-input" required>
+                            <option value="">-- Select School --</option>
+                        </select>
+                    </div>
+
+                    <div id="referenceCodeDisplay" style="display: none; background: #F0FDF4; border: 1px solid #86EFAC; border-radius: 8px; padding: 16px; margin-top: 16px;">
+                        <div style="font-size: 12px; color: #166534; text-transform: uppercase; font-weight: 600; margin-bottom: 4px;">Reference Code</div>
+                        <div id="referenceCodeValue" style="font-size: 20px; font-weight: 700; color: #15803D; font-family: monospace;"></div>
+                        <small style="color: #22C55E; font-size: 11px;">Use this code for login identification</small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal secondary" onclick="closeTeamLeaderModal()">Cancel</button>
+                <button class="btn-modal primary" onclick="saveTeamLeader()"><i class="fas fa-save"></i> Save Team Leader</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Report Modal -->
+    <div id="viewReportModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="viewReportTitle"><i class="fas fa-file-alt" style="margin-right: 8px;"></i>Report Details</h3>
+                <button class="modal-close" onclick="closeViewReportModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="viewReportContent" style="max-height: 70vh; overflow-y: auto;">
+                <!-- Report content loaded here -->
+            </div>
+            <div class="modal-footer" id="viewReportFooter">
+                <button class="btn-modal secondary" onclick="closeViewReportModal()">Close</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Block Date Modal -->
     <div id="blockDateModal" class="modal-overlay">
@@ -6211,6 +6545,12 @@
                 breadcrumb.innerHTML = 'Dashboard > Intern Management > <span>Time & Attendance</span>';
             } else if (pageId === 'task-assignment') {
                 breadcrumb.innerHTML = 'Dashboard > Intern Management > <span>Task Assignment</span>';
+            } else if (pageId === 'team-leaders') {
+                breadcrumb.innerHTML = 'Dashboard > Intern Management > <span>Team Leaders</span>';
+                loadTeamLeadersData();
+            } else if (pageId === 'team-reports') {
+                breadcrumb.innerHTML = 'Dashboard > Intern Management > <span>Team Reports</span>';
+                loadTeamReportsData();
             } else if (pageId === 'research-tracking') {
                 breadcrumb.innerHTML = 'Dashboard > <span>Research Tracking</span>';
             } else if (pageId === 'incubatee-tracker') {
@@ -6223,6 +6563,904 @@
                 breadcrumb.innerHTML = 'Dashboard > <span>Scheduler & Events</span>';
             } else if (pageId === 'dashboard-overview') {
                 breadcrumb.innerHTML = 'Dashboard > <span>Overview</span>';
+            }
+        }
+
+        // ===== TEAM LEADER MANAGEMENT FUNCTIONS =====
+        
+        let teamLeadersData = [];
+        let schoolsData = [];
+        let reportsData = [];
+
+        async function loadTeamLeadersData() {
+            try {
+                const response = await fetch('/admin/api/team-leaders');
+                const data = await response.json();
+                teamLeadersData = data.teamLeaders;
+                schoolsData = data.schools;
+                
+                renderTeamLeadersTable();
+                updateTeamLeaderStats();
+                populateSchoolsDropdown();
+            } catch (error) {
+                console.error('Error loading team leaders:', error);
+                showToast('error', 'Error', 'Failed to load team leaders data');
+            }
+        }
+
+        function updateTeamLeaderStats() {
+            const total = teamLeadersData.length;
+            const active = teamLeadersData.filter(tl => tl.is_active).length;
+            const inactive = total - active;
+            const schoolsCovered = new Set(teamLeadersData.map(tl => tl.school_id)).size;
+
+            document.getElementById('statTotalTeamLeaders').textContent = total;
+            document.getElementById('statActiveTeamLeaders').textContent = active;
+            document.getElementById('statInactiveTeamLeaders').textContent = inactive;
+            document.getElementById('statSchoolsCovered').textContent = schoolsCovered;
+        }
+
+        function renderTeamLeadersTable() {
+            const tbody = document.getElementById('teamLeadersTableBody');
+            const filterStatus = document.getElementById('filterTeamLeaderStatus').value;
+            
+            let filtered = teamLeadersData;
+            if (filterStatus === 'active') {
+                filtered = teamLeadersData.filter(tl => tl.is_active);
+            } else if (filterStatus === 'inactive') {
+                filtered = teamLeadersData.filter(tl => !tl.is_active);
+            }
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="padding: 60px; text-align: center; color: #9CA3AF;">
+                            <i class="fas fa-user-tie" style="font-size: 48px; margin-bottom: 12px; display: block;"></i>
+                            <p>No team leaders found</p>
+                            <button onclick="openTeamLeaderModal()" style="margin-top: 12px; background: linear-gradient(135deg, #7B1D3A, #5a1428); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                                <i class="fas fa-plus"></i> Add First Team Leader
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(tl => `
+                <tr style="border-bottom: 1px solid #E5E7EB;">
+                    <td style="padding: 14px 16px;">
+                        <span style="background: #F3F4F6; padding: 4px 10px; border-radius: 6px; font-family: monospace; font-weight: 600; color: #374151;">${tl.reference_code || 'N/A'}</span>
+                    </td>
+                    <td style="padding: 14px 16px;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #7B1D3A, #5a1428); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600;">
+                                ${tl.name.charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                                <div style="font-weight: 600; color: #1F2937;">${tl.name}</div>
+                                <div style="font-size: 12px; color: #6B7280;">Added ${tl.created_at}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="padding: 14px 16px; color: #4B5563;">${tl.email}</td>
+                    <td style="padding: 14px 16px;">
+                        <span style="background: #DBEAFE; color: #1E40AF; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 500;">${tl.school_name}</span>
+                    </td>
+                    <td style="padding: 14px 16px; text-align: center;">
+                        <span style="font-weight: 600; color: #1F2937;">${tl.interns_count}</span>
+                    </td>
+                    <td style="padding: 14px 16px; text-align: center;">
+                        <span style="font-weight: 600; color: #1F2937;">${tl.reports_count}</span>
+                    </td>
+                    <td style="padding: 14px 16px; text-align: center;">
+                        <span style="padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; ${tl.is_active ? 'background: #D1FAE5; color: #065F46;' : 'background: #FEE2E2; color: #991B1B;'}">
+                            ${tl.is_active ? 'Active' : 'Inactive'}
+                        </span>
+                    </td>
+                    <td style="padding: 14px 16px; text-align: center;">
+                        <div style="display: flex; justify-content: center; gap: 6px;">
+                            <button onclick="editTeamLeader(${tl.id})" style="background: #DBEAFE; color: #1E40AF; border: none; width: 32px; height: 32px; border-radius: 6px; cursor: pointer;" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="toggleTeamLeaderStatus(${tl.id})" style="background: ${tl.is_active ? '#FEF3C7' : '#D1FAE5'}; color: ${tl.is_active ? '#92400E' : '#065F46'}; border: none; width: 32px; height: 32px; border-radius: 6px; cursor: pointer;" title="${tl.is_active ? 'Deactivate' : 'Activate'}">
+                                <i class="fas ${tl.is_active ? 'fa-toggle-off' : 'fa-toggle-on'}"></i>
+                            </button>
+                            <button onclick="deleteTeamLeader(${tl.id}, '${tl.name.replace(/'/g, "\\'")}')" style="background: #FEE2E2; color: #991B1B; border: none; width: 32px; height: 32px; border-radius: 6px; cursor: pointer;" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function filterTeamLeaders() {
+            renderTeamLeadersTable();
+        }
+
+        function populateSchoolsDropdown() {
+            const select = document.getElementById('teamLeaderSchool');
+            select.innerHTML = '<option value="">-- Select School --</option>';
+            
+            schoolsData.forEach(school => {
+                const option = document.createElement('option');
+                option.value = school.id;
+                option.textContent = school.name;
+                select.appendChild(option);
+            });
+        }
+
+        function openTeamLeaderModal(id = null) {
+            const modal = document.getElementById('teamLeaderModal');
+            const title = document.getElementById('teamLeaderModalTitle');
+            const form = document.getElementById('teamLeaderForm');
+            const passwordGroup = document.getElementById('passwordGroup');
+            const refCodeDisplay = document.getElementById('referenceCodeDisplay');
+            
+            form.reset();
+            document.getElementById('teamLeaderId').value = '';
+            refCodeDisplay.style.display = 'none';
+            
+            if (id) {
+                title.innerHTML = '<i class="fas fa-user-tie" style="margin-right: 8px;"></i>Edit Team Leader';
+                const tl = teamLeadersData.find(t => t.id === id);
+                if (tl) {
+                    document.getElementById('teamLeaderId').value = tl.id;
+                    document.getElementById('teamLeaderName').value = tl.name;
+                    document.getElementById('teamLeaderEmail').value = tl.email;
+                    document.getElementById('teamLeaderSchool').value = tl.school_id;
+                    document.getElementById('teamLeaderPassword').removeAttribute('required');
+                    
+                    if (tl.reference_code) {
+                        document.getElementById('referenceCodeValue').textContent = tl.reference_code;
+                        refCodeDisplay.style.display = 'block';
+                    }
+                }
+            } else {
+                title.innerHTML = '<i class="fas fa-user-tie" style="margin-right: 8px;"></i>Add Team Leader';
+                document.getElementById('teamLeaderPassword').setAttribute('required', 'required');
+            }
+            
+            modal.style.display = 'flex';
+        }
+
+        function editTeamLeader(id) {
+            openTeamLeaderModal(id);
+        }
+
+        // ===== ASSIGN TEAM LEADER FROM INTERNS =====
+        
+        let schoolInternsData = [];
+        let currentAssignSchoolId = null;
+        let currentAssignSchoolName = '';
+
+        // Open intern selection modal for a school (from Intern List)
+        async function openTeamLeaderModalForSchool(schoolId, schoolName) {
+            currentAssignSchoolId = schoolId;
+            currentAssignSchoolName = schoolName;
+            
+            const modal = document.getElementById('assignTeamLeaderModal');
+            document.getElementById('assignTLSchoolId').value = schoolId;
+            document.getElementById('assignTLSchoolName').textContent = schoolName;
+            document.getElementById('assignTLModalTitle').innerHTML = `<i class="fas fa-user-tie" style="margin-right: 8px;"></i>Assign Team Leader`;
+            
+            // Reset form
+            document.getElementById('searchInternInput').value = '';
+            document.getElementById('selectedInternId').value = '';
+            document.getElementById('assignTLPassword').value = '';
+            document.getElementById('selectedInternDisplay').style.display = 'none';
+            document.getElementById('passwordSection').style.display = 'none';
+            document.getElementById('btnAssignTeamLeader').disabled = true;
+            document.getElementById('btnAssignTeamLeader').style.opacity = '0.5';
+            
+            modal.style.display = 'flex';
+            
+            // Load interns for this school
+            await loadSchoolInterns(schoolId);
+        }
+
+        async function loadSchoolInterns(schoolId) {
+            const container = document.getElementById('internsListContainer');
+            container.innerHTML = `
+                <div style="text-align: center; padding: 40px; color: #9CA3AF;">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 24px; margin-bottom: 8px; display: block;"></i>
+                    Loading interns...
+                </div>
+            `;
+
+            try {
+                const response = await fetch(`/admin/api/schools/${schoolId}/interns`);
+                const data = await response.json();
+                schoolInternsData = data.interns;
+                
+                document.getElementById('internsCount').textContent = schoolInternsData.length;
+                renderInternsList();
+            } catch (error) {
+                console.error('Error loading interns:', error);
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #DC2626;">
+                        <i class="fas fa-exclamation-circle" style="font-size: 24px; margin-bottom: 8px; display: block;"></i>
+                        Failed to load interns
+                    </div>
+                `;
+            }
+        }
+
+        function renderInternsList() {
+            const container = document.getElementById('internsListContainer');
+            const searchTerm = document.getElementById('searchInternInput').value.toLowerCase();
+            
+            let filtered = schoolInternsData;
+            if (searchTerm) {
+                filtered = schoolInternsData.filter(intern => 
+                    intern.name.toLowerCase().includes(searchTerm) ||
+                    intern.email.toLowerCase().includes(searchTerm) ||
+                    intern.course.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #9CA3AF;">
+                        <i class="fas fa-user-graduate" style="font-size: 32px; margin-bottom: 8px; display: block;"></i>
+                        <p style="margin: 0;">${searchTerm ? 'No interns match your search' : 'No active interns in this school'}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(intern => `
+                <div onclick="selectIntern(${intern.id})" class="intern-select-item" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; cursor: pointer; border-bottom: 1px solid #F3F4F6; transition: all 0.2s;" 
+                     onmouseover="this.style.background='#F9FAFB'" onmouseout="this.style.background='white'">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #FFBF00, #FFA500); display: flex; align-items: center; justify-content: center; color: #7B1D3A; font-weight: 700;">
+                            ${intern.name.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                            <div style="font-weight: 600; color: #1F2937;">${intern.name}</div>
+                            <div style="font-size: 12px; color: #6B7280;">${intern.course} • ${intern.email}</div>
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-weight: 600; color: #7B1D3A;">${intern.progress}%</div>
+                        <div style="font-size: 11px; color: #6B7280;">${intern.completed_hours}/${intern.required_hours} hrs</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterInternsList() {
+            renderInternsList();
+        }
+
+        function selectIntern(internId) {
+            const intern = schoolInternsData.find(i => i.id === internId);
+            if (!intern) return;
+
+            document.getElementById('selectedInternId').value = intern.id;
+            document.getElementById('selectedInternAvatar').textContent = intern.name.charAt(0).toUpperCase();
+            document.getElementById('selectedInternName').textContent = intern.name;
+            document.getElementById('selectedInternInfo').textContent = `${intern.course} • ${intern.completed_hours}/${intern.required_hours} hrs completed`;
+            
+            document.getElementById('selectedInternDisplay').style.display = 'block';
+            document.getElementById('passwordSection').style.display = 'block';
+            document.getElementById('btnAssignTeamLeader').disabled = false;
+            document.getElementById('btnAssignTeamLeader').style.opacity = '1';
+            
+            // Hide the list
+            document.getElementById('internsListContainer').style.display = 'none';
+        }
+
+        function clearInternSelection() {
+            document.getElementById('selectedInternId').value = '';
+            document.getElementById('selectedInternDisplay').style.display = 'none';
+            document.getElementById('passwordSection').style.display = 'none';
+            document.getElementById('assignTLPassword').value = '';
+            document.getElementById('btnAssignTeamLeader').disabled = true;
+            document.getElementById('btnAssignTeamLeader').style.opacity = '0.5';
+            
+            // Show the list again
+            document.getElementById('internsListContainer').style.display = 'block';
+        }
+
+        function closeAssignTeamLeaderModal() {
+            document.getElementById('assignTeamLeaderModal').style.display = 'none';
+        }
+
+        async function assignInternAsTeamLeader() {
+            const internId = document.getElementById('selectedInternId').value;
+            const password = document.getElementById('assignTLPassword').value;
+
+            if (!internId) {
+                showToast('error', 'Error', 'Please select an intern');
+                return;
+            }
+
+            if (!password || password.length < 8) {
+                showToast('error', 'Error', 'Password must be at least 8 characters');
+                return;
+            }
+
+            const btn = document.getElementById('btnAssignTeamLeader');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Assigning...';
+
+            try {
+                const response = await fetch('/admin/api/team-leaders/promote-intern', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({
+                        intern_id: internId,
+                        password: password
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    closeAssignTeamLeaderModal();
+                    
+                    // Show success with reference code
+                    showSuccessModal(result.team_leader.name, result.reference_code);
+                    
+                    // Refresh after showing
+                    setTimeout(() => {
+                        location.reload();
+                    }, 4000);
+                } else {
+                    showToast('error', 'Error', result.error || 'Failed to assign team leader');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-user-shield"></i> Assign as Team Leader';
+                }
+            } catch (error) {
+                console.error('Error assigning team leader:', error);
+                showToast('error', 'Error', 'Failed to assign team leader');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-user-shield"></i> Assign as Team Leader';
+            }
+        }
+
+        function showSuccessModal(name, refCode) {
+            // Create a temporary success overlay
+            const overlay = document.createElement('div');
+            overlay.id = 'successOverlay';
+            overlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10001; display: flex; align-items: center; justify-content: center;';
+            overlay.innerHTML = `
+                <div style="background: white; border-radius: 20px; padding: 40px; text-align: center; max-width: 400px; animation: scaleIn 0.3s ease;">
+                    <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #10B981, #059669); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
+                        <i class="fas fa-check" style="font-size: 36px; color: white;"></i>
+                    </div>
+                    <h2 style="color: #1F2937; margin: 0 0 8px; font-size: 24px;">Team Leader Assigned!</h2>
+                    <p style="color: #6B7280; margin: 0 0 24px;">${name} is now a Team Leader</p>
+                    <div style="background: #F0FDF4; border: 2px solid #86EFAC; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+                        <div style="font-size: 12px; color: #166534; text-transform: uppercase; font-weight: 600; margin-bottom: 8px;">Reference Code</div>
+                        <div style="font-size: 28px; font-weight: 700; color: #15803D; font-family: monospace; letter-spacing: 2px;">${refCode}</div>
+                    </div>
+                    <p style="color: #9CA3AF; font-size: 13px; margin: 0;">Page will refresh in a moment...</p>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+        }
+
+        function switchToManualTeamLeader() {
+            closeAssignTeamLeaderModal();
+            
+            // Load schools data if needed and open manual modal
+            if (schoolsData.length === 0) {
+                fetch('/admin/api/team-leaders')
+                    .then(response => response.json())
+                    .then(data => {
+                        schoolsData = data.schools;
+                        teamLeadersData = data.teamLeaders;
+                        populateSchoolsDropdown();
+                        openManualTeamLeaderModal();
+                    });
+            } else {
+                populateSchoolsDropdown();
+                openManualTeamLeaderModal();
+            }
+        }
+
+        function openManualTeamLeaderModal() {
+            const modal = document.getElementById('teamLeaderModal');
+            const form = document.getElementById('teamLeaderForm');
+            const refCodeDisplay = document.getElementById('referenceCodeDisplay');
+            
+            form.reset();
+            document.getElementById('teamLeaderId').value = '';
+            refCodeDisplay.style.display = 'none';
+            document.getElementById('teamLeaderModalTitle').innerHTML = '<i class="fas fa-user-tie" style="margin-right: 8px;"></i>Create Team Leader Account';
+            document.getElementById('teamLeaderPassword').setAttribute('required', 'required');
+            
+            // Pre-select the school if we have one
+            if (currentAssignSchoolId) {
+                setTimeout(() => {
+                    document.getElementById('teamLeaderSchool').value = currentAssignSchoolId;
+                }, 100);
+            }
+            
+            modal.style.display = 'flex';
+        }
+
+        // Edit team leader from school header
+        async function editTeamLeaderFromSchool(teamLeaderId) {
+            // First ensure we have the data loaded
+            if (teamLeadersData.length === 0) {
+                try {
+                    const response = await fetch('/admin/api/team-leaders');
+                    const data = await response.json();
+                    schoolsData = data.schools;
+                    teamLeadersData = data.teamLeaders;
+                    populateSchoolsDropdown();
+                } catch (error) {
+                    console.error('Error loading team leaders:', error);
+                    showToast('error', 'Error', 'Failed to load team leaders data');
+                    return;
+                }
+            } else {
+                populateSchoolsDropdown();
+            }
+
+            openTeamLeaderModal(teamLeaderId);
+        }
+
+        function closeTeamLeaderModal() {
+            document.getElementById('teamLeaderModal').style.display = 'none';
+        }
+
+        async function saveTeamLeader() {
+            const id = document.getElementById('teamLeaderId').value;
+            const name = document.getElementById('teamLeaderName').value;
+            const email = document.getElementById('teamLeaderEmail').value;
+            const password = document.getElementById('teamLeaderPassword').value;
+            const school_id = document.getElementById('teamLeaderSchool').value;
+
+            if (!name || !email || !school_id) {
+                showToast('error', 'Validation Error', 'Please fill in all required fields');
+                return;
+            }
+
+            if (!id && !password) {
+                showToast('error', 'Validation Error', 'Password is required for new team leaders');
+                return;
+            }
+
+            const data = { name, email, school_id };
+            if (password) data.password = password;
+
+            try {
+                const url = id ? `/admin/api/team-leaders/${id}` : '/admin/api/team-leaders';
+                const method = id ? 'PUT' : 'POST';
+                
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    closeTeamLeaderModal();
+                    loadTeamLeadersData();
+                    
+                    if (result.reference_code) {
+                        showToast('success', 'Success', `Team Leader created! Reference Code: ${result.reference_code}`);
+                        // Refresh page to update school headers in Intern List
+                        setTimeout(() => {
+                            location.reload();
+                        }, 2000);
+                    } else {
+                        showToast('success', 'Success', result.message);
+                    }
+                } else {
+                    showToast('error', 'Error', result.error || 'Failed to save team leader');
+                }
+            } catch (error) {
+                console.error('Error saving team leader:', error);
+                showToast('error', 'Error', 'Failed to save team leader');
+            }
+        }
+
+        async function toggleTeamLeaderStatus(id) {
+            const tl = teamLeadersData.find(t => t.id === id);
+            const action = tl.is_active ? 'deactivate' : 'activate';
+            
+            if (!confirm(`Are you sure you want to ${action} ${tl.name}?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/admin/api/team-leaders/${id}/toggle-status`, {
+                    method: 'PATCH',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    loadTeamLeadersData();
+                    showToast('success', 'Success', result.message);
+                } else {
+                    showToast('error', 'Error', result.error || 'Failed to update status');
+                }
+            } catch (error) {
+                console.error('Error toggling status:', error);
+                showToast('error', 'Error', 'Failed to update status');
+            }
+        }
+
+        async function deleteTeamLeader(id, name) {
+            if (!confirm(`Are you sure you want to delete team leader "${name}"? This action cannot be undone.`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/admin/api/team-leaders/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    loadTeamLeadersData();
+                    showToast('success', 'Success', result.message);
+                } else {
+                    showToast('error', 'Error', result.error || 'Failed to delete team leader');
+                }
+            } catch (error) {
+                console.error('Error deleting team leader:', error);
+                showToast('error', 'Error', 'Failed to delete team leader');
+            }
+        }
+
+        // ===== TEAM REPORTS FUNCTIONS =====
+
+        async function loadTeamReportsData() {
+            try {
+                const response = await fetch('/admin/api/team-reports');
+                const data = await response.json();
+                reportsData = data.reports;
+                
+                const pendingCount = data.pendingCount;
+                const badge = document.getElementById('pendingReportsBadge');
+                const countSpan = document.getElementById('pendingReportsCount');
+                
+                if (pendingCount > 0) {
+                    badge.style.display = 'inline-flex';
+                    countSpan.textContent = pendingCount;
+                } else {
+                    badge.style.display = 'none';
+                }
+                
+                renderReportsList();
+            } catch (error) {
+                console.error('Error loading reports:', error);
+                showToast('error', 'Error', 'Failed to load reports data');
+            }
+        }
+
+        function renderReportsList() {
+            const container = document.getElementById('reportsListContainer');
+            const filterStatus = document.getElementById('filterReportStatus').value;
+            const filterType = document.getElementById('filterReportType').value;
+            
+            let filtered = reportsData;
+            if (filterStatus !== 'all') {
+                filtered = filtered.filter(r => r.status === filterStatus);
+            }
+            if (filterType !== 'all') {
+                filtered = filtered.filter(r => r.report_type === filterType);
+            }
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 60px 20px; color: #9CA3AF; background: white; border-radius: 16px;">
+                        <i class="fas fa-file-alt" style="font-size: 48px; margin-bottom: 16px; display: block;"></i>
+                        <p style="font-size: 16px;">No reports found</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(report => `
+                <div style="background: white; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden; border-left: 4px solid ${getStatusColor(report.status)};">
+                    <div style="padding: 20px 24px; display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div style="flex: 1;">
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                                <h3 style="font-size: 16px; font-weight: 700; color: #1F2937; margin: 0;">${report.title}</h3>
+                                <span style="padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; background: ${getTypeBackground(report.report_type)}; color: ${getTypeColor(report.report_type)};">
+                                    ${report.report_type.charAt(0).toUpperCase() + report.report_type.slice(1)}
+                                </span>
+                                <span style="padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; background: ${getStatusBackground(report.status)}; color: ${getStatusTextColor(report.status)};">
+                                    ${getStatusLabel(report.status)}
+                                </span>
+                            </div>
+                            <div style="display: flex; gap: 24px; color: #6B7280; font-size: 13px;">
+                                <span><i class="fas fa-user-tie" style="margin-right: 6px;"></i>${report.team_leader_name}</span>
+                                <span><i class="fas fa-id-badge" style="margin-right: 6px;"></i>${report.team_leader_code}</span>
+                                <span><i class="fas fa-university" style="margin-right: 6px;"></i>${report.school_name}</span>
+                                <span><i class="fas fa-calendar" style="margin-right: 6px;"></i>${report.created_at}</span>
+                            </div>
+                            ${report.period_start && report.period_end ? `
+                                <div style="margin-top: 8px; font-size: 12px; color: #9CA3AF;">
+                                    <i class="fas fa-clock"></i> Period: ${report.period_start} - ${report.period_end}
+                                </div>
+                            ` : ''}
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button onclick="viewReport(${report.id})" style="background: #DBEAFE; color: #1E40AF; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                            ${report.status === 'submitted' ? `
+                                <button onclick="reviewReport(${report.id})" style="background: linear-gradient(135deg, #7B1D3A, #5a1428); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                                    <i class="fas fa-check-circle"></i> Review
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterReports() {
+            renderReportsList();
+        }
+
+        function getStatusColor(status) {
+            switch(status) {
+                case 'submitted': return '#F59E0B';
+                case 'reviewed': return '#10B981';
+                case 'acknowledged': return '#059669';
+                default: return '#9CA3AF';
+            }
+        }
+
+        function getStatusBackground(status) {
+            switch(status) {
+                case 'submitted': return '#FEF3C7';
+                case 'reviewed': return '#D1FAE5';
+                case 'acknowledged': return '#ECFDF5';
+                default: return '#F3F4F6';
+            }
+        }
+
+        function getStatusTextColor(status) {
+            switch(status) {
+                case 'submitted': return '#92400E';
+                case 'reviewed': return '#065F46';
+                case 'acknowledged': return '#047857';
+                default: return '#6B7280';
+            }
+        }
+
+        function getStatusLabel(status) {
+            switch(status) {
+                case 'submitted': return 'Pending Review';
+                case 'reviewed': return 'Reviewed';
+                case 'acknowledged': return 'Acknowledged';
+                default: return status;
+            }
+        }
+
+        function getTypeBackground(type) {
+            switch(type) {
+                case 'weekly': return '#DBEAFE';
+                case 'monthly': return '#E0E7FF';
+                case 'incident': return '#FEE2E2';
+                case 'special': return '#F3E8FF';
+                default: return '#F3F4F6';
+            }
+        }
+
+        function getTypeColor(type) {
+            switch(type) {
+                case 'weekly': return '#1E40AF';
+                case 'monthly': return '#4338CA';
+                case 'incident': return '#991B1B';
+                case 'special': return '#7C3AED';
+                default: return '#6B7280';
+            }
+        }
+
+        function viewReport(id) {
+            const report = reportsData.find(r => r.id === id);
+            if (!report) return;
+
+            const modal = document.getElementById('viewReportModal');
+            const title = document.getElementById('viewReportTitle');
+            const content = document.getElementById('viewReportContent');
+            const footer = document.getElementById('viewReportFooter');
+
+            title.innerHTML = `<i class="fas fa-file-alt" style="margin-right: 8px;"></i>${report.title}`;
+
+            content.innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; background: #F9FAFB; padding: 16px; border-radius: 12px;">
+                    <div>
+                        <div style="font-size: 11px; color: #6B7280; text-transform: uppercase; font-weight: 600;">Team Leader</div>
+                        <div style="font-weight: 600; color: #1F2937;">${report.team_leader_name}</div>
+                        <div style="font-size: 12px; color: #6B7280;">${report.team_leader_code}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 11px; color: #6B7280; text-transform: uppercase; font-weight: 600;">School</div>
+                        <div style="font-weight: 600; color: #1F2937;">${report.school_name}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 11px; color: #6B7280; text-transform: uppercase; font-weight: 600;">Submitted</div>
+                        <div style="font-weight: 600; color: #1F2937;">${report.created_at}</div>
+                    </div>
+                </div>
+
+                ${report.task_statistics ? `
+                    <div style="margin-bottom: 24px;">
+                        <h4 style="font-weight: 600; color: #1F2937; margin-bottom: 12px;"><i class="fas fa-chart-pie" style="color: #7B1D3A; margin-right: 8px;"></i>Task Statistics</h4>
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
+                            <div style="text-align: center; padding: 16px; background: #F9FAFB; border-radius: 10px;">
+                                <div style="font-size: 24px; font-weight: 700; color: #1F2937;">${report.task_statistics.total || 0}</div>
+                                <div style="font-size: 11px; color: #6B7280;">Total</div>
+                            </div>
+                            <div style="text-align: center; padding: 16px; background: #ECFDF5; border-radius: 10px;">
+                                <div style="font-size: 24px; font-weight: 700; color: #059669;">${report.task_statistics.completed || 0}</div>
+                                <div style="font-size: 11px; color: #065F46;">Completed</div>
+                            </div>
+                            <div style="text-align: center; padding: 16px; background: #EFF6FF; border-radius: 10px;">
+                                <div style="font-size: 24px; font-weight: 700; color: #2563EB;">${report.task_statistics.in_progress || 0}</div>
+                                <div style="font-size: 11px; color: #1E40AF;">In Progress</div>
+                            </div>
+                            <div style="text-align: center; padding: 16px; background: #FFFBEB; border-radius: 10px;">
+                                <div style="font-size: 24px; font-weight: 700; color: #D97706;">${report.task_statistics.pending || 0}</div>
+                                <div style="font-size: 11px; color: #92400E;">Pending</div>
+                            </div>
+                        </div>
+                    </div>
+                ` : ''}
+
+                <div style="margin-bottom: 20px;">
+                    <h4 style="font-weight: 600; color: #1F2937; margin-bottom: 8px;"><i class="fas fa-file-alt" style="color: #7B1D3A; margin-right: 8px;"></i>Summary</h4>
+                    <div style="background: #F9FAFB; padding: 16px; border-radius: 10px; white-space: pre-wrap;">${report.summary}</div>
+                </div>
+
+                ${report.accomplishments ? `
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="font-weight: 600; color: #1F2937; margin-bottom: 8px;"><i class="fas fa-trophy" style="color: #10B981; margin-right: 8px;"></i>Accomplishments</h4>
+                        <div style="background: #ECFDF5; padding: 16px; border-radius: 10px; white-space: pre-wrap;">${report.accomplishments}</div>
+                    </div>
+                ` : ''}
+
+                ${report.challenges ? `
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="font-weight: 600; color: #1F2937; margin-bottom: 8px;"><i class="fas fa-exclamation-triangle" style="color: #F59E0B; margin-right: 8px;"></i>Challenges</h4>
+                        <div style="background: #FFFBEB; padding: 16px; border-radius: 10px; white-space: pre-wrap;">${report.challenges}</div>
+                    </div>
+                ` : ''}
+
+                ${report.recommendations ? `
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="font-weight: 600; color: #1F2937; margin-bottom: 8px;"><i class="fas fa-lightbulb" style="color: #8B5CF6; margin-right: 8px;"></i>Recommendations</h4>
+                        <div style="background: #F5F3FF; padding: 16px; border-radius: 10px; white-space: pre-wrap;">${report.recommendations}</div>
+                    </div>
+                ` : ''}
+
+                ${report.admin_feedback ? `
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="font-weight: 600; color: #1F2937; margin-bottom: 8px;"><i class="fas fa-comment" style="color: #7B1D3A; margin-right: 8px;"></i>Admin Feedback</h4>
+                        <div style="background: #FEF2F2; border-left: 4px solid #7B1D3A; padding: 16px; border-radius: 10px; white-space: pre-wrap;">
+                            ${report.admin_feedback}
+                            ${report.reviewed_at ? `<div style="margin-top: 8px; font-size: 12px; color: #6B7280;">Reviewed on ${report.reviewed_at}</div>` : ''}
+                        </div>
+                    </div>
+                ` : ''}
+            `;
+
+            footer.innerHTML = `
+                <button class="btn-modal secondary" onclick="closeViewReportModal()">Close</button>
+                ${report.status === 'submitted' ? `
+                    <button class="btn-modal primary" onclick="closeViewReportModal(); reviewReport(${report.id});">
+                        <i class="fas fa-check-circle"></i> Review This Report
+                    </button>
+                ` : ''}
+            `;
+
+            modal.style.display = 'flex';
+        }
+
+        function closeViewReportModal() {
+            document.getElementById('viewReportModal').style.display = 'none';
+        }
+
+        function reviewReport(id) {
+            const report = reportsData.find(r => r.id === id);
+            if (!report) return;
+
+            const modal = document.getElementById('viewReportModal');
+            const title = document.getElementById('viewReportTitle');
+            const content = document.getElementById('viewReportContent');
+            const footer = document.getElementById('viewReportFooter');
+
+            title.innerHTML = `<i class="fas fa-clipboard-check" style="margin-right: 8px;"></i>Review: ${report.title}`;
+
+            content.innerHTML = `
+                <div style="background: #FEF3C7; border: 1px solid #F59E0B; border-radius: 12px; padding: 16px; margin-bottom: 24px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <i class="fas fa-info-circle" style="color: #D97706; font-size: 20px;"></i>
+                        <div>
+                            <div style="font-weight: 600; color: #92400E;">Pending Review</div>
+                            <div style="font-size: 13px; color: #78350F;">This report from ${report.team_leader_name} is awaiting your review.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px; background: #F9FAFB; padding: 16px; border-radius: 12px;">
+                    <div>
+                        <div style="font-size: 11px; color: #6B7280; text-transform: uppercase; font-weight: 600;">Report Type</div>
+                        <div style="font-weight: 600; color: #1F2937;">${report.report_type.charAt(0).toUpperCase() + report.report_type.slice(1)}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 11px; color: #6B7280; text-transform: uppercase; font-weight: 600;">School</div>
+                        <div style="font-weight: 600; color: #1F2937;">${report.school_name}</div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <h4 style="font-weight: 600; color: #1F2937; margin-bottom: 8px;">Summary</h4>
+                    <div style="background: #F9FAFB; padding: 16px; border-radius: 10px; white-space: pre-wrap; max-height: 150px; overflow-y: auto;">${report.summary}</div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 8px;">Your Feedback (Optional)</label>
+                    <textarea id="reviewFeedback" style="width: 100%; padding: 12px 16px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 14px; min-height: 100px; resize: vertical;" placeholder="Provide feedback or comments to the team leader..."></textarea>
+                </div>
+            `;
+
+            footer.innerHTML = `
+                <button class="btn-modal secondary" onclick="closeViewReportModal()">Cancel</button>
+                <button class="btn-modal" onclick="submitReview(${report.id}, 'reviewed')" style="background: #3B82F6; color: white;">
+                    <i class="fas fa-check"></i> Mark as Reviewed
+                </button>
+                <button class="btn-modal primary" onclick="submitReview(${report.id}, 'acknowledged')" style="background: #10B981;">
+                    <i class="fas fa-check-double"></i> Acknowledge
+                </button>
+            `;
+
+            modal.style.display = 'flex';
+        }
+
+        async function submitReview(id, status) {
+            const feedback = document.getElementById('reviewFeedback').value;
+
+            try {
+                const response = await fetch(`/admin/api/team-reports/${id}/review`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({ status, admin_feedback: feedback })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    closeViewReportModal();
+                    loadTeamReportsData();
+                    showToast('success', 'Success', result.message);
+                } else {
+                    showToast('error', 'Error', result.error || 'Failed to submit review');
+                }
+            } catch (error) {
+                console.error('Error submitting review:', error);
+                showToast('error', 'Error', 'Failed to submit review');
             }
         }
 

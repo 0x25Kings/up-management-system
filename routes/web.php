@@ -12,6 +12,7 @@ use App\Http\Controllers\StartupController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\TeamLeaderController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -36,6 +37,11 @@ Route::post('/intern/clear-session', [InternController::class, 'clearSession'])-
 Route::post('/intern/update-profile', [InternController::class, 'updateProfile'])->name('intern.update');
 Route::post('/intern/time-in', [InternController::class, 'timeIn'])->name('intern.timein');
 Route::post('/intern/time-out', [InternController::class, 'timeOut'])->name('intern.timeout');
+
+// Intern Task Management Routes
+Route::get('/intern/tasks/{task}', [InternController::class, 'getTask'])->name('intern.task.show');
+Route::put('/intern/tasks/{task}', [InternController::class, 'updateTask'])->name('intern.task.update');
+Route::post('/intern/tasks/{task}/complete', [InternController::class, 'completeTask'])->name('intern.task.complete');
 
 // Document Management Routes (Intern)
 Route::post('/intern/documents/folder', [DocumentController::class, 'createFolder'])->name('documents.folder.create');
@@ -74,8 +80,9 @@ Route::get('/documents/download/{filename}', function ($filename) {
     return response()->download($path);
 })->name('documents.download');
 
-// Admin Authentication Routes
+// Admin Authentication Routes (also used by Team Leaders)
 Route::get('/admin/login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
+Route::get('/login', [AdminAuthController::class, 'showLoginForm'])->name('login'); // Alias for auth middleware
 Route::post('/admin/login', [AdminAuthController::class, 'login'])->name('admin.login.submit');
 Route::post('/admin/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
 
@@ -134,4 +141,66 @@ Route::middleware(['admin'])->group(function () {
     Route::post('/admin/events', [EventController::class, 'store'])->name('admin.events.store');
     Route::put('/admin/events/{event}', [EventController::class, 'update'])->name('admin.events.update');
     Route::delete('/admin/events/{event}', [EventController::class, 'destroy'])->name('admin.events.destroy');
+
+    // Team Leader Management Routes (Admin)
+    Route::get('/admin/team-leaders', [AdminDashboardController::class, 'teamLeaders'])->name('admin.team-leaders.index');
+    Route::post('/admin/team-leaders', [AdminDashboardController::class, 'storeTeamLeader'])->name('admin.team-leaders.store');
+    Route::put('/admin/team-leaders/{user}', [AdminDashboardController::class, 'updateTeamLeader'])->name('admin.team-leaders.update');
+    Route::delete('/admin/team-leaders/{user}', [AdminDashboardController::class, 'deleteTeamLeader'])->name('admin.team-leaders.destroy');
+    Route::patch('/admin/team-leaders/{user}/toggle-status', [AdminDashboardController::class, 'toggleTeamLeaderStatus'])->name('admin.team-leaders.toggle-status');
+
+    // Team Leader AJAX endpoints (for inline dashboard)
+    Route::get('/admin/api/team-leaders', [AdminDashboardController::class, 'getTeamLeadersData'])->name('admin.api.team-leaders');
+    Route::get('/admin/api/team-reports', [AdminDashboardController::class, 'getTeamReportsData'])->name('admin.api.team-reports');
+    Route::post('/admin/api/team-leaders', [AdminDashboardController::class, 'storeTeamLeaderAjax'])->name('admin.api.team-leaders.store');
+    Route::put('/admin/api/team-leaders/{user}', [AdminDashboardController::class, 'updateTeamLeaderAjax'])->name('admin.api.team-leaders.update');
+    Route::patch('/admin/api/team-leaders/{user}/toggle-status', [AdminDashboardController::class, 'toggleTeamLeaderStatusAjax'])->name('admin.api.team-leaders.toggle-status');
+    Route::delete('/admin/api/team-leaders/{user}', [AdminDashboardController::class, 'deleteTeamLeaderAjax'])->name('admin.api.team-leaders.destroy');
+    Route::post('/admin/api/team-reports/{report}/review', [AdminDashboardController::class, 'reviewTeamLeaderReportAjax'])->name('admin.api.team-reports.review');
+    
+    // Intern to Team Leader promotion
+    Route::get('/admin/api/schools/{school}/interns', [AdminDashboardController::class, 'getInternsBySchool'])->name('admin.api.school-interns');
+    Route::post('/admin/api/team-leaders/promote-intern', [AdminDashboardController::class, 'promoteInternToTeamLeader'])->name('admin.api.team-leaders.promote');
+
+    // Team Leader Reports Review (Admin)
+    Route::get('/admin/team-reports', [AdminDashboardController::class, 'teamLeaderReports'])->name('admin.team-reports.index');
+    Route::get('/admin/team-reports/{report}', [AdminDashboardController::class, 'showTeamLeaderReport'])->name('admin.team-reports.show');
+    Route::post('/admin/team-reports/{report}/review', [AdminDashboardController::class, 'reviewTeamLeaderReport'])->name('admin.team-reports.review');
+});
+
+// Team Leader Routes
+Route::middleware(['team.leader'])->prefix('team-leader')->name('team-leader.')->group(function () {
+    // Dashboard
+    Route::get('/', [TeamLeaderController::class, 'dashboard'])->name('dashboard');
+    Route::get('/dashboard', [TeamLeaderController::class, 'dashboard'])->name('dashboard.home');
+
+    // API endpoints for live updates
+    Route::get('/api/tasks', [TeamLeaderController::class, 'getTasksData'])->name('api.tasks');
+    Route::get('/api/stats', [TeamLeaderController::class, 'getDashboardStats'])->name('api.stats');
+
+    // Intern Management (View Only)
+    Route::get('/interns', [TeamLeaderController::class, 'interns'])->name('interns');
+    Route::get('/interns/{intern}', [TeamLeaderController::class, 'showIntern'])->name('interns.show');
+
+    // Task Management (Full CRUD)
+    Route::get('/tasks', [TeamLeaderController::class, 'tasks'])->name('tasks');
+    Route::get('/tasks/create', [TeamLeaderController::class, 'createTask'])->name('tasks.create');
+    Route::post('/tasks', [TeamLeaderController::class, 'storeTask'])->name('tasks.store');
+    Route::get('/tasks/{task}/edit', [TeamLeaderController::class, 'editTask'])->name('tasks.edit');
+    Route::put('/tasks/{task}', [TeamLeaderController::class, 'updateTask'])->name('tasks.update');
+    Route::delete('/tasks/{task}', [TeamLeaderController::class, 'deleteTask'])->name('tasks.destroy');
+    Route::patch('/tasks/{task}/status', [TeamLeaderController::class, 'updateTaskStatus'])->name('tasks.status');
+    Route::patch('/tasks/{task}/progress', [TeamLeaderController::class, 'updateTaskProgress'])->name('tasks.progress');
+
+    // Reports
+    Route::get('/reports', [TeamLeaderController::class, 'reports'])->name('reports');
+    Route::get('/reports/create', [TeamLeaderController::class, 'createReport'])->name('reports.create');
+    Route::post('/reports', [TeamLeaderController::class, 'storeReport'])->name('reports.store');
+    Route::get('/reports/{report}', [TeamLeaderController::class, 'showReport'])->name('reports.show');
+    Route::get('/reports/{report}/edit', [TeamLeaderController::class, 'editReport'])->name('reports.edit');
+    Route::put('/reports/{report}', [TeamLeaderController::class, 'updateReport'])->name('reports.update');
+    Route::delete('/reports/{report}', [TeamLeaderController::class, 'deleteReport'])->name('reports.destroy');
+
+    // Attendance Viewing
+    Route::get('/attendance', [TeamLeaderController::class, 'attendance'])->name('attendance');
 });
