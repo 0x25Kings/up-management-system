@@ -180,6 +180,43 @@ class InternController extends Controller
     }
 
     /**
+     * Update intern profile picture
+     */
+    public function updateProfilePicture(Request $request)
+    {
+        $internId = $request->session()->get('intern_id');
+
+        if (!$internId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Session expired'
+            ], 401);
+        }
+
+        $request->validate([
+            'profile_picture' => 'required|image|mimes:jpeg,png,jpg,gif|max:5120', // 5MB max
+        ]);
+
+        $intern = Intern::findOrFail($internId);
+
+        // Delete old profile picture if exists
+        if ($intern->profile_picture) {
+            \Storage::disk('public')->delete($intern->profile_picture);
+        }
+
+        // Store new profile picture
+        $path = $request->file('profile_picture')->store('profile-pictures', 'public');
+
+        $intern->update(['profile_picture' => $path]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Profile picture updated successfully',
+            'image_url' => asset('storage/' . $path)
+        ]);
+    }
+
+    /**
      * Time In
      */
     public function timeIn(Request $request)
@@ -382,6 +419,7 @@ class InternController extends Controller
                     'start_date' => $intern->start_date,
                     'end_date' => $intern->end_date,
                     'created_at' => $intern->created_at,
+                    'profile_picture' => $intern->profile_picture,
                 ]
             ]);
         } catch (\Exception $e) {

@@ -21,6 +21,7 @@ class Task extends Model
         'notes',
         'documents',
         'started_at',
+        'group_id',
     ];
 
     protected $casts = [
@@ -75,5 +76,24 @@ class Task extends Model
         $this->status = 'Completed';
         $this->completed_date = now('Asia/Manila');
         $this->save();
+    }
+
+    /**
+     * Get all group members for this task
+     */
+    public function groupMembers()
+    {
+        if (!$this->group_id) {
+            return collect([$this]);
+        }
+        return self::where('group_id', $this->group_id)->with('intern')->get();
+    }
+
+    /**
+     * Check if this is a group task
+     */
+    public function isGroupTask(): bool
+    {
+        return $this->group_id !== null && self::where('group_id', $this->group_id)->count() > 1;
     }
 }

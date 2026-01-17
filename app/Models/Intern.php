@@ -13,6 +13,7 @@ class Intern extends Model
 
     protected $fillable = [
         'reference_code',
+        'profile_picture',
         'name',
         'age',
         'gender',
