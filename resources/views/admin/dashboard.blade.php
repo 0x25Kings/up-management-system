@@ -2444,7 +2444,7 @@
         </div>
 
         <nav class="sidebar-menu">
-            <a href="#" class="menu-item active">
+            <a href="#" class="menu-item active" onclick="loadPage(event, 'dashboard-overview')">
                 <i class="fas fa-chart-line"></i>
                 <span>Dashboard</span>
             </a>
@@ -2570,10 +2570,10 @@
                     <div class="stat-icon">
                         <i class="fas fa-user-graduate"></i>
                     </div>
-                    <div class="stat-value">245</div>
+                    <div class="stat-value">{{ $activeInterns ?? 0 }}</div>
                     <div class="stat-label">Active Interns</div>
                     <div class="stat-change positive">
-                        <i class="fas fa-arrow-up"></i> +12.5% from last month
+                        <i class="fas fa-check-circle"></i> Currently Active
                     </div>
                 </div>
 
@@ -2581,10 +2581,10 @@
                     <div class="stat-icon">
                         <i class="fas fa-clipboard-list"></i>
                     </div>
-                    <div class="stat-value">89</div>
+                    <div class="stat-value">{{ $startupDocuments->count() ?? 0 }}</div>
                     <div class="stat-label">Research Projects</div>
                     <div class="stat-change positive">
-                        <i class="fas fa-arrow-up"></i> +5.3% from last month
+                        <i class="fas fa-flask"></i> Document Submissions
                     </div>
                 </div>
 
@@ -2592,10 +2592,10 @@
                     <div class="stat-icon">
                         <i class="fas fa-folder-open"></i>
                     </div>
-                    <div class="stat-value">1,156</div>
+                    <div class="stat-value">{{ $totalDocuments ?? 0 }}</div>
                     <div class="stat-label">Digital Records</div>
                     <div class="stat-change positive">
-                        <i class="fas fa-arrow-up"></i> +8.1% from last month
+                        <i class="fas fa-file-alt"></i> Total Documents
                     </div>
                 </div>
 
@@ -2603,10 +2603,10 @@
                     <div class="stat-icon">
                         <i class="fas fa-rocket"></i>
                     </div>
-                    <div class="stat-value">34</div>
+                    <div class="stat-value">{{ $activeIncubatees ?? 0 }}</div>
                     <div class="stat-label">Incubatees</div>
                     <div class="stat-change positive">
-                        <i class="fas fa-arrow-up"></i> +3.2% from last month
+                        <i class="fas fa-briefcase"></i> Active Companies
                     </div>
                 </div>
             </div>
@@ -2823,8 +2823,12 @@
                                         <tr id="pending-intern-{{ $pending->id }}" style="border-bottom: 1px solid #E5E7EB;">
                                             <td style="padding: 12px;">
                                                 <div style="display: flex; align-items: center; gap: 10px;">
-                                                    <div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #FEF3C7, #FDE68A); display: flex; align-items: center; justify-content: center; color: #92400E; font-weight: 700; font-size: 13px;">
-                                                        {{ strtoupper(substr($pending->name, 0, 1)) }}
+                                                    <div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #FEF3C7, #FDE68A); display: flex; align-items: center; justify-content: center; color: #92400E; font-weight: 700; font-size: 13px; overflow: hidden;">
+                                                        @if($pending->profile_picture)
+                                                            <img src="{{ asset('storage/' . $pending->profile_picture) }}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
+                                                        @else
+                                                            {{ strtoupper(substr($pending->name, 0, 1)) }}
+                                                        @endif
                                                     </div>
                                                     <div>
                                                         <div style="font-weight: 600; color: #1F2937; font-size: 13px;">{{ $pending->name }}</div>
@@ -2926,8 +2930,12 @@
                                     <tr>
                                         <td>
                                             <div style="display: flex; align-items: center; gap: 12px;">
-                                                <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #FFBF00, #FFA500); display: flex; align-items: center; justify-content: center; color: #7B1D3A; font-weight: 700;">
-                                                    {{ strtoupper(substr($intern->name, 0, 1)) }}
+                                                <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #FFBF00, #FFA500); display: flex; align-items: center; justify-content: center; color: #7B1D3A; font-weight: 700; overflow: hidden;">
+                                                    @if($intern->profile_picture)
+                                                        <img src="{{ asset('storage/' . $intern->profile_picture) }}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
+                                                    @else
+                                                        {{ strtoupper(substr($intern->name, 0, 1)) }}
+                                                    @endif
                                                 </div>
                                                 <div>
                                                     <span style="font-weight: 600;">{{ $intern->name }}</span>
@@ -3067,8 +3075,12 @@
                                 <tr data-attendance-id="{{ $attendance->id }}" data-time-in="{{ $attendance->raw_time_in }}" data-timed-out="{{ $attendance->time_out ? 'true' : 'false' }}">
                                     <td>
                                         <div style="display: flex; align-items: center; gap: 12px;">
-                                            <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #FFBF00, #FFA500); display: flex; align-items: center; justify-content: center; color: #7B1D3A; font-weight: 700;">
-                                                {{ strtoupper(substr($attendance->intern->name ?? 'U', 0, 1)) }}
+                                            <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #FFBF00, #FFA500); display: flex; align-items: center; justify-content: center; color: #7B1D3A; font-weight: 700; overflow: hidden;">
+                                                @if($attendance->intern->profile_picture ?? null)
+                                                    <img src="{{ asset('storage/' . $attendance->intern->profile_picture) }}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
+                                                @else
+                                                    {{ strtoupper(substr($attendance->intern->name ?? 'U', 0, 1)) }}
+                                                @endif
                                             </div>
                                             <div class="intern-info">
                                                 <span class="intern-name" style="font-weight: 600;">{{ $attendance->intern->name ?? 'Unknown' }}</span>
@@ -3184,8 +3196,12 @@
                                     </td>
                                     <td>
                                         <div style="display: flex; align-items: center; gap: 12px;">
-                                            <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #FFBF00, #FFA500); display: flex; align-items: center; justify-content: center; color: #7B1D3A; font-weight: 700;">
-                                                {{ strtoupper(substr($attendance->intern->name ?? 'U', 0, 1)) }}
+                                            <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #FFBF00, #FFA500); display: flex; align-items: center; justify-content: center; color: #7B1D3A; font-weight: 700; overflow: hidden;">
+                                                @if($attendance->intern->profile_picture ?? null)
+                                                    <img src="{{ asset('storage/' . $attendance->intern->profile_picture) }}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
+                                                @else
+                                                    {{ strtoupper(substr($attendance->intern->name ?? 'U', 0, 1)) }}
+                                                @endif
                                             </div>
                                             <div>
                                                 <span style="font-weight: 600;">{{ $attendance->intern->name ?? 'Unknown' }}</span>
@@ -3279,8 +3295,12 @@
                                 <tr>
                                     <td>
                                         <div style="display: flex; align-items: center; gap: 12px;">
-                                            <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #FFBF00, #FFA500); display: flex; align-items: center; justify-content: center; color: #7B1D3A; font-weight: 700;">
-                                                {{ strtoupper(substr($intern->name, 0, 1)) }}
+                                            <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #FFBF00, #FFA500); display: flex; align-items: center; justify-content: center; color: #7B1D3A; font-weight: 700; overflow: hidden;">
+                                                @if($intern->profile_picture ?? null)
+                                                    <img src="{{ asset('storage/' . $intern->profile_picture) }}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
+                                                @else
+                                                    {{ strtoupper(substr($intern->name, 0, 1)) }}
+                                                @endif
                                             </div>
                                             <span style="font-weight: 600;">{{ $intern->name }}</span>
                                         </div>
@@ -3393,20 +3413,63 @@
                             </tr>
                         </thead>
                         <tbody id="taskTableBody">
-                            @forelse($tasks ?? [] as $task)
+                            @php
+                                $groupedTasks = ($tasks ?? collect())->groupBy('group_id')->map(function($group) {
+                                    return $group->first()->group_id ? $group : $group->each(fn($t) => $t->group_id = 'single_'.$t->id);
+                                });
+                                $displayedTasks = collect();
+                                foreach($tasks ?? [] as $task) {
+                                    if (!$task->group_id || !$displayedTasks->contains('group_id', $task->group_id)) {
+                                        $displayedTasks->push($task);
+                                    }
+                                }
+                            @endphp
+                            @forelse($displayedTasks as $task)
+                            @php
+                                $groupMembers = ($tasks ?? collect())->where('group_id', $task->group_id)->where('group_id', '!=', null);
+                                $isGroup = $groupMembers->count() > 1;
+                                $schoolsInGroup = $groupMembers->pluck('intern.school')->filter()->unique();
+                                $isMixedSchool = $schoolsInGroup->count() > 1;
+                            @endphp
                             <tr>
                                 <td>
                                     <div style="font-weight: 600; margin-bottom: 4px;">{{ $task->title }}</div>
-                                    <div style="font-size: 12px; color: #6B7280;">{{ $task->description ?? 'No description' }}</div>
+                                    <div style="font-size: 12px; color: #6B7280;">{{ Str::limit($task->description ?? 'No description', 80) }}</div>
                                 </td>
                                 <td>
-                                    <div class="intern-info">
-                                        <span class="intern-name">{{ $task->intern->name ?? 'Unknown' }}</span>
-                                        <span class="intern-school">{{ $task->intern->school ?? 'N/A' }}</span>
-                                    </div>
+                                    @if($isGroup)
+                                        <div style="display: flex; flex-direction: column; gap: 4px;">
+                                            @foreach($groupMembers->take(2) as $member)
+                                            <div class="intern-info">
+                                                <span class="intern-name">{{ $member->intern->name ?? 'Unknown' }}</span>
+                                                <span class="intern-school">{{ $member->intern->school ?? 'N/A' }}</span>
+                                            </div>
+                                            @endforeach
+                                            @if($groupMembers->count() > 2)
+                                            <span style="font-size: 11px; color: #6B7280; font-style: italic;">+{{ $groupMembers->count() - 2 }} more</span>
+                                            @endif
+                                        </div>
+                                    @else
+                                        <div class="intern-info">
+                                            <span class="intern-name">{{ $task->intern->name ?? 'Unknown' }}</span>
+                                            <span class="intern-school">{{ $task->intern->school ?? 'N/A' }}</span>
+                                        </div>
+                                    @endif
                                 </td>
-                                <td><span class="status-badge" style="background: #D1FAE5; color: #065F46;">Individual</span></td>
-                                <td>{{ $task->intern->school ?? 'N/A' }}</td>
+                                <td>
+                                    @if($isGroup)
+                                        <span class="status-badge" style="background: #DBEAFE; color: #1E40AF;">Group ({{ $groupMembers->count() }})</span>
+                                    @else
+                                        <span class="status-badge" style="background: #D1FAE5; color: #065F46;">Individual</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($isMixedSchool)
+                                        <span style="font-size: 12px; color: #7B1D3A; font-weight: 600;">Mixed Schools</span>
+                                    @else
+                                        {{ $task->intern->school ?? 'N/A' }}
+                                    @endif
+                                </td>
                                 <td style="font-weight: 600;">{{ \Carbon\Carbon::parse($task->due_date)->format('M d, Y') }}</td>
                                 <td>
                                     @php
@@ -4549,13 +4612,28 @@
                         $emailedCount = $allBookings->where('admin_emailed', true)->count();
                     @endphp
                     @if($emailedCount > 0)
-                    <div style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; padding: 16px 20px; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
+                    <div id="emailNotificationBanner" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; padding: 16px 20px; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; position: relative;">
                         <i class="fas fa-envelope-circle-check" style="font-size: 24px;"></i>
-                        <div>
+                        <div style="flex: 1;">
                             <div style="font-weight: 600; font-size: 14px;">Email Notifications Sent</div>
                             <div style="font-size: 12px; opacity: 0.9;">{{ $emailedCount }} booking(s) have been notified via email</div>
                         </div>
+                        <button onclick="this.parentElement.remove()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                            <i class="fas fa-times"></i>
+                        </button>
                     </div>
+                    <script>
+                        // Auto-dismiss email notification banner after 5 seconds
+                        setTimeout(function() {
+                            const banner = document.getElementById('emailNotificationBanner');
+                            if (banner) {
+                                banner.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                                banner.style.opacity = '0';
+                                banner.style.transform = 'translateY(-20px)';
+                                setTimeout(() => banner.remove(), 500);
+                            }
+                        }, 5000);
+                    </script>
                     @endif
 
                     <div class="table-card">
@@ -5863,7 +5941,7 @@
                                 <small style="color: #6B7280; font-size: 11px;">Maximum number of interns allowed (leave empty for no limit)</small>
                             </div>
                             <div class="form-group" style="margin-bottom: 12px;">
-                                <label class="form-label"></label>Contact Person</label>
+                                <label class="form-label">Contact Person</label>
                                 <input type="text" id="schoolFormContactPerson" class="form-input" placeholder="e.g., Dr. Juan Dela Cruz">
                             </div>
                             <div class="form-group" style="margin-bottom: 12px;">
@@ -6050,8 +6128,11 @@
             </div>
             <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
                 <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 24px; padding: 20px; background: linear-gradient(135deg, #FEF3C7, #FDE68A); border-radius: 12px;">
-                    <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #FFBF00, #FFA500); display: flex; align-items: center; justify-content: center; color: #7B1D3A; font-weight: 700; font-size: 32px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" id="internDetailAvatar">
+                    <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #FFBF00, #FFA500); display: flex; align-items: center; justify-content: center; color: #7B1D3A; font-weight: 700; font-size: 32px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); overflow: hidden; cursor: pointer; position: relative;" id="internDetailAvatar" onclick="zoomProfilePicture()" title="Click to view full size">
                         A
+                        <div id="zoomHoverOverlay" style="display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; color: white; font-size: 20px;">
+                            <i class="fas fa-search-plus"></i>
+                        </div>
                     </div>
                     <div style="flex: 1;">
                         <h4 style="margin: 0 0 4px 0; font-size: 22px; font-weight: 700; color: #1F2937;" id="internDetailName">Loading...</h4>
@@ -6226,6 +6307,52 @@
             }
             if (userRoleEl) {
                 userRoleEl.textContent = 'Administrator';
+            }
+
+            // Restore current page after refresh
+            const savedPage = localStorage.getItem('adminCurrentPage');
+            if (savedPage) {
+                // Hide all pages first
+                document.querySelectorAll('.page-content').forEach(page => {
+                    page.classList.remove('active');
+                });
+
+                // Show the saved page
+                const pageElement = document.getElementById(savedPage);
+                if (pageElement) {
+                    pageElement.classList.add('active');
+
+                    // Update breadcrumb
+                    const breadcrumb = document.querySelector('.breadcrumb');
+                    if (breadcrumb) {
+                        if (savedPage === 'intern-list') {
+                            breadcrumb.innerHTML = 'Dashboard > Intern Management > <span>Intern List</span>';
+                        } else if (savedPage === 'time-attendance') {
+                            breadcrumb.innerHTML = 'Dashboard > Intern Management > <span>Time & Attendance</span>';
+                        } else if (savedPage === 'task-assignment') {
+                            breadcrumb.innerHTML = 'Dashboard > Intern Management > <span>Task Assignment</span>';
+                        } else if (savedPage === 'research-tracking') {
+                            breadcrumb.innerHTML = 'Dashboard > <span>Research Tracking</span>';
+                        } else if (savedPage === 'incubatee-tracker') {
+                            breadcrumb.innerHTML = 'Dashboard > <span>Incubatee Tracker</span>';
+                        } else if (savedPage === 'issues-management') {
+                            breadcrumb.innerHTML = 'Dashboard > <span>Issues & Complaints</span>';
+                        } else if (savedPage === 'digital-records') {
+                            breadcrumb.innerHTML = 'Dashboard > <span>Digital Records</span>';
+                        } else if (savedPage === 'scheduler') {
+                            breadcrumb.innerHTML = 'Dashboard > <span>Scheduler & Events</span>';
+                        }
+                    }
+
+                    // Update active menu item
+                    document.querySelectorAll('.menu-item, .submenu-item').forEach(item => {
+                        item.classList.remove('active');
+                    });
+                    const activeMenuItem = document.querySelector(`[onclick*="'${savedPage}'"]`);
+                    if (activeMenuItem) {
+                        activeMenuItem.classList.add('active');
+                    }
+                }
             }
 
             // Restore dashboard state after page refresh
@@ -6535,6 +6662,20 @@
             const selectedPage = document.getElementById(pageId);
             if (selectedPage) {
                 selectedPage.classList.add('active');
+            }
+
+            // Save current page to localStorage
+            localStorage.setItem('adminCurrentPage', pageId);
+
+            // Update active menu item
+            document.querySelectorAll('.menu-item, .submenu-item').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            // Find and activate the clicked menu item
+            const clickedItem = event.target.closest('.menu-item, .submenu-item');
+            if (clickedItem) {
+                clickedItem.classList.add('active');
             }
 
             // Update breadcrumb
@@ -8586,10 +8727,17 @@
                 return [
                     'id' => $b->id,
                     'date' => $b->booking_date->format('Y-m-d'),
+                    'formatted_date' => $b->booking_date->format('M d, Y'),
                     'agency' => $b->agency_name,
                     'event' => $b->event_name,
                     'time' => $b->formatted_time,
-                    'contact' => $b->contact_person
+                    'contact' => $b->contact_person,
+                    'email' => $b->email,
+                    'phone' => $b->phone,
+                    'purpose' => $b->purpose ?? 'N/A',
+                    'attachment' => $b->attachment_path ? asset('storage/' . $b->attachment_path) : '',
+                    'status' => $b->status,
+                    'admin_emailed' => $b->admin_emailed ? true : false
                 ];
             })->values()->toArray() : [];
 
@@ -8915,14 +9063,14 @@ University of the Philippines Cebu
             .then(data => {
                 if (data.success) {
                     closeBookingActionModal();
-                    showToast('success', 'Booking Approved!', 'You can now send an email notification to the booker.');
+                    showToast('success', 'Booking Approved!', 'You can now send an email notification to the booker.', 3000);
                     // Remove from pending table
                     const row = document.getElementById(`booking-row-${bookingId}`);
                     if (row) row.remove();
                     // Update pending count
                     updatePendingCount(-1);
                     // Reload to update all views
-                    setTimeout(() => window.location.reload(), 1500);
+                    setTimeout(() => window.location.reload(), 3000);
                 } else {
                     showToast('error', 'Error', data.message || 'Failed to approve booking.');
                 }
@@ -8999,8 +9147,27 @@ University of the Philippines Cebu
 
         // View booking details
         function viewBookingDetails(bookingId) {
-            // Find booking in allBookings data
-            alert(`Viewing Booking #${bookingId} Details\n\nIn a production environment, this would show a modal with complete booking information.`);
+            // Find booking in schedulerBookings data
+            const booking = schedulerBookings.find(b => b.id === bookingId);
+
+            if (booking) {
+                openBookingActionModal(
+                    booking.id,
+                    booking.agency,
+                    booking.formatted_date,
+                    booking.time,
+                    booking.event,
+                    booking.contact,
+                    booking.email,
+                    booking.phone,
+                    booking.purpose,
+                    booking.attachment,
+                    booking.status,
+                    booking.admin_emailed
+                );
+            } else {
+                showToast('error', 'Error', 'Booking not found');
+            }
         }
 
         // Update pending count badge
@@ -9659,7 +9826,7 @@ University of the Philippines Cebu
         }
 
         // Create new task
-        function createTask() {
+        async function createTask() {
             const form = document.getElementById('newTaskForm');
 
             if (!form.checkValidity()) {
@@ -9672,8 +9839,9 @@ University of the Philippines Cebu
             const description = document.getElementById('taskDescription').value;
             const priority = document.getElementById('priorityLevel').value;
             const dueDate = document.getElementById('dueDate').value;
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
 
-            let internId = '';
+            let internIds = [];
 
             if (assignmentType === 'individual') {
                 const internSelect = document.getElementById('individualIntern');
@@ -9681,50 +9849,57 @@ University of the Philippines Cebu
                     alert('Please select an intern');
                     return;
                 }
-                internId = internSelect.value;
+                internIds = [internSelect.value];
             } else {
                 const checkedBoxes = document.querySelectorAll('input[name="groupMembers"]:checked');
                 if (checkedBoxes.length === 0) {
                     alert('Please select at least one group member');
                     return;
                 }
-                // For now, use first member's ID. In a full implementation, you'd handle group assignments differently
-                internId = checkedBoxes[0].value;
+                internIds = Array.from(checkedBoxes).map(cb => cb.value);
             }
 
-            const taskData = {
-                intern_id: internId,
-                title: title,
-                description: description,
-                priority: priority === 'high' ? 'High' : (priority === 'medium' ? 'Medium' : 'Low'),
-                due_date: dueDate,
-                _token: document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
-            };
+            // Generate a unique group ID for group tasks
+            const groupId = assignmentType === 'group' ? 'group_' + Date.now() : null;
 
-            fetch('/admin/tasks', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': taskData._token
-                },
-                body: JSON.stringify(taskData)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Task created successfully!');
+            try {
+                // Create tasks for all selected interns
+                const promises = internIds.map(internId => {
+                    const taskData = {
+                        intern_id: internId,
+                        title: title,
+                        description: description,
+                        priority: priority === 'high' ? 'High' : (priority === 'medium' ? 'Medium' : 'Low'),
+                        due_date: dueDate,
+                        group_id: groupId
+                    };
+
+                    return fetch('/admin/tasks', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken
+                        },
+                        body: JSON.stringify(taskData)
+                    }).then(response => response.json());
+                });
+
+                const results = await Promise.all(promises);
+                const allSuccessful = results.every(data => data.success);
+
+                if (allSuccessful) {
+                    const taskCount = internIds.length;
+                    showToast('success', 'Success', `${taskCount} task${taskCount > 1 ? 's' : ''} created successfully!`);
                     closeNewTaskModal();
-                    // Reload the page to show the new task
-                    location.reload();
+                    setTimeout(() => location.reload(), 1000);
                 } else {
-                    alert('Error: ' + (data.message || 'Failed to create task'));
+                    showToast('error', 'Error', 'Some tasks failed to create');
                 }
-            })
-            .catch(error => {
+            } catch (error) {
                 console.error('Error:', error);
-                alert('Error creating task: ' + error.message);
-            });
+                showToast('error', 'Error', 'Error creating tasks: ' + error.message);
+            }
         }
 
         // View task details
@@ -9795,11 +9970,27 @@ University of the Philippines Cebu
                     </div>
                     <div class="detail-section">
                         <div class="detail-label">Assigned To</div>
-                        <div class="detail-value">${task.intern?.name || 'Unknown'}</div>
+                        <div class="detail-value">
+                            ${task.group_members && task.group_members.length > 1 ?
+                                task.group_members.map(member => `
+                                    <div style="padding: 8px; background: #F3F4F6; border-radius: 6px; margin-bottom: 6px;">
+                                        <div style="font-weight: 600;">${member.name}</div>
+                                        <div style="font-size: 12px; color: #6B7280;">${member.school || 'N/A'}</div>
+                                    </div>
+                                `).join('')
+                            : `${task.intern?.name || 'Unknown'}`}
+                        </div>
                     </div>
                     <div class="detail-section">
                         <div class="detail-label">School</div>
-                        <div class="detail-value">${task.intern?.school || 'N/A'}</div>
+                        <div class="detail-value">
+                            ${task.group_members && task.group_members.length > 1 ?
+                                (new Set(task.group_members.map(m => m.school)).size > 1 ?
+                                    '<span style="color: #7B1D3A; font-weight: 600;">Mixed Schools</span>' :
+                                    task.group_members[0].school || 'N/A'
+                                )
+                            : task.intern?.school || 'N/A'}
+                        </div>
                     </div>
                     <div class="detail-section">
                         <div class="detail-label">Due Date</div>
@@ -10311,16 +10502,16 @@ University of the Philippines Cebu
                 const result = await response.json();
 
                 if (result.success) {
-                    showToast(result.message, 'success');
+                    showToast('success', 'Success', result.message);
                     cancelSchoolForm();
                     // Reload page to refresh schools list
                     setTimeout(() => location.reload(), 1000);
                 } else {
-                    showToast(result.message || 'An error occurred', 'error');
+                    showToast('error', 'Error', result.message || 'An error occurred');
                 }
             } catch (error) {
                 console.error('Error:', error);
-                showToast('An error occurred while saving the school', 'error');
+                showToast('error', 'Error', 'An error occurred while saving the school');
             }
         });
 
@@ -10337,14 +10528,14 @@ University of the Philippines Cebu
                 const result = await response.json();
 
                 if (result.success) {
-                    showToast(result.message, 'success');
+                    showToast('success', 'Success', result.message);
                     setTimeout(() => location.reload(), 1000);
                 } else {
-                    showToast(result.message || 'An error occurred', 'error');
+                    showToast('error', 'Error', result.message || 'An error occurred');
                 }
             } catch (error) {
                 console.error('Error:', error);
-                showToast('An error occurred', 'error');
+                showToast('error', 'Error', 'An error occurred');
             }
         }
 
@@ -10365,14 +10556,14 @@ University of the Philippines Cebu
                 const result = await response.json();
 
                 if (result.success) {
-                    showToast(result.message, 'success');
+                    showToast('success', 'Success', result.message);
                     document.getElementById(`school-row-${schoolId}`).remove();
                 } else {
-                    showToast(result.message || 'An error occurred', 'error');
+                    showToast('error', 'Error', result.message || 'An error occurred');
                 }
             } catch (error) {
                 console.error('Error:', error);
-                showToast('An error occurred while deleting the school', 'error');
+                showToast('error', 'Error', 'An error occurred while deleting the school');
             }
         }
 
@@ -10520,7 +10711,24 @@ University of the Philippines Cebu
                 const intern = data.intern;
 
                 // Populate modal with intern data
-                document.getElementById('internDetailAvatar').textContent = intern.name.charAt(0).toUpperCase();
+                const avatarEl = document.getElementById('internDetailAvatar');
+                const zoomOverlay = document.getElementById('zoomHoverOverlay');
+                if (intern.profile_picture) {
+                    const imageUrl = `/storage/${intern.profile_picture}`;
+                    avatarEl.innerHTML = `<img src="${imageUrl}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">`;
+                    avatarEl.appendChild(zoomOverlay);
+                    avatarEl.setAttribute('data-image-url', imageUrl);
+                    avatarEl.style.cursor = 'pointer';
+                    // Show zoom icon on hover
+                    avatarEl.onmouseenter = () => zoomOverlay.style.display = 'flex';
+                    avatarEl.onmouseleave = () => zoomOverlay.style.display = 'none';
+                } else {
+                    avatarEl.textContent = intern.name.charAt(0).toUpperCase();
+                    avatarEl.removeAttribute('data-image-url');
+                    avatarEl.style.cursor = 'default';
+                    avatarEl.onmouseenter = null;
+                    avatarEl.onmouseleave = null;
+                }
                 document.getElementById('internDetailName').textContent = intern.name;
                 document.getElementById('internDetailRefCode').textContent = intern.reference_code || 'N/A';
                 document.getElementById('internDetailEmail').textContent = intern.email || '-';
@@ -10891,6 +11099,35 @@ University of the Philippines Cebu
             div.textContent = text;
             return div.innerHTML;
         }
+
+        // Profile Picture Zoom Functions
+        function zoomProfilePicture() {
+            const avatarEl = document.getElementById('internDetailAvatar');
+            const imageUrl = avatarEl.getAttribute('data-image-url');
+
+            if (imageUrl) {
+                document.getElementById('zoomedProfileImage').src = imageUrl;
+                const modal = document.getElementById('profilePictureZoomModal');
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeProfileZoom() {
+            const modal = document.getElementById('profilePictureZoomModal');
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close zoom modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const zoomModal = document.getElementById('profilePictureZoomModal');
+                if (zoomModal.style.display === 'flex') {
+                    closeProfileZoom();
+                }
+            }
+        });
     </script>
 
     <!-- Toast Container -->
@@ -10916,6 +11153,16 @@ University of the Philippines Cebu
                     <i class="fas fa-check"></i> Confirm
                 </button>
             </div>
+        </div>
+    </div>
+
+    <!-- Profile Picture Zoom Modal -->
+    <div id="profilePictureZoomModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 10000; align-items: center; justify-content: center;" onclick="closeProfileZoom()">
+        <div style="position: relative; max-width: 90%; max-height: 90vh; display: flex; align-items: center; justify-content: center;">
+            <button onclick="closeProfileZoom()" style="position: absolute; top: -40px; right: 0; background: white; border: none; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+                <i class="fas fa-times"></i>
+            </button>
+            <img id="zoomedProfileImage" src="" alt="Profile Picture" style="max-width: 100%; max-height: 90vh; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.5);" onclick="event.stopPropagation()">
         </div>
     </div>
 </body>

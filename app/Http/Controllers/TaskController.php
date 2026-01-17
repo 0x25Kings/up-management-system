@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Task;
 use App\Models\Intern;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class TaskController extends Controller
 {
@@ -13,10 +14,29 @@ class TaskController extends Controller
      */
     public function show(Task $task)
     {
-        $task->load('intern');
+        $task->load('intern.schoolRelation');
+
+        // Get all group members if this is a group task
+        $groupMembers = [];
+        if ($task->group_id) {
+            $groupTasks = Task::where('group_id', $task->group_id)
+                ->with('intern.schoolRelation')
+                ->get();
+
+            $groupMembers = $groupTasks->map(function($t) {
+                return [
+                    'id' => $t->intern->id,
+                    'name' => $t->intern->name,
+                    'email' => $t->intern->email,
+                    'school' => $t->intern->schoolRelation->name ?? $t->intern->school
+                ];
+            })->toArray();
+        }
+
         return response()->json([
             'success' => true,
-            'task' => $task
+            'task' => $task,
+            'group_members' => $groupMembers
         ]);
     }
 
@@ -32,9 +52,12 @@ class TaskController extends Controller
             'requirements' => 'nullable|string',
             'priority' => 'required|in:Low,Medium,High',
             'due_date' => 'required|date',
+            'group_id' => 'nullable|string',
         ]);
 
-        $validated['assigned_by'] = auth()->id();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        $validated['assigned_by'] = $user ? $user->id : null;
         $validated['status'] = 'Not Started';
 
         $task = Task::create($validated);

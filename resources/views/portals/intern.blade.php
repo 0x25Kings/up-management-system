@@ -871,7 +871,13 @@
         </div>
 
         <div class="intern-info">
-            <div class="intern-avatar">{{ strtoupper(substr($intern->name, 0, 1)) }}</div>
+            <div class="intern-avatar" style="overflow: hidden;">
+                @if($intern->profile_picture)
+                    <img src="{{ asset('storage/' . $intern->profile_picture) }}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
+                @else
+                    {{ strtoupper(substr($intern->name, 0, 1)) }}
+                @endif
+            </div>
             <div class="intern-name">{{ $intern->name }}</div>
             <div class="intern-code">{{ $intern->reference_code }}</div>
         </div>
@@ -892,10 +898,6 @@
             <a class="menu-item" data-page="tasks" onclick="showPage('tasks'); setActiveMenu(this);">
                 <i class="fas fa-tasks"></i>
                 <span>My Tasks</span>
-            </a>
-            <a class="menu-item" data-page="reports" onclick="showPage('reports'); setActiveMenu(this);">
-                <i class="fas fa-file-alt"></i>
-                <span>Reports</span>
             </a>
             <a class="menu-item" data-page="schedule" onclick="showPage('schedule'); setActiveMenu(this);">
                 <i class="fas fa-calendar"></i>
@@ -1059,17 +1061,17 @@
                             @endphp
 
                             @if(!$hasTimeIn)
-                            <button class="btn-primary" style="justify-content: flex-start; display: flex; align-items: center; cursor: pointer;" onclick="document.querySelector('#attendance').click();">
+                            <button type="button" class="btn-primary" style="justify-content: flex-start; display: flex; align-items: center; cursor: pointer;" onclick="showPage('attendance');">
                                 <i class="fas fa-clock" style="margin-right: 10px;"></i>
                                 Log Time In
                             </button>
                             @elseif(!$hasTimeOut)
-                            <button class="btn-primary" style="justify-content: flex-start; display: flex; align-items: center; cursor: pointer; background: #F59E0B;" onclick="document.querySelector('#attendance').click();">
+                            <button type="button" class="btn-primary" style="justify-content: flex-start; display: flex; align-items: center; cursor: pointer; background: #F59E0B;" onclick="showPage('attendance');">
                                 <i class="fas fa-sign-out-alt" style="margin-right: 10px;"></i>
                                 Log Time Out
                             </button>
                             @else
-                            <button class="btn-secondary" style="justify-content: flex-start; display: flex; align-items: center; cursor: not-allowed; opacity: 0.6;">
+                            <button type="button" class="btn-secondary" style="justify-content: flex-start; display: flex; align-items: center; cursor: not-allowed; opacity: 0.6;" disabled>
                                 <i class="fas fa-check-circle" style="margin-right: 10px;"></i>
                                 Attendance Logged Today
                             </button>
@@ -1078,11 +1080,11 @@
                             @php
                                 $pendingTasks = $intern->tasks ? $intern->tasks->whereIn('status', ['Not Started', 'In Progress'])->count() : 0;
                             @endphp
-                            <button class="btn-primary" style="justify-content: flex-start; display: flex; align-items: center; cursor: pointer;" onclick="document.querySelector('[data-tab=\"tasks\"]').click();">
+                            <button type="button" class="btn-primary" style="justify-content: flex-start; display: flex; align-items: center; cursor: pointer;" onclick="showPage('tasks');">
                                 <i class="fas fa-tasks" style="margin-right: 10px;"></i>
                                 View Tasks ({{ $pendingTasks }} pending)
                             </button>
-                            <button class="btn-secondary" style="justify-content: flex-start; display: flex; align-items: center;">
+                            <button type="button" class="btn-secondary" style="justify-content: flex-start; display: flex; align-items: center;">
                                 <i class="fas fa-download" style="margin-right: 10px;"></i>
                                 Download Forms
                             </button>
@@ -1243,6 +1245,27 @@
                 <div>
                     <h1 class="page-title">My Profile</h1>
                     <p class="page-subtitle">View and manage your information</p>
+                </div>
+            </div>
+
+            <!-- Profile Picture Section -->
+            <div class="content-card" style="margin-bottom: 20px;">
+                <div class="content-card-body" style="text-align: center; padding: 40px;">
+                    <div style="position: relative; display: inline-block; margin-bottom: 20px;">
+                        <div id="profilePicturePreview" style="width: 150px; height: 150px; border-radius: 50%; background: linear-gradient(135deg, #7B1D3A, #5a1428); display: flex; align-items: center; justify-content: center; margin: 0 auto; overflow: hidden; box-shadow: 0 8px 24px rgba(123, 29, 58, 0.3);">
+                            @if($intern->profile_picture)
+                                <img src="{{ asset('storage/' . $intern->profile_picture) }}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
+                            @else
+                                <span style="font-size: 48px; color: #FFBF00; font-weight: 700;">{{ substr($intern->name, 0, 1) }}</span>
+                            @endif
+                        </div>
+                        <label for="profilePictureInput" style="position: absolute; bottom: 5px; right: 5px; background: #FFBF00; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                            <i class="fas fa-camera" style="color: #7B1D3A;"></i>
+                        </label>
+                        <input type="file" id="profilePictureInput" accept="image/*" style="display: none;" onchange="uploadProfilePicture(this)">
+                    </div>
+                    <h3 style="font-size: 20px; font-weight: 700; color: #1F2937; margin-bottom: 4px;">{{ $intern->name }}</h3>
+                    <p style="color: #6B7280; font-size: 14px;">{{ $intern->course }} - {{ $intern->school }}</p>
                 </div>
             </div>
 
@@ -1609,30 +1632,6 @@
                         <p style="font-size: 14px; margin-top: 8px;">Tasks assigned by your supervisor will appear here</p>
                     </div>
                     @endif
-                </div>
-            </div>
-        </div>
-
-        <!-- Reports Page -->
-        <div id="reports" class="page-content">
-            <div class="page-header">
-                <div>
-                    <h1 class="page-title">Reports</h1>
-                    <p class="page-subtitle">Submit and view your internship reports</p>
-                </div>
-                <button class="btn-primary">
-                    <i class="fas fa-plus" style="margin-right: 6px;"></i>
-                    Submit Report
-                </button>
-            </div>
-
-            <div class="content-card">
-                <div class="content-card-body">
-                    <div style="text-align: center; padding: 50px; color: #9CA3AF;">
-                        <i class="fas fa-file-alt" style="font-size: 50px; margin-bottom: 16px;"></i>
-                        <p style="font-size: 16px;">No reports submitted yet</p>
-                        <p style="font-size: 14px; margin-top: 8px;">Click "Submit Report" to create your first report</p>
-                    </div>
                 </div>
             </div>
         </div>
@@ -3050,6 +3049,115 @@
                 alert('Error updating task: ' + error.message);
             });
         }
+
+        // Refresh CSRF token periodically to prevent "Page Expired" errors
+        function refreshCsrfToken() {
+            fetch('/intern', {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const newToken = doc.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+                if (newToken) {
+                    // Update all CSRF token meta tags
+                    const metaTag = document.querySelector('meta[name="csrf-token"]');
+                    if (metaTag) {
+                        metaTag.setAttribute('content', newToken);
+                    }
+
+                    // Update all CSRF input fields
+                    document.querySelectorAll('input[name="_token"]').forEach(input => {
+                        input.value = newToken;
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error refreshing CSRF token:', error);
+            });
+        }
+
+        // Refresh CSRF token every 30 minutes
+        setInterval(refreshCsrfToken, 30 * 60 * 1000);
+
+        // Upload profile picture
+        function uploadProfilePicture(input) {
+            if (!input.files || !input.files[0]) {
+                return;
+            }
+
+            const file = input.files[0];
+            const maxSize = 5 * 1024 * 1024; // 5MB
+
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                alert('Please select an image file');
+                return;
+            }
+
+            // Validate file size
+            if (file.size > maxSize) {
+                alert('Image size must be less than 5MB');
+                return;
+            }
+
+            // Show preview immediately
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('profilePicturePreview');
+                preview.innerHTML = `<img src="${e.target.result}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">`;
+            };
+            reader.readAsDataURL(file);
+
+            // Upload to server
+            const formData = new FormData();
+            formData.append('profile_picture', file);
+            formData.append('_token', document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '');
+
+            fetch('/intern/update-profile-picture', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Profile picture updated successfully!');
+                    // Reload to show the new picture everywhere
+                    location.reload();
+                } else {
+                    alert('Error: ' + (data.message || 'Failed to upload image'));
+                    // Reload to restore original image
+                    location.reload();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error uploading profile picture');
+                // Reload to restore original image
+                location.reload();
+            });
+        }
+
+        // Handle logout form submission with error handling
+        const logoutForms = document.querySelectorAll('form[action*="clear"]');
+        logoutForms.forEach(form => {
+            form.addEventListener('submit', function(e) {
+                // If there's any error, just redirect to the portal page
+                const submitHandler = () => {
+                    setTimeout(() => {
+                        window.location.href = '/intern';
+                    }, 100);
+                };
+
+                // Set a timeout fallback
+                setTimeout(submitHandler, 1000);
+            });
+        });
     </script>
     @endif
 </body>

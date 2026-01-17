@@ -35,6 +35,7 @@ Route::post('/intern/register', [InternController::class, 'register'])->name('in
 Route::post('/intern/access', [InternController::class, 'accessWithCode'])->name('intern.access');
 Route::post('/intern/clear-session', [InternController::class, 'clearSession'])->name('intern.clear');
 Route::post('/intern/update-profile', [InternController::class, 'updateProfile'])->name('intern.update');
+Route::post('/intern/update-profile-picture', [InternController::class, 'updateProfilePicture'])->name('intern.update.picture');
 Route::post('/intern/time-in', [InternController::class, 'timeIn'])->name('intern.timein');
 Route::post('/intern/time-out', [InternController::class, 'timeOut'])->name('intern.timeout');
 

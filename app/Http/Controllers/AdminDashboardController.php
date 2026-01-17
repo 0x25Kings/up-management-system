@@ -15,6 +15,7 @@ use App\Models\RoomIssue;
 use App\Models\School;
 use App\Models\User;
 use App\Models\TeamLeaderReport;
+use App\Models\Document;
 use Carbon\Carbon;
 
 class AdminDashboardController extends Controller
@@ -28,7 +29,7 @@ class AdminDashboardController extends Controller
         $totalInterns = Intern::approved()->count();
         $activeInterns = Intern::approved()->where('status', 'Active')->count();
         $pendingInternApprovals = Intern::pending()->count();
-        
+
         // Get all approved interns with their latest attendance
         $interns = Intern::approved()
             ->with(['attendances' => function($query) {
@@ -147,6 +148,9 @@ class AdminDashboardController extends Controller
             ->whereYear('resolved_at', Carbon::now()->year)
             ->count();
 
+        // Digital records count
+        $totalDocuments = Document::count();
+
         return view('admin.dashboard', [
             'user' => Auth::user(),
             'totalInterns' => $totalInterns,
@@ -177,6 +181,7 @@ class AdminDashboardController extends Controller
             'openIssues' => $openIssues,
             'inProgressIssues' => $inProgressIssues,
             'resolvedThisMonth' => $resolvedThisMonth,
+            'totalDocuments' => $totalDocuments,
         ]);
     }
 
