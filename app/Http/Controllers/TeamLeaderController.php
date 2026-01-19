@@ -41,6 +41,7 @@ class TeamLeaderController extends Controller
      */
     public function dashboard()
     {
+        /** @var \App\Models\User $user */
         $user = Auth::user();
         $schoolId = $this->getSchoolId();
         $school = School::find($schoolId);
@@ -89,8 +90,8 @@ class TeamLeaderController extends Controller
             ->where('status', 'Active')
             ->get()
             ->filter(function ($intern) {
-                $progress = $intern->required_hours > 0 
-                    ? ($intern->completed_hours / $intern->required_hours) * 100 
+                $progress = $intern->required_hours > 0
+                    ? ($intern->completed_hours / $intern->required_hours) * 100
                     : 0;
                 return $progress < 50;
             })
@@ -480,8 +481,8 @@ class TeamLeaderController extends Controller
             'status' => $request->status,
         ]);
 
-        $message = $request->status === 'submitted' 
-            ? 'Report submitted successfully.' 
+        $message = $request->status === 'submitted'
+            ? 'Report submitted successfully.'
             : 'Report saved as draft.';
 
         return redirect()->route('team-leader.reports')->with('success', $message);
@@ -560,8 +561,8 @@ class TeamLeaderController extends Controller
             'status',
         ]));
 
-        $message = $request->status === 'submitted' 
-            ? 'Report submitted successfully.' 
+        $message = $request->status === 'submitted'
+            ? 'Report submitted successfully.'
             : 'Report saved as draft.';
 
         return redirect()->route('team-leader.reports')->with('success', $message);
@@ -667,7 +668,7 @@ class TeamLeaderController extends Controller
     public function getTasksData()
     {
         $internIds = $this->getSchoolInterns()->pluck('id');
-        
+
         $tasks = Task::whereIn('intern_id', $internIds)
             ->with('intern:id,name')
             ->orderBy('due_date', 'asc')
@@ -701,7 +702,7 @@ class TeamLeaderController extends Controller
     public function getDashboardStats()
     {
         $internIds = $this->getSchoolInterns()->pluck('id');
-        
+
         $stats = [
             'pending_tasks' => Task::whereIn('intern_id', $internIds)->where('status', 'Not Started')->count(),
             'in_progress_tasks' => Task::whereIn('intern_id', $internIds)->where('status', 'In Progress')->count(),

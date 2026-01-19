@@ -4277,29 +4277,29 @@
                         <div class="stat-icon" style="background: linear-gradient(135deg, #3B82F6, #2563EB);">
                             <i class="fas fa-folder"></i>
                         </div>
-                        <div class="stat-value">24</div>
+                        <div class="stat-value" id="dr-total-folders">--</div>
                         <div class="stat-label">Total Folders</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon" style="background: linear-gradient(135deg, #10B981, #059669);">
                             <i class="fas fa-file"></i>
                         </div>
-                        <div class="stat-value">387</div>
+                        <div class="stat-value" id="dr-total-files">--</div>
                         <div class="stat-label">Total Files</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon" style="background: linear-gradient(135deg, #8B5CF6, #7C3AED);">
                             <i class="fas fa-hdd"></i>
                         </div>
-                        <div class="stat-value">2.4 GB</div>
+                        <div class="stat-value" id="dr-storage-used">--</div>
                         <div class="stat-label">Storage Used</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon" style="background: linear-gradient(135deg, #F59E0B, #D97706);">
                             <i class="fas fa-clock"></i>
                         </div>
-                        <div class="stat-value">12</div>
-                        <div class="stat-label">Recent Uploads</div>
+                        <div class="stat-value" id="dr-recent-uploads">--</div>
+                        <div class="stat-label">Recent Uploads (7d)</div>
                     </div>
                 </div>
 
@@ -9654,6 +9654,7 @@ University of the Philippines Cebu
 
             // Load Digital Records when the page loads
             loadDigitalRecords();
+            loadDigitalRecordsStats();
         });
 
         // Digital Records Functions
@@ -9661,6 +9662,50 @@ University of the Philippines Cebu
         let currentPath = '';
         let viewMode = 'grid'; // 'grid' or 'list'
         let folderHistory = [];
+
+        function loadDigitalRecordsStats() {
+            const totalFoldersEl = document.getElementById('dr-total-folders');
+            const totalFilesEl = document.getElementById('dr-total-files');
+            const storageUsedEl = document.getElementById('dr-storage-used');
+            const recentUploadsEl = document.getElementById('dr-recent-uploads');
+
+            if (!totalFoldersEl || !totalFilesEl || !storageUsedEl || !recentUploadsEl) {
+                return;
+            }
+
+            const formatBytes = (bytes) => {
+                if (bytes === 0) return '0 B';
+                const k = 1024;
+                const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                const value = (bytes / Math.pow(k, i)).toFixed(2);
+                return `${value} ${sizes[i]}`;
+            };
+
+            fetch('/admin/documents/stats', {
+                headers: {
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.ok ? response.json() : Promise.reject('Failed to load stats'))
+            .then(data => {
+                if (!data.success) {
+                    throw new Error(data.message || 'Unable to load stats');
+                }
+
+                totalFoldersEl.textContent = data.folders ?? '--';
+                totalFilesEl.textContent = data.files ?? '--';
+                storageUsedEl.textContent = data.storage_human || formatBytes(data.storage_bytes || 0);
+                recentUploadsEl.textContent = data.recent_uploads ?? '--';
+            })
+            .catch(error => {
+                console.error('Error loading digital records stats:', error);
+                totalFoldersEl.textContent = '--';
+                totalFilesEl.textContent = '--';
+                storageUsedEl.textContent = '--';
+                recentUploadsEl.textContent = '--';
+            });
+        }
 
         function loadDigitalRecords() {
             if (currentPath === '') {

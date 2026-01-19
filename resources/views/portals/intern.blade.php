@@ -2094,7 +2094,9 @@
                 if (data.folders && data.folders.length > 0) {
                     html += '<div class="folder-grid">';
                     data.folders.forEach(folder => {
-                        const docsCount = folder.documents ? folder.documents.length : 0;
+                        const docsCount = (typeof folder.item_count === 'number')
+                            ? folder.item_count
+                            : (folder.documents ? folder.documents.length : 0);
                         html += `
                             <div class="folder-card" ondblclick="openFolder(${folder.id})" style="position: relative;">
                                 <div style="position: absolute; top: 5px; right: 5px; z-index: 10;">

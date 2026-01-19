@@ -1632,10 +1632,74 @@
                     @endif
                 </div>
                 <div class="card-body">
-                    <div class="empty-state">
-                        <i class="fas fa-file-alt"></i>
-                        <h4>Digital Records Module</h4>
-                        <p>You have been granted access to the Digital Records module. This feature will be fully integrated soon.</p>
+                    <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); margin-bottom: 18px;">
+                        <div class="stat-card maroon">
+                            <div class="stat-icon maroon"><i class="fas fa-folder"></i></div>
+                            <div class="stat-value" id="tl-dr-total-folders">--</div>
+                            <div class="stat-label">Total Folders</div>
+                        </div>
+                        <div class="stat-card green">
+                            <div class="stat-icon green"><i class="fas fa-file"></i></div>
+                            <div class="stat-value" id="tl-dr-total-files">--</div>
+                            <div class="stat-label">Total Files</div>
+                        </div>
+                        <div class="stat-card gold">
+                            <div class="stat-icon gold"><i class="fas fa-hdd"></i></div>
+                            <div class="stat-value" id="tl-dr-storage-used">--</div>
+                            <div class="stat-label">Storage Used</div>
+                        </div>
+                        <div class="stat-card red">
+                            <div class="stat-icon red"><i class="fas fa-clock"></i></div>
+                            <div class="stat-value" id="tl-dr-recent-uploads">--</div>
+                            <div class="stat-label">Recent Uploads (7d)</div>
+                        </div>
+                    </div>
+
+                    @if(!in_array('digital_records', $editableModules))
+                    <div class="alert alert-warning" style="margin-bottom: 14px;">
+                        <i class="fas fa-eye"></i>
+                        <div>
+                            <div style="font-weight: 700;">View-only access</div>
+                            <div style="font-size: 13px;">You can browse and download files. Editing/deleting is disabled.</div>
+                        </div>
+                    </div>
+                    @endif
+
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom: 12px;">
+                        <div style="font-size: 13px; color: #6B7280; font-weight: 600;">
+                            <i class="fas fa-home"></i> <span id="tl-dr-current-path">Root</span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                            <button class="btn btn-secondary btn-sm" id="tl-dr-back-btn" style="display:none;" onclick="tlDrGoBack()"><i class="fas fa-arrow-left"></i> Back</button>
+                            <input id="tl-dr-search" type="text" class="form-input" placeholder="Search..." style="min-width: 220px;" oninput="tlDrFilter(this.value)">
+                            <button class="btn btn-secondary btn-sm" onclick="tlDrRefresh()"><i class="fas fa-sync"></i> Refresh</button>
+                            @if(in_array('digital_records', $editableModules))
+                            <button class="btn btn-primary btn-sm" onclick="tlOpenCreateFolderModal()"><i class="fas fa-folder-plus"></i> New Folder</button>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div class="card" style="border-radius: 14px; overflow: hidden; border: 1px solid rgba(0,0,0,0.06);">
+                        <div style="overflow-x:auto;">
+                            <table class="data-table" style="width:100%;">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 45%;">Name</th>
+                                        <th style="width: 15%;">Type</th>
+                                        <th style="width: 15%;">Size</th>
+                                        <th style="width: 20%;">Modified</th>
+                                        <th style="width: 5%; text-align:right;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tl-dr-table-body">
+                                    <tr>
+                                        <td colspan="5" style="text-align:center; padding: 32px; color:#9CA3AF;">
+                                            <i class="fas fa-spinner fa-spin" style="margin-right:8px;"></i> Loading...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1644,6 +1708,52 @@
     </div>
 
     <!-- ==================== MODALS ==================== -->
+
+    @if(in_array('digital_records', $editableModules))
+    <div id="tlCreateFolderModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-folder-plus"></i> Create Shared Folder</h3>
+                <button class="modal-close" onclick="closeModal('tlCreateFolderModal')">&times;</button>
+            </div>
+            <form onsubmit="tlSubmitCreateFolder(event)">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label">Folder Name *</label>
+                        <input id="tlFolderName" type="text" class="form-input" placeholder="Enter folder name" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <input id="tlFolderDescription" type="text" class="form-input" placeholder="Optional description">
+                    </div>
+                    <input type="hidden" id="tlFolderColor" value="#7B1113">
+
+                    <div class="form-group">
+                        <label class="form-label">Who can upload? *</label>
+                        <div style="display:flex; gap:14px; flex-wrap:wrap;">
+                            <label style="display:flex; gap:8px; align-items:center;">
+                                <input type="checkbox" name="tlAllowedUsers" value="intern" checked>
+                                <span style="font-weight: 700;">Intern</span>
+                            </label>
+                            <label style="display:flex; gap:8px; align-items:center;">
+                                <input type="checkbox" name="tlAllowedUsers" value="team_leader" checked>
+                                <span style="font-weight: 700;">Team Leader</span>
+                            </label>
+                            <label style="display:flex; gap:8px; align-items:center;">
+                                <input type="checkbox" name="tlAllowedUsers" value="startup">
+                                <span style="font-weight: 700;">Startup</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="display:flex; justify-content:flex-end; gap:12px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('tlCreateFolderModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    @endif
 
     <!-- Create Task Modal -->
     <div id="createTaskModal" class="modal-overlay">
@@ -2121,6 +2231,10 @@
                 pageContents.forEach(pc => pc.classList.remove('active'));
                 document.getElementById(page).classList.add('active');
                 pageTitle.textContent = pageTitles[page] || 'Dashboard';
+
+                if (page === 'digital-records') {
+                    tlDrInit();
+                }
             });
         });
 
@@ -2150,6 +2264,338 @@
             toast.classList.toggle('error', isError);
             toast.classList.add('active');
             setTimeout(() => toast.classList.remove('active'), 3000);
+        }
+
+        // ========== DIGITAL RECORDS (TEAM LEADER) ==========
+        const tlDrHasEditAccess = {{ in_array('digital_records', $editableModules) ? 'true' : 'false' }};
+        let tlDrCurrentPath = '';
+        let tlDrHistory = [];
+        let tlDrItems = [];
+        let tlDrSearchQuery = '';
+        let tlDrInitialized = false;
+
+        function tlDrInit() {
+            if (tlDrInitialized) return;
+            if (!document.getElementById('digital-records')) return;
+            tlDrInitialized = true;
+            tlLoadDigitalRecordsStats();
+            tlLoadDigitalRecordsRoot();
+        }
+
+        function tlDrRefresh() {
+            tlLoadDigitalRecordsStats();
+            if (tlDrCurrentPath) {
+                tlLoadFolderContents(tlDrCurrentPath, false);
+            } else {
+                tlLoadDigitalRecordsRoot();
+            }
+        }
+
+        function tlDrGoBack() {
+            if (tlDrHistory.length === 0) return;
+            const prev = tlDrHistory.pop();
+            tlDrCurrentPath = prev || '';
+            document.getElementById('tl-dr-current-path').textContent = prev || 'Root';
+            document.getElementById('tl-dr-back-btn').style.display = tlDrHistory.length ? 'inline-flex' : 'none';
+            if (prev) {
+                tlLoadFolderContents(prev, false);
+            } else {
+                tlLoadDigitalRecordsRoot();
+            }
+        }
+
+        function tlDrFilter(query) {
+            tlDrSearchQuery = (query || '').toLowerCase();
+            tlRenderDigitalRecordsTable(tlDrItems);
+        }
+
+        function tlLoadDigitalRecordsStats() {
+            fetch('/admin/documents/stats', { headers: { 'Accept': 'application/json' } })
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.success) throw new Error(data.message || 'Failed');
+                    const foldersEl = document.getElementById('tl-dr-total-folders');
+                    const filesEl = document.getElementById('tl-dr-total-files');
+                    const storageEl = document.getElementById('tl-dr-storage-used');
+                    const recentEl = document.getElementById('tl-dr-recent-uploads');
+                    if (!foldersEl) return;
+                    foldersEl.textContent = data.folders ?? '--';
+                    filesEl.textContent = data.files ?? '--';
+                    storageEl.textContent = data.storage_human || tlFormatBytes(data.storage_bytes || 0);
+                    recentEl.textContent = data.recent_uploads ?? '--';
+                })
+                .catch(err => {
+                    console.error('TL stats error:', err);
+                });
+        }
+
+        function tlLoadDigitalRecordsRoot() {
+            tlDrCurrentPath = '';
+            tlDrHistory = [];
+            const backBtn = document.getElementById('tl-dr-back-btn');
+            if (backBtn) backBtn.style.display = 'none';
+            const pathEl = document.getElementById('tl-dr-current-path');
+            if (pathEl) pathEl.textContent = 'Root';
+
+            fetch('/admin/documents/all-folders', {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            })
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.success) throw new Error(data.message || 'Failed');
+
+                    const shared = (data.shared_folders || []).map(f => ({
+                        id: f.id,
+                        name: f.name,
+                        path: f.storage_path || f.path || `Shared/${f.name}`,
+                        is_folder: true,
+                        folder_type: 'shared',
+                        item_count: f.item_count || 0,
+                        modified: '--'
+                    }));
+
+                    const intern = (data.intern_folders || []).map(f => ({
+                        id: f.id,
+                        name: f.name,
+                        path: f.path,
+                        is_folder: true,
+                        folder_type: 'intern',
+                        item_count: f.item_count || 0,
+                        modified: '--'
+                    }));
+
+                    tlDrItems = [...shared, ...intern];
+                    tlRenderDigitalRecordsTable(tlDrItems);
+                })
+                .catch(err => {
+                    console.error('TL root load error:', err);
+                    showToast('Failed to load Digital Records', true);
+                });
+        }
+
+        function tlOpenFolder(path) {
+            if (!path) return;
+            if (tlDrCurrentPath) {
+                tlDrHistory.push(tlDrCurrentPath);
+            }
+            tlDrCurrentPath = path;
+            document.getElementById('tl-dr-current-path').textContent = path;
+            document.getElementById('tl-dr-back-btn').style.display = 'inline-flex';
+            tlLoadFolderContents(path, false);
+        }
+
+        function tlLoadFolderContents(path, pushHistory = false) {
+            if (pushHistory && tlDrCurrentPath) {
+                tlDrHistory.push(tlDrCurrentPath);
+            }
+
+            fetch(`/admin/documents/contents?path=${encodeURIComponent(path)}`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            })
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.success) throw new Error(data.message || 'Failed');
+
+                    const items = (data.items || []).map(i => ({
+                        id: i.id,
+                        name: i.name,
+                        path: i.path,
+                        is_folder: !!i.is_folder,
+                        item_count: i.item_count || 0,
+                        size: i.size,
+                        modified: i.modified || '--'
+                    }));
+
+                    tlDrItems = items;
+                    tlRenderDigitalRecordsTable(tlDrItems);
+                })
+                .catch(err => {
+                    console.error('TL contents error:', err);
+                    showToast('Failed to load folder contents', true);
+                });
+        }
+
+        function tlDownloadFile(path) {
+            if (!path) return;
+            window.open(`/admin/documents/download?path=${encodeURIComponent(path)}`, '_blank');
+        }
+
+        function tlDeleteFile(path, name) {
+            if (!tlDrHasEditAccess) return showToast('Edit access required', true);
+            if (!confirm(`Delete file "${name}"?`)) return;
+            fetch('/admin/documents/file', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({ path })
+            })
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.success) throw new Error(data.message || 'Failed');
+                    showToast('File deleted');
+                    tlDrRefresh();
+                })
+                .catch(err => {
+                    console.error('TL delete file error:', err);
+                    showToast('Failed to delete file', true);
+                });
+        }
+
+        function tlDeleteFolder(folderId, name) {
+            if (!tlDrHasEditAccess) return showToast('Edit access required', true);
+            if (!folderId) return showToast('Folder id missing', true);
+            if (!confirm(`Delete folder "${name}" and all contents?`)) return;
+            fetch('/admin/documents/folder', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({ folder_id: folderId })
+            })
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.success) throw new Error(data.message || 'Failed');
+                    showToast('Folder deleted');
+                    tlDrRefresh();
+                })
+                .catch(err => {
+                    console.error('TL delete folder error:', err);
+                    showToast('Failed to delete folder', true);
+                });
+        }
+
+        function tlOpenCreateFolderModal() {
+            if (!tlDrHasEditAccess) return showToast('Edit access required', true);
+            document.getElementById('tlFolderName').value = '';
+            document.getElementById('tlFolderDescription').value = '';
+            // defaults
+            document.querySelectorAll('input[name="tlAllowedUsers"]').forEach(cb => {
+                cb.checked = cb.value === 'intern' || cb.value === 'team_leader';
+            });
+            openModal('tlCreateFolderModal');
+        }
+
+        function tlSubmitCreateFolder(event) {
+            event.preventDefault();
+            if (!tlDrHasEditAccess) return showToast('Edit access required', true);
+            const name = document.getElementById('tlFolderName').value;
+            const description = document.getElementById('tlFolderDescription').value;
+            const color = document.getElementById('tlFolderColor').value || '#7B1113';
+            const allowedUsers = Array.from(document.querySelectorAll('input[name="tlAllowedUsers"]:checked')).map(cb => cb.value);
+            if (!allowedUsers.length) return showToast('Select at least one uploader', true);
+
+            fetch('/admin/documents/create-folder', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({ name, description, color, allowed_users: allowedUsers })
+            })
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.success) throw new Error(data.message || 'Failed');
+                    showToast('Folder created');
+                    closeModal('tlCreateFolderModal');
+                    tlLoadDigitalRecordsRoot();
+                })
+                .catch(err => {
+                    console.error('TL create folder error:', err);
+                    showToast('Failed to create folder', true);
+                });
+        }
+
+        function tlRenderDigitalRecordsTable(items) {
+            const tbody = document.getElementById('tl-dr-table-body');
+            if (!tbody) return;
+
+            const filtered = (items || []).filter(i => {
+                if (!tlDrSearchQuery) return true;
+                return (i.name || '').toLowerCase().includes(tlDrSearchQuery);
+            });
+
+            if (!filtered.length) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align:center; padding: 32px; color:#9CA3AF;">
+                            <i class="fas fa-folder-open" style="margin-right:8px;"></i> No items found
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(item => {
+                const isFolder = item.is_folder;
+                const type = isFolder ? 'Folder' : 'File';
+                const size = isFolder ? `${item.item_count || 0} item(s)` : (item.size || '--');
+                const modified = item.modified || '--';
+
+                const openClick = isFolder
+                    ? `onclick=\"tlOpenFolder('${tlEscapeHtml(item.path)}')\"`
+                    : `onclick=\"tlDownloadFile('${tlEscapeHtml(item.path)}')\"`;
+
+                const downloadBtn = !isFolder
+                    ? `<button class=\"btn btn-secondary btn-sm\" style=\"padding:6px 10px;\" onclick=\"event.stopPropagation(); tlDownloadFile('${tlEscapeHtml(item.path)}')\"><i class=\"fas fa-download\"></i></button>`
+                    : '';
+
+                const deleteBtn = tlDrHasEditAccess
+                    ? (isFolder
+                        ? (item.id
+                            ? `<button class=\"btn btn-danger btn-sm\" style=\"padding:6px 10px;\" onclick=\"event.stopPropagation(); tlDeleteFolder(${item.id}, '${tlEscapeHtml(item.name)}')\"><i class=\"fas fa-trash\"></i></button>`
+                            : '')
+                        : `<button class=\"btn btn-danger btn-sm\" style=\"padding:6px 10px;\" onclick=\"event.stopPropagation(); tlDeleteFile('${tlEscapeHtml(item.path)}', '${tlEscapeHtml(item.name)}')\"><i class=\"fas fa-trash\"></i></button>`)
+                    : '';
+
+                return `
+                    <tr style="cursor:pointer;" ${openClick}>
+                        <td>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <i class="fas ${isFolder ? 'fa-folder' : 'fa-file'}" style="color:${isFolder ? '#F59E0B' : '#6B7280'};"></i>
+                                <strong>${tlEscapeHtml(item.name)}</strong>
+                            </div>
+                        </td>
+                        <td>${type}</td>
+                        <td>${tlEscapeHtml(size)}</td>
+                        <td>${tlEscapeHtml(modified)}</td>
+                        <td style="text-align:right; white-space:nowrap;">
+                            ${downloadBtn}
+                            ${deleteBtn}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function tlFormatBytes(bytes) {
+            if (!bytes || bytes <= 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
+        }
+
+        function tlEscapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/[&<>'"]/g, c => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[c]));
         }
 
         // ========== TASK FUNCTIONS ==========

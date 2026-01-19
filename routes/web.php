@@ -121,6 +121,7 @@ Route::middleware(['admin'])->group(function () {
     Route::get('/admin/documents/download', [DocumentController::class, 'adminDownloadFile'])->name('admin.documents.download');
     Route::post('/admin/documents/create-folder', [DocumentController::class, 'adminCreateFolder'])->name('admin.documents.createFolder');
     Route::get('/admin/documents/all-folders', [DocumentController::class, 'adminGetAllFolders'])->name('admin.documents.allFolders');
+    Route::get('/admin/documents/stats', [DocumentController::class, 'adminGetStats'])->name('admin.documents.stats');
     Route::delete('/admin/documents/file', [DocumentController::class, 'deleteFile'])->name('admin.documents.deleteFile');
     Route::delete('/admin/documents/folder', [DocumentController::class, 'deleteFolder'])->name('admin.documents.deleteFolder');
 

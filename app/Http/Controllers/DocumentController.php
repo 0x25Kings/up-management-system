@@ -13,6 +13,35 @@ use Illuminate\Support\Facades\Storage;
 class DocumentController extends Controller
 {
     /**
+     * Determine if the current authenticated user can access Digital Records.
+     */
+    private function authorizeDigitalRecords(bool $requireEdit = false): bool
+    {
+        if (!Auth::check()) {
+            return false;
+        }
+
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        // Admins/super admins have full access
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        // Team Leaders must have module permission
+        if (!$user->isTeamLeader()) {
+            return false;
+        }
+
+        if ($requireEdit) {
+            return $user->canEditModule('digital_records');
+        }
+
+        return $user->canViewModule('digital_records');
+    }
+
+    /**
      * Create a new folder
      */
     public function createFolder(Request $request)
@@ -287,12 +316,19 @@ class DocumentController extends Controller
                 // Get subfolders from database (created by interns)
                 $dbSubfolders = DocumentFolder::where('parent_folder_id', $folderId)->get();
                 foreach ($dbSubfolders as $subfolder) {
+                    $subfolderStoragePath = str_replace('\\', '/', (string) $subfolder->storage_path);
+                    $subfolderItemCount = 0;
+                    if ($subfolderStoragePath !== '' && Storage::disk('local')->exists($subfolderStoragePath)) {
+                        $subfolderItemCount = count(Storage::disk('local')->files($subfolderStoragePath));
+                    }
+
                     $subfolders[] = [
                         'id' => $subfolder->id,
                         'name' => $subfolder->name,
                         'color' => $subfolder->color,
                         'description' => $subfolder->description,
                         'folder_type' => $subfolder->folder_type,
+                        'item_count' => $subfolderItemCount,
                     ];
                 }
 
@@ -433,6 +469,10 @@ class DocumentController extends Controller
     public function getAdminFolders(Request $request)
     {
         try {
+            if (!$this->authorizeDigitalRecords(false)) {
+                return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+            }
+
             $folders = [];
 
             // Get shared folders from database
@@ -496,6 +536,10 @@ class DocumentController extends Controller
     public function getAdminFolderContents(Request $request)
     {
         try {
+            if (!$this->authorizeDigitalRecords(false)) {
+                return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+            }
+
             $path = $request->query('path', '');
 
             // Normalize path to use forward slashes
@@ -627,6 +671,10 @@ class DocumentController extends Controller
     public function adminDownloadFile(Request $request)
     {
         try {
+            if (!$this->authorizeDigitalRecords(false)) {
+                return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+            }
+
             $path = $request->query('path');
 
             if (!$path || !Storage::disk('local')->exists($path)) {
@@ -653,6 +701,10 @@ class DocumentController extends Controller
     public function adminCreateFolder(Request $request)
     {
         try {
+            if (!$this->authorizeDigitalRecords(true)) {
+                return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+            }
+
             $request->validate([
                 'name' => 'required|string|max:255',
                 'color' => ['nullable', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
@@ -713,6 +765,19 @@ class DocumentController extends Controller
                 ->whereJsonContains('allowed_users', 'intern')
                 ->get();
 
+            // Add upload counts for each shared folder (files directly inside the folder)
+            $sharedFolders->transform(function (DocumentFolder $folder) {
+                $storagePath = str_replace('\\', '/', (string) $folder->storage_path);
+
+                $itemCount = 0;
+                if ($storagePath !== '' && Storage::disk('local')->exists($storagePath)) {
+                    $itemCount = count(Storage::disk('local')->files($storagePath));
+                }
+
+                $folder->setAttribute('item_count', $itemCount);
+                return $folder;
+            });
+
             return response()->json([
                 'success' => true,
                 'folders' => $sharedFolders,
@@ -732,6 +797,10 @@ class DocumentController extends Controller
     public function adminGetAllFolders(Request $request)
     {
         try {
+            if (!$this->authorizeDigitalRecords(false)) {
+                return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+            }
+
             // Get admin-created shared folders
             $sharedFoldersDb = DocumentFolder::where('folder_type', 'shared')
                 ->whereNull('parent_folder_id')
@@ -795,13 +864,73 @@ class DocumentController extends Controller
     }
 
     /**
+     * Admin: Digital records statistics
+     */
+    public function adminGetStats(Request $request)
+    {
+        try {
+            if (!$this->authorizeDigitalRecords(false)) {
+                return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+            }
+
+            // Count database-tracked shared folders
+            $sharedFolderCount = DocumentFolder::where('folder_type', 'shared')->count();
+
+            // Count internship folders from filesystem
+            $internshipPath = 'Internship';
+            $internFolders = Storage::disk('local')->exists($internshipPath)
+                ? Storage::disk('local')->directories($internshipPath)
+                : [];
+
+            $totalFolders = $sharedFolderCount + count($internFolders);
+
+            // Count files and size across Shared and Internship roots
+            $roots = ['Shared', 'Internship'];
+            $fileCount = 0;
+            $totalBytes = 0;
+            $recentUploads = 0;
+            $recentThreshold = now()->subDays(7)->timestamp;
+
+            foreach ($roots as $root) {
+                if (!Storage::disk('local')->exists($root)) {
+                    continue;
+                }
+
+                $files = Storage::disk('local')->allFiles($root);
+                $fileCount += count($files);
+
+                foreach ($files as $file) {
+                    $totalBytes += Storage::disk('local')->size($file);
+                    $lastModified = Storage::disk('local')->lastModified($file);
+                    if ($lastModified >= $recentThreshold) {
+                        $recentUploads++;
+                    }
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'folders' => $totalFolders,
+                'files' => $fileCount,
+                'storage_bytes' => $totalBytes,
+                'recent_uploads' => $recentUploads,
+                'storage_human' => $this->formatBytes($totalBytes),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error loading stats: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Delete a file (Admin only)
      */
     public function deleteFile(Request $request)
     {
         try {
-            // Check if user is admin
-            if (!Auth::check() || !Auth::user()->is_admin) {
+            if (!$this->authorizeDigitalRecords(true)) {
                 return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
             }
 
@@ -837,8 +966,7 @@ class DocumentController extends Controller
     public function deleteFolder(Request $request)
     {
         try {
-            // Check if user is admin
-            if (!Auth::check() || !Auth::user()->is_admin) {
+            if (!$this->authorizeDigitalRecords(true)) {
                 return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
             }
 
