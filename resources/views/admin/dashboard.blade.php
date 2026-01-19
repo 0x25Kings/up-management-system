@@ -3493,21 +3493,26 @@
                                 </td>
                                 <td>
                                     @php
+                                        $isPendingAdminApproval = $task->status === 'Completed' && empty($task->completed_date);
                                         $statusStyle = $task->status === 'Completed'
                                             ? 'background: #D1FAE5; color: #065F46;'
                                             : ($task->status === 'In Progress'
                                                 ? 'background: #FEF3C7; color: #92400E;'
                                                 : 'background: #E5E7EB; color: #6B7280;');
+
+                                        if ($isPendingAdminApproval) {
+                                            $statusStyle = 'background: #DBEAFE; color: #1E40AF;';
+                                        }
                                     @endphp
                                     <span class="status-badge" style="{{ $statusStyle }}">
-                                        {{ $task->status }}
+                                        {{ $isPendingAdminApproval ? 'Pending Admin Approval' : $task->status }}
                                     </span>
                                 </td>
                                 <td style="position: sticky; right: 0; background: #F9FAFB; z-index: 9;">
                                     <div class="action-buttons" style="display: flex; gap: 6px; justify-content: center; flex-wrap: nowrap;">
                                         <button class="btn-action btn-view" title="View Details" onclick="viewTaskDetails({{ $task->id }})" style="padding: 8px 10px; background: #3B82F6; color: white; border: none; border-radius: 4px; cursor: pointer; flex-shrink: 0;"><i class="fas fa-eye"></i></button>
                                         <button class="btn-action btn-edit" title="Edit Task" onclick="editTask({{ $task->id }})" style="padding: 8px 10px; background: #F59E0B; color: white; border: none; border-radius: 4px; cursor: pointer; flex-shrink: 0;"><i class="fas fa-edit"></i></button>
-                                        @if($task->status !== 'Completed')
+                                        @if($task->status !== 'Completed' || empty($task->completed_date))
                                         <button class="btn-action btn-check" title="Mark Complete" onclick="markTaskComplete({{ $task->id }})" style="padding: 8px 10px; background: #10B981; color: white; border: none; border-radius: 4px; cursor: pointer; flex-shrink: 0;"><i class="fas fa-check"></i></button>
                                         @endif
                                     </div>
@@ -5413,6 +5418,12 @@
                     <div class="form-group">
                         <label class="form-label required">Description</label>
                         <textarea class="form-input form-textarea" id="taskDescription" placeholder="Enter task description" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Checklist Items (Optional)</label>
+                        <textarea class="form-input form-textarea" id="taskChecklistText" placeholder="One item per line&#10;e.g. Planning&#10;Designing&#10;Implementation"></textarea>
+                        <p style="font-size: 12px; color: #9CA3AF; margin-top: 6px;">If provided, intern progress will be calculated from checked items.</p>
                     </div>
 
                     <div class="form-group">
@@ -10467,6 +10478,7 @@ University of the Philippines Cebu
             const assignmentType = document.querySelector('input[name="assignmentType"]:checked').value;
             const title = document.getElementById('taskTitle').value;
             const description = document.getElementById('taskDescription').value;
+            const checklistText = document.getElementById('taskChecklistText')?.value || '';
             const priority = document.getElementById('priorityLevel').value;
             const dueDate = document.getElementById('dueDate').value;
             const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
@@ -10499,6 +10511,7 @@ University of the Philippines Cebu
                         intern_id: internId,
                         title: title,
                         description: description,
+                        checklist_text: checklistText,
                         priority: priority === 'high' ? 'High' : (priority === 'medium' ? 'Medium' : 'Low'),
                         due_date: dueDate,
                         group_id: groupId
@@ -10638,10 +10651,16 @@ University of the Philippines Cebu
                     <div class="detail-section">
                         <div class="detail-label">Status</div>
                         <div class="detail-value">
-                            <span class="status-badge" style="background:
-                                ${task.status === 'Completed' ? '#D1FAE5; color: #065F46' :
-                                  task.status === 'In Progress' ? '#FEF3C7; color: #92400E' :
-                                  '#E5E7EB; color: #6B7280'};\">${task.status}</span>
+                            ${(() => {
+                                const isPending = task.status === 'Completed' && !task.completed_date;
+                                const label = isPending ? 'Pending Admin Approval' : task.status;
+                                const style = isPending ? '#DBEAFE; color: #1E40AF' :
+                                    (task.status === 'Completed' ? '#D1FAE5; color: #065F46' :
+                                     task.status === 'In Progress' ? '#FEF3C7; color: #92400E' :
+                                     '#E5E7EB; color: #6B7280');
+
+                                return '<span class="status-badge" style="background: ' + style + ';">' + label + '</span>';
+                            })()}
                         </div>
                     </div>
                     ${progressHtml}

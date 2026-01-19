@@ -954,18 +954,11 @@
                             if ($attendanceHistory && $attendanceHistory->count() > 0) {
                                 foreach ($attendanceHistory as $record) {
                                     if ($record->time_in && $record->time_out) {
-                                        $timeIn = \Carbon\Carbon::parse($record->time_in);
-                                        $timeOut = \Carbon\Carbon::parse($record->time_out);
-                                        $hoursWorked = round($timeOut->diffInMinutes($timeIn) / 60, 2);
-                                        if ($hoursWorked >= 8) {
-                                            $actualCompletedHours += 8;
-                                        } else {
-                                            $actualCompletedHours += $hoursWorked;
-                                        }
+                                        $actualCompletedHours += max(0, (float) $record->effective_hours);
                                     }
                                 }
                             }
-                            echo number_format($actualCompletedHours, 1);
+                            echo number_format(max(0, $actualCompletedHours), 2);
                         @endphp
                     </div>
                     <div class="stat-label">Hours Completed</div>
@@ -976,7 +969,7 @@
                     </div>
                     <div class="stat-value">
                         @php
-                            echo max(0, $intern->required_hours - $actualCompletedHours);
+                            echo max(0, (float) $intern->required_hours - max(0, (float) $actualCompletedHours));
                         @endphp
                     </div>
                     <div class="stat-label">Hours Remaining</div>
@@ -989,12 +982,14 @@
                         @php
                             $completedTasks = 0;
                             if ($intern->tasks) {
-                                $completedTasks = $intern->tasks->where('status', 'Completed')->count();
+                                $completedTasks = $intern->tasks
+                                    ->filter(fn($t) => $t->status === 'Completed' && !empty($t->completed_date))
+                                    ->count();
                             }
                             echo $completedTasks;
                         @endphp
                     </div>
-                    <div class="stat-label">Tasks Completed</div>
+                    <div class="stat-label">Tasks Completed (Approved)</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon" style="background: #EDE9FE; color: #7C3AED;">
@@ -1022,14 +1017,7 @@
                         if ($attendanceHistory && $attendanceHistory->count() > 0) {
                             foreach ($attendanceHistory as $record) {
                                 if ($record->time_in && $record->time_out) {
-                                    $timeIn = \Carbon\Carbon::parse($record->time_in);
-                                    $timeOut = \Carbon\Carbon::parse($record->time_out);
-                                    $hoursWorked = round($timeOut->diffInMinutes($timeIn) / 60, 2);
-                                    if ($hoursWorked >= 8) {
-                                        $actualCompletedHours += 8; // Count as full 8-hour day
-                                    } else {
-                                        $actualCompletedHours += $hoursWorked;
-                                    }
+                                    $actualCompletedHours += max(0, (float) $record->effective_hours);
                                 }
                             }
                         }
@@ -1042,7 +1030,7 @@
                         <div class="progress-bar" style="width: {{ min($progressPercentage, 100) }}%;"></div>
                     </div>
                     <div style="display: flex; justify-content: space-between; margin-top: 12px; color: #6B7280; font-size: 14px;">
-                        <span>{{ number_format($actualCompletedHours, 2) }} hours completed</span>
+                        <span>{{ number_format(max(0, $actualCompletedHours), 2) }} hours completed</span>
                         <span>{{ $intern->required_hours }} hours required</span>
                     </div>
                 </div>
@@ -1160,11 +1148,20 @@
                             // Get recent tasks
                             if ($intern->tasks) {
                                 foreach ($intern->tasks->sortByDesc('updated_at')->take(5) as $task) {
-                                    if ($task->status === 'Completed') {
+                                    if ($task->status === 'Completed' && !empty($task->completed_date)) {
                                         $recentActivities[] = [
                                             'type' => 'task',
                                             'icon' => 'fa-check-circle',
                                             'title' => 'Task Completed',
+                                            'description' => $task->title,
+                                            'time' => $task->updated_at->diffForHumans(),
+                                            'timestamp' => $task->updated_at
+                                        ];
+                                    } elseif ($task->status === 'Completed' && empty($task->completed_date)) {
+                                        $recentActivities[] = [
+                                            'type' => 'task',
+                                            'icon' => 'fa-clock',
+                                            'title' => 'Task Submitted',
                                             'description' => $task->title,
                                             'time' => $task->updated_at->diffForHumans(),
                                             'timestamp' => $task->updated_at
@@ -1379,16 +1376,19 @@
                         // Calculate hours for today dynamically from time_in and time_out
                         $todayHours = 0;
                         if ($todayAttendance->time_in) {
-                            $timeIn = \Carbon\Carbon::parse($todayAttendance->time_in);
+                            $attendanceDate = $todayAttendance->date ? $todayAttendance->date->toDateString() : \Carbon\Carbon::now('Asia/Manila')->toDateString();
+                            $timeIn = \Carbon\Carbon::parse($attendanceDate . ' ' . $todayAttendance->time_in, 'Asia/Manila');
                             if ($todayAttendance->time_out) {
-                                $timeOut = \Carbon\Carbon::parse($todayAttendance->time_out);
-                                $todayHours = round($timeOut->diffInMinutes($timeIn) / 60, 2);
+                                $timeOut = \Carbon\Carbon::parse($attendanceDate . ' ' . $todayAttendance->time_out, 'Asia/Manila');
+                                $todayHours = round($timeOut->diffInSeconds($timeIn, true) / 3600, 2);
                             } else {
                                 // If no time out, calculate from current time
                                 $now = \Carbon\Carbon::now('Asia/Manila');
-                                $todayHours = round($now->diffInMinutes($timeIn) / 60, 2);
+                                $todayHours = round($now->diffInSeconds($timeIn, true) / 3600, 2);
                             }
                         }
+
+                        $todayHours = max(0, $todayHours);
                     @endphp
                     <div id="todaySummary" style="margin-top: 32px; display: flex; justify-content: center; gap: 40px;">
                         <div>
@@ -1403,6 +1403,7 @@
                             <p style="font-size: 12px; opacity: 0.7;">HOURS TODAY</p>
                             <p id="summaryHours" style="font-size: 24px; font-weight: 600;"
                                data-time-in="{{ $todayAttendance->time_in }}"
+                                         data-raw-time-in="{{ $todayAttendance->raw_time_in }}"
                                data-time-out="{{ $todayAttendance->time_out }}"
                                data-is-working="{{ ($todayAttendance->time_in && !$todayAttendance->time_out) ? 'true' : 'false' }}">
                                 {{ number_format($todayHours, 2) }}
@@ -1439,16 +1440,19 @@
                                 $displayStatus = 'Absent';
 
                                 if ($record->time_in) {
-                                    $timeIn = \Carbon\Carbon::parse($record->time_in);
-                                    $timeOut = $record->time_out ? \Carbon\Carbon::parse($record->time_out) : null;
+                                    $attendanceDate = $record->date ? $record->date->toDateString() : \Carbon\Carbon::now('Asia/Manila')->toDateString();
+                                    $timeIn = \Carbon\Carbon::parse($attendanceDate . ' ' . $record->time_in, 'Asia/Manila');
+                                    $timeOut = $record->time_out ? \Carbon\Carbon::parse($attendanceDate . ' ' . $record->time_out, 'Asia/Manila') : null;
 
                                     if ($timeOut) {
-                                        $hoursWorked = round($timeOut->diffInMinutes($timeIn) / 60, 2);
+                                        $hoursWorked = round($timeOut->diffInSeconds($timeIn, true) / 3600, 2);
                                     } else {
                                         // If no time out, calculate from current time
                                         $now = \Carbon\Carbon::now('Asia/Manila');
-                                        $hoursWorked = round($now->diffInMinutes($timeIn) / 60, 2);
+                                        $hoursWorked = round($now->diffInSeconds($timeIn, true) / 3600, 2);
                                     }
+
+                                    $hoursWorked = max(0, $hoursWorked);
 
                                     // Determine status based on hours and time in
                                     if ($timeOut) {
@@ -1550,6 +1554,9 @@
                             </thead>
                             <tbody>
                                 @foreach($tasks as $task)
+                                @php
+                                    $isPendingAdminApproval = $task->status === 'Completed' && empty($task->completed_date);
+                                @endphp
                                 <tr style="border-bottom: 1px solid #E5E7EB; transition: background 0.2s;" onmouseover="this.style.background='#F9FAFB'" onmouseout="this.style.background='white'">
                                     <td style="padding: 14px 16px; font-weight: 600; color: #1F2937;">
                                         {{ $task->title }}
@@ -1585,18 +1592,23 @@
                                     </td>
                                     <td style="padding: 14px 16px; text-align: center;">
                                         <span style="display: inline-block; background:
-                                            @if($task->status === 'Completed') #D1FAE5; color: #065F46;
+                                            @if($isPendingAdminApproval) #DBEAFE; color: #1E40AF;
+                                            @elseif($task->status === 'Completed') #D1FAE5; color: #065F46;
                                             @elseif($task->status === 'In Progress') #FEF3C7; color: #92400E;
                                             @else #E5E7EB; color: #6B7280;
                                             @endif
                                             padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 700;">
-                                            {{ $task->status }}
+                                            {{ $isPendingAdminApproval ? 'Pending Admin Approval' : $task->status }}
                                         </span>
                                     </td>
                                     <td style="padding: 14px 16px; text-align: center;">
                                         @if($task->status === 'Completed')
                                             <span style="color: #6B7280; font-size: 12px;">
-                                                <i class="fas fa-check-circle"></i> Completed
+                                                @if($isPendingAdminApproval)
+                                                    <i class="fas fa-clock"></i> Submitted (Waiting Approval)
+                                                @else
+                                                    <i class="fas fa-check-circle"></i> Completed (Approved)
+                                                @endif
                                             </span>
                                         @elseif($task->status === 'In Progress')
                                             <div style="display: flex; gap: 6px; justify-content: center;">
@@ -1604,7 +1616,7 @@
                                                     <i class="fas fa-sync"></i> Update
                                                 </button>
                                                 <button onclick="completeTask({{ $task->id }})" style="background: #10B981; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 11px; cursor: pointer; font-weight: 600; transition: background 0.2s;" onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10B981'">
-                                                    <i class="fas fa-check"></i> Complete
+                                                    <i class="fas fa-check"></i> Submit
                                                 </button>
                                             </div>
                                         @else
@@ -1620,9 +1632,14 @@
                     </div>
                     <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #E5E7EB; display: flex; justify-content: space-between; align-items: center; color: #6B7280; font-size: 12px;">
                         <div>
+                            @php
+                                $approvedCompletedCount = $tasks->filter(fn($t) => $t->status === 'Completed' && !empty($t->completed_date))->count();
+                                $pendingApprovalCount = $tasks->filter(fn($t) => $t->status === 'Completed' && empty($t->completed_date))->count();
+                            @endphp
                             Total Tasks: <strong>{{ $tasks->count() }}</strong>
-                            | Completed: <strong>{{ $tasks->where('status', 'Completed')->count() }}</strong>
-                            | Pending: <strong>{{ $tasks->whereNotIn('status', ['Completed'])->count() }}</strong>
+                            | Completed (Approved): <strong>{{ $approvedCompletedCount }}</strong>
+                            | Submitted (Waiting Approval): <strong>{{ $pendingApprovalCount }}</strong>
+                            | Pending: <strong>{{ $tasks->filter(fn($t) => $t->status !== 'Completed')->count() }}</strong>
                         </div>
                     </div>
                     @else
@@ -2893,7 +2910,7 @@
                     </div>
                     <div>
                         <p style="font-size: 12px; opacity: 0.7;">HOURS TODAY</p>
-                        <p id="summaryHours" style="font-size: 24px; font-weight: 600;" data-is-working="false" data-time-in="">0.00</p>
+                        <p id="summaryHours" style="font-size: 24px; font-weight: 600;" data-is-working="false" data-time-in="" data-raw-time-in="">0.00</p>
                     </div>
                 `;
                 buttonContainer.parentNode.insertBefore(summaryContainer, buttonContainer.nextSibling);
@@ -2912,13 +2929,14 @@
             const hoursEl = document.getElementById('summaryHours');
             if (hoursEl) {
                 if (hoursWorked !== undefined && hoursWorked !== null) {
-                    hoursEl.textContent = parseFloat(hoursWorked).toFixed(2);
+                    const safeHours = Math.max(0, parseFloat(hoursWorked) || 0);
+                    hoursEl.textContent = safeHours.toFixed(2);
                     hoursEl.dataset.isWorking = 'false'; // Stop live updates when timed out
                 }
 
                 // Set up live tracking if rawTimeIn is provided (just timed in)
                 if (rawTimeIn && !timeOut) {
-                    hoursEl.dataset.timeIn = rawTimeIn;
+                    hoursEl.dataset.rawTimeIn = rawTimeIn;
                     hoursEl.dataset.isWorking = 'true';
                 }
             }
@@ -2995,23 +3013,24 @@
             if (!hoursElement) return;
 
             const isWorking = hoursElement.dataset.isWorking === 'true';
-            const timeIn = hoursElement.dataset.timeIn;
+            const timeIn = hoursElement.dataset.rawTimeIn || hoursElement.dataset.timeIn;
 
             if (!isWorking || !timeIn) return;
 
-            // Parse time_in (format: HH:MM:SS)
-            const today = new Date();
-            const [hours, minutes, seconds] = timeIn.split(':').map(Number);
+            // Prefer ISO timestamps (includes date + timezone offset)
+            let timeInMs = new Date(timeIn).getTime();
 
-            // Create time_in date in Manila timezone
-            const timeInDate = new Date();
-            timeInDate.setHours(hours, minutes, seconds, 0);
+            // Fallback: HH:MM:SS (best-effort)
+            if (Number.isNaN(timeInMs)) {
+                const parts = String(timeIn).split(':').map(Number);
+                const h = parts[0] || 0;
+                const m = parts[1] || 0;
+                const s = parts[2] || 0;
+                const now = new Date();
+                timeInMs = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m, s, 0).getTime();
+            }
 
-            // Get current Manila time
-            const manilaTime = new Date(today.toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
-
-            // Calculate difference in hours
-            const diffMs = manilaTime - timeInDate;
+            const diffMs = Date.now() - timeInMs;
             const diffHours = Math.max(0, diffMs / (1000 * 60 * 60));
 
             hoursElement.textContent = diffHours.toFixed(2);
@@ -3052,39 +3071,139 @@
                 document.getElementById('taskStartId').value = taskId;
                 document.getElementById('startTaskForm').reset();
 
-                // If updating, fetch current task data to pre-fill
-                if (isUpdateOnly) {
-                    // Find the current progress from the table row
-                    const rows = document.querySelectorAll('tr');
-                    let currentProgress = 0;
-                    rows.forEach(row => {
-                        const btn = row.querySelector(`button[onclick*="updateTask(${taskId})"]`);
-                        if (btn) {
-                            // Look for a progress display in this row - using data attribute if available
-                            const progressAttr = row.getAttribute('data-progress');
-                            if (progressAttr) {
-                                currentProgress = progressAttr;
+                // Always fetch task details to support checklist-based progress
+                fetch(`/intern/tasks/${taskId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.task) return;
+
+                    const task = data.task;
+                    document.getElementById('taskNotes').value = task.notes || '';
+
+                    // Checklist UI
+                    const checklistWrap = document.getElementById('taskChecklistWrap');
+                    const checklistList = document.getElementById('taskChecklist');
+                    const progressGroup = document.getElementById('taskProgressGroup');
+                    const progressInput = document.getElementById('taskProgress');
+                    const checklistProgressText = document.getElementById('taskChecklistProgressText');
+                    const checklistStateInput = document.getElementById('taskChecklistState');
+
+                    const checklistEditor = document.getElementById('taskChecklistEditor');
+                    const checklistEditorHint = document.getElementById('taskChecklistEditorHint');
+
+                    const checklist = Array.isArray(task.checklist) ? task.checklist : null;
+
+                    // Intern is required to use a checklist.
+                    if (progressGroup) progressGroup.style.display = 'none';
+                    if (checklistWrap) checklistWrap.style.display = 'block';
+                    if (checklistList) checklistList.innerHTML = '';
+
+                    // If admin provided checklist, hide editor. If not, intern must create it.
+                    const hasChecklist = !!(checklist && checklist.length > 0);
+                    if (checklistEditor) {
+                        checklistEditor.value = hasChecklist
+                            ? (checklist.map(i => (i && i.label) ? String(i.label) : '').filter(Boolean).join('\n'))
+                            : '';
+                        checklistEditor.style.display = hasChecklist ? 'none' : 'block';
+                    }
+                    if (checklistEditorHint) {
+                        checklistEditorHint.style.display = hasChecklist ? 'none' : 'block';
+                    }
+
+                    const buildChecklistFromEditor = () => {
+                        const text = checklistEditor ? String(checklistEditor.value || '') : '';
+                        const lines = text.split(/\r\n|\r|\n/).map(l => l.trim()).filter(Boolean);
+                        return lines.map(label => ({ label, done: false }));
+                    };
+
+                    const renderChecklist = (items) => {
+                        if (!checklistList) return;
+                        checklistList.innerHTML = '';
+
+                        items.forEach((item, idx) => {
+                            const label = (item && item.label) ? String(item.label) : `Item ${idx + 1}`;
+                            const done = !!(item && item.done);
+                            const row = document.createElement('label');
+                            row.style.cssText = 'display:flex; gap:10px; align-items:flex-start; padding:10px 12px; border:1px solid #E5E7EB; border-radius:8px; cursor:pointer;';
+                            row.innerHTML = `
+                                <input type="checkbox" data-checklist-index="${idx}" ${done ? 'checked' : ''} style="margin-top:3px; width:16px; height:16px;">
+                                <div style="flex:1;">
+                                    <div style="font-weight:600; color:#1F2937; font-size:13px;">${escapeHtml(label)}</div>
+                                </div>
+                            `;
+                            checklistList.appendChild(row);
+                        });
+                    };
+
+                    // Base items come from admin checklist OR intern editor
+                    let baseItems = hasChecklist ? checklist.map(i => ({
+                        label: (i && i.label) ? String(i.label) : '',
+                        done: !!(i && i.done)
+                    })) : buildChecklistFromEditor();
+
+                    renderChecklist(baseItems);
+
+                    const recompute = () => {
+                        const prevBoxes = checklistList ? checklistList.querySelectorAll('input[type="checkbox"][data-checklist-index]') : [];
+                        const prevChecked = Array.from(prevBoxes).map(b => !!b.checked);
+
+                        // For admin checklist, preserve labels; for intern-created checklist, rebuild labels from editor each time.
+                        const currentBase = hasChecklist ? baseItems : buildChecklistFromEditor();
+                        if (!hasChecklist) {
+                            // Re-render if editor changed item count
+                            if (currentBase.length !== baseItems.length) {
+                                baseItems = currentBase;
+                                renderChecklist(baseItems);
+
+                                // Restore checked state for overlapping indices
+                                const newBoxes = checklistList ? checklistList.querySelectorAll('input[type="checkbox"][data-checklist-index]') : [];
+                                newBoxes.forEach((box, idx) => {
+                                    if (idx < prevChecked.length) {
+                                        box.checked = prevChecked[idx];
+                                    }
+                                });
+                            } else {
+                                baseItems = currentBase;
                             }
                         }
-                    });
 
-                    // Fetch task details from backend (using intern route)
-                    fetch(`/intern/tasks/${taskId}`, {
-                        method: 'GET',
-                        headers: {
-                            'Accept': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.task) {
-                            document.getElementById('taskProgress').value = data.task.progress || 0;
-                            document.getElementById('taskNotes').value = data.task.notes || '';
-                        }
-                    })
-                    .catch(error => console.error('Error fetching task:', error));
-                }
+                        const currentBoxes = checklistList ? checklistList.querySelectorAll('input[type="checkbox"][data-checklist-index]') : [];
+                        const total = currentBoxes.length;
+                        let doneCount = 0;
+
+                        const newChecklist = baseItems.map((it) => ({
+                            label: it && it.label ? String(it.label) : '',
+                            done: false
+                        }));
+
+                        currentBoxes.forEach((box) => {
+                            const index = Number(box.getAttribute('data-checklist-index'));
+                            const isDone = !!box.checked;
+                            if (!Number.isNaN(index) && newChecklist[index]) {
+                                newChecklist[index].done = isDone;
+                            }
+                            if (isDone) doneCount++;
+                        });
+
+                        const percent = total > 0 ? Math.round((doneCount / total) * 100) : 0;
+                        if (checklistProgressText) checklistProgressText.textContent = `${percent}% (${doneCount}/${total} done)`;
+                        if (progressInput) progressInput.value = percent;
+                        if (checklistStateInput) checklistStateInput.value = JSON.stringify(newChecklist);
+                    };
+
+                    checklistList.onchange = recompute;
+                    if (checklistEditor) {
+                        checklistEditor.oninput = recompute;
+                    }
+                    recompute();
+                })
+                .catch(error => console.error('Error fetching task:', error));
 
                 // Update button text based on mode
                 document.getElementById('submitBtnText').textContent = isUpdateOnly ? 'Update Progress' : 'Start Task';
@@ -3120,14 +3239,26 @@
                             <form id="startTaskForm" onsubmit="submitTaskStart(event)">
                                 <input type="hidden" id="taskStartId">
                                 <input type="hidden" id="isUpdateOnly" value="0">
+                                <input type="hidden" id="taskChecklistState" name="checklist">
 
-                                <div class="form-group" style="margin-bottom: 20px;">
+                                <div id="taskProgressGroup" class="form-group" style="margin-bottom: 20px;">
                                     <label style="display: block; font-size: 14px; font-weight: 600; color: #1F2937; margin-bottom: 8px;">
                                         <i class="fas fa-bars" style="color: #7B1D3A; margin-right: 6px;"></i>
                                         Update Progress (%)
                                     </label>
                                     <input type="number" id="taskProgress" name="progress" min="0" max="100" value="0" placeholder="0-100" style="width: 100%; padding: 10px 12px; border: 1px solid #E5E7EB; border-radius: 6px; font-size: 14px;">
                                     <small style="color: #6B7280; font-size: 12px; margin-top: 4px; display: block;">Progress will be recorded and visible to admin</small>
+                                </div>
+
+                                <div id="taskChecklistWrap" class="form-group" style="margin-bottom: 20px; display: none;">
+                                    <label style="display: block; font-size: 14px; font-weight: 600; color: #1F2937; margin-bottom: 8px;">
+                                        <i class="fas fa-list-check" style="color: #7B1D3A; margin-right: 6px;"></i>
+                                        Task Checklist
+                                    </label>
+                                    <textarea id="taskChecklistEditor" placeholder="Add checklist items (one per line)\nExample:\nPlanning\nDesigning\nImplementation" style="width: 100%; padding: 10px 12px; border: 1px solid #E5E7EB; border-radius: 6px; font-size: 14px; min-height: 90px; resize: vertical; display: none;"></textarea>
+                                    <small id="taskChecklistEditorHint" style="color: #92400E; font-size: 12px; margin-top: 6px; display: none;">Admin didn't provide a checklist. Please create one here (required).</small>
+                                    <div id="taskChecklist" style="display:flex; flex-direction:column; gap:10px;"></div>
+                                    <small id="taskChecklistProgressText" style="color: #6B7280; font-size: 12px; margin-top: 8px; display: block;">0% (0/0 done)</small>
                                 </div>
 
                                 <div class="form-group" style="margin-bottom: 20px;">
@@ -3170,7 +3301,23 @@
             const notes = document.getElementById('taskNotes').value;
             const documentsInput = document.getElementById('taskDocuments');
             const isUpdateOnly = document.getElementById('isUpdateOnly').value === '1';
+            const checklistState = document.getElementById('taskChecklistState')?.value || '';
             const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+
+            // If checklist UI is shown, require at least 1 checklist item
+            const checklistWrap = document.getElementById('taskChecklistWrap');
+            if (checklistWrap && checklistWrap.style.display !== 'none') {
+                try {
+                    const parsed = checklistState ? JSON.parse(checklistState) : [];
+                    if (!Array.isArray(parsed) || parsed.length === 0) {
+                        alert('Please create at least 1 checklist item before saving progress.');
+                        return;
+                    }
+                } catch (e) {
+                    alert('Please create at least 1 checklist item before saving progress.');
+                    return;
+                }
+            }
 
             const formData = new FormData();
 
@@ -3179,8 +3326,13 @@
                 formData.append('status', 'In Progress');
             }
 
+            // Progress is derived from checklist when checklist exists/required
             formData.append('progress', progress || 0);
             formData.append('notes', notes);
+
+            if (checklistState) {
+                formData.append('checklist', checklistState);
+            }
 
             // Add documents if selected
             if (documentsInput.files.length > 0) {
@@ -3218,6 +3370,17 @@
                             if (btn) {
                                 const cell = btn.closest('td');
                                 if (cell) {
+                                    // Update status badge in the same row
+                                    const statusCell = row.querySelector('td:nth-child(5)');
+                                    if (statusCell) {
+                                        statusCell.innerHTML = `
+                                            <span style="display: inline-block; background: #FEF3C7; color: #92400E;
+                                                padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 700;">
+                                                In Progress
+                                            </span>
+                                        `;
+                                    }
+
                                     // Replace with Update and Complete buttons
                                     cell.innerHTML = `
                                         <div style="display: flex; gap: 6px; justify-content: center;">
@@ -3225,7 +3388,7 @@
                                                 <i class="fas fa-sync"></i> Update
                                             </button>
                                             <button onclick="completeTask(${taskId})" style="background: #10B981; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 11px; cursor: pointer; font-weight: 600; transition: background 0.2s;" onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10B981'">
-                                                <i class="fas fa-check"></i> Complete
+                                                <i class="fas fa-check"></i> Submit
                                             </button>
                                         </div>
                                     `;
@@ -3243,9 +3406,9 @@
             });
         }
 
-        // Complete task (update status to 'Completed')
+        // Submit task as completed (pending admin approval)
         function completeTask(taskId) {
-            if (!confirm('Mark this task as completed?')) {
+            if (!confirm('Submit this task as completed for admin approval?')) {
                 return;
             }
 
@@ -3262,7 +3425,7 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('Congratulations! Task completed!');
+                    alert('Submitted! This is waiting for admin approval.');
                     location.reload();
                 } else {
                     alert('Error: ' + (data.message || 'Failed to complete task'));

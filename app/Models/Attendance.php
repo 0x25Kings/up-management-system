@@ -54,12 +54,13 @@ class Attendance extends Model
             return 0;
         }
 
-        $timeIn = Carbon::parse($this->time_in);
-        $timeOut = $this->time_out 
-            ? Carbon::parse($this->time_out) 
+        $attendanceDate = $this->date ? Carbon::parse($this->date)->format('Y-m-d') : Carbon::now('Asia/Manila')->format('Y-m-d');
+        $timeIn = Carbon::parse($attendanceDate . ' ' . $this->time_in, 'Asia/Manila');
+        $timeOut = $this->time_out
+            ? Carbon::parse($attendanceDate . ' ' . $this->time_out, 'Asia/Manila')
             : Carbon::now('Asia/Manila');
 
-        return round($timeOut->diffInMinutes($timeIn) / 60, 2);
+        return round($timeOut->diffInSeconds($timeIn, true) / 3600, 2);
     }
 
     /**
@@ -72,8 +73,9 @@ class Attendance extends Model
             return 0;
         }
 
-        $timeIn = Carbon::parse($this->time_in);
-        
+        $attendanceDate = $this->date ? Carbon::parse($this->date)->format('Y-m-d') : Carbon::now('Asia/Manila')->format('Y-m-d');
+        $timeIn = Carbon::parse($attendanceDate . ' ' . $this->time_in, 'Asia/Manila');
+
         if ($this->time_out) {
             // Use stored hours_worked if already timed out
             return (float) $this->hours_worked;
@@ -81,7 +83,7 @@ class Attendance extends Model
 
         // Calculate live hours if still working
         $now = Carbon::now('Asia/Manila');
-        return round($now->diffInMinutes($timeIn) / 60, 2);
+        return round($now->diffInSeconds($timeIn, true) / 3600, 2);
     }
 
     /**
@@ -105,7 +107,12 @@ class Attendance extends Model
      */
     public function getRawTimeInAttribute(): string
     {
-        return $this->time_in ? Carbon::parse($this->time_in)->toIso8601String() : '';
+        if (!$this->time_in) {
+            return '';
+        }
+
+        $date = $this->date ? Carbon::parse($this->date)->format('Y-m-d') : now('Asia/Manila')->format('Y-m-d');
+        return Carbon::parse($date . ' ' . $this->time_in, 'Asia/Manila')->toIso8601String();
     }
 
     /**
@@ -114,13 +121,13 @@ class Attendance extends Model
     public function calculateOvertimeUndertime(): void
     {
         $hoursWorked = (float) $this->hours_worked;
-        
+
         if ($hoursWorked >= self::REQUIRED_HOURS) {
-            $this->overtime_hours = round($hoursWorked - self::REQUIRED_HOURS, 2);
-            $this->undertime_hours = 0;
+            $this->attributes['overtime_hours'] = round($hoursWorked - self::REQUIRED_HOURS, 2);
+            $this->attributes['undertime_hours'] = 0;
         } else {
-            $this->overtime_hours = 0;
-            $this->undertime_hours = round(self::REQUIRED_HOURS - $hoursWorked, 2);
+            $this->attributes['overtime_hours'] = 0;
+            $this->attributes['undertime_hours'] = round(self::REQUIRED_HOURS - $hoursWorked, 2);
         }
     }
 
@@ -154,11 +161,11 @@ class Attendance extends Model
     public function getEffectiveHoursAttribute(): float
     {
         $baseHours = min((float) $this->hours_worked, self::REQUIRED_HOURS);
-        
+
         if ($this->overtime_approved) {
             return (float) $this->hours_worked;
         }
-        
+
         return $baseHours;
     }
 
@@ -168,9 +175,9 @@ class Attendance extends Model
     public function getDisplayHoursAttribute(): string
     {
         if ($this->hasUndertime()) {
-            return '-' . number_format($this->undertime_hours, 2);
+            return '-' . number_format((float) $this->undertime_hours, 2);
         }
-        return number_format($this->hours_worked, 2);
+        return number_format((float) $this->hours_worked, 2);
     }
 
     /**

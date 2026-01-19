@@ -829,6 +829,7 @@
                     </div>
                     <div class="card-body" style="padding: 0;">
                         @forelse($recentTasks as $task)
+                            @php $isPendingAdminApproval = $task->status === 'Completed' && empty($task->completed_date); @endphp
                             <div class="list-item" style="cursor: pointer;" onclick="editTask({{ $task->id }})">
                                 <div class="list-item-avatar"><i class="fas fa-clipboard-list"></i></div>
                                 <div class="list-item-content">
@@ -837,8 +838,8 @@
                                         {{ $task->intern->name ?? 'N/A' }} • Due: {{ $task->due_date ? $task->due_date->format('M d, Y') : 'No date' }}
                                     </div>
                                 </div>
-                                <span class="badge badge-{{ $task->status === 'Completed' ? 'success' : ($task->status === 'In Progress' ? 'info' : 'warning') }}">
-                                    {{ $task->status }}
+                                <span class="badge badge-{{ $isPendingAdminApproval ? 'info' : ($task->status === 'Completed' ? 'success' : ($task->status === 'In Progress' ? 'info' : 'warning')) }}">
+                                    {{ $isPendingAdminApproval ? 'Pending Admin Approval' : $task->status }}
                                 </span>
                             </div>
                         @empty
@@ -1116,8 +1117,9 @@
                                     <span style="font-size: 11px; color: #6B7280;">{{ $task->progress ?? 0 }}%</span>
                                 </td>
                                 <td>
-                                    <span class="badge badge-{{ $task->status === 'Completed' ? 'success' : ($task->status === 'In Progress' ? 'info' : ($task->status === 'On Hold' ? 'danger' : 'warning')) }}">
-                                        {{ $task->status }}
+                                    @php $isPendingAdminApproval = $task->status === 'Completed' && empty($task->completed_date); @endphp
+                                    <span class="badge badge-{{ $isPendingAdminApproval ? 'info' : ($task->status === 'Completed' ? 'success' : ($task->status === 'In Progress' ? 'info' : ($task->status === 'On Hold' ? 'danger' : 'warning'))) }}">
+                                        {{ $isPendingAdminApproval ? 'Pending Admin Approval' : $task->status }}
                                     </span>
                                 </td>
                                 <td>
@@ -2695,7 +2697,12 @@
                                     <div style="font-weight: 600;">${task.title}</div>
                                     <div style="font-size: 12px; color: #6B7280;">Due: ${task.due_date ? new Date(task.due_date).toLocaleDateString() : 'No date'}</div>
                                 </div>
-                                <span class="badge badge-${task.status === 'Completed' ? 'success' : (task.status === 'In Progress' ? 'info' : 'warning')}">${task.status}</span>
+                                ${(() => {
+                                    const isPending = task.status === 'Completed' && !task.completed_date;
+                                    const label = isPending ? 'Pending Admin Approval' : task.status;
+                                    const badge = isPending ? 'info' : (task.status === 'Completed' ? 'success' : (task.status === 'In Progress' ? 'info' : 'warning'));
+                                    return '<span class="badge badge-' + badge + '">' + label + '</span>';
+                                })()}
                             </div>
                         `).join('')}
                     </div>
