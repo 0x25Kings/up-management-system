@@ -47,7 +47,7 @@ Route::post('/intern/tasks/{task}/complete', [InternController::class, 'complete
 // Document Management Routes (Intern)
 Route::post('/intern/documents/folder', [DocumentController::class, 'createFolder'])->name('documents.folder.create');
 Route::post('/intern/documents/upload', [DocumentController::class, 'uploadDocument'])->name('documents.upload');
-Route::get('/intern/documents', [DocumentController::class, 'getFolders'])->name('documents.list');
+Route::get('/intern/documents', [DocumentController::class, 'getAccessibleFolders'])->name('documents.list');
 Route::get('/intern/documents/folder/{folderId}', [DocumentController::class, 'getFolderContents'])->name('documents.folder');
 Route::put('/intern/documents/folder/{folderId}', [DocumentController::class, 'updateFolder'])->name('documents.folder.update');
 Route::delete('/intern/documents/folder/{folderId}', [DocumentController::class, 'deleteFolder'])->name('documents.folder.delete');
@@ -114,6 +114,15 @@ Route::middleware(['admin'])->group(function () {
     Route::delete('/admin/blocked-dates/{blockedDate}', [BlockedDateController::class, 'destroy'])->name('admin.blocked.destroy');
     Route::post('/admin/bookings/{booking}/reject', [BookingController::class, 'reject'])->name('admin.bookings.reject');
     Route::delete('/admin/bookings/{booking}', [BookingController::class, 'destroy'])->name('admin.bookings.destroy');
+
+    // Digital Records Management (Admin)
+    Route::get('/admin/documents/folders', [DocumentController::class, 'getAdminFolders'])->name('admin.documents.folders');
+    Route::get('/admin/documents/contents', [DocumentController::class, 'getAdminFolderContents'])->name('admin.documents.contents');
+    Route::get('/admin/documents/download', [DocumentController::class, 'adminDownloadFile'])->name('admin.documents.download');
+    Route::post('/admin/documents/create-folder', [DocumentController::class, 'adminCreateFolder'])->name('admin.documents.createFolder');
+    Route::get('/admin/documents/all-folders', [DocumentController::class, 'adminGetAllFolders'])->name('admin.documents.allFolders');
+    Route::delete('/admin/documents/file', [DocumentController::class, 'deleteFile'])->name('admin.documents.deleteFile');
+    Route::delete('/admin/documents/folder', [DocumentController::class, 'deleteFolder'])->name('admin.documents.deleteFolder');
 
     // Startup Submissions Management (Admin)
     Route::get('/admin/submissions/{submission}', [AdminStartupController::class, 'getSubmission'])->name('admin.submissions.show');

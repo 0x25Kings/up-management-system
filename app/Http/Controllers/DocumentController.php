@@ -6,6 +6,8 @@ use App\Models\Document;
 use App\Models\DocumentFolder;
 use App\Models\Intern;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class DocumentController extends Controller
@@ -28,29 +30,61 @@ class DocumentController extends Controller
                 return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
             }
 
-            // Verify parent folder belongs to this intern if provided
-            if ($request->parent_folder_id) {
-                $parentFolder = DocumentFolder::where('id', $request->parent_folder_id)
-                    ->where('intern_id', $internId)
-                    ->first();
-
-                if (!$parentFolder) {
-                    return response()->json(['success' => false, 'message' => 'Parent folder not found'], 404);
-                }
+            // Get intern info for folder organization
+            $intern = Intern::find($internId);
+            if (!$intern) {
+                return response()->json(['success' => false, 'message' => 'Intern not found'], 404);
             }
 
+            // Interns can only create folders inside shared folders created by admin
+            if (!$request->parent_folder_id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You can only create folders inside shared folders created by the administrator'
+                ], 403);
+            }
+
+            // Verify parent folder - must be a shared folder (root or subfolder)
+            $parentFolder = DocumentFolder::where('folder_type', 'shared')
+                ->find($request->parent_folder_id);
+
+            if (!$parentFolder) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Parent folder not found or you do not have permission to create folders here'
+                ], 404);
+            }
+
+            // Check permission: if parent is root shared folder, verify intern access
+            if (!$parentFolder->parent_folder_id && !in_array('intern', $parentFolder->allowed_users ?? [])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You do not have permission to create folders here'
+                ], 403);
+            }
+
+            // Create physical directory in storage using parent's storage path
+            $baseDirectory = $parentFolder->storage_path;
+            $folderName = preg_replace('/[^A-Za-z0-9_\-]/', '_', $request->name);
+            $folderPath = $baseDirectory . '/' . $folderName;
+
+            // Create the physical directory
+            Storage::disk('local')->makeDirectory($folderPath);
+
             $folder = DocumentFolder::create([
-                'intern_id' => $internId,
+                'intern_id' => null,
                 'name' => $request->name,
                 'color' => $request->color ?? '#3B82F6',
                 'description' => $request->description,
                 'parent_folder_id' => $request->parent_folder_id,
+                'folder_type' => 'shared',
+                'storage_path' => $folderPath,
             ]);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Folder created successfully',
-                'folder' => $folder,
+                'data' => $folder
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
@@ -82,16 +116,56 @@ class DocumentController extends Controller
                 return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
             }
 
-            // Verify folder belongs to this intern if provided
-            if ($request->folder_id) {
-                $folder = DocumentFolder::where('id', $request->folder_id)
-                    ->where('intern_id', $internId)
-                    ->first();
+            // Get intern info for folder organization
+            $intern = Intern::find($internId);
+            if (!$intern) {
+                return response()->json(['success' => false, 'message' => 'Intern not found'], 404);
+            }
 
-                if (!$folder) {
-                    return response()->json(['success' => false, 'message' => 'Folder not found'], 404);
+// Interns can only upload to shared folders
+            if (!$request->folder_id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You must select a folder to upload to. Please choose a shared folder created by the administrator.'
+                ], 403);
+            }
+
+            // Determine the storage directory
+            $folder = DocumentFolder::where('folder_type', 'shared')
+                ->find($request->folder_id);
+
+            if (!$folder || !$folder->storage_path) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Folder not found or you do not have permission to upload here'
+                ], 404);
+            }
+
+            // Check permission: either root shared folder with intern access OR subfolder of shared folder
+            if (!$folder->parent_folder_id) {
+                // Root folder - check allowed_users
+                if (!in_array('intern', $folder->allowed_users ?? [])) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'You do not have permission to upload to this folder'
+                    ], 403);
                 }
             }
+
+            $directory = $folder->storage_path;
+
+            // Normalize to forward slashes for consistency
+            $directory = str_replace('\\', '/', $directory);
+
+            Log::info('Uploading file to folder', [
+                'folder_id' => $folder->id,
+                'folder_name' => $folder->name,
+                'storage_path' => $directory,
+                'folder_exists' => Storage::disk('local')->exists($directory)
+            ]);
+
+            // Ensure directory exists
+            Storage::disk('local')->makeDirectory($directory);
 
             $file = $request->file('file');
 
@@ -102,16 +176,19 @@ class DocumentController extends Controller
             $sanitizedName = preg_replace('/[^A-Za-z0-9_\-]/', '_', $nameWithoutExt);
             $filename = time() . '_' . $sanitizedName . '.' . $extension;
 
-            // Ensure directory exists (in private folder)
-            $directory = "documents" . DIRECTORY_SEPARATOR . $internId;
-            Storage::disk('local')->makeDirectory($directory);
-
-            // Store file in storage/app/private/documents/{intern_id}
+            // Store file
             $path = Storage::disk('local')->putFileAs($directory, $file, $filename);
 
             if (!$path) {
                 return response()->json(['success' => false, 'message' => 'Failed to store file'], 500);
             }
+
+            Log::info('File uploaded successfully', [
+                'filename' => $filename,
+                'storage_path' => $path,
+                'full_path' => Storage::disk('local')->path($path),
+                'file_exists' => Storage::disk('local')->exists($path)
+            ]);
 
             // Get file size using Storage facade to avoid path issues
             $fileSize = $this->formatBytes(Storage::disk('local')->size($path));
@@ -182,11 +259,71 @@ class DocumentController extends Controller
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
         }
 
-        $folder = DocumentFolder::where('intern_id', $internId)->find($folderId);
+        // Try to find folder - either owned by intern or shared with intern
+        $folder = DocumentFolder::where(function($query) use ($internId) {
+            $query->where('intern_id', $internId)
+                  ->orWhere('folder_type', 'shared');
+        })->find($folderId);
+
         if (!$folder) {
             return response()->json(['success' => false, 'message' => 'Folder not found'], 404);
         }
 
+        // Check if folder has permission for intern (root shared folders or subfolders of shared folders)
+        if ($folder->folder_type === 'shared') {
+            // For root shared folders, check allowed_users
+            if (!$folder->parent_folder_id && !in_array('intern', $folder->allowed_users ?? [])) {
+                return response()->json(['success' => false, 'message' => 'No permission to access this folder'], 403);
+            }
+        }
+
+        // For shared folders, get files from storage path
+        if ($folder->folder_type === 'shared' && $folder->storage_path) {
+            $storagePath = $folder->storage_path;
+            $files = [];
+            $subfolders = [];
+
+            if (Storage::disk('local')->exists($storagePath)) {
+                // Get subfolders from database (created by interns)
+                $dbSubfolders = DocumentFolder::where('parent_folder_id', $folderId)->get();
+                foreach ($dbSubfolders as $subfolder) {
+                    $subfolders[] = [
+                        'id' => $subfolder->id,
+                        'name' => $subfolder->name,
+                        'color' => $subfolder->color,
+                        'description' => $subfolder->description,
+                        'folder_type' => $subfolder->folder_type,
+                    ];
+                }
+
+                // Get files
+                $filesList = Storage::disk('local')->files($storagePath);
+                foreach ($filesList as $file) {
+                    $fileName = basename($file);
+                    $size = Storage::disk('local')->size($file);
+                    $lastModified = Storage::disk('local')->lastModified($file);
+
+                    $files[] = [
+                        'name' => $fileName,
+                        'path' => $file,
+                        'size' => $size,
+                        'file_size' => $this->formatBytes($size),
+                        'file_type' => pathinfo($fileName, PATHINFO_EXTENSION),
+                        'created_at' => date('Y-m-d H:i:s', $lastModified),
+                        'uploaded_at' => date('Y-m-d H:i:s', $lastModified),
+                    ];
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'folder' => $folder,
+                'folders' => $subfolders,
+                'documents' => $files,
+            ]);
+        }
+
+        // For intern's own folders, get from database
         $childFolders = $folder->childFolders()->get();
         $documents = $folder->documents()->get();
 
@@ -228,57 +365,7 @@ class DocumentController extends Controller
         ]);
     }
 
-    /**
-     * Delete folder
-     */
-    public function deleteFolder($folderId, Request $request)
-    {
-        $internId = $request->session()->get('intern_id');
-        if (!$internId) {
-            return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
-        }
 
-        $folder = DocumentFolder::where('intern_id', $internId)->find($folderId);
-        if (!$folder) {
-            return response()->json(['success' => false, 'message' => 'Folder not found'], 404);
-        }
-
-        // Soft delete will handle the folder and its relations
-        $folder->delete();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Folder deleted successfully',
-        ]);
-    }
-
-    /**
-     * Delete document
-     */
-    public function deleteDocument($documentId, Request $request)
-    {
-        $internId = $request->session()->get('intern_id');
-        if (!$internId) {
-            return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
-        }
-
-        $document = Document::where('intern_id', $internId)->find($documentId);
-        if (!$document) {
-            return response()->json(['success' => false, 'message' => 'Document not found'], 404);
-        }
-
-        // Delete file from storage
-        if (Storage::disk('local')->exists($document->file_path)) {
-            Storage::disk('local')->delete($document->file_path);
-        }
-
-        $document->delete();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Document deleted successfully',
-        ]);
-    }
 
     /**
      * Download document
@@ -290,20 +377,39 @@ class DocumentController extends Controller
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
         }
 
+        // Try to find document in database first
         $document = Document::where('intern_id', $internId)->find($documentId);
-        if (!$document) {
-            return response()->json(['success' => false, 'message' => 'Document not found'], 404);
+
+        if ($document) {
+            // Check if file exists
+            if (!Storage::disk('local')->exists($document->file_path)) {
+                return response()->json(['success' => false, 'message' => 'File not found'], 404);
+            }
+
+            // Get file content and return as download
+            return response()->download(
+                Storage::disk('local')->path($document->file_path),
+                $document->name
+            );
         }
 
-        // Check if file exists
-        if (!Storage::disk('local')->exists($document->file_path)) {
+        // If not in database, treat documentId as a file path (for shared folder files)
+        // Decode the path that was passed as ID
+        $filePath = base64_decode($documentId);
+
+        // Verify the file is in a shared folder the intern has access to
+        if (strpos($filePath, 'Shared') !== 0) {
+            return response()->json(['success' => false, 'message' => 'Access denied'], 403);
+        }
+
+        if (!Storage::disk('local')->exists($filePath)) {
             return response()->json(['success' => false, 'message' => 'File not found'], 404);
         }
 
-        // Get file content and return as download
+        $fileName = basename($filePath);
         return response()->download(
-            Storage::disk('local')->path($document->file_path),
-            $document->name
+            Storage::disk('local')->path($filePath),
+            $fileName
         );
     }
 
@@ -319,5 +425,476 @@ class DocumentController extends Controller
         $bytes /= (1 << (10 * $pow));
 
         return round($bytes, $precision) . ' ' . $units[$pow];
+    }
+
+    /**
+     * Admin: Get all folders in storage
+     */
+    public function getAdminFolders(Request $request)
+    {
+        try {
+            $folders = [];
+
+            // Get shared folders from database
+            $sharedFolders = DocumentFolder::where('folder_type', 'shared')
+                ->whereNull('parent_folder_id')
+                ->get();
+
+            foreach ($sharedFolders as $folder) {
+                $itemCount = 0;
+                $storagePath = $folder->storage_path ?? ('Shared/' . preg_replace('/[^A-Za-z0-9_\-]/', '_', $folder->name));
+
+                if (Storage::disk('local')->exists($storagePath)) {
+                    // Count all files recursively
+                    $allFiles = Storage::disk('local')->allFiles($storagePath);
+                    $itemCount = count($allFiles);
+                }
+
+                $folders[] = [
+                    'id' => $folder->id,
+                    'name' => $folder->name,
+                    'path' => $storagePath,
+                    'item_count' => $itemCount,
+                    'is_folder' => true,
+                    'folder_type' => 'shared',
+                    'color' => $folder->color,
+                ];
+            }
+
+            // Get Internship folder
+            $internshipPath = 'Internship';
+            if (Storage::disk('local')->exists($internshipPath)) {
+                $directories = Storage::disk('local')->directories($internshipPath);
+
+                foreach ($directories as $dir) {
+                    $folderName = basename($dir);
+                    $files = Storage::disk('local')->allFiles($dir);
+
+                    $folders[] = [
+                        'name' => $folderName,
+                        'path' => $dir,
+                        'item_count' => count($files),
+                        'is_folder' => true,
+                        'folder_type' => 'intern',
+                    ];
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'folders' => $folders,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error loading folders: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+    public function getAdminFolderContents(Request $request)
+    {
+        try {
+            $path = $request->query('path', '');
+
+            // Normalize path to use forward slashes
+            $path = str_replace('\\', '/', $path);
+
+            Log::info('Admin loading folder contents', [
+                'original_path' => $request->query('path', ''),
+                'normalized_path' => $path,
+                'exists' => Storage::disk('local')->exists($path),
+                'full_storage_path' => Storage::disk('local')->path($path)
+            ]);
+
+            // Check if this path corresponds to a database folder
+            $dbFolder = DocumentFolder::where('storage_path', $path)
+                ->orWhere('storage_path', str_replace('/', '\\', $path))
+                ->first();
+
+            if ($dbFolder) {
+                Log::info('Found database folder', [
+                    'id' => $dbFolder->id,
+                    'name' => $dbFolder->name,
+                    'type' => $dbFolder->folder_type,
+                    'db_storage_path' => $dbFolder->storage_path
+                ]);
+            } else {
+                Log::info('No database folder found for path', ['path' => $path]);
+            }
+
+            // Get subdirectories from filesystem
+            $directories = Storage::disk('local')->directories($path);
+            $files = Storage::disk('local')->files($path);
+
+            // Also try to list all files recursively to see if files exist deeper
+            $allFiles = Storage::disk('local')->allFiles($path);
+
+            Log::info('Storage scan results', [
+                'path' => $path,
+                'directories' => $directories,
+                'files_in_root' => $files,
+                'all_files_recursive' => $allFiles,
+                'file_count' => count($files),
+                'all_files_count' => count($allFiles)
+            ]);
+
+            $items = [];
+
+            // If this is a shared folder, also get subfolders from database
+            if ($dbFolder && $dbFolder->folder_type === 'shared') {
+                $dbSubfolders = DocumentFolder::where('parent_folder_id', $dbFolder->id)->get();
+
+                // Add database-tracked subfolders
+                foreach ($dbSubfolders as $subfolder) {
+                    if ($subfolder->storage_path && Storage::disk('local')->exists($subfolder->storage_path)) {
+                        $subFiles = Storage::disk('local')->allFiles($subfolder->storage_path);
+
+                        $items[] = [
+                            'id' => $subfolder->id,
+                            'name' => $subfolder->name,
+                            'path' => $subfolder->storage_path,
+                            'type' => 'folder',
+                            'item_count' => count($subFiles),
+                            'is_folder' => true,
+                            'color' => $subfolder->color,
+                        ];
+                    }
+                }
+            } else {
+                // Add filesystem folders (for non-database folders)
+                foreach ($directories as $dir) {
+                    $folderName = basename($dir);
+                    $subFiles = Storage::disk('local')->allFiles($dir);
+
+                    $items[] = [
+                        'name' => $folderName,
+                        'path' => $dir,
+                        'type' => 'folder',
+                        'item_count' => count($subFiles),
+                        'is_folder' => true,
+                    ];
+                }
+            }
+
+            // Add files (for all folder types)
+            foreach ($files as $file) {
+                $fileName = basename($file);
+                $size = Storage::disk('local')->size($file);
+                $lastModified = Storage::disk('local')->lastModified($file);
+
+                // Get mime type from file extension
+                $extension = pathinfo($fileName, PATHINFO_EXTENSION);
+                $mimeTypes = [
+                    'pdf' => 'application/pdf',
+                    'doc' => 'application/msword',
+                    'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                    'xls' => 'application/vnd.ms-excel',
+                    'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                ];
+                $mimeType = $mimeTypes[$extension] ?? 'application/octet-stream';
+
+                $items[] = [
+                    'name' => $fileName,
+                    'path' => $file,
+                    'type' => 'file',
+                    'size' => $this->formatBytes($size),
+                    'size_bytes' => $size,
+                    'modified' => date('M d, Y', $lastModified),
+                    'modified_timestamp' => $lastModified,
+                    'mime_type' => $mimeType,
+                    'is_folder' => false,
+                ];
+            }
+
+            return response()->json([
+                'success' => true,
+                'items' => $items,
+                'current_path' => $path,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error loading folder contents: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Admin: Download file
+     */
+    public function adminDownloadFile(Request $request)
+    {
+        try {
+            $path = $request->query('path');
+
+            if (!$path || !Storage::disk('local')->exists($path)) {
+                return response()->json(['success' => false, 'message' => 'File not found'], 404);
+            }
+
+            $fileName = basename($path);
+
+            return response()->download(
+                Storage::disk('local')->path($path),
+                $fileName
+            );
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error downloading file: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Admin: Create shared folder with permissions
+     */
+    public function adminCreateFolder(Request $request)
+    {
+        try {
+            $request->validate([
+                'name' => 'required|string|max:255',
+                'color' => ['nullable', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
+                'description' => 'nullable|string|max:500',
+                'allowed_users' => 'required|array',
+                'allowed_users.*' => 'in:intern,team_leader,startup',
+            ]);
+
+            if (!Auth::check()) {
+                return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+            }
+
+            $adminId = Auth::id();
+
+            // Create physical directory in storage
+            $folderName = preg_replace('/[^A-Za-z0-9_\-]/', '_', $request->name);
+            $storagePath = "Shared/" . $folderName;
+
+            Storage::disk('local')->makeDirectory($storagePath);
+
+            $folder = DocumentFolder::create([
+                'name' => $request->name,
+                'color' => $request->color ?? '#3B82F6',
+                'description' => $request->description,
+                'created_by_admin' => $adminId,
+                'folder_type' => 'shared',
+                'allowed_users' => $request->allowed_users,
+                'storage_path' => $storagePath,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Shared folder created successfully',
+                'folder' => $folder,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error creating folder: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get folders accessible by current user (intern/team leader)
+     */
+    public function getAccessibleFolders(Request $request)
+    {
+        try {
+            $internId = $request->session()->get('intern_id');
+            if (!$internId) {
+                return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+            }
+
+            // Get shared folders the user has access to
+            $sharedFolders = DocumentFolder::where('folder_type', 'shared')
+                ->whereNull('parent_folder_id')
+                ->whereJsonContains('allowed_users', 'intern')
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'folders' => $sharedFolders,
+                'documents' => [], // No root-level documents for interns
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error loading folders: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Admin: Get all folders including shared ones
+     */
+    public function adminGetAllFolders(Request $request)
+    {
+        try {
+            // Get admin-created shared folders
+            $sharedFoldersDb = DocumentFolder::where('folder_type', 'shared')
+                ->whereNull('parent_folder_id')
+                ->get();
+
+            $sharedFolders = [];
+            foreach ($sharedFoldersDb as $folder) {
+                $storagePath = $folder->storage_path ?? ('Shared/' . preg_replace('/[^A-Za-z0-9_\-]/', '_', $folder->name));
+                $itemCount = 0;
+
+                if (Storage::disk('local')->exists($storagePath)) {
+                    $itemCount = count(Storage::disk('local')->allFiles($storagePath));
+                }
+
+                $sharedFolders[] = [
+                    'id' => $folder->id,
+                    'name' => $folder->name,
+                    'path' => $storagePath,
+                    'storage_path' => $storagePath,
+                    'item_count' => $itemCount,
+                    'is_folder' => true,
+                    'folder_type' => 'shared',
+                    'color' => $folder->color,
+                    'description' => $folder->description,
+                ];
+            }
+
+            // Get all intern folders from filesystem
+            $internshipPath = 'Internship';
+            $directories = [];
+
+            if (Storage::disk('local')->exists($internshipPath)) {
+                $directories = Storage::disk('local')->directories($internshipPath);
+            }
+
+            $internFolders = [];
+            foreach ($directories as $dir) {
+                $folderName = basename($dir);
+                $files = Storage::disk('local')->allFiles($dir);
+
+                $internFolders[] = [
+                    'name' => $folderName,
+                    'path' => $dir,
+                    'item_count' => count($files),
+                    'is_folder' => true,
+                    'folder_type' => 'intern',
+                ];
+            }
+
+            return response()->json([
+                'success' => true,
+                'shared_folders' => $sharedFolders,
+                'intern_folders' => $internFolders,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error loading folders: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Delete a file (Admin only)
+     */
+    public function deleteFile(Request $request)
+    {
+        try {
+            // Check if user is admin
+            if (!Auth::check() || !Auth::user()->is_admin) {
+                return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+            }
+
+            $request->validate([
+                'path' => 'required|string',
+            ]);
+
+            $path = str_replace('\\', '/', $request->path);
+
+            // Check if file exists
+            if (!Storage::disk('local')->exists($path)) {
+                return response()->json(['success' => false, 'message' => 'File not found'], 404);
+            }
+
+            // Delete the file
+            Storage::disk('local')->delete($path);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'File deleted successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error deleting file: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Delete a folder (Admin only)
+     */
+    public function deleteFolder(Request $request)
+    {
+        try {
+            // Check if user is admin
+            if (!Auth::check() || !Auth::user()->is_admin) {
+                return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+            }
+
+            $request->validate([
+                'folder_id' => 'required|exists:document_folders,id',
+            ]);
+
+            $folder = DocumentFolder::findOrFail($request->folder_id);
+
+            // Delete all files in the folder from storage
+            if ($folder->storage_path) {
+                $path = str_replace('\\', '/', $folder->storage_path);
+                if (Storage::disk('local')->exists($path)) {
+                    Storage::disk('local')->deleteDirectory($path);
+                }
+            }
+
+            // Delete all child folders recursively
+            $this->deleteChildFolders($folder->id);
+
+            // Delete the folder from database
+            $folder->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Folder deleted successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error deleting folder: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Helper method to delete child folders recursively
+     */
+    private function deleteChildFolders($parentId)
+    {
+        $childFolders = DocumentFolder::where('parent_folder_id', $parentId)->get();
+
+        foreach ($childFolders as $child) {
+            // Recursively delete children
+            $this->deleteChildFolders($child->id);
+
+            // Delete storage
+            if ($child->storage_path) {
+                $path = str_replace('\\', '/', $child->storage_path);
+                if (Storage::disk('local')->exists($path)) {
+                    Storage::disk('local')->deleteDirectory($path);
+                }
+            }
+
+            // Delete from database
+            $child->delete();
+        }
     }
 }

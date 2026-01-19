@@ -2794,7 +2794,21 @@
             upcomingEvents.forEach(event => {
                 const startDate = new Date(event.start_date);
                 const endDate = new Date(event.end_date);
-                const dateStr = startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+                // Format date range
+                const startDateOnly = startDate.toISOString().split('T')[0];
+                const endDateOnly = endDate.toISOString().split('T')[0];
+                const isSameDay = startDateOnly === endDateOnly;
+
+                let dateStr;
+                if (isSameDay) {
+                    dateStr = startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                } else {
+                    const startFormatted = startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                    const endFormatted = endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                    dateStr = `${startFormatted} - ${endFormatted}`;
+                }
+
                 const timeStr = event.all_day ? 'All Day' : startDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
 
                 html += `

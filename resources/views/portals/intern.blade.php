@@ -666,7 +666,7 @@
                             Already registered? Enter your reference code to access your dashboard.
                             <br><span style="color: #9CA3AF; font-size: 12px;">Intern: INT-XXXX-XXXXXX | Team Leader: TL-XXXX-XXXX</span>
                         </p>
-                        
+
                         @if(session('show_password'))
                         <!-- Team Leader Password Entry -->
                         <div style="background: #F0FDF4; border: 2px solid #86EFAC; border-radius: 12px; padding: 16px; margin-bottom: 16px;">
@@ -1647,10 +1647,41 @@
 
             <div class="content-card">
                 <div class="content-card-body">
-                    <div id="scheduleCalendar">
-                        <div style="text-align: center; padding: 50px; color: #9CA3AF;">
-                            <i class="fas fa-spinner fa-spin" style="font-size: 50px; margin-bottom: 16px;"></i>
-                            <p style="font-size: 16px;">Loading schedule...</p>
+                    <!-- Calendar Header -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 2px solid #E5E7EB;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <button onclick="previousMonth()" style="background: #F3F4F6; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; color: #374151; transition: all 0.3s;">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <h2 id="calendarMonthYear" style="font-size: 22px; font-weight: 700; color: #1F2937; margin: 0; min-width: 200px; text-align: center;">January 2026</h2>
+                            <button onclick="nextMonth()" style="background: #F3F4F6; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; color: #374151; transition: all 0.3s;">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                        <button onclick="goToToday()" style="background: linear-gradient(135deg, #7B1D3A, #5a1428); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s;">
+                            <i class="fas fa-calendar-day" style="margin-right: 6px;"></i>Today
+                        </button>
+                    </div>
+
+                    <!-- Calendar Grid -->
+                    <div id="scheduleCalendar" style="background: white; border-radius: 8px; overflow: hidden; border: 1px solid #E5E7EB;">
+                        <!-- Weekday Headers -->
+                        <div style="display: grid; grid-template-columns: repeat(7, 1fr); background: #F9FAFB; border-bottom: 2px solid #E5E7EB;">
+                            <div style="padding: 12px; text-align: center; font-weight: 700; font-size: 14px; color: #6B7280;">Sun</div>
+                            <div style="padding: 12px; text-align: center; font-weight: 700; font-size: 14px; color: #6B7280;">Mon</div>
+                            <div style="padding: 12px; text-align: center; font-weight: 700; font-size: 14px; color: #6B7280;">Tue</div>
+                            <div style="padding: 12px; text-align: center; font-weight: 700; font-size: 14px; color: #6B7280;">Wed</div>
+                            <div style="padding: 12px; text-align: center; font-weight: 700; font-size: 14px; color: #6B7280;">Thu</div>
+                            <div style="padding: 12px; text-align: center; font-weight: 700; font-size: 14px; color: #6B7280;">Fri</div>
+                            <div style="padding: 12px; text-align: center; font-weight: 700; font-size: 14px; color: #6B7280;">Sat</div>
+                        </div>
+
+                        <!-- Calendar Days Grid -->
+                        <div id="calendarDaysGrid" style="display: grid; grid-template-columns: repeat(7, 1fr);">
+                            <div style="text-align: center; padding: 50px; color: #9CA3AF; grid-column: span 7;">
+                                <i class="fas fa-spinner fa-spin" style="font-size: 50px; margin-bottom: 16px;"></i>
+                                <p style="font-size: 16px;">Loading calendar...</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1699,16 +1730,6 @@
                     <div class="form-group">
                         <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">Folder Name</label>
                         <input type="text" id="folderName" style="width: 100%; padding: 10px 12px; border: 1px solid #E5E7EB; border-radius: 6px; font-size: 14px;" placeholder="Enter folder name">
-                    </div>
-                    <div class="form-group">
-                        <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">Color</label>
-                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                            <input type="color" id="folderColor" value="#3B82F6" style="width: 50px; height: 40px; border: 1px solid #E5E7EB; border-radius: 6px; cursor: pointer;">
-                            <div style="display: flex; gap: 8px; align-items: center;">
-                                <div style="width: 30px; height: 30px; background-color: #3B82F6; border-radius: 6px; border: 2px solid #E5E7EB;"></div>
-                                <span style="font-size: 12px; color: #6B7280;">Preview</span>
-                            </div>
-                        </div>
                     </div>
                     <div class="form-group">
                         <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">Description (Optional)</label>
@@ -1923,12 +1944,10 @@
                 document.getElementById('createFolderModal').style.display = 'none';
                 document.getElementById('folderName').value = '';
                 document.getElementById('folderDescription').value = '';
-                document.getElementById('folderColor').value = '#3B82F6';
             }
 
             function createFolder() {
                 const name = document.getElementById('folderName').value.trim();
-                const color = document.getElementById('folderColor').value;
                 const description = document.getElementById('folderDescription').value.trim();
 
                 if (!name) {
@@ -1936,7 +1955,7 @@
                     return;
                 }
 
-                console.log('Creating folder:', { name, color, description, currentFolderId });
+                console.log('Creating folder:', { name, description, currentFolderId });
 
                 fetch('{{ route("documents.folder.create") }}', {
                     method: 'POST',
@@ -1946,7 +1965,6 @@
                     },
                     body: JSON.stringify({
                         name: name,
-                        color: color,
                         description: description,
                         parent_folder_id: currentFolderId
                     })
@@ -2084,8 +2102,7 @@
                                         <i class="fas fa-ellipsis-v"></i>
                                     </button>
                                     <div id="menu-${folder.id}" class="folder-menu-dropdown" style="display: none; position: absolute; right: 0; top: 30px; background: white; border: 1px solid #E5E7EB; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 10; min-width: 150px;">
-                                        <button onclick="openFolder(${folder.id})" style="display: block; width: 100%; text-align: left; padding: 10px 16px; border: none; background: none; cursor: pointer; font-size: 14px; color: #374151; border-bottom: 1px solid #E5E7EB;">Open</button>
-                                        <button onclick="deleteFolder(${folder.id})" style="display: block; width: 100%; text-align: left; padding: 10px 16px; border: none; background: none; cursor: pointer; font-size: 14px; color: #DC2626;">Delete</button>
+                                        <button onclick="openFolder(${folder.id})" style="display: block; width: 100%; text-align: left; padding: 10px 16px; border: none; background: none; cursor: pointer; font-size: 14px; color: #374151;">Open</button>
                                     </div>
                                 </div>
                                 <div class="folder-card-header">
@@ -2105,19 +2122,19 @@
                     html += '<div class="documents-list">';
                     data.documents.forEach(doc => {
                         const iconClass = getFileIcon(doc.file_type);
+                        // For files in shared folders, use path instead of id
+                        const downloadId = doc.id || btoa(doc.path);
+                        const displayDate = doc.created_at ? new Date(doc.created_at).toLocaleDateString() : 'N/A';
                         html += `
                             <div class="document-item">
                                 <div class="document-icon"><i class="${iconClass}"></i></div>
                                 <div class="document-info">
                                     <div class="document-name">${escapeHtml(doc.name)}</div>
-                                    <div class="document-meta">${doc.file_size} • ${new Date(doc.created_at).toLocaleDateString()}</div>
+                                    <div class="document-meta">${doc.file_size || doc.size || 'N/A'} • ${displayDate}</div>
                                 </div>
                                 <div class="document-actions">
-                                    <button class="doc-btn" onclick="downloadDocument(${doc.id})" title="Download">
+                                    <button class="doc-btn" onclick="downloadDocument('${downloadId}')" title="Download">
                                         <i class="fas fa-download"></i>
-                                    </button>
-                                    <button class="doc-btn" onclick="deleteDocument(${doc.id})" title="Delete">
-                                        <i class="fas fa-trash"></i>
                                     </button>
                                 </div>
                             </div>
@@ -2150,55 +2167,7 @@
                 loadDocuments();
             }
 
-            function deleteFolder(folderId) {
-                if (confirm('Are you sure you want to delete this folder and all its contents?')) {
-                    const baseUrl = '{{ url("/intern/documents") }}';
-                    fetch(`${baseUrl}/folder/${folderId}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            loadDocuments();
-                            showNotification('Folder deleted successfully', 'success');
-                        } else {
-                            showNotification(data.message || 'Failed to delete folder', 'error');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        showNotification('Error deleting folder', 'error');
-                    });
-                }
-            }
 
-            function deleteDocument(documentId) {
-                if (confirm('Are you sure you want to delete this document?')) {
-                    const baseUrl = '{{ url("/intern/documents") }}';
-                    fetch(`${baseUrl}/${documentId}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            loadDocuments();
-                            showNotification('Document deleted successfully', 'success');
-                        } else {
-                            showNotification(data.message || 'Failed to delete document', 'error');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        showNotification('Error deleting document', 'error');
-                    });
-                }
-            }
 
             function downloadDocument(documentId) {
                 const baseUrl = '{{ url("/intern/documents") }}';
@@ -2302,6 +2271,12 @@
     </main>
 
     <script>
+        // Calendar variables
+        let currentMonth = new Date().getMonth();
+        let currentYear = new Date().getFullYear();
+        let allEvents = [];
+        let allBookings = [];
+
         function showPage(pageId, updateMenu = true) {
             // Hide all pages
             document.querySelectorAll('.page-content').forEach(page => {
@@ -2328,6 +2303,7 @@
             // Load page-specific data
             if (pageId === 'schedule') {
                 loadEvents();
+                loadBookings();
             }
         }
 
@@ -2341,108 +2317,388 @@
             })
             .then(response => response.json())
             .then(data => {
-                displayEvents(data.events || []);
+                allEvents = data.events || [];
+                renderCalendar();
             })
             .catch(error => {
                 console.error('Error loading events:', error);
-                document.getElementById('scheduleCalendar').innerHTML = `
-                    <div style="text-align: center; padding: 50px; color: #9CA3AF;">
-                        <i class="fas fa-calendar" style="font-size: 50px; margin-bottom: 16px;"></i>
-                        <p style="font-size: 16px;">No scheduled events</p>
-                        <p style="font-size: 14px; margin-top: 8px;">Your schedule and events will appear here</p>
-                    </div>
-                `;
             });
         }
 
-        function displayEvents(events) {
-            const container = document.getElementById('scheduleCalendar');
+        // Load approved bookings
+        function loadBookings() {
+            fetch('{{ url("/bookings") }}', {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            })
+            .then(response => response.json())
+            .then(bookings => {
+                allBookings = bookings || [];
+                renderCalendar();
+            })
+            .catch(error => {
+                console.error('Error loading bookings:', error);
+            });
+        }
 
-            if (!events || events.length === 0) {
-                container.innerHTML = `
-                    <div style="text-align: center; padding: 50px; color: #9CA3AF;">
-                        <i class="fas fa-calendar" style="font-size: 50px; margin-bottom: 16px;"></i>
-                        <p style="font-size: 16px;">No scheduled events</p>
-                        <p style="font-size: 14px; margin-top: 8px;">Your schedule and events will appear here</p>
-                    </div>
-                `;
-                return;
+        function renderCalendar() {
+            const monthNames = ["January", "February", "March", "April", "May", "June",
+                               "July", "August", "September", "October", "November", "December"];
+
+            // Update header
+            document.getElementById('calendarMonthYear').textContent = `${monthNames[currentMonth]} ${currentYear}`;
+
+            // Get first day of month and number of days
+            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            const daysInPrevMonth = new Date(currentYear, currentMonth, 0).getDate();
+
+            const today = new Date();
+            const todayString = today.toISOString().split('T')[0];
+
+            let html = '';
+
+            // Previous month days
+            for (let i = firstDay - 1; i >= 0; i--) {
+                html += `<div style="min-height: 120px; padding: 8px; border: 1px solid #E5E7EB; background: #FAFAFA; color: #D1D5DB; display: flex; flex-direction: column;">
+                    <div style="font-size: 14px; font-weight: 600; margin-bottom: 4px;">${daysInPrevMonth - i}</div>
+                </div>`;
             }
 
-            // Group events by date
-            const eventsByDate = {};
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
+            // Current month days
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateString = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const isToday = dateString === todayString;
 
-            events.forEach(event => {
-                const startDate = new Date(event.start_date);
-                const dateKey = startDate.toISOString().split('T')[0];
+                // Find events for this day
+                const dayEvents = allEvents.filter(event => {
+                    const eventStart = new Date(event.start_date).toISOString().split('T')[0];
+                    const eventEnd = new Date(event.end_date).toISOString().split('T')[0];
+                    return dateString >= eventStart && dateString <= eventEnd;
+                });
 
-                if (!eventsByDate[dateKey]) {
-                    eventsByDate[dateKey] = [];
+                // Find bookings for this day
+                const dayBookings = allBookings.filter(booking => {
+                    return booking.date === dateString;
+                });
+
+                let itemsHtml = '';
+                let totalItems = dayEvents.length + dayBookings.length;
+                let displayCount = 0;
+                const maxDisplay = 2;
+
+                // Display events
+                dayEvents.slice(0, maxDisplay - displayCount).forEach(event => {
+                    const startDate = new Date(event.start_date).toISOString().split('T')[0];
+                    const isStartDay = dateString === startDate;
+                    const eventStart = new Date(event.start_date);
+                    const timeStr = (!event.all_day && isStartDay) ? eventStart.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : '';
+                    const eventLabel = isStartDay ? escapeHtml(event.title) : `↔ ${escapeHtml(event.title)}`;
+
+                    itemsHtml += `
+                        <div onclick="showEventDetails(${event.id})" style="background: ${event.color}20; border-left: 3px solid ${event.color}; padding: 3px 5px; margin-bottom: 3px; border-radius: 4px; cursor: pointer; font-size: 10px; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(event.title)}">
+                            ${timeStr ? `<span style="font-weight: 600; display: block;">${timeStr}</span>` : ''}${eventLabel}
+                        </div>
+                    `;
+                    displayCount++;
+                });
+
+                // Display bookings
+                dayBookings.slice(0, maxDisplay - displayCount).forEach(booking => {
+                    itemsHtml += `
+                        <div onclick="showBookingDetails(${booking.id})" style="background: #DBEAFE; border-left: 3px solid #3B82F6; padding: 3px 5px; margin-bottom: 3px; border-radius: 4px; cursor: pointer; font-size: 10px; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(booking.agency)} - ${escapeHtml(booking.event)}">
+                            <i class="fas fa-building" style="font-size: 8px; margin-right: 2px;"></i><span style="font-weight: 600;">${booking.time ? booking.time.split(' - ')[0] : ''}</span> ${escapeHtml(booking.agency)}
+                        </div>
+                    `;
+                    displayCount++;
+                });
+
+                if (totalItems > maxDisplay) {
+                    itemsHtml += `<div style="font-size: 9px; color: #6B7280; padding: 2px 5px; text-align: center; background: #F3F4F6; border-radius: 3px; margin-top: 2px; cursor: pointer;" onclick="showDayDetails('${dateString}')">+${totalItems - maxDisplay} more</div>`;
                 }
-                eventsByDate[dateKey].push(event);
+
+                const bgColor = isToday ? '#FEF3C7' : 'white';
+                const dayColor = isToday ? '#7B1D3A' : '#1F2937';
+
+                html += `<div style="min-height: 120px; padding: 8px; border: 1px solid #E5E7EB; background: ${bgColor}; cursor: pointer; transition: background 0.2s; display: flex; flex-direction: column;" onmouseover="this.style.background='#F9FAFB'" onmouseout="this.style.background='${bgColor}'">
+                    <div style="font-size: 14px; font-weight: ${isToday ? '700' : '600'}; color: ${dayColor}; margin-bottom: 6px; flex-shrink: 0;">${day}</div>
+                    <div style="flex: 1; overflow-y: auto; overflow-x: hidden;">
+                        ${itemsHtml}
+                    </div>
+                </div>`;
+            }
+
+            // Next month days to fill grid
+            const totalCells = Math.ceil((firstDay + daysInMonth) / 7) * 7;
+            const remainingCells = totalCells - (firstDay + daysInMonth);
+            for (let i = 1; i <= remainingCells; i++) {
+                html += `<div style="min-height: 120px; padding: 8px; border: 1px solid #E5E7EB; background: #FAFAFA; color: #D1D5DB; display: flex; flex-direction: column;">
+                    <div style="font-size: 14px; font-weight: 600; margin-bottom: 4px;">${i}</div>
+                </div>`;
+            }
+
+            document.getElementById('calendarDaysGrid').innerHTML = html;
+        }
+
+        function previousMonth() {
+            currentMonth--;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            renderCalendar();
+        }
+
+        function nextMonth() {
+            currentMonth++;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            renderCalendar();
+        }
+
+        function goToToday() {
+            const today = new Date();
+            currentMonth = today.getMonth();
+            currentYear = today.getFullYear();
+            renderCalendar();
+        }
+
+        function showEventDetails(eventId) {
+            const event = allEvents.find(e => e.id === eventId);
+            if (!event) return;
+
+            const startDate = new Date(event.start_date);
+            const endDate = new Date(event.end_date);
+            const startDateOnly = startDate.toISOString().split('T')[0];
+            const endDateOnly = endDate.toISOString().split('T')[0];
+            const isMultiDay = startDateOnly !== endDateOnly;
+
+            let dateInfo = startDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+            if (isMultiDay) {
+                const endFormatted = endDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+                dateInfo += ` - ${endFormatted}`;
+            }
+
+            const timeStr = event.all_day ? 'All Day' : `${startDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })} - ${endDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`;
+
+            const modalHtml = `
+                <div id="eventDetailsModal" onclick="closeEventModal()" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px;">
+                    <div onclick="event.stopPropagation()" style="background: white; border-radius: 16px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+                        <div style="background: linear-gradient(135deg, ${event.color}, ${event.color}dd); padding: 24px; color: white; border-radius: 16px 16px 0 0; display: flex; justify-content: space-between; align-items: start;">
+                            <h2 style="margin: 0; font-size: 24px; font-weight: 700; flex: 1;">${escapeHtml(event.title)}</h2>
+                            <button onclick="closeEventModal()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-left: 12px;">&times;</button>
+                        </div>
+                        <div style="padding: 24px;">
+                            ${event.description ? `<p style="color: #6B7280; font-size: 15px; margin-bottom: 20px; line-height: 1.6;">${escapeHtml(event.description)}</p>` : ''}
+
+                            <div style="display: flex; flex-direction: column; gap: 16px;">
+                                <div style="display: flex; align-items: start; gap: 12px;">
+                                    <div style="width: 40px; height: 40px; background: ${event.color}20; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-calendar" style="color: ${event.color}; font-size: 16px;"></i>
+                                    </div>
+                                    <div>
+                                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 2px;">Date</div>
+                                        <div style="font-size: 15px; font-weight: 600; color: #1F2937;">${dateInfo}</div>
+                                    </div>
+                                </div>
+
+                                <div style="display: flex; align-items: start; gap: 12px;">
+                                    <div style="width: 40px; height: 40px; background: ${event.color}20; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-clock" style="color: ${event.color}; font-size: 16px;"></i>
+                                    </div>
+                                    <div>
+                                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 2px;">Time</div>
+                                        <div style="font-size: 15px; font-weight: 600; color: #1F2937;">${timeStr}</div>
+                                    </div>
+                                </div>
+
+                                ${event.location ? `
+                                <div style="display: flex; align-items: start; gap: 12px;">
+                                    <div style="width: 40px; height: 40px; background: ${event.color}20; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-map-marker-alt" style="color: ${event.color}; font-size: 16px;"></i>
+                                    </div>
+                                    <div>
+                                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 2px;">Location</div>
+                                        <div style="font-size: 15px; font-weight: 600; color: #1F2937;">${escapeHtml(event.location)}</div>
+                                    </div>
+                                </div>
+                                ` : ''}
+                            </div>
+
+                            <button onclick="closeEventModal()" style="width: 100%; margin-top: 24px; padding: 12px; background: linear-gradient(135deg, #7B1D3A, #5a1428); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 15px; transition: all 0.3s;">
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        }
+
+        function closeEventModal() {
+            const modal = document.getElementById('eventDetailsModal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        function showDayDetails(dateString) {
+            const date = new Date(dateString + 'T00:00:00');
+            const dateInfo = date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+
+            // Find all events and bookings for this day
+            const dayEvents = allEvents.filter(event => {
+                const eventStart = new Date(event.start_date).toISOString().split('T')[0];
+                const eventEnd = new Date(event.end_date).toISOString().split('T')[0];
+                return dateString >= eventStart && dateString <= eventEnd;
             });
 
-            // Sort dates
-            const sortedDates = Object.keys(eventsByDate).sort();
+            const dayBookings = allBookings.filter(booking => booking.date === dateString);
 
-            let html = '<div style="display: flex; flex-direction: column; gap: 20px;">';
+            let itemsHtml = '';
 
-            sortedDates.forEach(dateKey => {
-                const events = eventsByDate[dateKey];
-                const dateObj = new Date(dateKey);
-                const isToday = dateObj.toISOString().split('T')[0] === today.toISOString().split('T')[0];
-                const isPast = dateObj < today;
+            if (dayEvents.length > 0) {
+                itemsHtml += '<div style="margin-bottom: 20px;"><h3 style="font-size: 16px; font-weight: 700; color: #1F2937; margin-bottom: 12px;"><i class="fas fa-calendar-alt" style="margin-right: 8px; color: #7B1D3A;"></i>Events</h3>';
+                dayEvents.forEach(event => {
+                    const startDate = new Date(event.start_date).toISOString().split('T')[0];
+                    const isStartDay = dateString === startDate;
+                    const eventStart = new Date(event.start_date);
+                    const timeStr = (!event.all_day && isStartDay) ? eventStart.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : 'All Day';
 
-                const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
-                const monthDay = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-
-                html += `
-                    <div style="background: white; border-radius: 12px; padding: 20px; border: 1px solid #E5E7EB; ${isPast ? 'opacity: 0.6;' : ''}">
-                        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #E5E7EB;">
-                            <div style="background: ${isToday ? 'linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%)' : '#F3F4F6'}; color: ${isToday ? 'white' : '#374151'}; width: 60px; height: 60px; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 700;">
-                                <div style="font-size: 11px; text-transform: uppercase;">${dateObj.toLocaleDateString('en-US', { month: 'short' })}</div>
-                                <div style="font-size: 24px;">${dateObj.getDate()}</div>
-                            </div>
-                            <div>
-                                <div style="font-size: 18px; font-weight: 600; color: #1F2937;">${dayName}</div>
-                                <div style="font-size: 14px; color: #6B7280;">${monthDay}</div>
-                                ${isToday ? '<span style="display: inline-block; margin-top: 4px; padding: 2px 8px; background: #FFBF00; color: #7B1D3A; border-radius: 4px; font-size: 11px; font-weight: 600;">TODAY</span>' : ''}
-                            </div>
-                        </div>
-                        <div style="display: flex; flex-direction: column; gap: 12px;">
-                `;
-
-                events.forEach(event => {
-                    const startTime = new Date(event.start_date);
-                    const endTime = new Date(event.end_date);
-                    const timeStr = event.all_day ? 'All Day' : `${startTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })} - ${endTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`;
-
-                    html += `
-                        <div style="display: flex; gap: 12px; padding: 14px; background: #F9FAFB; border-radius: 8px; border-left: 4px solid ${event.color};">
-                            <div style="flex-shrink: 0; width: 10px; height: 10px; background: ${event.color}; border-radius: 50%; margin-top: 5px;"></div>
-                            <div style="flex: 1;">
-                                <div style="font-size: 15px; font-weight: 600; color: #1F2937; margin-bottom: 4px;">${escapeHtml(event.title)}</div>
-                                <div style="font-size: 13px; color: #6B7280; display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-                                    <i class="fas fa-clock" style="font-size: 11px;"></i>
-                                    ${timeStr}
-                                </div>
-                                ${event.location ? `<div style="font-size: 13px; color: #6B7280; display: flex; align-items: center; gap: 8px; margin-bottom: 4px;"><i class="fas fa-map-marker-alt" style="font-size: 11px;"></i>${escapeHtml(event.location)}</div>` : ''}
-                                ${event.description ? `<div style="font-size: 13px; color: #4B5563; margin-top: 8px;">${escapeHtml(event.description)}</div>` : ''}
-                            </div>
+                    itemsHtml += `
+                        <div onclick="closeEventModal(); setTimeout(() => showEventDetails(${event.id}), 100);" style="background: ${event.color}10; border-left: 4px solid ${event.color}; padding: 12px; margin-bottom: 10px; border-radius: 8px; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.background='${event.color}20'" onmouseout="this.style.background='${event.color}10'">
+                            <div style="font-weight: 600; color: #1F2937; margin-bottom: 4px;">${escapeHtml(event.title)}</div>
+                            <div style="font-size: 13px; color: #6B7280;"><i class="fas fa-clock" style="margin-right: 4px;"></i>${timeStr}</div>
+                            ${event.location ? `<div style="font-size: 13px; color: #6B7280; margin-top: 4px;"><i class="fas fa-map-marker-alt" style="margin-right: 4px;"></i>${escapeHtml(event.location)}</div>` : ''}
                         </div>
                     `;
                 });
+                itemsHtml += '</div>';
+            }
 
-                html += `
+            if (dayBookings.length > 0) {
+                itemsHtml += '<div><h3 style="font-size: 16px; font-weight: 700; color: #1F2937; margin-bottom: 12px;"><i class="fas fa-building" style="margin-right: 8px; color: #3B82F6;"></i>Bookings</h3>';
+                dayBookings.forEach(booking => {
+                    itemsHtml += `
+                        <div onclick="closeEventModal(); setTimeout(() => showBookingDetails(${booking.id}), 100);" style="background: #F0F9FF; border-left: 4px solid #3B82F6; padding: 12px; margin-bottom: 10px; border-radius: 8px; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.background='#DBEAFE'" onmouseout="this.style.background='#F0F9FF'">
+                            <div style="font-weight: 600; color: #1F2937; margin-bottom: 4px;">${escapeHtml(booking.agency)}</div>
+                            <div style="font-size: 13px; color: #6B7280;"><i class="fas fa-calendar-check" style="margin-right: 4px;"></i>${escapeHtml(booking.event)}</div>
+                            <div style="font-size: 13px; color: #6B7280; margin-top: 4px;"><i class="fas fa-clock" style="margin-right: 4px;"></i>${booking.time || 'Not specified'}</div>
+                        </div>
+                    `;
+                });
+                itemsHtml += '</div>';
+            }
+
+            const modalHtml = `
+                <div id="eventDetailsModal" onclick="closeEventModal()" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px;">
+                    <div onclick="event.stopPropagation()" style="background: white; border-radius: 16px; max-width: 700px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+                        <div style="background: linear-gradient(135deg, #7B1D3A, #5a1428); padding: 24px; color: white; border-radius: 16px 16px 0 0; display: flex; justify-content: space-between; align-items: start;">
+                            <div>
+                                <h2 style="margin: 0; font-size: 24px; font-weight: 700;">${dateInfo}</h2>
+                                <p style="margin: 8px 0 0 0; opacity: 0.9; font-size: 14px;">${dayEvents.length + dayBookings.length} item(s)</p>
+                            </div>
+                            <button onclick="closeEventModal()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-left: 12px;">&times;</button>
+                        </div>
+                        <div style="padding: 24px;">
+                            ${itemsHtml}
                         </div>
                     </div>
-                `;
-            });
+                </div>
+            `;
 
-            html += '</div>';
-            container.innerHTML = html;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        }
+
+        function showBookingDetails(bookingId) {
+            const booking = allBookings.find(b => b.id === bookingId);
+            if (!booking) return;
+
+            const bookingDate = new Date(booking.date);
+            const dateInfo = bookingDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+
+            const modalHtml = `
+                <div id="eventDetailsModal" onclick="closeEventModal()" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px;">
+                    <div onclick="event.stopPropagation()" style="background: white; border-radius: 16px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+                        <div style="background: linear-gradient(135deg, #3B82F6, #2563EB); padding: 24px; color: white; border-radius: 16px 16px 0 0; display: flex; justify-content: space-between; align-items: start;">
+                            <div>
+                                <div style="display: inline-block; padding: 4px 10px; background: rgba(255,255,255,0.2); border-radius: 6px; font-size: 11px; font-weight: 600; margin-bottom: 8px;">
+                                    <i class="fas fa-calendar-check" style="margin-right: 4px;"></i>BOOKING
+                                </div>
+                                <h2 style="margin: 0; font-size: 24px; font-weight: 700;">${escapeHtml(booking.agency)}</h2>
+                            </div>
+                            <button onclick="closeEventModal()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-left: 12px;">&times;</button>
+                        </div>
+                        <div style="padding: 24px;">
+                            <div style="background: #F0F9FF; border-left: 4px solid #3B82F6; padding: 12px 16px; border-radius: 8px; margin-bottom: 20px;">
+                                <div style="font-size: 13px; color: #1E40AF; font-weight: 600;">Event</div>
+                                <div style="font-size: 15px; color: #1F2937; margin-top: 4px;">${escapeHtml(booking.event)}</div>
+                            </div>
+
+                            <div style="display: flex; flex-direction: column; gap: 16px;">
+                                <div style="display: flex; align-items: start; gap: 12px;">
+                                    <div style="width: 40px; height: 40px; background: #DBEAFE; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-calendar" style="color: #3B82F6; font-size: 16px;"></i>
+                                    </div>
+                                    <div>
+                                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 2px;">Date</div>
+                                        <div style="font-size: 15px; font-weight: 600; color: #1F2937;">${dateInfo}</div>
+                                    </div>
+                                </div>
+
+                                <div style="display: flex; align-items: start; gap: 12px;">
+                                    <div style="width: 40px; height: 40px; background: #DBEAFE; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-clock" style="color: #3B82F6; font-size: 16px;"></i>
+                                    </div>
+                                    <div>
+                                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 2px;">Time</div>
+                                        <div style="font-size: 15px; font-weight: 600; color: #1F2937;">${booking.time || 'Not specified'}</div>
+                                    </div>
+                                </div>
+
+                                <div style="display: flex; align-items: start; gap: 12px;">
+                                    <div style="width: 40px; height: 40px; background: #DBEAFE; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-user" style="color: #3B82F6; font-size: 16px;"></i>
+                                    </div>
+                                    <div>
+                                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 2px;">Contact Person</div>
+                                        <div style="font-size: 15px; font-weight: 600; color: #1F2937;">${escapeHtml(booking.contact_person || 'N/A')}</div>
+                                    </div>
+                                </div>
+
+                                ${booking.purpose ? `
+                                <div style="display: flex; align-items: start; gap: 12px;">
+                                    <div style="width: 40px; height: 40px; background: #DBEAFE; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-info-circle" style="color: #3B82F6; font-size: 16px;"></i>
+                                    </div>
+                                    <div>
+                                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 2px;">Purpose</div>
+                                        <div style="font-size: 15px; font-weight: 600; color: #1F2937;">${escapeHtml(booking.purpose)}</div>
+                                    </div>
+                                </div>
+                                ` : ''}
+                            </div>
+
+                            <button onclick="closeEventModal()" style="width: 100%; margin-top: 24px; padding: 12px; background: linear-gradient(135deg, #3B82F6, #2563EB); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 15px; transition: all 0.3s;">
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        }
+
+        function displayEvents(events) {
+            // This function is kept for backwards compatibility but now uses calendar rendering
+            allEvents = events;
+            renderCalendar();
         }
 
         function escapeHtml(text) {
