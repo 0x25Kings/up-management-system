@@ -597,6 +597,20 @@
         }
 
         /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(4px);
+        }
+
         .modal-overlay {
             display: none;
             position: fixed;
@@ -622,6 +636,12 @@
             max-height: 90vh;
             overflow-y: auto;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: translateY(-30px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         .modal-header {
@@ -693,6 +713,29 @@
             box-shadow: 0 0 0 3px rgba(123, 29, 58, 0.1);
         }
 
+        /* Startup Modal Input Styles */
+        #startupModal input:focus,
+        #startupModal select:focus {
+            outline: none;
+            border-color: #7B1D3A !important;
+            box-shadow: 0 0 0 3px rgba(123, 29, 58, 0.15);
+        }
+
+        #startupModal input:hover,
+        #startupModal select:hover {
+            border-color: #CBD5E1;
+        }
+
+        #startupModal button[type="button"]:hover {
+            transform: translateY(-1px);
+        }
+
+        #startupModal button[type="submit"]:hover {
+            background: linear-gradient(135deg, #8B2344 0%, #B63460 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(123, 29, 58, 0.3);
+        }
+
         .form-textarea {
             min-height: 100px;
             resize: vertical;
@@ -754,6 +797,57 @@
             display: flex;
             justify-content: flex-end;
             gap: 12px;
+        }
+
+        .close-modal {
+            font-size: 28px;
+            color: #6B7280;
+            cursor: pointer;
+            line-height: 1;
+            transition: all 0.3s ease;
+        }
+
+        .close-modal:hover {
+            color: #1F2937;
+        }
+
+        .btn-cancel {
+            padding: 10px 20px;
+            background: #F3F4F6;
+            color: #6B7280;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-cancel:hover {
+            background: #E5E7EB;
+        }
+
+        .btn-submit {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #7B1D3A, #A62450);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(123, 29, 58, 0.3);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
         }
 
         .btn-modal {
@@ -2482,18 +2576,31 @@
 
                 </div>
             </div>
-            <a href="#" class="menu-item" onclick="loadPage(event, 'research-tracking')">
-                <i class="fas fa-flask"></i>
-                <span>Research Tracking</span>
-            </a>
-            <a href="#" class="menu-item" onclick="loadPage(event, 'incubatee-tracker')">
-                <i class="fas fa-rocket"></i>
-                <span>Incubatee Tracker</span>
-            </a>
-            <a href="#" class="menu-item" onclick="loadPage(event, 'issues-management')">
-                <i class="fas fa-exclamation-triangle"></i>
-                <span>Issues & Complaints</span>
-            </a>
+            <div class="menu-item-parent">
+                <a href="#" class="menu-item" onclick="toggleSubmenu(event, 'startupSubmenu')">
+                    <i class="fas fa-rocket"></i>
+                    <span>Startup Management</span>
+                    <i class="fas fa-chevron-down dropdown-icon" id="startupSubmenuIcon"></i>
+                </a>
+                <div class="submenu" id="startupSubmenu">
+                    <a href="#" class="submenu-item" onclick="loadPage(event, 'manage-startups')">
+                        <i class="fas fa-building"></i>
+                        <span>Manage Startups</span>
+                    </a>
+                    <a href="#" class="submenu-item" onclick="loadPage(event, 'research-tracking')">
+                        <i class="fas fa-flask"></i>
+                        <span>Research Tracking</span>
+                    </a>
+                    <a href="#" class="submenu-item" onclick="loadPage(event, 'incubatee-tracker')">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Incubatee Tracker</span>
+                    </a>
+                    <a href="#" class="submenu-item" onclick="loadPage(event, 'issues-management')">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>Issues & Complaints</span>
+                    </a>
+                </div>
+            </div>
             <a href="#" class="menu-item" onclick="loadPage(event, 'digital-records')">
                 <i class="fas fa-file-alt"></i>
                 <span>Digital Records</span>
@@ -4011,31 +4118,38 @@
                             <tr>
                                 <th>Tracking Code</th>
                                 <th>Company/Startup</th>
-                                <th>Contact Person</th>
                                 <th>Invoice #</th>
                                 <th>Amount</th>
-                                <th>Submitted</th>
+                                <th>Method</th>
+                                <th>Payment Date</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse($paymentSubmissions as $payment)
+                            @php
+                                $methodLabels = [
+                                    'bank_transfer' => '🏦 Bank Transfer',
+                                    'bank_deposit' => '💵 Bank Deposit',
+                                    'gcash' => '📱 GCash',
+                                    'maya' => '📱 Maya',
+                                    'check' => '📄 Check',
+                                    'cash' => '💰 Cash'
+                                ];
+                            @endphp
                             <tr class="incubatee-row" data-status="{{ $payment->status }}">
                                 <td><strong>{{ $payment->tracking_code }}</strong></td>
                                 <td>
                                     <div style="font-weight: 600; margin-bottom: 4px;">{{ $payment->company_name }}</div>
-                                    <div style="font-size: 12px; color: #6B7280;">{{ $payment->email }}</div>
-                                </td>
-                                <td>
-                                    <div style="display: flex; align-items: center; gap: 8px;">
-                                        <div class="avatar">{{ strtoupper(substr($payment->contact_person, 0, 1)) }}</div>
-                                        <span style="font-weight: 600;">{{ $payment->contact_person }}</span>
-                                    </div>
+                                    <div style="font-size: 12px; color: #6B7280;">{{ $payment->contact_person }}</div>
                                 </td>
                                 <td><strong>{{ $payment->invoice_number }}</strong></td>
                                 <td style="font-weight: 700; color: #059669;">₱{{ number_format($payment->amount, 2) }}</td>
-                                <td>{{ $payment->created_at->format('M d, Y') }}</td>
+                                <td>
+                                    <span style="font-size: 12px;">{{ $methodLabels[$payment->payment_method] ?? $payment->payment_method ?? 'N/A' }}</span>
+                                </td>
+                                <td>{{ $payment->payment_date ? \Carbon\Carbon::parse($payment->payment_date)->format('M d, Y') : 'N/A' }}</td>
                                 <td>
                                     @if($payment->status == 'pending')
                                         <span class="status-badge" style="background: #FEF3C7; color: #92400E;">Pending</span>
@@ -4043,9 +4157,6 @@
                                         <span class="status-badge" style="background: #DBEAFE; color: #1E40AF;">Under Review</span>
                                     @elseif($payment->status == 'approved')
                                         <span class="status-badge" style="background: #DCFCE7; color: #166534;">Verified</span>
-                                        @if($payment->reviewed_at)
-                                        <div style="font-size: 11px; color: #10B981; margin-top: 2px;">{{ $payment->reviewed_at->format('M d, Y') }}</div>
-                                        @endif
                                     @elseif($payment->status == 'rejected')
                                         <span class="status-badge" style="background: #FEE2E2; color: #991B1B;">Rejected</span>
                                     @else
@@ -4054,11 +4165,11 @@
                                 </td>
                                 <td>
                                     <div class="action-buttons">
-                                        <button class="btn-action btn-view" onclick="viewPaymentDetails('{{ $payment->id }}')"><i class="fas fa-eye"></i></button>
+                                        <button class="btn-action btn-view" onclick="viewPaymentDetails('{{ $payment->id }}')" title="View Details"><i class="fas fa-eye"></i></button>
                                         @if($payment->payment_proof_path)
-                                        <a href="{{ asset('storage/' . $payment->payment_proof_path) }}" target="_blank" class="btn-action btn-edit"><i class="fas fa-receipt"></i></a>
+                                        <a href="{{ asset('storage/' . $payment->payment_proof_path) }}" target="_blank" class="btn-action btn-edit" title="View Receipt"><i class="fas fa-receipt"></i></a>
                                         @endif
-                                        <button class="btn-action" style="background: #10B981; color: white;" onclick="reviewSubmission('{{ $payment->id }}', 'finance')"><i class="fas fa-clipboard-check"></i></button>
+                                        <button class="btn-action" style="background: #10B981; color: white;" onclick="reviewSubmission('{{ $payment->id }}', 'finance')" title="Review"><i class="fas fa-clipboard-check"></i></button>
                                     </div>
                                 </td>
                             </tr>
@@ -4261,6 +4372,240 @@
                             @endforelse
                         </tbody>
                     </table>
+                </div>
+            </div>
+
+            <!-- Manage Startups Page -->
+            <div id="manage-startups" class="page-content">
+                <div style="margin-bottom: 24px;">
+                    <h2 style="font-size: 28px; font-weight: 700; color: #1F2937; margin-bottom: 8px;">Manage Startup Accounts</h2>
+                    <p style="color: #6B7280; font-size: 14px;">Create and manage startup portal login accounts for incubatees</p>
+                </div>
+
+                <!-- Stats Overview -->
+                <div class="stats-grid" id="startupStatsGrid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 24px;">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #7B1D3A, #A62450);">
+                            <i class="fas fa-building"></i>
+                        </div>
+                        <div class="stat-value" id="totalStartupsCount">0</div>
+                        <div class="stat-label">Total Startups</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #10B981, #059669);">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-value" id="activeStartupsCount">0</div>
+                        <div class="stat-label">Active Accounts</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #F59E0B, #D97706);">
+                            <i class="fas fa-file-contract"></i>
+                        </div>
+                        <div class="stat-value" id="pendingMoaCount">0</div>
+                        <div class="stat-label">Pending MOA</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #EF4444, #DC2626);">
+                            <i class="fas fa-ban"></i>
+                        </div>
+                        <div class="stat-value" id="inactiveStartupsCount">0</div>
+                        <div class="stat-label">Inactive Accounts</div>
+                    </div>
+                </div>
+
+                <!-- Action Bar -->
+                <div class="filter-bar" style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                        <div class="filter-group">
+                            <span class="filter-label">Status:</span>
+                            <select class="filter-select" onchange="filterStartups()" id="startupStatusFilter">
+                                <option value="all">All Status</option>
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <span class="filter-label">MOA Status:</span>
+                            <select class="filter-select" onchange="filterStartups()" id="startupMoaFilter">
+                                <option value="all">All</option>
+                                <option value="none">None</option>
+                                <option value="pending">Pending</option>
+                                <option value="active">Active</option>
+                                <option value="expired">Expired</option>
+                            </select>
+                        </div>
+                        <div class="filter-search">
+                            <i class="fas fa-search"></i>
+                            <input type="text" placeholder="Search startups..." onkeyup="searchStartups()" id="startupSearchInput">
+                        </div>
+                    </div>
+                    <button onclick="openCreateStartupModal()" style="padding: 10px 20px; background: linear-gradient(135deg, #7B1D3A, #A62450); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-plus"></i> Create Startup Account
+                    </button>
+                </div>
+
+                <!-- Startups Table -->
+                <div class="table-card">
+                    <div class="table-header">
+                        <h3 class="table-title">Startup Accounts</h3>
+                        <button onclick="exportStartups()" style="padding: 8px 16px; background: white; color: #7B1D3A; border: 2px solid #7B1D3A; border-radius: 6px; font-weight: 600; cursor: pointer;">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Startup Code</th>
+                                <th>Company Name</th>
+                                <th>Contact Person</th>
+                                <th>Email</th>
+                                <th>Room</th>
+                                <th>MOA Status</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="startupsTableBody">
+                            <tr>
+                                <td colspan="8" style="text-align: center; padding: 40px; color: #6B7280;">
+                                    <i class="fas fa-spinner fa-spin" style="font-size: 24px; margin-bottom: 12px; display: block;"></i>
+                                    Loading startups...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Create/Edit Startup Modal -->
+            <div id="startupModal" class="modal" style="display: none;">
+                <div class="modal-content" style="max-width: 650px; border-radius: 16px; overflow: hidden;">
+                    <!-- Modal Header with Gradient -->
+                    <div style="background: linear-gradient(135deg, #7B1D3A 0%, #A62450 100%); padding: 28px 32px; position: relative;">
+                        <div style="display: flex; align-items: center; gap: 16px;">
+                            <div style="width: 56px; height: 56px; background: rgba(255,255,255,0.2); border-radius: 14px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-building" style="font-size: 24px; color: white;"></i>
+                            </div>
+                            <div>
+                                <h3 id="startupModalTitle" style="font-size: 22px; font-weight: 700; color: white; margin: 0;">Create Startup Account</h3>
+                                <p style="color: rgba(255,255,255,0.8); font-size: 14px; margin-top: 4px;">Fill in the details to create a new startup portal account</p>
+                            </div>
+                        </div>
+                        <button type="button" onclick="closeStartupModal()" style="position: absolute; top: 20px; right: 20px; width: 36px; height: 36px; background: rgba(255,255,255,0.2); border: none; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s;">
+                            <i class="fas fa-times" style="color: white; font-size: 16px;"></i>
+                        </button>
+                    </div>
+
+                    <form id="startupForm" onsubmit="saveStartup(event)">
+                        <input type="hidden" id="startupId" name="startup_id">
+                        <div style="padding: 28px 32px;">
+                            <!-- Company Info Section -->
+                            <div style="margin-bottom: 24px;">
+                                <h4 style="font-size: 14px; font-weight: 600; color: #7B1D3A; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                                    <i class="fas fa-briefcase"></i> Company Information
+                                </h4>
+                                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px;">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label style="display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px;">Company Name <span style="color: #EF4444;">*</span></label>
+                                        <div style="position: relative;">
+                                            <i class="fas fa-building" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #9CA3AF;"></i>
+                                            <input type="text" id="companyName" name="company_name" required placeholder="Enter company name" style="width: 100%; padding: 12px 12px 12px 42px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px; transition: all 0.3s;">
+                                        </div>
+                                    </div>
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label style="display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px;">Room Number</label>
+                                        <div style="position: relative;">
+                                            <i class="fas fa-door-open" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #9CA3AF;"></i>
+                                            <input type="text" id="roomNumber" name="room_number" placeholder="e.g., 101" style="width: 100%; padding: 12px 12px 12px 42px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px; transition: all 0.3s;">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Contact Info Section -->
+                            <div style="margin-bottom: 24px;">
+                                <h4 style="font-size: 14px; font-weight: 600; color: #7B1D3A; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                                    <i class="fas fa-user"></i> Contact Information
+                                </h4>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label style="display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px;">Contact Person <span style="color: #EF4444;">*</span></label>
+                                        <div style="position: relative;">
+                                            <i class="fas fa-user-tie" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #9CA3AF;"></i>
+                                            <input type="text" id="contactPerson" name="contact_person" required placeholder="Full name" style="width: 100%; padding: 12px 12px 12px 42px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px; transition: all 0.3s;">
+                                        </div>
+                                    </div>
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label style="display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px;">Email Address <span style="color: #EF4444;">*</span></label>
+                                        <div style="position: relative;">
+                                            <i class="fas fa-envelope" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #9CA3AF;"></i>
+                                            <input type="email" id="startupEmail" name="email" required placeholder="email@company.com" style="width: 100%; padding: 12px 12px 12px 42px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px; transition: all 0.3s;">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="margin-top: 16px;">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label style="display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px;">Phone Number</label>
+                                        <div style="position: relative;">
+                                            <i class="fas fa-phone" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #9CA3AF;"></i>
+                                            <input type="text" id="startupPhone" name="phone" placeholder="e.g., +63 912 345 6789" style="width: 100%; padding: 12px 12px 12px 42px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px; transition: all 0.3s;">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Credentials Section (shown after creation) -->
+                            <div id="credentialsSection" style="display: none; background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%); padding: 24px; border-radius: 12px; border: 2px solid #86EFAC; margin-top: 24px;">
+                                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                                    <div style="width: 44px; height: 44px; background: #166534; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-key" style="color: white; font-size: 18px;"></i>
+                                    </div>
+                                    <div>
+                                        <h4 style="color: #166534; font-size: 16px; font-weight: 700; margin: 0;">Startup Code Generated!</h4>
+                                        <p style="color: #15803D; font-size: 12px; margin: 0;">Share this code with the startup - they will create their password on first login</p>
+                                    </div>
+                                </div>
+                                <div style="background: white; padding: 20px; border-radius: 10px; border: 1px solid #BBF7D0; text-align: center;">
+                                    <label style="font-size: 11px; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Startup Code</label>
+                                    <div id="generatedCode" style="font-family: 'Courier New', monospace; font-size: 24px; font-weight: 700; color: #166534; margin-top: 8px;"></div>
+                                </div>
+                                <button type="button" onclick="copyStartupCode()" style="margin-top: 16px; width: 100%; padding: 12px; background: #166534; color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.3s;">
+                                    <i class="fas fa-copy"></i> Copy Code to Clipboard
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Modal Footer -->
+                        <div style="padding: 20px 32px; background: #F9FAFB; border-top: 1px solid #E5E7EB; display: flex; justify-content: flex-end; gap: 12px;">
+                            <button type="button" onclick="closeStartupModal()" style="padding: 12px 24px; background: white; color: #6B7280; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s;">
+                                Cancel
+                            </button>
+                            <button type="submit" id="startupSubmitBtn" style="padding: 12px 28px; background: linear-gradient(135deg, #7B1D3A 0%, #A62450 100%); color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.3s;">
+                                <i class="fas fa-plus-circle"></i> Create Account
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- View Startup Details Modal -->
+            <div id="viewStartupModal" class="modal" style="display: none;">
+                <div class="modal-content" style="max-width: 700px; border-radius: 16px; overflow: hidden;">
+                    <div style="background: linear-gradient(135deg, #7B1D3A 0%, #A62450 100%); padding: 24px 28px; display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 14px;">
+                            <div style="width: 48px; height: 48px; background: rgba(255,255,255,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-building" style="font-size: 20px; color: white;"></i>
+                            </div>
+                            <h3 style="font-size: 20px; font-weight: 700; color: white; margin: 0;">Startup Details</h3>
+                        </div>
+                        <button type="button" onclick="closeViewStartupModal()" style="width: 36px; height: 36px; background: rgba(255,255,255,0.2); border: none; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-times" style="color: white; font-size: 16px;"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body" id="startupDetailsContent" style="padding: 28px;">
+                        <!-- Content loaded dynamically -->
+                    </div>
                 </div>
             </div>
 
@@ -6850,11 +7195,14 @@
                 breadcrumb.innerHTML = 'Dashboard > Intern Management > <span>Team Reports</span>';
                 loadTeamReportsData();
             } else if (pageId === 'research-tracking') {
-                breadcrumb.innerHTML = 'Dashboard > <span>Research Tracking</span>';
+                breadcrumb.innerHTML = 'Dashboard > Startup Management > <span>Research Tracking</span>';
             } else if (pageId === 'incubatee-tracker') {
-                breadcrumb.innerHTML = 'Dashboard > <span>Incubatee Tracker</span>';
+                breadcrumb.innerHTML = 'Dashboard > Startup Management > <span>Incubatee Tracker</span>';
             } else if (pageId === 'issues-management') {
-                breadcrumb.innerHTML = 'Dashboard > <span>Issues & Complaints</span>';
+                breadcrumb.innerHTML = 'Dashboard > Startup Management > <span>Issues & Complaints</span>';
+            } else if (pageId === 'manage-startups') {
+                breadcrumb.innerHTML = 'Dashboard > Startup Management > <span>Manage Startups</span>';
+                loadStartupsData();
             } else if (pageId === 'digital-records') {
                 breadcrumb.innerHTML = 'Dashboard > <span>Digital Records</span>';
             } else if (pageId === 'scheduler') {
@@ -8006,6 +8354,8 @@
                     'phone' => $p->phone,
                     'invoice_number' => $p->invoice_number,
                     'amount' => $p->amount,
+                    'payment_method' => $p->payment_method,
+                    'payment_date' => $p->payment_date ? \Carbon\Carbon::parse($p->payment_date)->format('M d, Y') : null,
                     'payment_proof_path' => $p->payment_proof_path,
                     'notes' => $p->notes,
                     'status' => $p->status,
@@ -8585,6 +8935,16 @@
             };
             const color = statusColors[payment.status] || { bg: '#E5E7EB', text: '#374151' };
 
+            const paymentMethodLabels = {
+                'bank_transfer': '🏦 Bank Transfer',
+                'bank_deposit': '💵 Bank Deposit',
+                'gcash': '📱 GCash',
+                'maya': '📱 Maya',
+                'check': '📄 Check Payment',
+                'cash': '💰 Cash'
+            };
+            const methodLabel = paymentMethodLabels[payment.payment_method] || payment.payment_method || 'N/A';
+
             const content = `
                 <div style="display: grid; gap: 16px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid #E5E7EB;">
@@ -8619,6 +8979,14 @@
                         <div>
                             <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Phone</div>
                             <div>${payment.phone || 'N/A'}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Payment Method</div>
+                            <div style="font-weight: 600;">${methodLabel}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Payment Date</div>
+                            <div style="font-weight: 600;">${payment.payment_date || 'N/A'}</div>
                         </div>
                     </div>
 
@@ -8939,6 +9307,439 @@
                 row.style.display = text.includes(searchTerm) ? '' : 'none';
             });
         }
+
+        // ===== STARTUP MANAGEMENT FUNCTIONS =====
+
+        let startupsData = [];
+        let currentEditStartupId = null;
+
+        function loadStartupsData() {
+            fetch('/admin/startup-accounts', {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok: ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Loaded startups:', data);
+                    startupsData = Array.isArray(data) ? data : [];
+                    renderStartupsTable();
+                    updateStartupStats();
+                })
+                .catch(error => {
+                    console.error('Error loading startups:', error);
+                    document.getElementById('startupsTableBody').innerHTML = `
+                        <tr>
+                            <td colspan="8" style="text-align: center; padding: 40px; color: #EF4444;">
+                                <i class="fas fa-exclamation-circle" style="font-size: 24px; margin-bottom: 12px; display: block;"></i>
+                                Failed to load startups. Please try again.<br>
+                                <small style="color: #9CA3AF;">${error.message}</small>
+                            </td>
+                        </tr>
+                    `;
+                });
+        }
+
+        function updateStartupStats() {
+            const total = startupsData.length;
+            const active = startupsData.filter(s => s.status === 'active').length;
+            const inactive = startupsData.filter(s => s.status === 'inactive').length;
+            const pendingMoa = startupsData.filter(s => s.moa_status === 'pending').length;
+
+            document.getElementById('totalStartupsCount').textContent = total;
+            document.getElementById('activeStartupsCount').textContent = active;
+            document.getElementById('inactiveStartupsCount').textContent = inactive;
+            document.getElementById('pendingMoaCount').textContent = pendingMoa;
+        }
+
+        function renderStartupsTable() {
+            const tbody = document.getElementById('startupsTableBody');
+
+            if (startupsData.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 40px; color: #6B7280;">
+                            <i class="fas fa-building" style="font-size: 32px; margin-bottom: 12px; display: block;"></i>
+                            No startup accounts created yet. Click "Create Startup Account" to add one.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = startupsData.map(startup => `
+                <tr class="startup-row" data-status="${startup.status}" data-moa="${startup.moa_status}">
+                    <td><strong style="font-family: monospace; background: #F3F4F6; padding: 4px 8px; border-radius: 4px;">${startup.startup_code}</strong></td>
+                    <td>
+                        <div style="font-weight: 600; color: #1F2937;">${startup.company_name}</div>
+                        ${startup.room_number ? `<div style="font-size: 12px; color: #6B7280;">Room ${startup.room_number}</div>` : ''}
+                    </td>
+                    <td>${startup.contact_person || '-'}</td>
+                    <td>
+                        ${startup.email ? `<a href="mailto:${startup.email}" style="color: #7B1D3A;">${startup.email}</a>` : '-'}
+                    </td>
+                    <td>${startup.room_number || '-'}</td>
+                    <td>
+                        <span style="padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
+                            ${startup.moa_status === 'active' ? 'background: #D1FAE5; color: #065F46;' : ''}
+                            ${startup.moa_status === 'pending' ? 'background: #FEF3C7; color: #92400E;' : ''}
+                            ${startup.moa_status === 'expired' ? 'background: #FEE2E2; color: #991B1B;' : ''}
+                            ${startup.moa_status === 'none' ? 'background: #F3F4F6; color: #6B7280;' : ''}
+                        ">${startup.moa_status.charAt(0).toUpperCase() + startup.moa_status.slice(1)}</span>
+                    </td>
+                    <td>
+                        <span style="padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
+                            ${startup.status === 'active' ? 'background: #D1FAE5; color: #065F46;' : 'background: #FEE2E2; color: #991B1B;'}
+                        ">${startup.status.charAt(0).toUpperCase() + startup.status.slice(1)}</span>
+                    </td>
+                    <td>
+                        <div style="display: flex; gap: 6px;">
+                            <button onclick="viewStartupDetails(${startup.id})" style="padding: 6px 10px; background: #EFF6FF; color: #2563EB; border: none; border-radius: 6px; cursor: pointer;" title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button onclick="editStartup(${startup.id})" style="padding: 6px 10px; background: #FEF3C7; color: #D97706; border: none; border-radius: 6px; cursor: pointer;" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="resetStartupPassword(${startup.id})" style="padding: 6px 10px; background: #E0E7FF; color: #4F46E5; border: none; border-radius: 6px; cursor: pointer;" title="Reset Password">
+                                <i class="fas fa-key"></i>
+                            </button>
+                            <button onclick="toggleStartupStatus(${startup.id}, '${startup.status}')" style="padding: 6px 10px; background: ${startup.status === 'active' ? '#FEE2E2' : '#D1FAE5'}; color: ${startup.status === 'active' ? '#991B1B' : '#065F46'}; border: none; border-radius: 6px; cursor: pointer;" title="${startup.status === 'active' ? 'Deactivate' : 'Activate'}">
+                                <i class="fas fa-${startup.status === 'active' ? 'ban' : 'check'}"></i>
+                            </button>
+                            <button onclick="deleteStartup(${startup.id}, '${startup.company_name}')" style="padding: 6px 10px; background: #FEE2E2; color: #991B1B; border: none; border-radius: 6px; cursor: pointer;" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function filterStartups() {
+            const statusFilter = document.getElementById('startupStatusFilter').value;
+            const moaFilter = document.getElementById('startupMoaFilter').value;
+            const rows = document.querySelectorAll('.startup-row');
+
+            rows.forEach(row => {
+                const status = row.getAttribute('data-status');
+                const moa = row.getAttribute('data-moa');
+
+                const matchStatus = statusFilter === 'all' || status === statusFilter;
+                const matchMoa = moaFilter === 'all' || moa === moaFilter;
+
+                row.style.display = (matchStatus && matchMoa) ? '' : 'none';
+            });
+        }
+
+        function searchStartups() {
+            const searchTerm = document.getElementById('startupSearchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('.startup-row');
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        }
+
+        function openCreateStartupModal() {
+            currentEditStartupId = null;
+            document.getElementById('startupModalTitle').textContent = 'Create Startup Account';
+            document.getElementById('startupSubmitBtn').innerHTML = '<i class="fas fa-plus-circle"></i> Create Account';
+            document.getElementById('startupForm').reset();
+            document.getElementById('startupId').value = '';
+            document.getElementById('credentialsSection').style.display = 'none';
+            document.getElementById('startupModal').style.display = 'flex';
+        }
+
+        function editStartup(id) {
+            const startup = startupsData.find(s => s.id === id);
+            if (!startup) return;
+
+            currentEditStartupId = id;
+            document.getElementById('startupModalTitle').textContent = 'Edit Startup Account';
+            document.getElementById('startupSubmitBtn').innerHTML = '<i class="fas fa-save"></i> Update Account';
+            document.getElementById('startupId').value = id;
+            document.getElementById('companyName').value = startup.company_name;
+            document.getElementById('roomNumber').value = startup.room_number || '';
+            document.getElementById('contactPerson').value = startup.contact_person || '';
+            document.getElementById('startupEmail').value = startup.email || '';
+            document.getElementById('startupPhone').value = startup.phone || '';
+            document.getElementById('credentialsSection').style.display = 'none';
+
+            document.getElementById('startupModal').style.display = 'flex';
+        }
+
+        function closeStartupModal() {
+            document.getElementById('startupModal').style.display = 'none';
+            currentEditStartupId = null;
+        }
+
+        function saveStartup(event) {
+            event.preventDefault();
+
+            const formData = {
+                company_name: document.getElementById('companyName').value,
+                room_number: document.getElementById('roomNumber').value,
+                contact_person: document.getElementById('contactPerson').value,
+                email: document.getElementById('startupEmail').value,
+                phone: document.getElementById('startupPhone').value
+            };
+
+            const submitBtn = document.getElementById('startupSubmitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+            const url = currentEditStartupId ? `/admin/startup-accounts/${currentEditStartupId}` : '/admin/startup-accounts';
+            const method = currentEditStartupId ? 'PUT' : 'POST';
+
+            fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                if (!currentEditStartupId && data.startup_code) {
+                    // Show startup code for new account (no password - startup creates their own)
+                    document.getElementById('generatedCode').textContent = data.startup_code;
+                    document.getElementById('credentialsSection').style.display = 'block';
+                    submitBtn.style.display = 'none';
+
+                    // Refresh the table
+                    loadStartupsData();
+                } else {
+                    closeStartupModal();
+                    loadStartupsData();
+                }
+
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = currentEditStartupId ? '<i class="fas fa-save"></i> Update Account' : '<i class="fas fa-plus-circle"></i> Create Account';
+            })
+            .catch(error => {
+                alert('Error: ' + error.message);
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = currentEditStartupId ? '<i class="fas fa-save"></i> Update Account' : '<i class="fas fa-plus-circle"></i> Create Account';
+            });
+        }
+
+        function copyStartupCode() {
+            const code = document.getElementById('generatedCode').textContent;
+
+            navigator.clipboard.writeText(code).then(() => {
+                const btn = event.target.closest('button');
+                btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="fas fa-copy"></i> Copy Code to Clipboard';
+                }, 2000);
+            });
+        }
+
+        function viewStartupDetails(id) {
+            const startup = startupsData.find(s => s.id === id);
+            if (!startup) return;
+
+            const content = `
+                <div style="display: grid; gap: 20px;">
+                    <div style="display: flex; align-items: center; gap: 16px; padding-bottom: 16px; border-bottom: 1px solid #E5E7EB;">
+                        <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #7B1D3A, #A62450); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-building" style="font-size: 24px; color: white;"></i>
+                        </div>
+                        <div>
+                            <h3 style="font-size: 20px; font-weight: 700; color: #1F2937; margin-bottom: 4px;">${startup.company_name}</h3>
+                            <span style="font-family: monospace; background: #F3F4F6; padding: 4px 8px; border-radius: 4px; font-size: 14px;">${startup.startup_code}</span>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div style="background: #F9FAFB; padding: 16px; border-radius: 8px;">
+                            <label style="font-size: 12px; color: #6B7280; text-transform: uppercase;">Contact Person</label>
+                            <div style="font-weight: 600; color: #1F2937; margin-top: 4px;">${startup.contact_person || '-'}</div>
+                        </div>
+                        <div style="background: #F9FAFB; padding: 16px; border-radius: 8px;">
+                            <label style="font-size: 12px; color: #6B7280; text-transform: uppercase;">Room Number</label>
+                            <div style="font-weight: 600; color: #1F2937; margin-top: 4px;">${startup.room_number || '-'}</div>
+                        </div>
+                        <div style="background: #F9FAFB; padding: 16px; border-radius: 8px;">
+                            <label style="font-size: 12px; color: #6B7280; text-transform: uppercase;">Email</label>
+                            <div style="font-weight: 600; color: #1F2937; margin-top: 4px;">${startup.email || '-'}</div>
+                        </div>
+                        <div style="background: #F9FAFB; padding: 16px; border-radius: 8px;">
+                            <label style="font-size: 12px; color: #6B7280; text-transform: uppercase;">Phone</label>
+                            <div style="font-weight: 600; color: #1F2937; margin-top: 4px;">${startup.phone || '-'}</div>
+                        </div>
+                        <div style="background: #F9FAFB; padding: 16px; border-radius: 8px;">
+                            <label style="font-size: 12px; color: #6B7280; text-transform: uppercase;">MOA Status</label>
+                            <div style="margin-top: 4px;">
+                                <span style="padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
+                                    ${startup.moa_status === 'active' ? 'background: #D1FAE5; color: #065F46;' : ''}
+                                    ${startup.moa_status === 'pending' ? 'background: #FEF3C7; color: #92400E;' : ''}
+                                    ${startup.moa_status === 'expired' ? 'background: #FEE2E2; color: #991B1B;' : ''}
+                                    ${startup.moa_status === 'none' ? 'background: #F3F4F6; color: #6B7280;' : ''}
+                                ">${startup.moa_status.charAt(0).toUpperCase() + startup.moa_status.slice(1)}</span>
+                            </div>
+                        </div>
+                        <div style="background: #F9FAFB; padding: 16px; border-radius: 8px;">
+                            <label style="font-size: 12px; color: #6B7280; text-transform: uppercase;">Account Status</label>
+                            <div style="margin-top: 4px;">
+                                <span style="padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
+                                    ${startup.status === 'active' ? 'background: #D1FAE5; color: #065F46;' : 'background: #FEE2E2; color: #991B1B;'}
+                                ">${startup.status.charAt(0).toUpperCase() + startup.status.slice(1)}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    ${startup.moa_expiry ? `
+                    <div style="background: #FEF3C7; padding: 12px 16px; border-radius: 8px; border: 1px solid #FCD34D;">
+                        <i class="fas fa-calendar-alt" style="color: #D97706;"></i>
+                        <span style="color: #92400E; font-weight: 500;"> MOA Expires: ${new Date(startup.moa_expiry).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                    </div>
+                    ` : ''}
+
+                    <div style="background: #F3F4F6; padding: 12px 16px; border-radius: 8px;">
+                        <div style="display: flex; justify-content: space-between; color: #6B7280; font-size: 13px;">
+                            <span>Created: ${new Date(startup.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
+                            <span>Last Updated: ${new Date(startup.updated_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('startupDetailsContent').innerHTML = content;
+            document.getElementById('viewStartupModal').style.display = 'flex';
+        }
+
+        function closeViewStartupModal() {
+            document.getElementById('viewStartupModal').style.display = 'none';
+        }
+
+        function resetStartupPassword(id) {
+            const startup = startupsData.find(s => s.id === id);
+            if (!startup) return;
+
+            if (!confirm(`Are you sure you want to reset the password for "${startup.company_name}"?\n\nA new password will be generated.`)) {
+                return;
+            }
+
+            fetch(`/admin/startup-accounts/${id}/reset-password`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                alert(`Password has been reset!\n\nNew Password: ${data.password}\n\nPlease save this password - it cannot be retrieved later.`);
+            })
+            .catch(error => {
+                alert('Error resetting password: ' + error.message);
+            });
+        }
+
+        function toggleStartupStatus(id, currentStatus) {
+            const startup = startupsData.find(s => s.id === id);
+            if (!startup) return;
+
+            const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+            const action = newStatus === 'active' ? 'activate' : 'deactivate';
+
+            if (!confirm(`Are you sure you want to ${action} "${startup.company_name}"?`)) {
+                return;
+            }
+
+            fetch(`/admin/startup-accounts/${id}/toggle-status`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                loadStartupsData();
+            })
+            .catch(error => {
+                alert('Error: ' + error.message);
+            });
+        }
+
+        function deleteStartup(id, name) {
+            if (!confirm(`Are you sure you want to delete "${name}"?\n\nThis action cannot be undone.`)) {
+                return;
+            }
+
+            fetch(`/admin/startup-accounts/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                loadStartupsData();
+            })
+            .catch(error => {
+                alert('Error deleting startup: ' + error.message);
+            });
+        }
+
+        function exportStartups() {
+            // Simple CSV export
+            const headers = ['Startup Code', 'Company Name', 'Contact Person', 'Email', 'Phone', 'Room', 'MOA Status', 'Status'];
+            const rows = startupsData.map(s => [
+                s.startup_code,
+                s.company_name,
+                s.contact_person || '',
+                s.email || '',
+                s.phone || '',
+                s.room_number || '',
+                s.moa_status,
+                s.status
+            ]);
+
+            let csvContent = headers.join(',') + '\n';
+            rows.forEach(row => {
+                csvContent += row.map(cell => `"${cell}"`).join(',') + '\n';
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'startups_export.csv';
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Show/hide MOA expiry field based on status
+        document.getElementById('moaStatus')?.addEventListener('change', function() {
+            const expiryGroup = document.getElementById('moaExpiryGroup');
+            expiryGroup.style.display = this.value === 'active' ? 'block' : 'none';
+        });
 
         // ===== DOCUMENT TRACKING FUNCTIONS =====
 

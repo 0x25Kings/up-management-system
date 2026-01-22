@@ -4,11 +4,14 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\AdminStartupController;
+use App\Http\Controllers\AdminStartupAccountController;
 use App\Http\Controllers\InternController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\BlockedDateController;
 use App\Http\Controllers\StartupController;
+use App\Http\Controllers\StartupAuthController;
+use App\Http\Controllers\StartupDashboardController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\EventController;
@@ -57,7 +60,7 @@ Route::get('/intern/documents/{documentId}/download', [DocumentController::class
 // Event Routes (Intern - Read Only)
 Route::get('/intern/events', [EventController::class, 'index'])->name('events.index');
 
-// Startup Portal Routes (No Login Required)
+// Startup Portal Routes (No Login Required - Legacy/Public)
 Route::get('/startup', [StartupController::class, 'index'])->name('startup.portal');
 Route::post('/startup/document', [StartupController::class, 'submitDocument'])->name('startup.document');
 Route::post('/startup/room-issue', [StartupController::class, 'submitRoomIssue'])->name('startup.room-issue');
@@ -65,6 +68,45 @@ Route::post('/startup/moa', [StartupController::class, 'submitMoa'])->name('star
 Route::post('/startup/payment', [StartupController::class, 'submitPayment'])->name('startup.payment');
 Route::post('/startup/track', [StartupController::class, 'track'])->name('startup.track');
 Route::get('/startup/moa-template', [StartupController::class, 'downloadMoaTemplate'])->name('startup.moa-template');
+
+// Startup Portal Authentication Routes
+Route::get('/startup/login', [StartupAuthController::class, 'showLoginForm'])->name('startup.login');
+Route::post('/startup/verify-code', [StartupAuthController::class, 'verifyCode'])->name('startup.verify-code');
+Route::get('/startup/set-password', [StartupAuthController::class, 'showSetPasswordForm'])->name('startup.set-password');
+Route::post('/startup/set-password', [StartupAuthController::class, 'setPassword'])->name('startup.set-password.submit');
+Route::post('/startup/login', [StartupAuthController::class, 'login'])->name('startup.login.submit');
+Route::post('/startup/logout', [StartupAuthController::class, 'logout'])->name('startup.logout');
+
+// Protected Startup Portal Routes
+Route::middleware(['startup.auth'])->prefix('startup')->name('startup.')->group(function () {
+    // Dashboard
+    Route::get('/dashboard', [StartupDashboardController::class, 'index'])->name('dashboard');
+
+    // Document Upload
+    Route::get('/upload-document', [StartupDashboardController::class, 'showDocumentForm'])->name('upload-document');
+    Route::post('/upload-document', [StartupDashboardController::class, 'submitDocument'])->name('document.submit');
+
+    // Room Issue
+    Route::get('/report-issue', [StartupDashboardController::class, 'showRoomIssueForm'])->name('report-issue');
+    Route::post('/report-issue', [StartupDashboardController::class, 'submitRoomIssue'])->name('issue.submit');
+
+    // MOA Request
+    Route::get('/request-moa', [StartupDashboardController::class, 'showMoaForm'])->name('request-moa');
+    Route::post('/request-moa', [StartupDashboardController::class, 'submitMoa'])->name('moa.submit');
+    Route::get('/moa-template-download', [StartupDashboardController::class, 'downloadMoaTemplate'])->name('moa-template');
+
+    // Payment
+    Route::get('/submit-payment', [StartupDashboardController::class, 'showPaymentForm'])->name('submit-payment');
+    Route::post('/submit-payment', [StartupDashboardController::class, 'submitPayment'])->name('payment.submit');
+
+    // Submissions History
+    Route::get('/submissions', [StartupDashboardController::class, 'submissions'])->name('submissions');
+    Route::get('/room-issues', [StartupDashboardController::class, 'roomIssues'])->name('room-issues');
+
+    // Profile
+    Route::get('/profile', [StartupDashboardController::class, 'profile'])->name('profile');
+    Route::post('/profile', [StartupDashboardController::class, 'updateProfile'])->name('profile.update');
+});
 
 Route::get('/agency', function () {
     return view('portals.agency');
@@ -123,6 +165,16 @@ Route::middleware(['admin'])->group(function () {
     Route::get('/admin/room-issues/{roomIssue}', [AdminStartupController::class, 'getRoomIssue'])->name('admin.room-issues.show');
     Route::put('/admin/room-issues/{roomIssue}', [AdminStartupController::class, 'updateRoomIssue'])->name('admin.room-issues.update');
     Route::delete('/admin/room-issues/{roomIssue}', [AdminStartupController::class, 'deleteRoomIssue'])->name('admin.room-issues.destroy');
+
+    // Startup Accounts Management (Admin)
+    Route::get('/admin/startup-accounts', [AdminStartupAccountController::class, 'index'])->name('admin.startup-accounts.index');
+    Route::post('/admin/startup-accounts', [AdminStartupAccountController::class, 'store'])->name('admin.startup-accounts.store');
+    Route::get('/admin/startup-accounts/statistics', [AdminStartupAccountController::class, 'statistics'])->name('admin.startup-accounts.statistics');
+    Route::get('/admin/startup-accounts/{startup}', [AdminStartupAccountController::class, 'show'])->name('admin.startup-accounts.show');
+    Route::put('/admin/startup-accounts/{startup}', [AdminStartupAccountController::class, 'update'])->name('admin.startup-accounts.update');
+    Route::delete('/admin/startup-accounts/{startup}', [AdminStartupAccountController::class, 'destroy'])->name('admin.startup-accounts.destroy');
+    Route::post('/admin/startup-accounts/{startup}/reset-password', [AdminStartupAccountController::class, 'resetPassword'])->name('admin.startup-accounts.reset-password');
+    Route::post('/admin/startup-accounts/{startup}/toggle-status', [AdminStartupAccountController::class, 'toggleStatus'])->name('admin.startup-accounts.toggle-status');
 
     // School Management Routes (Admin)
     Route::get('/admin/schools', [SchoolController::class, 'index'])->name('admin.schools.index');
