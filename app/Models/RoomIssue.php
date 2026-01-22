@@ -11,6 +11,7 @@ class RoomIssue extends Model
     use HasFactory;
 
     protected $fillable = [
+        'startup_id',
         'tracking_code',
         'company_name',
         'contact_person',
@@ -48,6 +49,14 @@ class RoomIssue extends Model
     public function resolver(): BelongsTo
     {
         return $this->belongsTo(User::class, 'resolved_by');
+    }
+
+    /**
+     * Get the startup this issue belongs to
+     */
+    public function startup(): BelongsTo
+    {
+        return $this->belongsTo(Startup::class);
     }
 
     /**

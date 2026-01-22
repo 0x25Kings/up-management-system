@@ -11,19 +11,24 @@ class StartupSubmission extends Model
     use HasFactory;
 
     protected $fillable = [
+        'startup_id',
         'tracking_code',
         'company_name',
         'contact_person',
         'email',
         'phone',
         'type',
+        'title',
         'document_type',
         'file_path',
         'original_filename',
         'moa_purpose',
         'moa_details',
+        'moa_duration',
         'invoice_number',
         'amount',
+        'payment_method',
+        'payment_date',
         'payment_proof_path',
         'notes',
         'status',
@@ -61,6 +66,14 @@ class StartupSubmission extends Model
     public function reviewer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'reviewed_by');
+    }
+
+    /**
+     * Get the startup this submission belongs to
+     */
+    public function startup(): BelongsTo
+    {
+        return $this->belongsTo(Startup::class);
     }
 
     /**

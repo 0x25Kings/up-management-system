@@ -370,11 +370,11 @@
                     <p>Track attendance, view assigned tasks, submit reports, and manage your internship journey with ease.</p>
                     <span class="portal-btn">Access Portal <i class="fas fa-arrow-right"></i></span>
                 </a>
-                <a href="{{ route('startup.portal') }}" class="portal-card startup">
+                <a href="{{ route('startup.login') }}" class="portal-card startup">
                     <div class="portal-icon"><i class="fas fa-rocket"></i></div>
                     <h3>Startup Portal</h3>
-                    <p>Join our incubation and acceleration programs. Access resources, mentorship, and funding opportunities.</p>
-                    <span class="portal-btn">Access Portal <i class="fas fa-arrow-right"></i></span>
+                    <p>Access your startup dashboard to upload documents, report issues, request MOA, and submit payments.</p>
+                    <span class="portal-btn">Login to Portal <i class="fas fa-arrow-right"></i></span>
                 </a>
                 <a href="#calendar" class="portal-card agency" onclick="scrollToCalendar(event)">
                     <div class="portal-icon"><i class="fas fa-building"></i></div>
