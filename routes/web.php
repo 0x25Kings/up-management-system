@@ -50,7 +50,7 @@ Route::post('/intern/tasks/{task}/complete', [InternController::class, 'complete
 // Document Management Routes (Intern)
 Route::post('/intern/documents/folder', [DocumentController::class, 'createFolder'])->name('documents.folder.create');
 Route::post('/intern/documents/upload', [DocumentController::class, 'uploadDocument'])->name('documents.upload');
-Route::get('/intern/documents', [DocumentController::class, 'getFolders'])->name('documents.list');
+Route::get('/intern/documents', [DocumentController::class, 'getAccessibleFolders'])->name('documents.list');
 Route::get('/intern/documents/folder/{folderId}', [DocumentController::class, 'getFolderContents'])->name('documents.folder');
 Route::put('/intern/documents/folder/{folderId}', [DocumentController::class, 'updateFolder'])->name('documents.folder.update');
 Route::delete('/intern/documents/folder/{folderId}', [DocumentController::class, 'deleteFolder'])->name('documents.folder.delete');
@@ -145,6 +145,7 @@ Route::middleware(['admin'])->group(function () {
     Route::post('/admin/interns/{intern}/auto-update-tasks', [TaskController::class, 'autoUpdateInternTasks'])->name('intern.auto-update-tasks');
 
     // Booking management routes (Admin)
+    Route::get('/admin/bookings', [BookingController::class, 'getAllBookings'])->name('admin.bookings.index');
     Route::get('/admin/bookings/pending', [BookingController::class, 'pending'])->name('admin.bookings.pending');
     Route::post('/admin/bookings/{booking}/approve', [BookingController::class, 'approve'])->name('admin.bookings.approve');
     Route::post('/admin/bookings/{booking}/send-email', [BookingController::class, 'sendEmailNotification'])->name('admin.bookings.sendEmail');
@@ -155,6 +156,16 @@ Route::middleware(['admin'])->group(function () {
     Route::delete('/admin/blocked-dates/{blockedDate}', [BlockedDateController::class, 'destroy'])->name('admin.blocked.destroy');
     Route::post('/admin/bookings/{booking}/reject', [BookingController::class, 'reject'])->name('admin.bookings.reject');
     Route::delete('/admin/bookings/{booking}', [BookingController::class, 'destroy'])->name('admin.bookings.destroy');
+
+    // Digital Records Management (Admin)
+    Route::get('/admin/documents/folders', [DocumentController::class, 'getAdminFolders'])->name('admin.documents.folders');
+    Route::get('/admin/documents/contents', [DocumentController::class, 'getAdminFolderContents'])->name('admin.documents.contents');
+    Route::get('/admin/documents/download', [DocumentController::class, 'adminDownloadFile'])->name('admin.documents.download');
+    Route::post('/admin/documents/create-folder', [DocumentController::class, 'adminCreateFolder'])->name('admin.documents.createFolder');
+    Route::get('/admin/documents/all-folders', [DocumentController::class, 'adminGetAllFolders'])->name('admin.documents.allFolders');
+    Route::get('/admin/documents/stats', [DocumentController::class, 'adminGetStats'])->name('admin.documents.stats');
+    Route::delete('/admin/documents/file', [DocumentController::class, 'deleteFile'])->name('admin.documents.deleteFile');
+    Route::delete('/admin/documents/folder', [DocumentController::class, 'deleteFolder'])->name('admin.documents.deleteFolder');
 
     // Startup Submissions Management (Admin)
     Route::get('/admin/submissions/{submission}', [AdminStartupController::class, 'getSubmission'])->name('admin.submissions.show');
@@ -210,12 +221,12 @@ Route::middleware(['admin'])->group(function () {
     Route::patch('/admin/api/team-leaders/{user}/toggle-status', [AdminDashboardController::class, 'toggleTeamLeaderStatusAjax'])->name('admin.api.team-leaders.toggle-status');
     Route::delete('/admin/api/team-leaders/{user}', [AdminDashboardController::class, 'deleteTeamLeaderAjax'])->name('admin.api.team-leaders.destroy');
     Route::post('/admin/api/team-reports/{report}/review', [AdminDashboardController::class, 'reviewTeamLeaderReportAjax'])->name('admin.api.team-reports.review');
-    
+
     // Team Leader Permissions
     Route::get('/admin/api/team-leaders/{user}/permissions', [AdminDashboardController::class, 'getTeamLeaderPermissions'])->name('admin.api.team-leaders.permissions');
     Route::put('/admin/api/team-leaders/{user}/permissions', [AdminDashboardController::class, 'updateTeamLeaderPermissions'])->name('admin.api.team-leaders.permissions.update');
     Route::get('/admin/api/available-modules', [AdminDashboardController::class, 'getAvailableModules'])->name('admin.api.available-modules');
-    
+
     // Intern to Team Leader promotion
     Route::get('/admin/api/schools/{school}/interns', [AdminDashboardController::class, 'getInternsBySchool'])->name('admin.api.school-interns');
     Route::post('/admin/api/team-leaders/promote-intern', [AdminDashboardController::class, 'promoteInternToTeamLeader'])->name('admin.api.team-leaders.promote');

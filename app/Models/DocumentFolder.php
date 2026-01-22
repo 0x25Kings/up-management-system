@@ -15,12 +15,17 @@ class DocumentFolder extends Model
         'color',
         'description',
         'parent_folder_id',
+        'created_by_admin',
+        'folder_type',
+        'allowed_users',
+        'storage_path',
     ];
 
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',
+        'allowed_users' => 'array',
     ];
 
     /**

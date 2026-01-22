@@ -3600,21 +3600,26 @@
                                 </td>
                                 <td>
                                     @php
+                                        $isPendingAdminApproval = $task->status === 'Completed' && empty($task->completed_date);
                                         $statusStyle = $task->status === 'Completed'
                                             ? 'background: #D1FAE5; color: #065F46;'
                                             : ($task->status === 'In Progress'
                                                 ? 'background: #FEF3C7; color: #92400E;'
                                                 : 'background: #E5E7EB; color: #6B7280;');
+
+                                        if ($isPendingAdminApproval) {
+                                            $statusStyle = 'background: #DBEAFE; color: #1E40AF;';
+                                        }
                                     @endphp
                                     <span class="status-badge" style="{{ $statusStyle }}">
-                                        {{ $task->status }}
+                                        {{ $isPendingAdminApproval ? 'Pending Admin Approval' : $task->status }}
                                     </span>
                                 </td>
                                 <td style="position: sticky; right: 0; background: #F9FAFB; z-index: 9;">
                                     <div class="action-buttons" style="display: flex; gap: 6px; justify-content: center; flex-wrap: nowrap;">
                                         <button class="btn-action btn-view" title="View Details" onclick="viewTaskDetails({{ $task->id }})" style="padding: 8px 10px; background: #3B82F6; color: white; border: none; border-radius: 4px; cursor: pointer; flex-shrink: 0;"><i class="fas fa-eye"></i></button>
                                         <button class="btn-action btn-edit" title="Edit Task" onclick="editTask({{ $task->id }})" style="padding: 8px 10px; background: #F59E0B; color: white; border: none; border-radius: 4px; cursor: pointer; flex-shrink: 0;"><i class="fas fa-edit"></i></button>
-                                        @if($task->status !== 'Completed')
+                                        @if($task->status !== 'Completed' || empty($task->completed_date))
                                         <button class="btn-action btn-check" title="Mark Complete" onclick="markTaskComplete({{ $task->id }})" style="padding: 8px 10px; background: #10B981; color: white; border: none; border-radius: 4px; cursor: pointer; flex-shrink: 0;"><i class="fas fa-check"></i></button>
                                         @endif
                                     </div>
@@ -4622,29 +4627,29 @@
                         <div class="stat-icon" style="background: linear-gradient(135deg, #3B82F6, #2563EB);">
                             <i class="fas fa-folder"></i>
                         </div>
-                        <div class="stat-value">24</div>
+                        <div class="stat-value" id="dr-total-folders">--</div>
                         <div class="stat-label">Total Folders</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon" style="background: linear-gradient(135deg, #10B981, #059669);">
                             <i class="fas fa-file"></i>
                         </div>
-                        <div class="stat-value">387</div>
+                        <div class="stat-value" id="dr-total-files">--</div>
                         <div class="stat-label">Total Files</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon" style="background: linear-gradient(135deg, #8B5CF6, #7C3AED);">
                             <i class="fas fa-hdd"></i>
                         </div>
-                        <div class="stat-value">2.4 GB</div>
+                        <div class="stat-value" id="dr-storage-used">--</div>
                         <div class="stat-label">Storage Used</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon" style="background: linear-gradient(135deg, #F59E0B, #D97706);">
                             <i class="fas fa-clock"></i>
                         </div>
-                        <div class="stat-value">12</div>
-                        <div class="stat-label">Recent Uploads</div>
+                        <div class="stat-value" id="dr-recent-uploads">--</div>
+                        <div class="stat-label">Recent Uploads (7d)</div>
                     </div>
                 </div>
 
@@ -4674,102 +4679,10 @@
 
                 <!-- File Browser - Grid View -->
                 <div id="grid-view" class="file-grid">
-                    <!-- Folders -->
-                    <div class="file-item folder-item" onclick="openFolder('intern-documents')">
-                        <div class="file-icon folder-icon">
-                            <i class="fas fa-folder"></i>
-                        </div>
-                        <div class="file-name">Intern Documents</div>
-                        <div class="file-meta">45 items</div>
-                    </div>
-
-                    <div class="file-item folder-item" onclick="openFolder('research-files')">
-                        <div class="file-icon folder-icon">
-                            <i class="fas fa-folder"></i>
-                        </div>
-                        <div class="file-name">Research Files</div>
-                        <div class="file-meta">28 items</div>
-                    </div>
-
-                    <div class="file-item folder-item" onclick="openFolder('incubatee-docs')">
-                        <div class="file-icon folder-icon">
-                            <i class="fas fa-folder"></i>
-                        </div>
-                        <div class="file-name">Incubatee Documents</div>
-                        <div class="file-meta">62 items</div>
-                    </div>
-
-                    <div class="file-item folder-item" onclick="openFolder('moa-contracts')">
-                        <div class="file-icon folder-icon">
-                            <i class="fas fa-folder"></i>
-                        </div>
-                        <div class="file-name">MOA & Contracts</div>
-                        <div class="file-meta">18 items</div>
-                    </div>
-
-                    <div class="file-item folder-item" onclick="openFolder('reports')">
-                        <div class="file-icon folder-icon">
-                            <i class="fas fa-folder"></i>
-                        </div>
-                        <div class="file-name">Reports</div>
-                        <div class="file-meta">34 items</div>
-                    </div>
-
-                    <div class="file-item folder-item" onclick="openFolder('policies')">
-                        <div class="file-icon folder-icon">
-                            <i class="fas fa-folder"></i>
-                        </div>
-                        <div class="file-name">Policies & Guidelines</div>
-                        <div class="file-meta">12 items</div>
-                    </div>
-
-                    <!-- Sample Files in Root -->
-                    <div class="file-item file-doc" onclick="viewFileDetails('file1')">
-                        <div class="file-icon" style="background: linear-gradient(135deg, #EF4444, #DC2626);">
-                            <i class="fas fa-file-pdf"></i>
-                        </div>
-                        <div class="file-name">System Guidelines 2025.pdf</div>
-                        <div class="file-meta">2.4 MB • 2 days ago</div>
-                    </div>
-
-                    <div class="file-item file-doc" onclick="viewFileDetails('file2')">
-                        <div class="file-icon" style="background: linear-gradient(135deg, #3B82F6, #2563EB);">
-                            <i class="fas fa-file-word"></i>
-                        </div>
-                        <div class="file-name">Annual Report Draft.docx</div>
-                        <div class="file-meta">1.8 MB • 5 days ago</div>
-                    </div>
-
-                    <div class="file-item file-doc" onclick="viewFileDetails('file3')">
-                        <div class="file-icon" style="background: linear-gradient(135deg, #10B981, #059669);">
-                            <i class="fas fa-file-excel"></i>
-                        </div>
-                        <div class="file-name">Budget Tracker Q4.xlsx</div>
-                        <div class="file-meta">845 KB • 1 week ago</div>
-                    </div>
-
-                    <div class="file-item file-doc" onclick="viewFileDetails('file4')">
-                        <div class="file-icon" style="background: linear-gradient(135deg, #F59E0B, #D97706);">
-                            <i class="fas fa-file-powerpoint"></i>
-                        </div>
-                        <div class="file-name">Startup Orientation.pptx</div>
-                        <div class="file-meta">5.2 MB • 2 weeks ago</div>
-                    </div>
-
-                    <div class="file-item file-doc" onclick="viewFileDetails('file5')">
-                        <div class="file-icon" style="background: linear-gradient(135deg, #6B7280, #4B5563);">
-                            <i class="fas fa-file-archive"></i>
-                        </div>
-                        <div class="file-name">Archive_2024.zip</div>
-                        <div class="file-meta">124 MB • 1 month ago</div>
-                    </div>
-
-                    <div class="file-item file-doc" onclick="viewFileDetails('file6')">
-                        <div class="file-icon" style="background: linear-gradient(135deg, #8B5CF6, #7C3AED);">
-                            <i class="fas fa-file-image"></i>
-                        </div>
-                        <div class="file-name">Event Photos.jpg</div>
-                        <div class="file-meta">3.6 MB • 3 days ago</div>
+                    <!-- Content will be loaded dynamically -->
+                    <div style="grid-column: span 7; text-align: center; padding: 50px; color: #9CA3AF;">
+                        <i class="fas fa-spinner fa-spin" style="font-size: 50px; margin-bottom: 16px;"></i>
+                        <p style="font-size: 16px;">Loading documents...</p>
                     </div>
                 </div>
 
@@ -4783,87 +4696,14 @@
                                     <th>Type</th>
                                     <th>Size</th>
                                     <th>Modified</th>
-                                    <th>Owner</th>
                                     <th style="width: 100px;">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr onclick="openFolder('intern-documents')" style="cursor: pointer;">
-                                    <td>
-                                        <div style="display: flex; align-items: center; gap: 12px;">
-                                            <i class="fas fa-folder" style="font-size: 24px; color: #FFBF00;"></i>
-                                            <span style="font-weight: 600;">Intern Documents</span>
-                                        </div>
-                                    </td>
-                                    <td>Folder</td>
-                                    <td>45 items</td>
-                                    <td>Dec 10, 2025</td>
-                                    <td>Admin</td>
-                                    <td>
-                                        <button class="btn-action btn-view" onclick="event.stopPropagation(); openFolder('intern-documents')"><i class="fas fa-folder-open"></i></button>
-                                    </td>
-                                </tr>
-                                <tr onclick="openFolder('research-files')" style="cursor: pointer;">
-                                    <td>
-                                        <div style="display: flex; align-items: center; gap: 12px;">
-                                            <i class="fas fa-folder" style="font-size: 24px; color: #FFBF00;"></i>
-                                            <span style="font-weight: 600;">Research Files</span>
-                                        </div>
-                                    </td>
-                                    <td>Folder</td>
-                                    <td>28 items</td>
-                                    <td>Dec 12, 2025</td>
-                                    <td>Admin</td>
-                                    <td>
-                                        <button class="btn-action btn-view" onclick="event.stopPropagation(); openFolder('research-files')"><i class="fas fa-folder-open"></i></button>
-                                    </td>
-                                </tr>
-                                <tr onclick="viewFileDetails('file1')" style="cursor: pointer;">
-                                    <td>
-                                        <div style="display: flex; align-items: center; gap: 12px;">
-                                            <i class="fas fa-file-pdf" style="font-size: 20px; color: #EF4444;"></i>
-                                            <span>System Guidelines 2025.pdf</span>
-                                        </div>
-                                    </td>
-                                    <td><span class="file-type-badge pdf">PDF</span></td>
-                                    <td>2.4 MB</td>
-                                    <td>Dec 13, 2025</td>
-                                    <td>Kingsley Laran</td>
-                                    <td>
-                                        <button class="btn-action btn-view" onclick="event.stopPropagation(); viewFileDetails('file1')"><i class="fas fa-eye"></i></button>
-                                        <button class="btn-action btn-download" onclick="event.stopPropagation(); downloadFile('file1')"><i class="fas fa-download"></i></button>
-                                    </td>
-                                </tr>
-                                <tr onclick="viewFileDetails('file2')" style="cursor: pointer;">
-                                    <td>
-                                        <div style="display: flex; align-items: center; gap: 12px;">
-                                            <i class="fas fa-file-word" style="font-size: 20px; color: #3B82F6;"></i>
-                                            <span>Annual Report Draft.docx</span>
-                                        </div>
-                                    </td>
-                                    <td><span class="file-type-badge doc">DOC</span></td>
-                                    <td>1.8 MB</td>
-                                    <td>Dec 10, 2025</td>
-                                    <td>Julliana Laurena</td>
-                                    <td>
-                                        <button class="btn-action btn-view" onclick="event.stopPropagation(); viewFileDetails('file2')"><i class="fas fa-eye"></i></button>
-                                        <button class="btn-action btn-download" onclick="event.stopPropagation(); downloadFile('file2')"><i class="fas fa-download"></i></button>
-                                    </td>
-                                </tr>
-                                <tr onclick="viewFileDetails('file3')" style="cursor: pointer;">
-                                    <td>
-                                        <div style="display: flex; align-items: center; gap: 12px;">
-                                            <i class="fas fa-file-excel" style="font-size: 20px; color: #10B981;"></i>
-                                            <span>Budget Tracker Q4.xlsx</span>
-                                        </div>
-                                    </td>
-                                    <td><span class="file-type-badge excel">XLS</span></td>
-                                    <td>845 KB</td>
-                                    <td>Dec 8, 2025</td>
-                                    <td>Ruther Marte</td>
-                                    <td>
-                                        <button class="btn-action btn-view" onclick="event.stopPropagation(); viewFileDetails('file3')"><i class="fas fa-eye"></i></button>
-                                        <button class="btn-action btn-download" onclick="event.stopPropagation(); downloadFile('file3')"><i class="fas fa-download"></i></button>
+                            <tbody id="list-view-body">
+                                <tr>
+                                    <td colspan="5" style="text-align: center; padding: 50px; color: #9CA3AF;">
+                                        <i class="fas fa-spinner fa-spin" style="font-size: 30px; margin-bottom: 16px;"></i>
+                                        <p>Loading documents...</p>
                                     </td>
                                 </tr>
                             </tbody>
@@ -5926,6 +5766,12 @@
                     </div>
 
                     <div class="form-group">
+                        <label class="form-label">Checklist Items (Optional)</label>
+                        <textarea class="form-input form-textarea" id="taskChecklistText" placeholder="One item per line&#10;e.g. Planning&#10;Designing&#10;Implementation"></textarea>
+                        <p style="font-size: 12px; color: #9CA3AF; margin-top: 6px;">If provided, intern progress will be calculated from checked items.</p>
+                    </div>
+
+                    <div class="form-group">
                         <label class="form-label required">Assignment Type</label>
                         <div class="form-radio-group">
                             <label class="form-radio-label">
@@ -6922,7 +6768,8 @@
             try {
                 // Fetch pending bookings
                 const bookingsResponse = await fetch('/admin/bookings');
-                const bookings = await bookingsResponse.json();
+                const bookingsData = await bookingsResponse.json();
+                const bookings = bookingsData.bookings || bookingsData;
                 const pendingBookings = bookings.filter(b => b.status === 'pending');
 
                 // Fetch startup submissions
@@ -7361,10 +7208,10 @@
                     document.getElementById('teamLeaderId').value = tl.id;
                     document.getElementById('teamLeaderName').value = tl.name;
                     document.getElementById('teamLeaderEmail').value = tl.email;
-                    
+
                     // Hide school field during edit - school cannot be changed
                     schoolGroup.style.display = 'none';
-                    
+
                     // Make password optional for editing
                     passwordInput.removeAttribute('required');
                     passwordLabel.classList.remove('required');
@@ -7381,10 +7228,10 @@
                 }
             } else {
                 title.innerHTML = '<i class="fas fa-user-tie" style="margin-right: 8px;"></i>Add Team Leader';
-                
+
                 // Show school field for new team leaders
                 schoolGroup.style.display = 'block';
-                
+
                 // Make password required for new team leaders
                 passwordInput.setAttribute('required', 'required');
                 passwordLabel.classList.add('required');
@@ -7456,10 +7303,10 @@
                     return;
                 }
             }
-            
+
             // Populate schools dropdown first
             populateSchoolsDropdown();
-            
+
             // Small delay to ensure DOM is ready
             setTimeout(() => {
                 openTeamLeaderModal(id);
@@ -7738,10 +7585,10 @@
                     return;
                 }
             }
-            
+
             // Populate schools dropdown first
             populateSchoolsDropdown();
-            
+
             // Small delay to ensure DOM is ready
             setTimeout(() => {
                 openTeamLeaderModal(teamLeaderId);
@@ -10616,25 +10463,346 @@ University of the Philippines Cebu
             if (document.getElementById('scheduler').classList.contains('active')) {
                 renderSchedulerCalendar();
             }
+
+            // Load Digital Records when the page loads
+            loadDigitalRecords();
+            loadDigitalRecordsStats();
         });
 
         // Digital Records Functions
         let currentFolder = 'root';
+        let currentPath = '';
         let viewMode = 'grid'; // 'grid' or 'list'
+        let folderHistory = [];
 
-        function openFolder(folderId) {
-            currentFolder = folderId;
-            document.getElementById('current-path').innerHTML = `<i class="fas fa-home"></i> Root > ${folderId.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}`;
+        function loadDigitalRecordsStats() {
+            const totalFoldersEl = document.getElementById('dr-total-folders');
+            const totalFilesEl = document.getElementById('dr-total-files');
+            const storageUsedEl = document.getElementById('dr-storage-used');
+            const recentUploadsEl = document.getElementById('dr-recent-uploads');
+
+            if (!totalFoldersEl || !totalFilesEl || !storageUsedEl || !recentUploadsEl) {
+                return;
+            }
+
+            const formatBytes = (bytes) => {
+                if (bytes === 0) return '0 B';
+                const k = 1024;
+                const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                const value = (bytes / Math.pow(k, i)).toFixed(2);
+                return `${value} ${sizes[i]}`;
+            };
+
+            fetch('/admin/documents/stats', {
+                headers: {
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.ok ? response.json() : Promise.reject('Failed to load stats'))
+            .then(data => {
+                if (!data.success) {
+                    throw new Error(data.message || 'Unable to load stats');
+                }
+
+                totalFoldersEl.textContent = data.folders ?? '--';
+                totalFilesEl.textContent = data.files ?? '--';
+                storageUsedEl.textContent = data.storage_human || formatBytes(data.storage_bytes || 0);
+                recentUploadsEl.textContent = data.recent_uploads ?? '--';
+            })
+            .catch(error => {
+                console.error('Error loading digital records stats:', error);
+                totalFoldersEl.textContent = '--';
+                totalFilesEl.textContent = '--';
+                storageUsedEl.textContent = '--';
+                recentUploadsEl.textContent = '--';
+            });
+        }
+
+        function loadDigitalRecords() {
+            if (currentPath === '') {
+                loadRootFolders();
+            } else {
+                loadFolderContents(currentPath);
+            }
+        }
+
+        function loadRootFolders() {
+            fetch('/admin/documents/all-folders', {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Combine shared folders and intern folders
+                    const sharedFolders = data.shared_folders.map(f => ({
+                        id: f.id,
+                        name: f.name,
+                        path: f.storage_path || f.path || `Shared/${f.name}`,
+                        item_count: f.item_count || 0,
+                        is_folder: true,
+                        folder_type: 'shared',
+                        color: f.color,
+                        allowed_users: f.allowed_users
+                    }));
+
+                    const allFolders = [...sharedFolders, ...data.intern_folders];
+                    displayItems(allFolders, []);
+                } else {
+                    showToast('error', 'Error', data.message || 'Failed to load folders');
+                }
+            })
+            .catch(error => {
+                console.error('Error loading folders:', error);
+                showToast('error', 'Error', 'An error occurred while loading folders');
+            });
+        }
+
+        function loadFolderContents(path) {
+            console.log('Loading folder contents for path:', path);
+            fetch(`/admin/documents/contents?path=${encodeURIComponent(path)}`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Folder contents response:', data);
+                if (data.success) {
+                    console.log('Items received:', data.items);
+                    console.log('Folders with IDs:', data.items.filter(i => i.is_folder).map(f => ({ name: f.name, id: f.id })));
+                    console.log('Files:', data.items.filter(i => !i.is_folder));
+                    displayItems(data.items.filter(i => i.is_folder), data.items.filter(i => !i.is_folder));
+                } else {
+                    showToast('error', 'Error', data.message || 'Failed to load folder contents');
+                }
+            })
+            .catch(error => {
+                console.error('Error loading folder contents:', error);
+                showToast('error', 'Error', 'An error occurred while loading folder contents');
+            });
+        }
+
+        function displayItems(folders, files) {
+            const gridView = document.getElementById('grid-view');
+            const listViewBody = document.getElementById('list-view-body');
+
+            if (folders.length === 0 && files.length === 0) {
+                gridView.innerHTML = `
+                    <div style="grid-column: span 7; text-align: center; padding: 50px; color: #9CA3AF;">
+                        <i class="fas fa-folder-open" style="font-size: 50px; margin-bottom: 16px;"></i>
+                        <p style="font-size: 16px;">This folder is empty</p>
+                    </div>
+                `;
+                listViewBody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 50px; color: #9CA3AF;">
+                            <i class="fas fa-folder-open" style="font-size: 30px; margin-bottom: 16px;"></i>
+                            <p>This folder is empty</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            // Grid View
+            let gridHtml = '';
+            folders.forEach(folder => {
+                const displayName = formatFolderName(folder.name);
+                const folderColor = folder.color || '#FFBF00';
+                const deleteButton = folder.id ? `
+                    <button class="delete-btn" onclick="event.stopPropagation(); deleteFolder(${folder.id}, '${escapeHtml(folder.name)}')"
+                            style="position: absolute; top: 8px; right: 8px; background: #EF4444; color: white; border: none;
+                                   border-radius: 50%; width: 28px; height: 28px; cursor: pointer; display: flex; align-items: center;
+                                   justify-content: center; opacity: 0.9; transition: opacity 0.2s; z-index: 10;"
+                            onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.9'">
+                        <i class="fas fa-trash-alt" style="font-size: 12px;"></i>
+                    </button>
+                ` : '';
+
+                gridHtml += `
+                    <div class="file-item folder-item" style="position: relative;">
+                        ${deleteButton}
+                        <div onclick="openFolder('${escapeHtml(folder.path)}', '${escapeHtml(folder.name)}')">
+                            <div class="file-icon folder-icon" style="color: ${folderColor};">
+                                <i class="fas fa-folder"></i>
+                            </div>
+                            <div class="file-name" title="${escapeHtml(folder.name)}">${escapeHtml(displayName)}</div>
+                            <div class="file-meta">${folder.item_count} item(s)</div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            files.forEach(file => {
+                const fileIcon = getFileIcon(file.name);
+                gridHtml += `
+                    <div class="file-item file-doc" style="position: relative;">
+                        <button class="delete-btn" onclick="event.stopPropagation(); deleteFile('${escapeHtml(file.path)}', '${escapeHtml(file.name)}')"
+                                style="position: absolute; top: 8px; right: 8px; background: #EF4444; color: white; border: none;
+                                       border-radius: 50%; width: 28px; height: 28px; cursor: pointer; display: flex; align-items: center;
+                                       justify-content: center; opacity: 0.9; transition: opacity 0.2s;"
+                                onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.9'">
+                            <i class="fas fa-trash-alt" style="font-size: 12px;"></i>
+                        </button>
+                        <div onclick="viewFileDetails('${escapeHtml(file.path)}', '${escapeHtml(file.name)}')">
+                            <div class="file-icon" style="${fileIcon.style}">
+                                <i class="${fileIcon.icon}"></i>
+                            </div>
+                            <div class="file-name">${escapeHtml(file.name)}</div>
+                            <div class="file-meta">${file.size} • ${file.modified}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            gridView.innerHTML = gridHtml;
+
+            // List View
+            let listHtml = '';
+            folders.forEach(folder => {
+                const displayName = formatFolderName(folder.name);
+                const folderColor = folder.color || '#FFBF00';
+                const deleteButtonList = folder.id ? `
+                    <button class="action-btn" onclick="event.stopPropagation(); deleteFolder(${folder.id}, '${escapeHtml(folder.name)}')"
+                            style="color: #EF4444;">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                ` : '';
+
+                listHtml += `
+                    <tr onclick="openFolder('${escapeHtml(folder.path)}', '${escapeHtml(folder.name)}')" style="cursor: pointer;">
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <i class="fas fa-folder" style="font-size: 24px; color: ${folderColor};"></i>
+                                <div>
+                                    <span style="font-weight: 600;">${escapeHtml(displayName)}</span>
+                                    <div style="font-size: 11px; color: #6B7280;">${escapeHtml(folder.name)}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>Folder</td>
+                        <td>${folder.item_count} items</td>
+                        <td>-</td>
+                        <td>
+                            <button class="action-btn" onclick="event.stopPropagation(); openFolder('${escapeHtml(folder.path)}', '${escapeHtml(folder.name)}')">
+                                <i class="fas fa-folder-open"></i>
+                            </button>
+                            ${deleteButtonList}
+                        </td>
+                    </tr>
+                `;
+            });
+
+            files.forEach(file => {
+                const fileIcon = getFileIcon(file.name);
+                listHtml += `
+                    <tr style="cursor: pointer;">
+                        <td onclick="viewFileDetails('${escapeHtml(file.path)}', '${escapeHtml(file.name)}')">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <i class="${fileIcon.icon}" style="font-size: 20px; ${fileIcon.style}"></i>
+                                <span>${escapeHtml(file.name)}</span>
+                            </div>
+                        </td>
+                        <td>${getFileType(file.name)}</td>
+                        <td>${file.size}</td>
+                        <td>${file.modified}</td>
+                        <td>
+                            <button class="action-btn" onclick="downloadFile('${escapeHtml(file.path)}', '${escapeHtml(file.name)}')">
+                                <i class="fas fa-download"></i>
+                            </button>
+                            <button class="action-btn" onclick="deleteFile('${escapeHtml(file.path)}', '${escapeHtml(file.name)}')"
+                                    style="color: #EF4444;">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            listViewBody.innerHTML = listHtml;
+        }
+
+        function getFileIcon(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            const icons = {
+                'pdf': { icon: 'fas fa-file-pdf', style: 'color: #EF4444;' },
+                'doc': { icon: 'fas fa-file-word', style: 'color: #2563EB;' },
+                'docx': { icon: 'fas fa-file-word', style: 'color: #2563EB;' },
+                'xls': { icon: 'fas fa-file-excel', style: 'color: #10B981;' },
+                'xlsx': { icon: 'fas fa-file-excel', style: 'color: #10B981;' },
+                'ppt': { icon: 'fas fa-file-powerpoint', style: 'color: #F59E0B;' },
+                'pptx': { icon: 'fas fa-file-powerpoint', style: 'color: #F59E0B;' },
+                'zip': { icon: 'fas fa-file-archive', style: 'color: #6B7280;' },
+                'rar': { icon: 'fas fa-file-archive', style: 'color: #6B7280;' },
+                'jpg': { icon: 'fas fa-file-image', style: 'color: #8B5CF6;' },
+                'jpeg': { icon: 'fas fa-file-image', style: 'color: #8B5CF6;' },
+                'png': { icon: 'fas fa-file-image', style: 'color: #8B5CF6;' },
+                'gif': { icon: 'fas fa-file-image', style: 'color: #8B5CF6;' },
+                'txt': { icon: 'fas fa-file-alt', style: 'color: #6B7280;' },
+                'csv': { icon: 'fas fa-file-csv', style: 'color: #10B981;' },
+            };
+            return icons[ext] || { icon: 'fas fa-file', style: 'color: #9CA3AF;' };
+        }
+
+        function getFileType(filename) {
+            const ext = filename.split('.').pop().toUpperCase();
+            return ext + ' File';
+        }
+
+        function formatFolderName(folderName) {
+            // Format intern folder names like "John_Doe_15" to "John Doe (ID: 15)"
+            const match = folderName.match(/^(.+)_(\d+)$/);
+            if (match) {
+                const name = match[1].replace(/_/g, ' ');
+                const id = match[2];
+                return `${name} (ID: ${id})`;
+            }
+            // Otherwise just replace underscores with spaces
+            return folderName.replace(/_/g, ' ');
+        }
+
+        function openFolder(path, name) {
+            folderHistory.push({ path: currentPath, name: currentFolder });
+            currentPath = path;
+            currentFolder = name;
+
+            const pathParts = path.split('/');
+            let breadcrumb = '<i class="fas fa-home"></i> Root';
+            pathParts.forEach((part, index) => {
+                if (part) {
+                    breadcrumb += ` > ${part.replace(/_/g, ' ')}`;
+                }
+            });
+
+            document.getElementById('current-path').innerHTML = breadcrumb;
             document.getElementById('back-btn').style.display = 'flex';
 
-            alert(`Opening folder: ${folderId}\n\nThis will display:\n- All subfolders within this folder\n- All files in this folder\n- Breadcrumb navigation updated\n- Back button enabled`);
+            loadFolderContents(path);
         }
 
         function goBackFolder() {
-            currentFolder = 'root';
-            document.getElementById('current-path').innerHTML = '<i class="fas fa-home"></i> Root';
-            document.getElementById('back-btn').style.display = 'none';
-            alert('Navigating back to root folder');
+            if (folderHistory.length > 0) {
+                const previous = folderHistory.pop();
+                currentPath = previous.path;
+                currentFolder = previous.name;
+
+                if (currentPath === '') {
+                    document.getElementById('current-path').innerHTML = '<i class="fas fa-home"></i> Root';
+                    document.getElementById('back-btn').style.display = 'none';
+                    loadRootFolders();
+                } else {
+                    const pathParts = currentPath.split('/');
+                    let breadcrumb = '<i class="fas fa-home"></i> Root';
+                    pathParts.forEach(part => {
+                        if (part) breadcrumb += ` > ${part.replace(/_/g, ' ')}`;
+                    });
+                    document.getElementById('current-path').innerHTML = breadcrumb;
+                    loadFolderContents(currentPath);
+                }
+            }
         }
 
         function toggleViewMode() {
@@ -10663,22 +10831,160 @@ University of the Philippines Cebu
         }
 
         function openNewFolderModal() {
-            const folderName = prompt('Enter new folder name:');
-            if (folderName) {
-                alert(`Creating new folder: "${folderName}"\n\nThis will:\n- Create a new folder in current location\n- Update the file list\n- Set permissions\n- Log the action`);
+            document.getElementById('createFolderModal').style.display = 'flex';
+            document.getElementById('folderName').value = '';
+            document.getElementById('folderDescription').value = '';
+            document.querySelectorAll('input[name="allowed_users"]').forEach(cb => cb.checked = false);
+        }
+
+        function closeCreateFolderModal() {
+            document.getElementById('createFolderModal').style.display = 'none';
+        }
+
+        function selectColor(btn) {
+            document.querySelectorAll('.color-option').forEach(b => b.style.borderColor = 'transparent');
+            btn.style.borderColor = btn.style.backgroundColor;
+            document.getElementById('selectedColor').value = btn.getAttribute('data-color');
+        }
+
+        function submitCreateFolder(event) {
+            event.preventDefault();
+
+            const folderName = document.getElementById('folderName').value;
+            const color = document.getElementById('selectedColor').value;
+            const description = document.getElementById('folderDescription').value;
+            const allowedUsers = Array.from(document.querySelectorAll('input[name="allowed_users"]:checked')).map(cb => cb.value);
+
+            if (allowedUsers.length === 0) {
+                showToast('error', 'Error', 'Please select at least one user type who can upload');
+                return;
             }
+
+            fetch('/admin/documents/create-folder', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({
+                    name: folderName,
+                    color: color,
+                    description: description,
+                    allowed_users: allowedUsers
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('success', 'Success', 'Folder created successfully');
+                    closeCreateFolderModal();
+                    loadDigitalRecords();
+                } else {
+                    showToast('error', 'Error', data.message || 'Failed to create folder');
+                }
+            })
+            .catch(error => {
+                console.error('Error creating folder:', error);
+                showToast('error', 'Error', 'An error occurred while creating folder');
+            });
         }
 
         function openUploadFileModal() {
-            alert('Upload File Modal\n\nThis will allow you to:\n- Select files from your computer (drag & drop supported)\n- Choose destination folder\n- Add file description/tags\n- Set access permissions\n- Upload multiple files at once\n- Show upload progress\n- Supported formats: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, ZIP, Images, etc.');
+            showToast('info', 'Info', 'File upload feature coming soon');
         }
 
-        function viewFileDetails(fileId) {
-            alert(`Viewing File Details: ${fileId}\n\nThis will show:\n- File preview (if supported format)\n- File name and type\n- File size\n- Upload date and time\n- Uploaded by (user)\n- Version history\n- Download button\n- Share/Permission settings\n- Move/Rename options\n- Delete option`);
+        function viewFileDetails(filePath, fileName) {
+            const message = `
+                <div style="text-align: left;">
+                    <p><strong>File:</strong> ${escapeHtml(fileName)}</p>
+                    <p><strong>Path:</strong> ${escapeHtml(filePath)}</p>
+                    <button onclick="downloadFile('${escapeHtml(filePath)}', '${escapeHtml(fileName)}')" style="margin-top: 16px; padding: 10px 20px; background: linear-gradient(135deg, #7B1D3A, #5a1428); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                        <i class="fas fa-download"></i> Download File
+                    </button>
+                </div>
+            `;
+            showToast('info', fileName, message);
         }
 
-        function downloadFile(fileId) {
-            alert(`Downloading file: ${fileId}\n\nThis will:\n- Initiate file download\n- Log download activity\n- Track who downloaded the file`);
+        function downloadFile(filePath, fileName) {
+            window.location.href = `/admin/documents/download?path=${encodeURIComponent(filePath)}`;
+        }
+
+        function deleteFile(filePath, fileName) {
+            if (!confirm(`Are you sure you want to delete "${fileName}"? This action cannot be undone.`)) {
+                return;
+            }
+
+            fetch('/admin/documents/file', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({ path: filePath })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('success', 'Success', 'File deleted successfully');
+                    // Reload current folder
+                    if (currentPath === '') {
+                        loadRootFolders();
+                    } else {
+                        loadFolderContents(currentPath);
+                    }
+                } else {
+                    showToast('error', 'Error', data.message || 'Failed to delete file');
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting file:', error);
+                showToast('error', 'Error', 'An error occurred while deleting file');
+            });
+        }
+
+        function deleteFolder(folderId, folderName) {
+            console.log('Delete folder called with:', { folderId, folderName });
+
+            if (!folderId) {
+                showToast('error', 'Error', 'Folder ID is missing. Please refresh the page and try again.');
+                return;
+            }
+
+            if (!confirm(`Are you sure you want to delete folder "${folderName}"? This will delete all contents inside. This action cannot be undone.`)) {
+                return;
+            }
+
+            fetch('/admin/documents/folder', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({ folder_id: folderId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('success', 'Success', 'Folder deleted successfully');
+                    // Reload current view
+                    if (currentPath === '') {
+                        loadRootFolders();
+                    } else {
+                        // Go back one level if we're inside the deleted folder
+                        goBackFolder();
+                    }
+                } else {
+                    showToast('error', 'Error', data.message || 'Failed to delete folder');
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting folder:', error);
+                showToast('error', 'Error', 'An error occurred while deleting folder');
+            });
         }
 
         // Toggle school group table
@@ -10973,6 +11279,7 @@ University of the Philippines Cebu
             const assignmentType = document.querySelector('input[name="assignmentType"]:checked').value;
             const title = document.getElementById('taskTitle').value;
             const description = document.getElementById('taskDescription').value;
+            const checklistText = document.getElementById('taskChecklistText')?.value || '';
             const priority = document.getElementById('priorityLevel').value;
             const dueDate = document.getElementById('dueDate').value;
             const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
@@ -11005,6 +11312,7 @@ University of the Philippines Cebu
                         intern_id: internId,
                         title: title,
                         description: description,
+                        checklist_text: checklistText,
                         priority: priority === 'high' ? 'High' : (priority === 'medium' ? 'Medium' : 'Low'),
                         due_date: dueDate,
                         group_id: groupId
@@ -11144,10 +11452,16 @@ University of the Philippines Cebu
                     <div class="detail-section">
                         <div class="detail-label">Status</div>
                         <div class="detail-value">
-                            <span class="status-badge" style="background:
-                                ${task.status === 'Completed' ? '#D1FAE5; color: #065F46' :
-                                  task.status === 'In Progress' ? '#FEF3C7; color: #92400E' :
-                                  '#E5E7EB; color: #6B7280'};\">${task.status}</span>
+                            ${(() => {
+                                const isPending = task.status === 'Completed' && !task.completed_date;
+                                const label = isPending ? 'Pending Admin Approval' : task.status;
+                                const style = isPending ? '#DBEAFE; color: #1E40AF' :
+                                    (task.status === 'Completed' ? '#D1FAE5; color: #065F46' :
+                                     task.status === 'In Progress' ? '#FEF3C7; color: #92400E' :
+                                     '#E5E7EB; color: #6B7280');
+
+                                return '<span class="status-badge" style="background: ' + style + ';">' + label + '</span>';
+                            })()}
                         </div>
                     </div>
                     ${progressHtml}
@@ -11966,7 +12280,21 @@ University of the Philippines Cebu
             events.forEach(event => {
                 const startDate = new Date(event.start_date);
                 const endDate = new Date(event.end_date);
-                const dateStr = startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+                // Format date range
+                const startDateOnly = startDate.toISOString().split('T')[0];
+                const endDateOnly = endDate.toISOString().split('T')[0];
+                const isSameDay = startDateOnly === endDateOnly;
+
+                let dateStr;
+                if (isSameDay) {
+                    dateStr = startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                } else {
+                    const startFormatted = startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                    const endFormatted = endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                    dateStr = `${startFormatted} - ${endFormatted}`;
+                }
+
                 const timeStr = event.all_day ? 'All Day' : `${startDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })} - ${endDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`;
 
                 html += `
@@ -12268,6 +12596,79 @@ University of the Philippines Cebu
 
     <!-- Toast Container -->
     <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Create Folder Modal -->
+    <div id="createFolderModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center; overflow-y: auto; padding: 20px;">
+        <div style="background: white; border-radius: 16px; width: 90%; max-width: 500px; padding: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); margin: auto; max-height: 90vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h3 style="font-size: 22px; font-weight: 700; color: #1F2937; margin: 0;">Create Shared Folder</h3>
+                <button onclick="closeCreateFolderModal()" style="background: none; border: none; font-size: 24px; color: #6B7280; cursor: pointer; padding: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <form id="createFolderForm" onsubmit="submitCreateFolder(event)">
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 8px;">Folder Name <span style="color: #EF4444;">*</span></label>
+                    <input type="text" id="folderName" required style="width: 100%; padding: 12px; border: 2px solid #E5E7EB; border-radius: 8px; font-size: 14px; transition: border 0.3s;" placeholder="e.g., Internship Reports" onfocus="this.style.borderColor='#7B1D3A'" onblur="this.style.borderColor='#E5E7EB'">
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 8px;">Folder Color</label>
+                    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                        <button type="button" class="color-option" data-color="#3B82F6" style="width: 40px; height: 40px; border-radius: 8px; background: #3B82F6; border: 3px solid #3B82F6; cursor: pointer;" onclick="selectColor(this)"></button>
+                        <button type="button" class="color-option" data-color="#FFBF00" style="width: 40px; height: 40px; border-radius: 8px; background: #FFBF00; border: 3px solid transparent; cursor: pointer;" onclick="selectColor(this)"></button>
+                        <button type="button" class="color-option" data-color="#10B981" style="width: 40px; height: 40px; border-radius: 8px; background: #10B981; border: 3px solid transparent; cursor: pointer;" onclick="selectColor(this)"></button>
+                        <button type="button" class="color-option" data-color="#EF4444" style="width: 40px; height: 40px; border-radius: 8px; background: #EF4444; border: 3px solid transparent; cursor: pointer;" onclick="selectColor(this)"></button>
+                        <button type="button" class="color-option" data-color="#8B5CF6" style="width: 40px; height: 40px; border-radius: 8px; background: #8B5CF6; border: 3px solid transparent; cursor: pointer;" onclick="selectColor(this)"></button>
+                        <button type="button" class="color-option" data-color="#F59E0B" style="width: 40px; height: 40px; border-radius: 8px; background: #F59E0B; border: 3px solid transparent; cursor: pointer;" onclick="selectColor(this)"></button>
+                    </div>
+                    <input type="hidden" id="selectedColor" value="#3B82F6">
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 8px;">Who can upload? <span style="color: #EF4444;">*</span></label>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 10px; border: 2px solid #E5E7EB; border-radius: 8px; transition: all 0.3s;" onmouseover="this.style.borderColor='#7B1D3A'" onmouseout="if(!this.querySelector('input').checked) this.style.borderColor='#E5E7EB'">
+                            <input type="checkbox" name="allowed_users" value="intern" style="width: 18px; height: 18px; cursor: pointer;">
+                            <div>
+                                <div style="font-weight: 600; color: #1F2937;">Interns</div>
+                                <div style="font-size: 12px; color: #6B7280;">Allow interns to upload files</div>
+                            </div>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 10px; border: 2px solid #E5E7EB; border-radius: 8px; transition: all 0.3s;" onmouseover="this.style.borderColor='#7B1D3A'" onmouseout="if(!this.querySelector('input').checked) this.style.borderColor='#E5E7EB'">
+                            <input type="checkbox" name="allowed_users" value="team_leader" style="width: 18px; height: 18px; cursor: pointer;">
+                            <div>
+                                <div style="font-weight: 600; color: #1F2937;">Team Leaders</div>
+                                <div style="font-size: 12px; color: #6B7280;">Allow team leaders to upload files</div>
+                            </div>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 10px; border: 2px solid #E5E7EB; border-radius: 8px; transition: all 0.3s;" onmouseover="this.style.borderColor='#7B1D3A'" onmouseout="if(!this.querySelector('input').checked) this.style.borderColor='#E5E7EB'">
+                            <input type="checkbox" name="allowed_users" value="startup" style="width: 18px; height: 18px; cursor: pointer;">
+                            <div>
+                                <div style="font-weight: 600; color: #1F2937;">Startups</div>
+                                <div style="font-size: 12px; color: #6B7280;">Allow startups to upload files</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 24px;">
+                    <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 8px;">Description (Optional)</label>
+                    <textarea id="folderDescription" rows="3" style="width: 100%; padding: 12px; border: 2px solid #E5E7EB; border-radius: 8px; font-size: 14px; resize: vertical; transition: border 0.3s;" placeholder="Brief description of this folder's purpose..." onfocus="this.style.borderColor='#7B1D3A'" onblur="this.style.borderColor='#E5E7EB'"></textarea>
+                </div>
+
+                <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                    <button type="button" onclick="closeCreateFolderModal()" style="padding: 12px 24px; border: 2px solid #E5E7EB; background: white; color: #6B7280; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s;">
+                        Cancel
+                    </button>
+                    <button type="submit" style="padding: 12px 24px; background: linear-gradient(135deg, #7B1D3A, #5a1428); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 12px rgba(123, 29, 58, 0.3);">
+                        <i class="fas fa-folder-plus"></i> Create Folder
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <!-- Confirmation Modal -->
     <div id="confirmModal" class="confirm-modal-overlay">

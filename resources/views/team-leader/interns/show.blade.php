@@ -49,8 +49,8 @@
             <hr style="margin: 24px 0; border: none; border-top: 1px solid #E5E7EB;">
 
             @php
-                $progress = $intern->required_hours > 0 
-                    ? round(($intern->completed_hours / $intern->required_hours) * 100, 1) 
+                $progress = $intern->required_hours > 0
+                    ? round(($intern->completed_hours / $intern->required_hours) * 100, 1)
                     : 0;
                 $progressClass = $progress >= 75 ? 'green' : ($progress >= 50 ? 'yellow' : 'red');
             @endphp
@@ -81,6 +81,7 @@
             </div>
             <div class="card-body" style="padding: 0; max-height: 400px; overflow-y: auto;">
                 @forelse($tasks as $task)
+                    @php $isPendingAdminApproval = $task->status === 'Completed' && empty($task->completed_date); @endphp
                     <div style="padding: 16px; border-bottom: 1px solid #E5E7EB; display: flex; align-items: center; gap: 16px;">
                         <div style="flex: 1;">
                             <div style="font-weight: 600; color: #1F2937;">{{ $task->title }}</div>
@@ -94,8 +95,8 @@
                         <span class="badge badge-{{ $task->priority === 'Low' ? 'success' : ($task->priority === 'Medium' ? 'warning' : 'danger') }}">
                             {{ $task->priority }}
                         </span>
-                        <span class="badge badge-{{ $task->status === 'Completed' ? 'success' : ($task->status === 'In Progress' ? 'info' : 'warning') }}">
-                            {{ $task->status }}
+                        <span class="badge badge-{{ $isPendingAdminApproval ? 'info' : ($task->status === 'Completed' ? 'success' : ($task->status === 'In Progress' ? 'info' : 'warning')) }}">
+                            {{ $isPendingAdminApproval ? 'Pending Admin Approval' : $task->status }}
                         </span>
                         <a href="{{ route('team-leader.tasks.edit', $task) }}" class="btn btn-sm btn-secondary">
                             <i class="fas fa-edit"></i>

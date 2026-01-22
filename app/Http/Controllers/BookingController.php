@@ -6,6 +6,7 @@ use App\Models\Booking;
 use App\Models\BlockedDate;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class BookingController extends Controller
 {
@@ -194,6 +195,32 @@ class BookingController extends Controller
     }
 
     /**
+     * Get all bookings (admin and team leaders with permissions)
+     */
+    public function getAllBookings()
+    {
+        $bookings = Booking::orderBy('booking_date', 'desc')
+            ->get()
+            ->map(function ($booking) {
+                return [
+                    'id' => $booking->id,
+                    'date' => $booking->booking_date->format('Y-m-d'),
+                    'time' => $booking->formatted_time,
+                    'agency' => $booking->agency_name,
+                    'event' => $booking->event_name,
+                    'contact_person' => $booking->contact_person,
+                    'email' => $booking->email,
+                    'phone' => $booking->phone,
+                    'purpose' => $booking->purpose,
+                    'status' => $booking->status,
+                    'admin_emailed' => $booking->admin_emailed ?? false,
+                ];
+            });
+
+        return response()->json(['bookings' => $bookings]);
+    }
+
+    /**
      * Get all pending bookings (admin)
      */
     public function pending()
@@ -210,7 +237,7 @@ class BookingController extends Controller
      */
     public function approve(Request $request, Booking $booking)
     {
-        $booking->approve(auth()->id());
+        $booking->approve(Auth::id());
 
         return response()->json([
             'success' => true,
@@ -251,10 +278,10 @@ class BookingController extends Controller
     {
         // In a production environment, you would send an actual email here
         // For now, we'll just update the admin_emailed flag
-        
+
         // Example of what you would do with Laravel Mail:
         // Mail::to($booking->email)->send(new BookingApprovedMail($booking));
-        
+
         $booking->admin_emailed = true;
         $booking->save();
 

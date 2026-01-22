@@ -9,6 +9,7 @@ class Task extends Model
 {
     protected $fillable = [
         'intern_id',
+        'checklist',
         'title',
         'description',
         'requirements',
@@ -28,6 +29,7 @@ class Task extends Model
         'due_date' => 'date',
         'completed_date' => 'date',
         'documents' => 'array',
+        'checklist' => 'array',
     ];
 
     /**
