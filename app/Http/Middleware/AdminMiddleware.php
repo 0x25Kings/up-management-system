@@ -21,10 +21,13 @@ class AdminMiddleware
                 ->with('error', 'Please login to access admin area.');
         }
 
-        if (!Auth::user()->is_admin) {
+        $user = Auth::user();
+
+        // Check if user is admin or team leader
+        if (!$user->is_admin && !$user->isTeamLeader()) {
             Auth::logout();
             return redirect()->route('admin.login')
-                ->with('error', 'You do not have admin privileges.');
+                ->with('error', 'You do not have the required privileges.');
         }
 
         return $next($request);

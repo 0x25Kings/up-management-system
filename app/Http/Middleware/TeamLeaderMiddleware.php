@@ -38,11 +38,7 @@ class TeamLeaderMiddleware
                 ->with('error', 'Your Team Leader access has been suspended. Please contact the administrator.');
         }
 
-        // Check if team leader has an assigned school
-        if (!$user->school_id) {
-            return redirect()->route('login')
-                ->with('error', 'No school assigned to your account. Please contact the administrator.');
-        }
+        // Note: School assignment is checked in the controller methods as needed
 
         return $next($request);
     }

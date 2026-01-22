@@ -65,6 +65,7 @@
                 @forelse($tasks as $task)
                     @php
                         $isOverdue = $task->isOverdue();
+                        $isPendingAdminApproval = $task->status === 'Completed' && empty($task->completed_date);
                     @endphp
                     <tr style="{{ $isOverdue ? 'background: #FEF2F2;' : '' }}">
                         <td>
@@ -84,14 +85,14 @@
                             </div>
                         </td>
                         <td>
-                            <span class="badge badge-{{ $task->priority === 'Low' ? 'success' : ($task->priority === 'Medium' ? 'warning' : ($task->priority === 'High' ? 'danger' : 'danger')) }}" 
+                            <span class="badge badge-{{ $task->priority === 'Low' ? 'success' : ($task->priority === 'Medium' ? 'warning' : ($task->priority === 'High' ? 'danger' : 'danger')) }}"
                                   style="{{ $task->priority === 'Urgent' ? 'background: #DC2626; color: white;' : '' }}">
                                 {{ $task->priority }}
                             </span>
                         </td>
                         <td>
-                            <span class="badge badge-{{ $task->status === 'Completed' ? 'success' : ($task->status === 'In Progress' ? 'info' : ($task->status === 'On Hold' ? 'warning' : 'warning')) }}">
-                                {{ $task->status }}
+                            <span class="badge badge-{{ $isPendingAdminApproval ? 'info' : ($task->status === 'Completed' ? 'success' : ($task->status === 'In Progress' ? 'info' : ($task->status === 'On Hold' ? 'warning' : 'warning'))) }}">
+                                {{ $isPendingAdminApproval ? 'Pending Admin Approval' : $task->status }}
                             </span>
                         </td>
                         <td style="width: 100px;">
@@ -119,7 +120,7 @@
                                 <a href="{{ route('team-leader.tasks.edit', $task) }}" class="btn btn-sm btn-secondary">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <form action="{{ route('team-leader.tasks.destroy', $task) }}" method="POST" 
+                                <form action="{{ route('team-leader.tasks.destroy', $task) }}" method="POST"
                                       onsubmit="return confirm('Are you sure you want to delete this task?');">
                                     @csrf
                                     @method('DELETE')

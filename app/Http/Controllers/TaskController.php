@@ -9,6 +9,26 @@ use Illuminate\Support\Facades\Auth;
 
 class TaskController extends Controller
 {
+    private function parseChecklistFromText(?string $text): ?array
+    {
+        if ($text === null) {
+            return null;
+        }
+
+        $lines = preg_split("/\r\n|\r|\n/", $text) ?: [];
+        $items = [];
+
+        foreach ($lines as $line) {
+            $label = trim($line);
+            if ($label === '') {
+                continue;
+            }
+            $items[] = ['label' => $label, 'done' => false];
+        }
+
+        return count($items) > 0 ? $items : null;
+    }
+
     /**
      * Get a specific task by ID
      */
@@ -50,6 +70,7 @@ class TaskController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'requirements' => 'nullable|string',
+            'checklist_text' => 'nullable|string|max:5000',
             'priority' => 'required|in:Low,Medium,High',
             'due_date' => 'required|date',
             'group_id' => 'nullable|string',
@@ -59,6 +80,12 @@ class TaskController extends Controller
         $user = Auth::user();
         $validated['assigned_by'] = $user ? $user->id : null;
         $validated['status'] = 'Not Started';
+
+        $checklist = $this->parseChecklistFromText($validated['checklist_text'] ?? null);
+        unset($validated['checklist_text']);
+        if ($checklist !== null) {
+            $validated['checklist'] = $checklist;
+        }
 
         $task = Task::create($validated);
 
@@ -78,6 +105,7 @@ class TaskController extends Controller
             'title' => 'sometimes|string|max:255',
             'description' => 'nullable|string',
             'requirements' => 'nullable|string',
+            'checklist_text' => 'nullable|string|max:5000',
             'priority' => 'sometimes|in:Low,Medium,High',
             'status' => 'sometimes|in:Not Started,In Progress,Completed,On Hold',
             'due_date' => 'sometimes|date',
@@ -85,6 +113,12 @@ class TaskController extends Controller
             'notes' => 'nullable|string',
             'documents.*' => 'nullable|file|max:10240', // Max 10MB per file
         ]);
+
+        if (array_key_exists('checklist_text', $validated)) {
+            $checklist = $this->parseChecklistFromText($validated['checklist_text']);
+            unset($validated['checklist_text']);
+            $validated['checklist'] = $checklist;
+        }
 
         // Handle document uploads
         if ($request->hasFile('documents')) {
@@ -105,6 +139,14 @@ class TaskController extends Controller
         // If status is being changed to 'In Progress', record the start time
         if ($request->has('status') && $request->status === 'In Progress' && $task->status !== 'In Progress') {
             $validated['started_at'] = now('Asia/Manila');
+        }
+
+        // Admin-only true completion: setting status to Completed records completed_date
+        if ($request->has('status') && $request->status === 'Completed') {
+            $validated['progress'] = 100;
+            if ($task->completed_date === null) {
+                $validated['completed_date'] = now('Asia/Manila');
+            }
         }
 
         $task->update($validated);

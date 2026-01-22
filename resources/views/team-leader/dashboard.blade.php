@@ -677,7 +677,7 @@
             <div class="menu-section" style="margin-top: 20px; border-top: 1px solid rgba(255, 215, 0, 0.2); padding-top: 20px;">
                 <i class="fas fa-key" style="margin-right: 4px;"></i> Granted Access
             </div>
-            
+
             @if(in_array('scheduler', $viewableModules))
             <a class="menu-item" data-page="scheduler">
                 <i class="fas fa-calendar-alt"></i>
@@ -829,6 +829,7 @@
                     </div>
                     <div class="card-body" style="padding: 0;">
                         @forelse($recentTasks as $task)
+                            @php $isPendingAdminApproval = $task->status === 'Completed' && empty($task->completed_date); @endphp
                             <div class="list-item" style="cursor: pointer;" onclick="editTask({{ $task->id }})">
                                 <div class="list-item-avatar"><i class="fas fa-clipboard-list"></i></div>
                                 <div class="list-item-content">
@@ -837,8 +838,8 @@
                                         {{ $task->intern->name ?? 'N/A' }} • Due: {{ $task->due_date ? $task->due_date->format('M d, Y') : 'No date' }}
                                     </div>
                                 </div>
-                                <span class="badge badge-{{ $task->status === 'Completed' ? 'success' : ($task->status === 'In Progress' ? 'info' : 'warning') }}">
-                                    {{ $task->status }}
+                                <span class="badge badge-{{ $isPendingAdminApproval ? 'info' : ($task->status === 'Completed' ? 'success' : ($task->status === 'In Progress' ? 'info' : 'warning')) }}">
+                                    {{ $isPendingAdminApproval ? 'Pending Admin Approval' : $task->status }}
                                 </span>
                             </div>
                         @empty
@@ -1116,8 +1117,9 @@
                                     <span style="font-size: 11px; color: #6B7280;">{{ $task->progress ?? 0 }}%</span>
                                 </td>
                                 <td>
-                                    <span class="badge badge-{{ $task->status === 'Completed' ? 'success' : ($task->status === 'In Progress' ? 'info' : ($task->status === 'On Hold' ? 'danger' : 'warning')) }}">
-                                        {{ $task->status }}
+                                    @php $isPendingAdminApproval = $task->status === 'Completed' && empty($task->completed_date); @endphp
+                                    <span class="badge badge-{{ $isPendingAdminApproval ? 'info' : ($task->status === 'Completed' ? 'success' : ($task->status === 'In Progress' ? 'info' : ($task->status === 'On Hold' ? 'danger' : 'warning'))) }}">
+                                        {{ $isPendingAdminApproval ? 'Pending Admin Approval' : $task->status }}
                                     </span>
                                 </td>
                                 <td>
@@ -1379,6 +1381,9 @@
                         <button onclick="tlShowCreateEventModal()" class="btn btn-primary btn-sm">
                             <i class="fas fa-plus"></i> Add Event
                         </button>
+                        <button onclick="tlOpenBlockDateModal()" class="btn btn-danger btn-sm">
+                            <i class="fas fa-ban"></i> Block Date
+                        </button>
                         <span class="badge badge-success"><i class="fas fa-edit"></i> Edit Access</span>
                         @else
                         <span class="badge badge-info"><i class="fas fa-eye"></i> View Only</span>
@@ -1629,10 +1634,74 @@
                     @endif
                 </div>
                 <div class="card-body">
-                    <div class="empty-state">
-                        <i class="fas fa-file-alt"></i>
-                        <h4>Digital Records Module</h4>
-                        <p>You have been granted access to the Digital Records module. This feature will be fully integrated soon.</p>
+                    <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); margin-bottom: 18px;">
+                        <div class="stat-card maroon">
+                            <div class="stat-icon maroon"><i class="fas fa-folder"></i></div>
+                            <div class="stat-value" id="tl-dr-total-folders">--</div>
+                            <div class="stat-label">Total Folders</div>
+                        </div>
+                        <div class="stat-card green">
+                            <div class="stat-icon green"><i class="fas fa-file"></i></div>
+                            <div class="stat-value" id="tl-dr-total-files">--</div>
+                            <div class="stat-label">Total Files</div>
+                        </div>
+                        <div class="stat-card gold">
+                            <div class="stat-icon gold"><i class="fas fa-hdd"></i></div>
+                            <div class="stat-value" id="tl-dr-storage-used">--</div>
+                            <div class="stat-label">Storage Used</div>
+                        </div>
+                        <div class="stat-card red">
+                            <div class="stat-icon red"><i class="fas fa-clock"></i></div>
+                            <div class="stat-value" id="tl-dr-recent-uploads">--</div>
+                            <div class="stat-label">Recent Uploads (7d)</div>
+                        </div>
+                    </div>
+
+                    @if(!in_array('digital_records', $editableModules))
+                    <div class="alert alert-warning" style="margin-bottom: 14px;">
+                        <i class="fas fa-eye"></i>
+                        <div>
+                            <div style="font-weight: 700;">View-only access</div>
+                            <div style="font-size: 13px;">You can browse and download files. Editing/deleting is disabled.</div>
+                        </div>
+                    </div>
+                    @endif
+
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom: 12px;">
+                        <div style="font-size: 13px; color: #6B7280; font-weight: 600;">
+                            <i class="fas fa-home"></i> <span id="tl-dr-current-path">Root</span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                            <button class="btn btn-secondary btn-sm" id="tl-dr-back-btn" style="display:none;" onclick="tlDrGoBack()"><i class="fas fa-arrow-left"></i> Back</button>
+                            <input id="tl-dr-search" type="text" class="form-input" placeholder="Search..." style="min-width: 220px;" oninput="tlDrFilter(this.value)">
+                            <button class="btn btn-secondary btn-sm" onclick="tlDrRefresh()"><i class="fas fa-sync"></i> Refresh</button>
+                            @if(in_array('digital_records', $editableModules))
+                            <button class="btn btn-primary btn-sm" onclick="tlOpenCreateFolderModal()"><i class="fas fa-folder-plus"></i> New Folder</button>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div class="card" style="border-radius: 14px; overflow: hidden; border: 1px solid rgba(0,0,0,0.06);">
+                        <div style="overflow-x:auto;">
+                            <table class="data-table" style="width:100%;">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 45%;">Name</th>
+                                        <th style="width: 15%;">Type</th>
+                                        <th style="width: 15%;">Size</th>
+                                        <th style="width: 20%;">Modified</th>
+                                        <th style="width: 5%; text-align:right;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tl-dr-table-body">
+                                    <tr>
+                                        <td colspan="5" style="text-align:center; padding: 32px; color:#9CA3AF;">
+                                            <i class="fas fa-spinner fa-spin" style="margin-right:8px;"></i> Loading...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1641,6 +1710,52 @@
     </div>
 
     <!-- ==================== MODALS ==================== -->
+
+    @if(in_array('digital_records', $editableModules))
+    <div id="tlCreateFolderModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-folder-plus"></i> Create Shared Folder</h3>
+                <button class="modal-close" onclick="closeModal('tlCreateFolderModal')">&times;</button>
+            </div>
+            <form onsubmit="tlSubmitCreateFolder(event)">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label">Folder Name *</label>
+                        <input id="tlFolderName" type="text" class="form-input" placeholder="Enter folder name" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <input id="tlFolderDescription" type="text" class="form-input" placeholder="Optional description">
+                    </div>
+                    <input type="hidden" id="tlFolderColor" value="#7B1113">
+
+                    <div class="form-group">
+                        <label class="form-label">Who can upload? *</label>
+                        <div style="display:flex; gap:14px; flex-wrap:wrap;">
+                            <label style="display:flex; gap:8px; align-items:center;">
+                                <input type="checkbox" name="tlAllowedUsers" value="intern" checked>
+                                <span style="font-weight: 700;">Intern</span>
+                            </label>
+                            <label style="display:flex; gap:8px; align-items:center;">
+                                <input type="checkbox" name="tlAllowedUsers" value="team_leader" checked>
+                                <span style="font-weight: 700;">Team Leader</span>
+                            </label>
+                            <label style="display:flex; gap:8px; align-items:center;">
+                                <input type="checkbox" name="tlAllowedUsers" value="startup">
+                                <span style="font-weight: 700;">Startup</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="display:flex; justify-content:flex-end; gap:12px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('tlCreateFolderModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    @endif
 
     <!-- Create Task Modal -->
     <div id="createTaskModal" class="modal-overlay">
@@ -1966,6 +2081,125 @@
         <span id="toastMessage">Success!</span>
     </div>
 
+    {{-- Create/Edit Event Modal --}}
+    <div id="tlEventModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; align-items: center; justify-content: center;">
+        <div style="background: white; border-radius: 16px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+            <div style="background: linear-gradient(135deg, var(--maroon), var(--maroon-dark)); padding: 24px; color: white; border-radius: 16px 16px 0 0; display: flex; justify-content: space-between; align-items: center;">
+                <h2 id="tlEventModalTitle" style="margin: 0; font-size: 20px; font-weight: 700;">Create Event</h2>
+                <button onclick="tlCloseEventModal()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-size: 18px; transition: all 0.3s ease;">&times;</button>
+            </div>
+            <div style="padding: 24px;">
+                <input type="hidden" id="tlEventId">
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">Event Title *</label>
+                    <input type="text" id="tlEventTitle" style="width: 100%; padding: 12px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 14px;" placeholder="Enter event title">
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">Description</label>
+                    <textarea id="tlEventDescription" style="width: 100%; padding: 12px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 14px; resize: vertical; min-height: 100px;" placeholder="Enter event description"></textarea>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+                    <div>
+                        <label id="tlStartDateLabel" style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">Start Date & Time *</label>
+                        <input type="datetime-local" id="tlEventStartDate" style="width: 100%; padding: 12px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 14px;">
+                    </div>
+                    <div>
+                        <label id="tlEndDateLabel" style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">End Date & Time *</label>
+                        <input type="datetime-local" id="tlEventEndDate" style="width: 100%; padding: 12px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 14px;">
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" id="tlEventAllDay" onchange="tlToggleAllDayEvent()" style="width: 18px; height: 18px; cursor: pointer;">
+                        <span style="font-size: 14px; font-weight: 600; color: #374151;">All Day Event</span>
+                    </label>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">Location</label>
+                    <input type="text" id="tlEventLocation" style="width: 100%; padding: 12px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 14px;" placeholder="Enter event location">
+                </div>
+
+                <div style="margin-bottom: 24px;">
+                    <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">Color</label>
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                        <input type="color" id="tlEventColor" value="#3B82F6" style="width: 60px; height: 40px; border: 1px solid #E5E7EB; border-radius: 6px; cursor: pointer;">
+                        <div style="display: flex; gap: 8px;">
+                            <button type="button" onclick="document.getElementById('tlEventColor').value='#3B82F6'" style="width: 32px; height: 32px; background: #3B82F6; border: 2px solid #E5E7EB; border-radius: 6px; cursor: pointer;"></button>
+                            <button type="button" onclick="document.getElementById('tlEventColor').value='#10B981'" style="width: 32px; height: 32px; background: #10B981; border: 2px solid #E5E7EB; border-radius: 6px; cursor: pointer;"></button>
+                            <button type="button" onclick="document.getElementById('tlEventColor').value='#F59E0B'" style="width: 32px; height: 32px; background: #F59E0B; border: 2px solid #E5E7EB; border-radius: 6px; cursor: pointer;"></button>
+                            <button type="button" onclick="document.getElementById('tlEventColor').value='#EF4444'" style="width: 32px; height: 32px; background: #EF4444; border: 2px solid #E5E7EB; border-radius: 6px; cursor: pointer;"></button>
+                            <button type="button" onclick="document.getElementById('tlEventColor').value='#8B5CF6'" style="width: 32px; height: 32px; background: #8B5CF6; border: 2px solid #E5E7EB; border-radius: 6px; cursor: pointer;"></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 12px; justify-content: space-between; align-items: center;">
+                    <button id="tlEventDeleteBtn" onclick="tlDeleteEventFromModal()" style="padding: 12px 24px; background: #FEE2E2; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; color: #DC2626; display: none; align-items: center; gap: 8px;">
+                        <i class="fas fa-trash"></i> Delete Event
+                    </button>
+                    <div style="display: flex; gap: 12px;">
+                        <button onclick="tlCloseEventModal()" style="padding: 12px 24px; background: #F3F4F6; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; color: #374151;">Cancel</button>
+                        <button onclick="tlSaveEvent()" style="padding: 12px 24px; background: linear-gradient(135deg, var(--maroon), var(--maroon-dark)); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-save"></i> Save Event
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Block Date Modal --}}
+    <div id="tlBlockDateModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; align-items: center; justify-content: center;">
+        <div style="background: white; border-radius: 16px; width: 90%; max-width: 450px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+            <div style="background: linear-gradient(135deg, var(--maroon), var(--maroon-dark)); padding: 24px; color: white; border-radius: 16px 16px 0 0; display: flex; justify-content: space-between; align-items: center;">
+                <h2 style="margin: 0; font-size: 20px; font-weight: 700;"><i class="fas fa-calendar-times" style="margin-right: 8px;"></i>Block Date</h2>
+                <button onclick="tlCloseBlockDateModal()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-size: 18px; transition: all 0.3s ease;">&times;</button>
+            </div>
+            <div style="padding: 24px;">
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">Start Date</label>
+                    <input type="date" id="tlBlockDateValue" style="width: 100%; padding: 12px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 14px;">
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">Number of Days to Block</label>
+                    <input type="number" id="tlBlockDateDays" value="1" min="1" max="365" style="width: 100%; padding: 12px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 14px;" placeholder="e.g., 7">
+                    <small style="color: #6B7280; font-size: 12px; margin-top: 4px; display: block;">Enter how many consecutive days to block starting from the selected date</small>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">Reason *</label>
+                    <select id="tlBlockDateReason" style="width: 100%; padding: 12px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 14px;" required>
+                        <option value="">-- Select Reason --</option>
+                        <option value="unavailable">Not Available</option>
+                        <option value="no_work">No Work</option>
+                        <option value="holiday">Holiday</option>
+                        <option value="sick">Sick Day</option>
+                        <option value="maintenance">Maintenance</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div style="margin-bottom: 24px;">
+                    <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">Description (Optional)</label>
+                    <input type="text" id="tlBlockDateDescription" style="width: 100%; padding: 12px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 14px;" placeholder="e.g., Staff meeting, Building maintenance...">
+                </div>
+
+                <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                    <button onclick="tlCloseBlockDateModal()" style="padding: 12px 24px; background: #F3F4F6; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; color: #374151;">Cancel</button>
+                    <button onclick="tlSubmitBlockDate()" style="padding: 12px 24px; background: #EF4444; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-ban"></i> Block Date
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- JavaScript -->
     <script>
         // Store data for modals
@@ -1999,6 +2233,10 @@
                 pageContents.forEach(pc => pc.classList.remove('active'));
                 document.getElementById(page).classList.add('active');
                 pageTitle.textContent = pageTitles[page] || 'Dashboard';
+
+                if (page === 'digital-records') {
+                    tlDrInit();
+                }
             });
         });
 
@@ -2028,6 +2266,338 @@
             toast.classList.toggle('error', isError);
             toast.classList.add('active');
             setTimeout(() => toast.classList.remove('active'), 3000);
+        }
+
+        // ========== DIGITAL RECORDS (TEAM LEADER) ==========
+        const tlDrHasEditAccess = {{ in_array('digital_records', $editableModules) ? 'true' : 'false' }};
+        let tlDrCurrentPath = '';
+        let tlDrHistory = [];
+        let tlDrItems = [];
+        let tlDrSearchQuery = '';
+        let tlDrInitialized = false;
+
+        function tlDrInit() {
+            if (tlDrInitialized) return;
+            if (!document.getElementById('digital-records')) return;
+            tlDrInitialized = true;
+            tlLoadDigitalRecordsStats();
+            tlLoadDigitalRecordsRoot();
+        }
+
+        function tlDrRefresh() {
+            tlLoadDigitalRecordsStats();
+            if (tlDrCurrentPath) {
+                tlLoadFolderContents(tlDrCurrentPath, false);
+            } else {
+                tlLoadDigitalRecordsRoot();
+            }
+        }
+
+        function tlDrGoBack() {
+            if (tlDrHistory.length === 0) return;
+            const prev = tlDrHistory.pop();
+            tlDrCurrentPath = prev || '';
+            document.getElementById('tl-dr-current-path').textContent = prev || 'Root';
+            document.getElementById('tl-dr-back-btn').style.display = tlDrHistory.length ? 'inline-flex' : 'none';
+            if (prev) {
+                tlLoadFolderContents(prev, false);
+            } else {
+                tlLoadDigitalRecordsRoot();
+            }
+        }
+
+        function tlDrFilter(query) {
+            tlDrSearchQuery = (query || '').toLowerCase();
+            tlRenderDigitalRecordsTable(tlDrItems);
+        }
+
+        function tlLoadDigitalRecordsStats() {
+            fetch('/admin/documents/stats', { headers: { 'Accept': 'application/json' } })
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.success) throw new Error(data.message || 'Failed');
+                    const foldersEl = document.getElementById('tl-dr-total-folders');
+                    const filesEl = document.getElementById('tl-dr-total-files');
+                    const storageEl = document.getElementById('tl-dr-storage-used');
+                    const recentEl = document.getElementById('tl-dr-recent-uploads');
+                    if (!foldersEl) return;
+                    foldersEl.textContent = data.folders ?? '--';
+                    filesEl.textContent = data.files ?? '--';
+                    storageEl.textContent = data.storage_human || tlFormatBytes(data.storage_bytes || 0);
+                    recentEl.textContent = data.recent_uploads ?? '--';
+                })
+                .catch(err => {
+                    console.error('TL stats error:', err);
+                });
+        }
+
+        function tlLoadDigitalRecordsRoot() {
+            tlDrCurrentPath = '';
+            tlDrHistory = [];
+            const backBtn = document.getElementById('tl-dr-back-btn');
+            if (backBtn) backBtn.style.display = 'none';
+            const pathEl = document.getElementById('tl-dr-current-path');
+            if (pathEl) pathEl.textContent = 'Root';
+
+            fetch('/admin/documents/all-folders', {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            })
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.success) throw new Error(data.message || 'Failed');
+
+                    const shared = (data.shared_folders || []).map(f => ({
+                        id: f.id,
+                        name: f.name,
+                        path: f.storage_path || f.path || `Shared/${f.name}`,
+                        is_folder: true,
+                        folder_type: 'shared',
+                        item_count: f.item_count || 0,
+                        modified: '--'
+                    }));
+
+                    const intern = (data.intern_folders || []).map(f => ({
+                        id: f.id,
+                        name: f.name,
+                        path: f.path,
+                        is_folder: true,
+                        folder_type: 'intern',
+                        item_count: f.item_count || 0,
+                        modified: '--'
+                    }));
+
+                    tlDrItems = [...shared, ...intern];
+                    tlRenderDigitalRecordsTable(tlDrItems);
+                })
+                .catch(err => {
+                    console.error('TL root load error:', err);
+                    showToast('Failed to load Digital Records', true);
+                });
+        }
+
+        function tlOpenFolder(path) {
+            if (!path) return;
+            if (tlDrCurrentPath) {
+                tlDrHistory.push(tlDrCurrentPath);
+            }
+            tlDrCurrentPath = path;
+            document.getElementById('tl-dr-current-path').textContent = path;
+            document.getElementById('tl-dr-back-btn').style.display = 'inline-flex';
+            tlLoadFolderContents(path, false);
+        }
+
+        function tlLoadFolderContents(path, pushHistory = false) {
+            if (pushHistory && tlDrCurrentPath) {
+                tlDrHistory.push(tlDrCurrentPath);
+            }
+
+            fetch(`/admin/documents/contents?path=${encodeURIComponent(path)}`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            })
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.success) throw new Error(data.message || 'Failed');
+
+                    const items = (data.items || []).map(i => ({
+                        id: i.id,
+                        name: i.name,
+                        path: i.path,
+                        is_folder: !!i.is_folder,
+                        item_count: i.item_count || 0,
+                        size: i.size,
+                        modified: i.modified || '--'
+                    }));
+
+                    tlDrItems = items;
+                    tlRenderDigitalRecordsTable(tlDrItems);
+                })
+                .catch(err => {
+                    console.error('TL contents error:', err);
+                    showToast('Failed to load folder contents', true);
+                });
+        }
+
+        function tlDownloadFile(path) {
+            if (!path) return;
+            window.open(`/admin/documents/download?path=${encodeURIComponent(path)}`, '_blank');
+        }
+
+        function tlDeleteFile(path, name) {
+            if (!tlDrHasEditAccess) return showToast('Edit access required', true);
+            if (!confirm(`Delete file "${name}"?`)) return;
+            fetch('/admin/documents/file', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({ path })
+            })
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.success) throw new Error(data.message || 'Failed');
+                    showToast('File deleted');
+                    tlDrRefresh();
+                })
+                .catch(err => {
+                    console.error('TL delete file error:', err);
+                    showToast('Failed to delete file', true);
+                });
+        }
+
+        function tlDeleteFolder(folderId, name) {
+            if (!tlDrHasEditAccess) return showToast('Edit access required', true);
+            if (!folderId) return showToast('Folder id missing', true);
+            if (!confirm(`Delete folder "${name}" and all contents?`)) return;
+            fetch('/admin/documents/folder', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({ folder_id: folderId })
+            })
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.success) throw new Error(data.message || 'Failed');
+                    showToast('Folder deleted');
+                    tlDrRefresh();
+                })
+                .catch(err => {
+                    console.error('TL delete folder error:', err);
+                    showToast('Failed to delete folder', true);
+                });
+        }
+
+        function tlOpenCreateFolderModal() {
+            if (!tlDrHasEditAccess) return showToast('Edit access required', true);
+            document.getElementById('tlFolderName').value = '';
+            document.getElementById('tlFolderDescription').value = '';
+            // defaults
+            document.querySelectorAll('input[name="tlAllowedUsers"]').forEach(cb => {
+                cb.checked = cb.value === 'intern' || cb.value === 'team_leader';
+            });
+            openModal('tlCreateFolderModal');
+        }
+
+        function tlSubmitCreateFolder(event) {
+            event.preventDefault();
+            if (!tlDrHasEditAccess) return showToast('Edit access required', true);
+            const name = document.getElementById('tlFolderName').value;
+            const description = document.getElementById('tlFolderDescription').value;
+            const color = document.getElementById('tlFolderColor').value || '#7B1113';
+            const allowedUsers = Array.from(document.querySelectorAll('input[name="tlAllowedUsers"]:checked')).map(cb => cb.value);
+            if (!allowedUsers.length) return showToast('Select at least one uploader', true);
+
+            fetch('/admin/documents/create-folder', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({ name, description, color, allowed_users: allowedUsers })
+            })
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.success) throw new Error(data.message || 'Failed');
+                    showToast('Folder created');
+                    closeModal('tlCreateFolderModal');
+                    tlLoadDigitalRecordsRoot();
+                })
+                .catch(err => {
+                    console.error('TL create folder error:', err);
+                    showToast('Failed to create folder', true);
+                });
+        }
+
+        function tlRenderDigitalRecordsTable(items) {
+            const tbody = document.getElementById('tl-dr-table-body');
+            if (!tbody) return;
+
+            const filtered = (items || []).filter(i => {
+                if (!tlDrSearchQuery) return true;
+                return (i.name || '').toLowerCase().includes(tlDrSearchQuery);
+            });
+
+            if (!filtered.length) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align:center; padding: 32px; color:#9CA3AF;">
+                            <i class="fas fa-folder-open" style="margin-right:8px;"></i> No items found
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(item => {
+                const isFolder = item.is_folder;
+                const type = isFolder ? 'Folder' : 'File';
+                const size = isFolder ? `${item.item_count || 0} item(s)` : (item.size || '--');
+                const modified = item.modified || '--';
+
+                const openClick = isFolder
+                    ? `onclick=\"tlOpenFolder('${tlEscapeHtml(item.path)}')\"`
+                    : `onclick=\"tlDownloadFile('${tlEscapeHtml(item.path)}')\"`;
+
+                const downloadBtn = !isFolder
+                    ? `<button class=\"btn btn-secondary btn-sm\" style=\"padding:6px 10px;\" onclick=\"event.stopPropagation(); tlDownloadFile('${tlEscapeHtml(item.path)}')\"><i class=\"fas fa-download\"></i></button>`
+                    : '';
+
+                const deleteBtn = tlDrHasEditAccess
+                    ? (isFolder
+                        ? (item.id
+                            ? `<button class=\"btn btn-danger btn-sm\" style=\"padding:6px 10px;\" onclick=\"event.stopPropagation(); tlDeleteFolder(${item.id}, '${tlEscapeHtml(item.name)}')\"><i class=\"fas fa-trash\"></i></button>`
+                            : '')
+                        : `<button class=\"btn btn-danger btn-sm\" style=\"padding:6px 10px;\" onclick=\"event.stopPropagation(); tlDeleteFile('${tlEscapeHtml(item.path)}', '${tlEscapeHtml(item.name)}')\"><i class=\"fas fa-trash\"></i></button>`)
+                    : '';
+
+                return `
+                    <tr style="cursor:pointer;" ${openClick}>
+                        <td>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <i class="fas ${isFolder ? 'fa-folder' : 'fa-file'}" style="color:${isFolder ? '#F59E0B' : '#6B7280'};"></i>
+                                <strong>${tlEscapeHtml(item.name)}</strong>
+                            </div>
+                        </td>
+                        <td>${type}</td>
+                        <td>${tlEscapeHtml(size)}</td>
+                        <td>${tlEscapeHtml(modified)}</td>
+                        <td style="text-align:right; white-space:nowrap;">
+                            ${downloadBtn}
+                            ${deleteBtn}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function tlFormatBytes(bytes) {
+            if (!bytes || bytes <= 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
+        }
+
+        function tlEscapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/[&<>'"]/g, c => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[c]));
         }
 
         // ========== TASK FUNCTIONS ==========
@@ -2063,15 +2633,15 @@
         // ========== INTERN FUNCTIONS ==========
         function viewIntern(internId) {
             openModal('viewInternModal');
-            
+
             const intern = internsData.find(i => i.id === internId);
             if (!intern) {
                 document.getElementById('viewInternContent').innerHTML = '<p style="text-align: center; color: #DC2626;">Intern not found</p>';
                 return;
             }
 
-            const progress = intern.required_hours > 0 
-                ? Math.round((intern.completed_hours / intern.required_hours) * 100) 
+            const progress = intern.required_hours > 0
+                ? Math.round((intern.completed_hours / intern.required_hours) * 100)
                 : 0;
 
             const internTasks = tasksData.filter(t => t.intern_id === internId);
@@ -2127,7 +2697,12 @@
                                     <div style="font-weight: 600;">${task.title}</div>
                                     <div style="font-size: 12px; color: #6B7280;">Due: ${task.due_date ? new Date(task.due_date).toLocaleDateString() : 'No date'}</div>
                                 </div>
-                                <span class="badge badge-${task.status === 'Completed' ? 'success' : (task.status === 'In Progress' ? 'info' : 'warning')}">${task.status}</span>
+                                ${(() => {
+                                    const isPending = task.status === 'Completed' && !task.completed_date;
+                                    const label = isPending ? 'Pending Admin Approval' : task.status;
+                                    const badge = isPending ? 'info' : (task.status === 'Completed' ? 'success' : (task.status === 'In Progress' ? 'info' : 'warning'));
+                                    return '<span class="badge badge-' + badge + '">' + label + '</span>';
+                                })()}
                             </div>
                         `).join('')}
                     </div>
@@ -2144,7 +2719,7 @@
         function viewReport(reportId) {
             openModal('viewReportModal');
             const report = reportsData.find(r => r.id === reportId);
-            
+
             if (!report) {
                 document.getElementById('viewReportContent').innerHTML = '<p style="text-align: center; color: #DC2626;">Report not found</p>';
                 return;
@@ -2315,12 +2890,12 @@
             if (autoRefreshInterval) {
                 clearInterval(autoRefreshInterval);
             }
-            
+
             // Set up new interval
             autoRefreshInterval = setInterval(function() {
                 refreshData();
             }, REFRESH_INTERVAL);
-            
+
             console.log('Auto-refresh started (every 30 seconds)');
         }
 
@@ -2350,7 +2925,7 @@
                         'X-Requested-With': 'XMLHttpRequest'
                     }
                 });
-                
+
                 if (tasksResponse.ok) {
                     const tasksData = await tasksResponse.json();
                     if (tasksData.success) {
@@ -2396,12 +2971,12 @@
             // Update existing rows or rebuild table
             let html = '';
             tasks.forEach(task => {
-                const priorityBg = task.priority === 'High' ? '#F59E0B' : 
+                const priorityBg = task.priority === 'High' ? '#F59E0B' :
                                    (task.priority === 'Medium' ? 'var(--gold)' : 'var(--forest-green)');
                 const priorityColor = task.priority === 'Medium' ? 'var(--maroon)' : 'white';
-                
-                const statusClass = task.status === 'Completed' ? 'success' : 
-                                    (task.status === 'In Progress' ? 'info' : 
+
+                const statusClass = task.status === 'Completed' ? 'success' :
+                                    (task.status === 'In Progress' ? 'info' :
                                     (task.status === 'On Hold' ? 'danger' : 'warning'));
 
                 html += `
@@ -2475,7 +3050,7 @@
             // Update dashboard stat cards - these have specific IDs or we target by position
             // Dashboard page stats (total interns, active interns, etc.)
             const dashboardStats = document.querySelectorAll('#dashboard .stat-value');
-            
+
             // Update task overview on dashboard if it exists
             const taskOverviewValues = document.querySelectorAll('.task-overview-value');
             if (taskOverviewValues.length >= 4) {
@@ -2533,10 +3108,26 @@
                     tlSchedulerEvents = eventsData.events || [];
                 }
 
-                // Load bookings
-                const bookingsResponse = await fetch('/bookings');
+                // Load bookings (fetch from admin endpoint to get all bookings including pending)
+                const bookingsResponse = await fetch('/admin/bookings');
                 if (bookingsResponse.ok) {
-                    tlSchedulerBookings = await bookingsResponse.json();
+                    const bookingsData = await bookingsResponse.json();
+                    // Get the bookings array from response
+                    const bookingsArray = bookingsData.bookings || bookingsData;
+                    // Convert the data to match the expected format
+                    tlSchedulerBookings = bookingsArray.map(booking => ({
+                        id: booking.id,
+                        date: booking.date,
+                        time: booking.time,
+                        agency: booking.agency,
+                        event: booking.event,
+                        contact_person: booking.contact_person,
+                        email: booking.email,
+                        phone: booking.phone,
+                        purpose: booking.purpose,
+                        status: booking.status,
+                        admin_emailed: booking.admin_emailed
+                    }));
                 }
 
                 // Load blocked dates
@@ -2571,7 +3162,7 @@
             const todayString = today.toISOString().split('T')[0];
 
             let mainHtml = '';
-            
+
             // Previous month days
             for (let i = firstDay - 1; i >= 0; i--) {
                 mainHtml += `<div style="background: #F9FAFB; padding: 12px; min-height: 100px; color: #D1D5DB;"><div style="font-weight: 600; margin-bottom: 8px;">${daysInPrevMonth - i}</div></div>`;
@@ -2581,10 +3172,10 @@
             for (let day = 1; day <= daysInMonth; day++) {
                 const dateString = `${tlSchedulerCurrentYear}-${String(tlSchedulerCurrentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 const isToday = dateString === todayString;
-                
+
                 // Check for bookings on this date
                 const dayBookings = tlSchedulerBookings.filter(b => b.date === dateString);
-                
+
                 // Check for events spanning this date
                 const dayEvents = tlSchedulerEvents.filter(e => {
                     const eventStart = new Date(e.start_date).toISOString().split('T')[0];
@@ -2594,13 +3185,13 @@
 
                 // Check if blocked
                 const blockedInfo = tlSchedulerBlockedDates.find(b => b.date === dateString);
-                
+
                 let dayStyle = 'background: white; padding: 12px; min-height: 100px; border: 2px solid transparent;';
                 if (isToday) dayStyle = 'background: #FEF3C7; padding: 12px; min-height: 100px; border: 2px solid var(--gold);';
                 if (blockedInfo) dayStyle += ` background: ${blockedInfo.reason_color}08;`;
 
                 let eventsHtml = '';
-                
+
                 // Show blocked status
                 if (blockedInfo) {
                     eventsHtml += `<div style="background: ${blockedInfo.reason_color}20; border-left: 3px solid ${blockedInfo.reason_color}; color: ${blockedInfo.reason_color}; padding: 4px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><i class="fas fa-ban" style="margin-right: 4px;"></i>${blockedInfo.reason_label}</div>`;
@@ -2656,9 +3247,23 @@
             upcomingEvents.forEach(event => {
                 const startDate = new Date(event.start_date);
                 const endDate = new Date(event.end_date);
-                const dateStr = startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+                // Format date range
+                const startDateOnly = startDate.toISOString().split('T')[0];
+                const endDateOnly = endDate.toISOString().split('T')[0];
+                const isSameDay = startDateOnly === endDateOnly;
+
+                let dateStr;
+                if (isSameDay) {
+                    dateStr = startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                } else {
+                    const startFormatted = startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                    const endFormatted = endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                    dateStr = `${startFormatted} - ${endFormatted}`;
+                }
+
                 const timeStr = event.all_day ? 'All Day' : startDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-                
+
                 html += `
                     <div style="padding: 16px; border-radius: 12px; margin-bottom: 12px; background: ${event.color}10; border-left: 4px solid ${event.color}; cursor: pointer; transition: all 0.3s;" onclick="tlViewEvent(${event.id})">
                         <div style="font-weight: 700; color: #1F2937; margin-bottom: 4px;">${escapeHtml(event.title)}</div>
@@ -2688,7 +3293,7 @@
                 const statusColor = booking.status === 'approved' ? 'var(--forest-green)' : (booking.status === 'pending' ? 'var(--gold-dark)' : '#DC2626');
                 const date = new Date(booking.date);
                 const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-                
+
                 html += `
                     <div style="padding: 16px; border-radius: 12px; margin-bottom: 12px; background: white; border: 1px solid #E5E7EB; cursor: pointer; transition: all 0.3s;" onclick="tlViewBooking(${booking.id})">
                         <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
@@ -2732,6 +3337,20 @@
             const endDateStr = endDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
             const timeStr = event.all_day ? 'All Day' : `${startDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })} - ${endDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`;
 
+            let actionButtons = '';
+            if (tlHasEditAccess) {
+                actionButtons = `
+                    <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #E5E7EB; display: flex; gap: 12px; justify-content: flex-end;">
+                        <button onclick="this.closest('.custom-alert-overlay').remove(); tlEditEvent(${event.id})" style="padding: 10px 20px; background: var(--maroon); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button onclick="this.closest('.custom-alert-overlay').remove(); tlDeleteEvent(${event.id})" style="padding: 10px 20px; background: #FEE2E2; color: #DC2626; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                `;
+            }
+
             const message = `
                 <div style="text-align: left;">
                     <div style="margin-bottom: 16px; padding: 16px; background: ${event.color}10; border-left: 4px solid ${event.color}; border-radius: 8px;">
@@ -2741,15 +3360,16 @@
                     <div style="display: grid; grid-template-columns: auto 1fr; gap: 12px; font-size: 14px;">
                         <div style="color: #6B7280;"><i class="fas fa-calendar"></i> Date:</div>
                         <div style="font-weight: 600;">${dateStr}${dateStr !== endDateStr ? ` - ${endDateStr}` : ''}</div>
-                        
+
                         <div style="color: #6B7280;"><i class="fas fa-clock"></i> Time:</div>
                         <div style="font-weight: 600;">${timeStr}</div>
-                        
+
                         ${event.location ? `
                             <div style="color: #6B7280;"><i class="fas fa-map-marker-alt"></i> Location:</div>
                             <div style="font-weight: 600;">${escapeHtml(event.location)}</div>
                         ` : ''}
                     </div>
+                    ${actionButtons}
                 </div>
             `;
 
@@ -2764,6 +3384,91 @@
             const dateStr = date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
             const statusColor = booking.status === 'approved' ? 'var(--forest-green)' : (booking.status === 'pending' ? 'var(--gold-dark)' : '#DC2626');
 
+            let actionButtons = '';
+            if (tlHasEditAccess && booking.status === 'pending') {
+                actionButtons = `
+                    <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #E5E7EB; display: flex; gap: 12px; justify-content: flex-end;">
+                        <button onclick="this.closest('.custom-alert-overlay').remove(); tlApproveBooking(${booking.id})" style="padding: 10px 20px; background: #10B981; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-check"></i> Approve
+                        </button>
+                        <button onclick="this.closest('.custom-alert-overlay').remove(); tlRejectBooking(${booking.id})" style="padding: 10px 20px; background: #EF4444; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-times"></i> Reject
+                        </button>
+                    </div>
+                `;
+            }
+
+            // Email notification section for approved bookings
+            let emailSection = '';
+            if (booking.status === 'approved' && tlHasEditAccess) {
+                if (booking.admin_emailed) {
+                    emailSection = `
+                        <div style="margin-top: 20px; padding: 16px; background: #D1FAE5; border: 1px solid #10B981; border-radius: 12px;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <i class="fas fa-envelope-circle-check" style="font-size: 20px; color: #059669;"></i>
+                                <div>
+                                    <div style="font-weight: 600; color: #065F46;">Email Notification Sent</div>
+                                    <div style="font-size: 12px; color: #047857;">The booker has been notified about the booking status.</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    const subject = `Booking Approved - ${booking.event} on ${dateStr}`;
+                    const emailBody = `Dear ${booking.agency},
+
+We are pleased to inform you that your booking request has been APPROVED.
+
+📅 BOOKING DETAILS:
+━━━━━━━━━━━━━━━━━━━━
+Date: ${dateStr}
+Time: ${booking.time}
+Purpose: ${booking.event}
+
+Please arrive at least 15 minutes before your scheduled time. If you need to reschedule or cancel, please contact us as soon as possible.
+
+We look forward to seeing you!
+
+Best regards,
+UP Cebu Innovation & Technology Hub
+University of the Philippines Cebu
+📧 info@upcebu.edu.ph
+📞 +63 32 123 4567`;
+
+                    emailSection = `
+                        <div style="margin-top: 20px; padding: 16px; background: #FEF3C7; border: 1px solid #F59E0B; border-radius: 12px;">
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                                <i class="fas fa-envelope" style="font-size: 20px; color: #D97706;"></i>
+                                <div>
+                                    <div style="font-weight: 600; color: #92400E;">Email Not Yet Sent</div>
+                                    <div style="font-size: 12px; color: #78350F;">The booker has not been notified about the approval.</div>
+                                </div>
+                            </div>
+                            <div style="background: white; border: 1px solid #E5E7EB; border-radius: 8px; padding: 16px; margin-bottom: 16px; max-height: 200px; overflow-y: auto;">
+                                <div style="font-size: 12px; color: #6B7280; margin-bottom: 8px;">
+                                    <strong>To:</strong> ${booking.email}
+                                </div>
+                                <div style="font-size: 12px; color: #6B7280; margin-bottom: 12px;">
+                                    <strong>Subject:</strong> ${subject}
+                                </div>
+                                <div style="font-size: 13px; color: #374151; white-space: pre-line; line-height: 1.6;">${emailBody}</div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                                <button onclick="tlCopyEmailContent('${booking.email}', '${subject.replace(/'/g, "\\'")}', \`${emailBody.replace(/`/g, '\\`')}\`)" style="padding: 10px; background: #3B82F6; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                    <i class="fas fa-copy"></i> Copy to Clipboard
+                                </button>
+                                <button onclick="tlOpenMailClient('${booking.email}', '${subject.replace(/'/g, "\\'")}', \`${emailBody.replace(/`/g, '\\`')}\`)" style="padding: 10px; background: #8B5CF6; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                    <i class="fas fa-external-link-alt"></i> Open in Email App
+                                </button>
+                            </div>
+                            <button onclick="tlMarkAsEmailed(${booking.id})" style="width: 100%; padding: 10px; background: #10B981; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                <i class="fas fa-check-circle"></i> Mark as Emailed
+                            </button>
+                        </div>
+                    `;
+                }
+            }
+
             const message = `
                 <div style="text-align: left;">
                     <div style="margin-bottom: 16px; padding: 16px; background: #DBEAFE; border-left: 4px solid #3B82F6; border-radius: 8px;">
@@ -2773,28 +3478,103 @@
                     <div style="display: grid; grid-template-columns: auto 1fr; gap: 12px; font-size: 14px;">
                         <div style="color: #6B7280;"><i class="fas fa-calendar"></i> Date:</div>
                         <div style="font-weight: 600;">${dateStr}</div>
-                        
+
                         <div style="color: #6B7280;"><i class="fas fa-clock"></i> Time:</div>
                         <div style="font-weight: 600;">${booking.time}</div>
-                        
+
                         ${booking.event ? `
                             <div style="color: #6B7280;"><i class="fas fa-tag"></i> Purpose:</div>
                             <div style="font-weight: 600;">${escapeHtml(booking.event)}</div>
                         ` : ''}
+
+                        ${booking.contact_person ? `
+                            <div style="color: #6B7280;"><i class="fas fa-user"></i> Contact Person:</div>
+                            <div style="font-weight: 600;">${escapeHtml(booking.contact_person)}</div>
+                        ` : ''}
+
+                        ${booking.email ? `
+                            <div style="color: #6B7280;"><i class="fas fa-envelope"></i> Email:</div>
+                            <div style="font-weight: 600;">${booking.email}</div>
+                        ` : ''}
+
+                        ${booking.phone ? `
+                            <div style="color: #6B7280;"><i class="fas fa-phone"></i> Phone:</div>
+                            <div style="font-weight: 600;">${booking.phone}</div>
+                        ` : ''}
+
+                        ${booking.purpose ? `
+                            <div style="color: #6B7280; grid-column: 1;"><i class="fas fa-sticky-note"></i> Notes:</div>
+                            <div style="font-weight: 600; grid-column: 2;">${escapeHtml(booking.purpose)}</div>
+                        ` : ''}
                     </div>
+                    ${emailSection}
+                    ${actionButtons}
                 </div>
             `;
 
             showCustomAlert('Booking Details', message);
         }
 
+        function tlCopyEmailContent(email, subject, body) {
+            const fullContent = `To: ${email}\nSubject: ${subject}\n\n${body}`;
+
+            navigator.clipboard.writeText(fullContent).then(() => {
+                showToast('Email content copied to clipboard!');
+            }).catch(() => {
+                const textArea = document.createElement('textarea');
+                textArea.value = fullContent;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showToast('Email content copied to clipboard!');
+            });
+        }
+
+        function tlOpenMailClient(email, subject, body) {
+            const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            window.open(mailtoLink, '_blank');
+            showToast('Email app should now open with pre-filled content.');
+        }
+
+        function tlMarkAsEmailed(bookingId) {
+            fetch(`/admin/bookings/${bookingId}/send-email`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('Marked as emailed successfully!');
+                    // Update the booking in the array
+                    const booking = tlSchedulerBookings.find(b => b.id === bookingId);
+                    if (booking) {
+                        booking.admin_emailed = true;
+                    }
+                    // Close and reopen the modal to refresh
+                    document.querySelector('.custom-alert-overlay')?.remove();
+                    setTimeout(() => tlViewBooking(bookingId), 100);
+                } else {
+                    showToast(data.message || 'Failed to update status.', true);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('An error occurred while updating the status.', true);
+            });
+        }
+
         function showCustomAlert(title, htmlContent) {
             const overlay = document.createElement('div');
             overlay.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 10000; display: flex; align-items: center; justify-content: center;';
-            
+
             const modal = document.createElement('div');
             modal.style.cssText = 'background: white; border-radius: 20px; max-width: 500px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.3);';
-            
+
             modal.innerHTML = `
                 <div style="background: linear-gradient(135deg, var(--maroon) 0%, var(--maroon-dark) 100%); padding: 24px; color: white; border-radius: 20px 20px 0 0; display: flex; justify-content: space-between; align-items: center;">
                     <h2 style="font-size: 18px; font-weight: 700; margin: 0;">${title}</h2>
@@ -2807,11 +3587,11 @@
                     <button onclick="this.closest('.custom-alert-overlay').remove()" class="btn btn-primary">Close</button>
                 </div>
             `;
-            
+
             overlay.className = 'custom-alert-overlay';
             overlay.appendChild(modal);
             document.body.appendChild(overlay);
-            
+
             overlay.addEventListener('click', (e) => {
                 if (e.target === overlay) overlay.remove();
             });
@@ -2822,7 +3602,344 @@
                 showToast('You do not have permission to create events', true);
                 return;
             }
-            showToast('Event creation feature - Coming soon!');
+
+            document.getElementById('tlEventId').value = '';
+            document.getElementById('tlEventModalTitle').textContent = 'Create Event';
+            document.getElementById('tlEventTitle').value = '';
+            document.getElementById('tlEventDeleteBtn').style.display = 'none';
+            document.getElementById('tlEventDescription').value = '';
+            document.getElementById('tlEventStartDate').value = '';
+            document.getElementById('tlEventEndDate').value = '';
+            document.getElementById('tlEventLocation').value = '';
+            document.getElementById('tlEventColor').value = '#3B82F6';
+            document.getElementById('tlEventAllDay').checked = false;
+
+            // Reset to datetime-local inputs
+            document.getElementById('tlEventStartDate').type = 'datetime-local';
+            document.getElementById('tlEventEndDate').type = 'datetime-local';
+            document.getElementById('tlStartDateLabel').textContent = 'Start Date & Time *';
+            document.getElementById('tlEndDateLabel').textContent = 'End Date & Time *';
+
+            document.getElementById('tlEventModal').style.display = 'flex';
+        }
+
+        function tlCloseEventModal() {
+            document.getElementById('tlEventModal').style.display = 'none';
+        }
+
+        async function tlEditEvent(eventId) {
+            if (!tlHasEditAccess) {
+                showToast('You do not have permission to edit events', true);
+                return;
+            }
+
+            try {
+                const response = await fetch(`/intern/events`);
+                const data = await response.json();
+                const event = data.events.find(e => e.id === eventId);
+
+                if (event) {
+                    document.getElementById('tlEventId').value = event.id;
+                    document.getElementById('tlEventModalTitle').textContent = 'Edit Event';
+                    document.getElementById('tlEventTitle').value = event.title;
+                    document.getElementById('tlEventDeleteBtn').style.display = 'flex';
+                    document.getElementById('tlEventDescription').value = event.description || '';
+                    document.getElementById('tlEventLocation').value = event.location || '';
+                    document.getElementById('tlEventColor').value = event.color;
+                    document.getElementById('tlEventAllDay').checked = event.all_day;
+
+                    // Set input type and values based on all_day
+                    if (event.all_day) {
+                        document.getElementById('tlEventStartDate').type = 'date';
+                        document.getElementById('tlEventEndDate').type = 'date';
+                        document.getElementById('tlEventStartDate').value = event.start_date.split(' ')[0];
+                        document.getElementById('tlEventEndDate').value = event.end_date.split(' ')[0];
+                        document.getElementById('tlStartDateLabel').textContent = 'Start Date *';
+                        document.getElementById('tlEndDateLabel').textContent = 'End Date *';
+                    } else {
+                        document.getElementById('tlEventStartDate').type = 'datetime-local';
+                        document.getElementById('tlEventEndDate').type = 'datetime-local';
+                        document.getElementById('tlEventStartDate').value = new Date(event.start_date).toISOString().slice(0, 16);
+                        document.getElementById('tlEventEndDate').value = new Date(event.end_date).toISOString().slice(0, 16);
+                        document.getElementById('tlStartDateLabel').textContent = 'Start Date & Time *';
+                        document.getElementById('tlEndDateLabel').textContent = 'End Date & Time *';
+                    }
+
+                    document.getElementById('tlEventModal').style.display = 'flex';
+                }
+            } catch (error) {
+                console.error('Error loading event:', error);
+                showToast('Failed to load event details', true);
+            }
+        }
+
+        function tlToggleAllDayEvent() {
+            const allDay = document.getElementById('tlEventAllDay').checked;
+            const startInput = document.getElementById('tlEventStartDate');
+            const endInput = document.getElementById('tlEventEndDate');
+            const startLabel = document.getElementById('tlStartDateLabel');
+            const endLabel = document.getElementById('tlEndDateLabel');
+
+            if (allDay) {
+                startInput.type = 'date';
+                endInput.type = 'date';
+                startLabel.textContent = 'Start Date *';
+                endLabel.textContent = 'End Date *';
+            } else {
+                startInput.type = 'datetime-local';
+                endInput.type = 'datetime-local';
+                startLabel.textContent = 'Start Date & Time *';
+                endLabel.textContent = 'End Date & Time *';
+            }
+        }
+
+        async function tlSaveEvent() {
+            if (!tlHasEditAccess) {
+                showToast('You do not have permission to save events', true);
+                return;
+            }
+
+            const eventId = document.getElementById('tlEventId').value;
+            const title = document.getElementById('tlEventTitle').value.trim();
+            const description = document.getElementById('tlEventDescription').value.trim();
+            const startDate = document.getElementById('tlEventStartDate').value;
+            const endDate = document.getElementById('tlEventEndDate').value;
+            const location = document.getElementById('tlEventLocation').value.trim();
+            const color = document.getElementById('tlEventColor').value;
+            const allDay = document.getElementById('tlEventAllDay').checked;
+
+            if (!title || !startDate || !endDate) {
+                showToast('Please fill in all required fields', true);
+                return;
+            }
+
+            const data = {
+                title,
+                description,
+                start_date: startDate,
+                end_date: endDate,
+                location,
+                color,
+                all_day: allDay
+            };
+
+            try {
+                const url = eventId ? `/admin/events/${eventId}` : '/admin/events';
+                const method = eventId ? 'PUT' : 'POST';
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showToast(result.message || 'Event saved successfully');
+                    tlCloseEventModal();
+                    tlLoadSchedulerData();
+                } else {
+                    const errors = result.errors;
+                    if (errors) {
+                        const firstError = Object.values(errors)[0][0];
+                        showToast(firstError, true);
+                    } else {
+                        showToast('Error saving event', true);
+                    }
+                }
+            } catch (error) {
+                console.error('Error saving event:', error);
+                showToast('An error occurred while saving the event', true);
+            }
+        }
+
+        async function tlDeleteEvent(eventId) {
+            if (!tlHasEditAccess) {
+                showToast('You do not have permission to delete events', true);
+                return;
+            }
+
+            if (!confirm('Are you sure you want to delete this event?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/admin/events/${eventId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showToast(result.message || 'Event deleted successfully');
+                    tlLoadSchedulerData();
+                } else {
+                    showToast('Error deleting event', true);
+                }
+            } catch (error) {
+                console.error('Error deleting event:', error);
+                showToast('An error occurred while deleting the event', true);
+            }
+        }
+
+        async function tlDeleteEventFromModal() {
+            const eventId = document.getElementById('tlEventId').value;
+            if (!eventId) return;
+
+            tlCloseEventModal();
+            await tlDeleteEvent(eventId);
+        }
+
+        // ==================== BLOCK DATE FUNCTIONS ====================
+        function tlOpenBlockDateModal() {
+            if (!tlHasEditAccess) {
+                showToast('You do not have permission to block dates', true);
+                return;
+            }
+            document.getElementById('tlBlockDateValue').value = '';
+            document.getElementById('tlBlockDateDays').value = '1';
+            document.getElementById('tlBlockDateReason').value = '';
+            document.getElementById('tlBlockDateDescription').value = '';
+            document.getElementById('tlBlockDateModal').style.display = 'flex';
+        }
+
+        function tlCloseBlockDateModal() {
+            document.getElementById('tlBlockDateModal').style.display = 'none';
+        }
+
+        async function tlSubmitBlockDate() {
+            if (!tlHasEditAccess) {
+                showToast('You do not have permission to block dates', true);
+                return;
+            }
+
+            const date = document.getElementById('tlBlockDateValue').value;
+            const days = parseInt(document.getElementById('tlBlockDateDays').value) || 1;
+            const reason = document.getElementById('tlBlockDateReason').value;
+            const description = document.getElementById('tlBlockDateDescription').value;
+
+            if (!date || !reason) {
+                showToast('Please fill in all required fields', true);
+                return;
+            }
+
+            try {
+                const requests = [];
+                const startDate = new Date(date);
+
+                for (let i = 0; i < days; i++) {
+                    const currentDate = new Date(startDate);
+                    currentDate.setDate(startDate.getDate() + i);
+                    const dateStr = currentDate.toISOString().split('T')[0];
+
+                    requests.push(
+                        fetch('/admin/blocked-dates', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                date: dateStr,
+                                reason: reason,
+                                description: description
+                            })
+                        })
+                    );
+                }
+
+                const responses = await Promise.all(requests);
+                const allSuccessful = responses.every(r => r.ok);
+
+                if (allSuccessful) {
+                    showToast(days === 1 ? 'Date blocked successfully' : `${days} dates blocked successfully`);
+                    tlCloseBlockDateModal();
+                    tlLoadSchedulerData();
+                } else {
+                    showToast('Some dates could not be blocked', true);
+                }
+            } catch (error) {
+                console.error('Error blocking dates:', error);
+                showToast('An error occurred while blocking dates', true);
+            }
+        }
+
+        // ==================== BOOKING APPROVAL FUNCTIONS ====================
+        async function tlApproveBooking(bookingId) {
+            if (!tlHasEditAccess) {
+                showToast('You do not have permission to approve bookings', true);
+                return;
+            }
+
+            if (!confirm('Are you sure you want to approve this booking?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/admin/bookings/${bookingId}/approve`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showToast('Booking approved successfully');
+                    tlLoadSchedulerData();
+                } else {
+                    showToast(result.message || 'Failed to approve booking', true);
+                }
+            } catch (error) {
+                console.error('Error approving booking:', error);
+                showToast('An error occurred while approving the booking', true);
+            }
+        }
+
+        async function tlRejectBooking(bookingId) {
+            if (!tlHasEditAccess) {
+                showToast('You do not have permission to reject bookings', true);
+                return;
+            }
+
+            const reason = prompt('Please provide a reason for rejection (optional):');
+            if (reason === null) return; // User cancelled
+
+            try {
+                const response = await fetch(`/admin/bookings/${bookingId}/reject`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ reason: reason || 'No reason provided' })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showToast('Booking rejected successfully');
+                    tlLoadSchedulerData();
+                } else {
+                    showToast(result.message || 'Failed to reject booking', true);
+                }
+            } catch (error) {
+                console.error('Error rejecting booking:', error);
+                showToast('An error occurred while rejecting the booking', true);
+            }
         }
     </script>
 </body>

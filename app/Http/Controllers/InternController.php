@@ -292,7 +292,7 @@ class InternController extends Controller
 
         // Check if already has attendance for today using whereDate for reliable comparison
         $attendance = Attendance::where('intern_id', $intern->id)
-            ->whereDate('date', $today)
+            ->where('date', $today)
             ->first();
 
         if ($attendance) {
@@ -332,7 +332,7 @@ class InternController extends Controller
             } catch (\Illuminate\Database\UniqueConstraintViolationException $e) {
                 // Record already exists, fetch it and check
                 $attendance = Attendance::where('intern_id', $intern->id)
-                    ->whereDate('date', $today)
+                    ->where('date', $today)
                     ->first();
 
                 if ($attendance && $attendance->time_in) {
@@ -355,7 +355,8 @@ class InternController extends Controller
                 'success' => true,
                 'message' => 'Time In recorded at ' . $now->format('h:i A'),
                 'time_in' => $now->format('h:i A'),
-                'raw_time_in' => $now->format('H:i:s')
+                'raw_time_in' => $now->toIso8601String(),
+                'raw_time_in_hms' => $now->format('H:i:s')
             ]);
         }
 
@@ -384,7 +385,7 @@ class InternController extends Controller
 
         // Check if has timed in today
         $attendance = Attendance::where('intern_id', $intern->id)
-            ->whereDate('date', $today)
+            ->where('date', $today)
             ->first();
 
         if (!$attendance || !$attendance->time_in) {
@@ -401,9 +402,10 @@ class InternController extends Controller
             return back()->with('error', 'You have already timed out today.');
         }
 
-        // Calculate hours worked
-        $timeIn = Carbon::parse($attendance->time_in);
-        $hoursWorked = round($now->diffInMinutes($timeIn) / 60, 2);
+        // Calculate hours worked (store times are Manila-local HH:MM:SS; attach date + timezone for accurate diffs)
+        $attendanceDate = $attendance->date ? Carbon::parse($attendance->date)->format('Y-m-d') : $today;
+        $timeIn = Carbon::parse($attendanceDate . ' ' . $attendance->time_in, 'Asia/Manila');
+        $hoursWorked = round($now->diffInSeconds($timeIn, true) / 3600, 2);
 
         // Update attendance record
         $attendance->update([
@@ -527,7 +529,89 @@ class InternController extends Controller
             'progress' => 'sometimes|integer|min:0|max:100',
             'notes' => 'nullable|string',
             'documents.*' => 'nullable|file|max:10240', // Max 10MB per file
+            'checklist' => 'nullable',
         ]);
+
+        $hasExistingChecklist = is_array($task->checklist) && count($task->checklist) > 0;
+
+        $incomingChecklist = null;
+        if ($request->filled('checklist')) {
+            $incomingRaw = $request->input('checklist');
+            $incoming = is_string($incomingRaw) ? json_decode($incomingRaw, true) : $incomingRaw;
+
+            if (is_array($incoming)) {
+                $items = [];
+                foreach ($incoming as $item) {
+                    if (!is_array($item)) {
+                        continue;
+                    }
+                    $label = trim((string) ($item['label'] ?? ''));
+                    if ($label === '') {
+                        continue;
+                    }
+                    $items[] = [
+                        'label' => mb_substr($label, 0, 200),
+                        'done' => !empty($item['done']),
+                    ];
+                }
+
+                $incomingChecklist = count($items) > 0 ? $items : [];
+            }
+        }
+
+        // If admin didn't provide a checklist, intern must create one before saving progress/status.
+        if (!$hasExistingChecklist && (array_key_exists('progress', $validated) || $request->has('status'))) {
+            if (!is_array($incomingChecklist) || count($incomingChecklist) === 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Checklist is required for this task. Please create at least one checklist item.'
+                ], 422);
+            }
+        }
+
+        // Apply checklist + compute progress from it.
+        if (is_array($incomingChecklist)) {
+            if ($hasExistingChecklist) {
+                // Preserve existing labels; only update done state by index.
+                $newChecklist = [];
+                foreach (($task->checklist ?? []) as $index => $existingItem) {
+                    $label = is_array($existingItem) && array_key_exists('label', $existingItem)
+                        ? (string) $existingItem['label']
+                        : '';
+
+                    $done = false;
+                    if (array_key_exists($index, $incomingChecklist) && is_array($incomingChecklist[$index])) {
+                        $done = !empty($incomingChecklist[$index]['done']);
+                    }
+
+                    $newChecklist[] = [
+                        'label' => $label,
+                        'done' => $done,
+                    ];
+                }
+            } else {
+                // Task has no checklist yet; intern can create it.
+                $newChecklist = $incomingChecklist;
+                $hasExistingChecklist = count($newChecklist) > 0;
+            }
+
+            if (isset($newChecklist) && is_array($newChecklist) && count($newChecklist) > 0) {
+                $doneCount = collect($newChecklist)->where('done', true)->count();
+                $total = count($newChecklist);
+                $progress = $total > 0 ? (int) round(($doneCount / $total) * 100) : 0;
+
+                $validated['checklist'] = $newChecklist;
+                $validated['progress'] = $progress;
+
+                if ($doneCount >= $total) {
+                    $validated['status'] = 'Completed';
+                } elseif ($doneCount > 0) {
+                    if (!($request->has('status') && in_array($request->status, ['On Hold', 'Completed'], true))) {
+                        $validated['status'] = 'In Progress';
+                    }
+                }
+            }
+        }
 
         // Handle document uploads
         if ($request->hasFile('documents')) {
@@ -546,14 +630,16 @@ class InternController extends Controller
         }
 
         // If status is being changed to 'In Progress', record the start time
-        if ($request->has('status') && $request->status === 'In Progress' && $task->status !== 'In Progress') {
+        if (
+            (array_key_exists('status', $validated) && $validated['status'] === 'In Progress')
+            && $task->status !== 'In Progress'
+        ) {
             $validated['started_at'] = now('Asia/Manila');
         }
 
-        // If status is being changed to 'Completed', set progress to 100 and record completion date
+        // If intern sets status to 'Completed', treat it as a completion request (admin approves by setting completed_date)
         if ($request->has('status') && $request->status === 'Completed') {
             $validated['progress'] = 100;
-            $validated['completed_date'] = now('Asia/Manila');
         }
 
         $task->update($validated);
@@ -581,15 +667,23 @@ class InternController extends Controller
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
         }
 
+        // Require checklist before allowing completion submission
+        $hasChecklist = is_array($task->checklist) && count($task->checklist) > 0;
+        if (!$hasChecklist) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Checklist is required for this task. Please create at least one checklist item before submitting completion.'
+            ], 422);
+        }
+
         $task->update([
             'status' => 'Completed',
-            'progress' => 100,
-            'completed_date' => now('Asia/Manila')
+            'progress' => 100
         ]);
 
         return response()->json([
             'success' => true,
-            'message' => 'Task marked as completed'
+            'message' => 'Task submitted as completed and is pending admin approval'
         ]);
     }
 }
