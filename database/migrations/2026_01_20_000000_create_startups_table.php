@@ -30,14 +30,18 @@ return new class extends Migration
         });
 
         // Add startup_id to startup_submissions table
-        Schema::table('startup_submissions', function (Blueprint $table) {
-            $table->foreignId('startup_id')->nullable()->after('id')->constrained('startups')->nullOnDelete();
-        });
+        if (!Schema::hasColumn('startup_submissions', 'startup_id')) {
+            Schema::table('startup_submissions', function (Blueprint $table) {
+                $table->foreignId('startup_id')->nullable()->after('id')->constrained('startups')->nullOnDelete();
+            });
+        }
 
         // Add startup_id to room_issues table
-        Schema::table('room_issues', function (Blueprint $table) {
-            $table->foreignId('startup_id')->nullable()->after('id')->constrained('startups')->nullOnDelete();
-        });
+        if (!Schema::hasColumn('room_issues', 'startup_id')) {
+            Schema::table('room_issues', function (Blueprint $table) {
+                $table->foreignId('startup_id')->nullable()->after('id')->constrained('startups')->nullOnDelete();
+            });
+        }
     }
 
     /**
@@ -45,15 +49,19 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('room_issues', function (Blueprint $table) {
-            $table->dropForeign(['startup_id']);
-            $table->dropColumn('startup_id');
-        });
+        if (Schema::hasColumn('room_issues', 'startup_id')) {
+            Schema::table('room_issues', function (Blueprint $table) {
+                $table->dropForeign(['startup_id']);
+                $table->dropColumn('startup_id');
+            });
+        }
 
-        Schema::table('startup_submissions', function (Blueprint $table) {
-            $table->dropForeign(['startup_id']);
-            $table->dropColumn('startup_id');
-        });
+        if (Schema::hasColumn('startup_submissions', 'startup_id')) {
+            Schema::table('startup_submissions', function (Blueprint $table) {
+                $table->dropForeign(['startup_id']);
+                $table->dropColumn('startup_id');
+            });
+        }
 
         Schema::dropIfExists('startups');
     }
