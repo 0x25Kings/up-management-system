@@ -128,15 +128,44 @@
                 <!-- Payment Method -->
                 <div class="form-group">
                     <label>Payment Method <span>*</span></label>
-                    <select name="payment_method" class="form-select @error('payment_method') error @enderror" required>
-                        <option value="">-- Select Payment Method --</option>
-                        <option value="bank_transfer" {{ old('payment_method') == 'bank_transfer' ? 'selected' : '' }}>🏦 Bank Transfer</option>
-                        <option value="bank_deposit" {{ old('payment_method') == 'bank_deposit' ? 'selected' : '' }}>💵 Bank Deposit (Over-the-counter)</option>
-                        <option value="gcash" {{ old('payment_method') == 'gcash' ? 'selected' : '' }}>📱 GCash</option>
-                        <option value="maya" {{ old('payment_method') == 'maya' ? 'selected' : '' }}>📱 Maya (PayMaya)</option>
-                        <option value="check" {{ old('payment_method') == 'check' ? 'selected' : '' }}>📄 Check Payment</option>
-                        <option value="cash" {{ old('payment_method') == 'cash' ? 'selected' : '' }}>💰 Cash (In-person)</option>
-                    </select>
+                    <!-- Hidden input for form submission -->
+                    <input type="hidden" name="payment_method" id="paymentMethodInput" value="{{ old('payment_method') }}" required>
+                    
+                    <!-- Custom Dropdown -->
+                    <div class="custom-select-wrapper @error('payment_method') error @enderror" id="paymentMethodDropdown">
+                        <div class="custom-select-trigger" onclick="togglePaymentDropdown()">
+                            <span class="custom-select-value" id="paymentMethodDisplay">
+                                <span style="color: #9CA3AF;">-- Select Payment Method --</span>
+                            </span>
+                            <i class="fas fa-chevron-down custom-select-arrow"></i>
+                        </div>
+                        <div class="custom-select-options" id="paymentMethodOptions">
+                            <div class="custom-select-option" data-value="bank_transfer" onclick="selectPaymentMethod('bank_transfer', '🏦', 'Bank Transfer')">
+                                <span class="option-icon">🏦</span>
+                                <span class="option-text">Bank Transfer</span>
+                            </div>
+                            <div class="custom-select-option" data-value="bank_deposit" onclick="selectPaymentMethod('bank_deposit', '💵', 'Bank Deposit (Over-the-counter)')">
+                                <span class="option-icon">💵</span>
+                                <span class="option-text">Bank Deposit (Over-the-counter)</span>
+                            </div>
+                            <div class="custom-select-option" data-value="gcash" onclick="selectPaymentMethod('gcash', 'gcash', 'GCash')">
+                                <img src="{{ asset('images/gcashicon.png') }}" alt="GCash" class="option-icon-img">
+                                <span class="option-text">GCash</span>
+                            </div>
+                            <div class="custom-select-option" data-value="maya" onclick="selectPaymentMethod('maya', 'maya', 'Maya (PayMaya)')">
+                                <img src="{{ asset('images/mayaIcon.avif') }}" alt="Maya" class="option-icon-img">
+                                <span class="option-text">Maya (PayMaya)</span>
+                            </div>
+                            <div class="custom-select-option" data-value="check" onclick="selectPaymentMethod('check', '📄', 'Check Payment')">
+                                <span class="option-icon">📄</span>
+                                <span class="option-text">Check Payment</span>
+                            </div>
+                            <div class="custom-select-option" data-value="cash" onclick="selectPaymentMethod('cash', '💰', 'Cash (In-person)')">
+                                <span class="option-icon">💰</span>
+                                <span class="option-text">Cash (In-person)</span>
+                            </div>
+                        </div>
+                    </div>
                     @error('payment_method')
                         <div class="error-message">{{ $message }}</div>
                     @enderror
@@ -443,12 +472,217 @@
             transform: translateY(0) scale(1);
         }
     }
+
+    /* Custom Payment Method Dropdown */
+    .custom-select-wrapper {
+        position: relative;
+        width: 100%;
+    }
+
+    .custom-select-trigger {
+        width: 100%;
+        padding: 14px 18px;
+        border: 2px solid #E5E7EB;
+        border-radius: 12px;
+        font-size: 14px;
+        background: white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        transition: all 0.3s;
+    }
+
+    .custom-select-trigger:hover {
+        border-color: #CBD5E1;
+    }
+
+    .custom-select-wrapper.open .custom-select-trigger {
+        border-color: #7B1D3A;
+        box-shadow: 0 0 0 4px rgba(123, 29, 58, 0.1);
+    }
+
+    .custom-select-wrapper.error .custom-select-trigger {
+        border-color: #EF4444;
+    }
+
+    .custom-select-value {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .custom-select-arrow {
+        color: #6B7280;
+        transition: transform 0.3s;
+    }
+
+    .custom-select-wrapper.open .custom-select-arrow {
+        transform: rotate(180deg);
+    }
+
+    .custom-select-options {
+        position: absolute;
+        top: calc(100% + 4px);
+        left: 0;
+        right: 0;
+        background: white;
+        border: 2px solid #E5E7EB;
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+        z-index: 100;
+        max-height: 0;
+        overflow: hidden;
+        opacity: 0;
+        transition: all 0.3s ease;
+    }
+
+    .custom-select-wrapper.open .custom-select-options {
+        max-height: 350px;
+        overflow-y: auto;
+        opacity: 1;
+    }
+
+    .custom-select-option {
+        padding: 14px 18px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        cursor: pointer;
+        transition: all 0.2s;
+        border-bottom: 1px solid #F3F4F6;
+    }
+
+    .custom-select-option:last-child {
+        border-bottom: none;
+    }
+
+    .custom-select-option:hover {
+        background: linear-gradient(135deg, #FDF2F4 0%, #FCE7EB 100%);
+    }
+
+    .custom-select-option.selected {
+        background: linear-gradient(135deg, #7B1D3A 0%, #9B2C50 100%);
+        color: white;
+    }
+
+    .custom-select-option.selected .option-text {
+        color: white;
+    }
+
+    .option-icon {
+        font-size: 20px;
+        width: 28px;
+        text-align: center;
+    }
+
+    .option-icon-img {
+        height: 24px;
+        width: auto;
+        max-width: 28px;
+        object-fit: contain;
+    }
+
+    .option-text {
+        font-size: 14px;
+        font-weight: 500;
+        color: #1F2937;
+    }
+
+    .selected-icon-img {
+        height: 20px;
+        width: auto;
+        object-fit: contain;
+    }
 </style>
 @endpush
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script>
+    // Custom Payment Method Dropdown Functions
+    const paymentMethodDropdown = document.getElementById('paymentMethodDropdown');
+    const paymentMethodInput = document.getElementById('paymentMethodInput');
+    const paymentMethodDisplay = document.getElementById('paymentMethodDisplay');
+    const paymentMethodOptions = document.getElementById('paymentMethodOptions');
+
+    function togglePaymentDropdown() {
+        paymentMethodDropdown.classList.toggle('open');
+    }
+
+    function selectPaymentMethod(value, icon, text) {
+        paymentMethodInput.value = value;
+        
+        // Update display based on icon type
+        if (icon === 'gcash') {
+            paymentMethodDisplay.innerHTML = `
+                <img src="/images/gcashicon.png" alt="GCash" class="selected-icon-img">
+                <span>${text}</span>
+            `;
+        } else if (icon === 'maya') {
+            paymentMethodDisplay.innerHTML = `
+                <img src="/images/mayaIcon.avif" alt="Maya" class="selected-icon-img">
+                <span>${text}</span>
+            `;
+        } else {
+            paymentMethodDisplay.innerHTML = `
+                <span style="font-size: 18px;">${icon}</span>
+                <span>${text}</span>
+            `;
+        }
+        
+        // Update selected state
+        document.querySelectorAll('.custom-select-option').forEach(opt => {
+            opt.classList.remove('selected');
+            if (opt.getAttribute('data-value') === value) {
+                opt.classList.add('selected');
+            }
+        });
+        
+        // Close dropdown
+        paymentMethodDropdown.classList.remove('open');
+        
+        // Remove error state if present
+        paymentMethodDropdown.classList.remove('error');
+        
+        // Update verification details and trigger method match check
+        if (typeof updateVerificationDetails === 'function') {
+            updateVerificationDetails();
+        }
+        if (typeof updateDisplayFormMethod === 'function') {
+            updateDisplayFormMethod();
+        }
+        if (typeof checkMethodMatch === 'function') {
+            checkMethodMatch();
+        }
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!paymentMethodDropdown.contains(e.target)) {
+            paymentMethodDropdown.classList.remove('open');
+        }
+    });
+
+    // Initialize with old value if exists
+    document.addEventListener('DOMContentLoaded', function() {
+        const oldValue = paymentMethodInput.value;
+        if (oldValue) {
+            const methodMap = {
+                'bank_transfer': { icon: '🏦', text: 'Bank Transfer' },
+                'bank_deposit': { icon: '💵', text: 'Bank Deposit (Over-the-counter)' },
+                'gcash': { icon: 'gcash', text: 'GCash' },
+                'maya': { icon: 'maya', text: 'Maya (PayMaya)' },
+                'check': { icon: '📄', text: 'Check Payment' },
+                'cash': { icon: '💰', text: 'Cash (In-person)' }
+            };
+            
+            if (methodMap[oldValue]) {
+                selectPaymentMethod(oldValue, methodMap[oldValue].icon, methodMap[oldValue].text);
+            }
+        }
+    });
+
     const dropZone = document.getElementById('dropZone');
     const fileInput = document.getElementById('fileInput');
     const filePreview = document.getElementById('filePreview');
@@ -1189,7 +1423,7 @@
     
     // Check payment method match (display only, no blocking validation)
     function checkMethodMatch() {
-        const formMethod = document.querySelector('select[name="payment_method"]').value;
+        const formMethod = document.getElementById('paymentMethodInput').value;
         const confirmMethod = document.getElementById('confirmMethod').value;
         const methodMatchIndicator = document.getElementById('methodMatchIndicator');
         const methodMatchResult = document.getElementById('methodMatchResult');
@@ -1281,12 +1515,20 @@
     function updateVerificationDetails() {
         const invoice = document.querySelector('input[name="invoice_number"]').value || '-';
         const amount = document.querySelector('input[name="amount"]').value || '0';
-        const methodSelect = document.querySelector('select[name="payment_method"]');
-        const method = methodSelect.options[methodSelect.selectedIndex]?.text || '-';
+        const methodValue = document.getElementById('paymentMethodInput').value;
+        const methodLabels = {
+            'bank_transfer': 'Bank Transfer',
+            'bank_deposit': 'Bank Deposit',
+            'gcash': 'GCash',
+            'maya': 'Maya',
+            'check': 'Check Payment',
+            'cash': 'Cash'
+        };
+        const method = methodLabels[methodValue] || '-';
 
         document.getElementById('verifyInvoice').textContent = invoice;
         document.getElementById('verifyAmount').textContent = '₱' + parseFloat(amount).toLocaleString('en-PH', {minimumFractionDigits: 2});
-        document.getElementById('verifyMethod').textContent = method.replace(/^[^\s]+\s/, ''); // Remove emoji
+        document.getElementById('verifyMethod').textContent = method;
     }
 
     // Update verification details when form fields change
@@ -1299,10 +1541,8 @@
         updateVerificationDetails();
         updateDisplayFormAmount();
     });
-    document.querySelector('select[name="payment_method"]').addEventListener('change', function() {
-        updateVerificationDetails();
-        updateDisplayFormMethod();
-    });
+    // Note: Payment method change is handled in selectPaymentMethod function
+    // which calls updateVerificationDetails() and updateDisplayFormMethod()
     
     // Update display functions
     function updateDisplayFormInvoice() {
@@ -1316,8 +1556,16 @@
     }
     
     function updateDisplayFormMethod() {
-        const methodSelect = document.querySelector('select[name="payment_method"]');
-        const method = methodSelect.options[methodSelect.selectedIndex]?.text.replace(/^[^\s]+\s/, '') || '-';
+        const methodValue = document.getElementById('paymentMethodInput').value;
+        const methodLabels = {
+            'bank_transfer': 'Bank Transfer',
+            'bank_deposit': 'Bank Deposit',
+            'gcash': 'GCash',
+            'maya': 'Maya',
+            'check': 'Check Payment',
+            'cash': 'Cash'
+        };
+        const method = methodLabels[methodValue] || '-';
         document.getElementById('displayFormMethod').textContent = method;
     }
 
@@ -1411,17 +1659,7 @@
         checkAmountMatch(); // Also update OCR match in real-time
     });
     
-    document.querySelector('select[name="payment_method"]').addEventListener('change', function() {
-        const formGroup = this.closest('.form-group');
-        const existingError = formGroup?.querySelector('.live-error');
-        if (existingError) existingError.remove();
-        
-        if (this.value) {
-            this.style.borderColor = '#10B981';
-            this.style.boxShadow = '0 0 0 3px rgba(16, 185, 129, 0.1)';
-        }
-        checkMethodMatch(); // Also update OCR match in real-time
-    });
+    // Payment method validation is handled in selectPaymentMethod function
     
     // Flag to track if we're doing a validated submit
     let isValidatedSubmit = false;
@@ -1446,7 +1684,7 @@
         // Get all form values
         const formInvoice = document.querySelector('input[name="invoice_number"]').value.trim();
         const formAmount = document.querySelector('input[name="amount"]').value.trim();
-        const formMethod = document.querySelector('select[name="payment_method"]').value;
+        const formMethod = document.getElementById('paymentMethodInput').value;
         const formNotes = document.querySelector('textarea[name="notes"]').value;
         const confirmInvoice = confirmInvoiceInput.value.trim();
         

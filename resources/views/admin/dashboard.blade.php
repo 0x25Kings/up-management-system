@@ -9,6 +9,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        :root {
+            --primary-color: #7B1D3A;
+            --accent-color: #FFBF00;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -20,8 +25,23 @@
             background: #F9FAFB;
         }
 
+        body.compact-mode .sidebar {
+            width: 220px;
+            min-width: 220px;
+            max-width: 220px;
+        }
+
+        body.compact-mode .main-content {
+            margin-left: 220px;
+        }
+
+        body.no-animations * {
+            transition: none !important;
+            animation: none !important;
+        }
+
         .sidebar {
-            background: linear-gradient(180deg, #7B1D3A 0%, #5a1428 50%, #4a1020 100%);
+            background: linear-gradient(180deg, var(--primary-color) 0%, #5a1428 50%, #4a1020 100%);
             width: 260px;
             min-width: 260px;
             max-width: 260px;
@@ -33,6 +53,18 @@
             overflow-x: hidden;
             z-index: 1000;
             box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .sidebar.sidebar-gradient {
+            background: linear-gradient(180deg, var(--primary-color) 0%, #5a1428 50%, #4a1020 100%);
+        }
+
+        .sidebar.sidebar-solid {
+            background: var(--primary-color);
+        }
+
+        .sidebar.sidebar-dark {
+            background: linear-gradient(180deg, #1F2937 0%, #111827 100%);
         }
 
         .sidebar::-webkit-scrollbar {
@@ -4298,8 +4330,8 @@
                                 $methodLabels = [
                                     'bank_transfer' => '🏦 Bank Transfer',
                                     'bank_deposit' => '💵 Bank Deposit',
-                                    'gcash' => '📱 GCash',
-                                    'maya' => '📱 Maya',
+                                    'gcash' => '<img src="' . asset('images/gcashicon.png') . '" alt="GCash" style="height: 16px; width: auto; vertical-align: middle; margin-right: 4px;">GCash',
+                                    'maya' => '<img src="' . asset('images/mayaIcon.avif') . '" alt="Maya" style="height: 16px; width: auto; vertical-align: middle; margin-right: 4px;">Maya',
                                     'check' => '📄 Check',
                                     'cash' => '💰 Cash'
                                 ];
@@ -4313,7 +4345,7 @@
                                 <td><strong>{{ $payment->invoice_number }}</strong></td>
                                 <td style="font-weight: 700; color: #059669;">₱{{ number_format($payment->amount, 2) }}</td>
                                 <td>
-                                    <span style="font-size: 12px;">{{ $methodLabels[$payment->payment_method] ?? $payment->payment_method ?? 'N/A' }}</span>
+                                    <span style="font-size: 12px;">{!! $methodLabels[$payment->payment_method] ?? $payment->payment_method ?? 'N/A' !!}</span>
                                 </td>
                                 <td>{{ $payment->payment_date ? \Carbon\Carbon::parse($payment->payment_date)->format('M d, Y') : 'N/A' }}</td>
                                 <td>
@@ -5861,12 +5893,27 @@
                                     <i class="fas fa-broom"></i> Data Cleanup
                                 </h4>
                                 <p style="color: #A16207; font-size: 14px; margin-bottom: 16px;">Clear old or unnecessary data to improve performance</p>
+                                
+                                <div class="settings-group" style="margin-bottom: 16px;">
+                                    <label class="settings-label">Delete records older than (days)</label>
+                                    <input type="number" id="cleanupDays" class="settings-input" value="90" min="30" max="365" style="width: 150px;">
+                                </div>
+                                
                                 <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                                    <button onclick="clearOldData('notifications')" class="settings-btn warning">
-                                        <i class="fas fa-bell-slash"></i> Clear Old Notifications
+                                    <button onclick="clearOldData('attendance')" class="settings-btn warning">
+                                        <i class="fas fa-clock"></i> Clear Old Attendance
                                     </button>
-                                    <button onclick="clearOldData('logs')" class="settings-btn warning">
-                                        <i class="fas fa-file-alt"></i> Clear Activity Logs
+                                    <button onclick="clearOldData('tasks')" class="settings-btn warning">
+                                        <i class="fas fa-tasks"></i> Clear Completed Tasks
+                                    </button>
+                                    <button onclick="clearOldData('bookings')" class="settings-btn warning">
+                                        <i class="fas fa-calendar-times"></i> Clear Old Bookings
+                                    </button>
+                                    <button onclick="clearOldData('notifications')" class="settings-btn warning">
+                                        <i class="fas fa-bell-slash"></i> Clear Notifications
+                                    </button>
+                                    <button onclick="clearOldData('all')" class="settings-btn danger">
+                                        <i class="fas fa-trash-alt"></i> Clear All Old Data
                                     </button>
                                 </div>
                             </div>
@@ -7893,145 +7940,178 @@
         function getDefaultSettings() {
             return {
                 // General
-                systemName: 'UP Management System',
-                officeName: 'University of the Philippines',
-                contactEmail: '',
+                system_name: 'UP Management System',
+                office_name: 'University of the Philippines',
+                contact_email: '',
                 timezone: 'Asia/Manila',
-                dateFormat: 'M d, Y',
-                maintenanceMode: false,
+                date_format: 'M d, Y',
+                maintenance_mode: false,
 
                 // Internship
-                defaultHours: 480,
-                workStart: '08:00',
-                workEnd: '17:00',
-                gracePeriod: 15,
-                overtimeThreshold: 8,
-                autoApproveIntern: false,
-                requireOvertimeApproval: true,
+                default_hours: 480,
+                work_start: '08:00',
+                work_end: '17:00',
+                grace_period: 15,
+                overtime_threshold: 8,
+                auto_approve_intern: false,
+                require_overtime_approval: true,
 
                 // Notifications
-                emailNotifications: true,
-                bookingAlerts: true,
-                internAlerts: true,
-                issueAlerts: true,
-                soundNotifications: true,
-                notificationInterval: '10',
+                email_notifications: true,
+                booking_alerts: true,
+                intern_alerts: true,
+                issue_alerts: true,
+                sound_notifications: true,
+                notification_interval: 30,
 
                 // Scheduler
-                bookingDuration: 2,
-                minAdvanceBooking: 1,
-                maxAdvanceBooking: 90,
-                autoApproveBooking: false,
-                weekendBookings: false,
-                bookingStart: '08:00',
-                bookingEnd: '17:00',
+                booking_duration: 2,
+                min_advance_booking: 1,
+                max_advance_booking: 90,
+                auto_approve_booking: false,
+                weekend_bookings: false,
+                booking_start: '08:00',
+                booking_end: '17:00',
 
                 // Appearance
-                primaryColor: '#7B1D3A',
-                accentColor: '#FFBF00',
-                sidebarStyle: 'gradient',
-                compactMode: false,
+                primary_color: '#7B1D3A',
+                accent_color: '#FFBF00',
+                sidebar_style: 'gradient',
+                compact_mode: false,
                 animations: true
             };
         }
 
-        function loadSettingsFromStorage() {
-            const settings = JSON.parse(localStorage.getItem('adminSettings')) || getDefaultSettings();
-
-            // General Settings
-            document.getElementById('settingSystemName').value = settings.systemName || '';
-            document.getElementById('settingOfficeName').value = settings.officeName || '';
-            document.getElementById('settingContactEmail').value = settings.contactEmail || '';
-            document.getElementById('settingTimezone').value = settings.timezone || 'Asia/Manila';
-            document.getElementById('settingDateFormat').value = settings.dateFormat || 'M d, Y';
-            document.getElementById('settingMaintenanceMode').checked = settings.maintenanceMode || false;
-
-            // Internship Settings
-            document.getElementById('settingDefaultHours').value = settings.defaultHours || 480;
-            document.getElementById('settingWorkStart').value = settings.workStart || '08:00';
-            document.getElementById('settingWorkEnd').value = settings.workEnd || '17:00';
-            document.getElementById('settingGracePeriod').value = settings.gracePeriod || 15;
-            document.getElementById('settingOvertimeThreshold').value = settings.overtimeThreshold || 8;
-            document.getElementById('settingAutoApproveIntern').checked = settings.autoApproveIntern || false;
-            document.getElementById('settingRequireOvertimeApproval').checked = settings.requireOvertimeApproval !== false;
-
-            // Notification Settings
-            document.getElementById('settingEmailNotifications').checked = settings.emailNotifications !== false;
-            document.getElementById('settingBookingAlerts').checked = settings.bookingAlerts !== false;
-            document.getElementById('settingInternAlerts').checked = settings.internAlerts !== false;
-            document.getElementById('settingIssueAlerts').checked = settings.issueAlerts !== false;
-            document.getElementById('settingSoundNotifications').checked = settings.soundNotifications !== false;
-            document.getElementById('settingNotificationInterval').value = settings.notificationInterval || '10';
-
-            // Scheduler Settings
-            document.getElementById('settingBookingDuration').value = settings.bookingDuration || 2;
-            document.getElementById('settingMinAdvanceBooking').value = settings.minAdvanceBooking || 1;
-            document.getElementById('settingMaxAdvanceBooking').value = settings.maxAdvanceBooking || 90;
-            document.getElementById('settingAutoApproveBooking').checked = settings.autoApproveBooking || false;
-            document.getElementById('settingWeekendBookings').checked = settings.weekendBookings || false;
-            document.getElementById('settingBookingStart').value = settings.bookingStart || '08:00';
-            document.getElementById('settingBookingEnd').value = settings.bookingEnd || '17:00';
-
-            // Appearance Settings
-            document.getElementById('settingPrimaryColor').value = settings.primaryColor || '#7B1D3A';
-            document.getElementById('settingPrimaryColorHex').value = settings.primaryColor || '#7B1D3A';
-            document.getElementById('settingAccentColor').value = settings.accentColor || '#FFBF00';
-            document.getElementById('settingAccentColorHex').value = settings.accentColor || '#FFBF00';
-            document.getElementById('settingSidebarStyle').value = settings.sidebarStyle || 'gradient';
-            document.getElementById('settingCompactMode').checked = settings.compactMode || false;
-            document.getElementById('settingAnimations').checked = settings.animations !== false;
+        async function loadSettingsFromStorage() {
+            try {
+                const response = await fetch('/admin/settings');
+                const data = await response.json();
+                
+                if (data.success) {
+                    populateSettingsForm(data.settings);
+                } else {
+                    populateSettingsForm(getDefaultSettings());
+                }
+            } catch (error) {
+                console.error('Error loading settings:', error);
+                populateSettingsForm(getDefaultSettings());
+            }
         }
 
-        function saveSettings() {
+        function populateSettingsForm(settings) {
+            // General Settings
+            document.getElementById('settingSystemName').value = settings.system_name || '';
+            document.getElementById('settingOfficeName').value = settings.office_name || '';
+            document.getElementById('settingContactEmail').value = settings.contact_email || '';
+            document.getElementById('settingTimezone').value = settings.timezone || 'Asia/Manila';
+            document.getElementById('settingDateFormat').value = settings.date_format || 'M d, Y';
+            document.getElementById('settingMaintenanceMode').checked = settings.maintenance_mode || false;
+
+            // Internship Settings
+            document.getElementById('settingDefaultHours').value = settings.default_hours || 480;
+            document.getElementById('settingWorkStart').value = settings.work_start || '08:00';
+            document.getElementById('settingWorkEnd').value = settings.work_end || '17:00';
+            document.getElementById('settingGracePeriod').value = settings.grace_period || 15;
+            document.getElementById('settingOvertimeThreshold').value = settings.overtime_threshold || 8;
+            document.getElementById('settingAutoApproveIntern').checked = settings.auto_approve_intern || false;
+            document.getElementById('settingRequireOvertimeApproval').checked = settings.require_overtime_approval !== false;
+
+            // Notification Settings
+            document.getElementById('settingEmailNotifications').checked = settings.email_notifications !== false;
+            document.getElementById('settingBookingAlerts').checked = settings.booking_alerts !== false;
+            document.getElementById('settingInternAlerts').checked = settings.intern_alerts !== false;
+            document.getElementById('settingIssueAlerts').checked = settings.issue_alerts !== false;
+            document.getElementById('settingSoundNotifications').checked = settings.sound_notifications !== false;
+            document.getElementById('settingNotificationInterval').value = settings.notification_interval || 30;
+
+            // Scheduler Settings
+            document.getElementById('settingBookingDuration').value = settings.booking_duration || 2;
+            document.getElementById('settingMinAdvanceBooking').value = settings.min_advance_booking || 1;
+            document.getElementById('settingMaxAdvanceBooking').value = settings.max_advance_booking || 90;
+            document.getElementById('settingAutoApproveBooking').checked = settings.auto_approve_booking || false;
+            document.getElementById('settingWeekendBookings').checked = settings.weekend_bookings || false;
+            document.getElementById('settingBookingStart').value = settings.booking_start || '08:00';
+            document.getElementById('settingBookingEnd').value = settings.booking_end || '17:00';
+
+            // Appearance Settings
+            document.getElementById('settingPrimaryColor').value = settings.primary_color || '#7B1D3A';
+            document.getElementById('settingPrimaryColorHex').value = settings.primary_color || '#7B1D3A';
+            document.getElementById('settingAccentColor').value = settings.accent_color || '#FFBF00';
+            document.getElementById('settingAccentColorHex').value = settings.accent_color || '#FFBF00';
+            document.getElementById('settingSidebarStyle').value = settings.sidebar_style || 'gradient';
+            document.getElementById('settingCompactMode').checked = settings.compact_mode || false;
+            document.getElementById('settingAnimations').checked = settings.animations !== false;
+
+            // Apply settings
+            applySettings(settings);
+        }
+
+        async function saveSettings() {
             const settings = {
                 // General
-                systemName: document.getElementById('settingSystemName').value,
-                officeName: document.getElementById('settingOfficeName').value,
-                contactEmail: document.getElementById('settingContactEmail').value,
+                system_name: document.getElementById('settingSystemName').value,
+                office_name: document.getElementById('settingOfficeName').value,
+                contact_email: document.getElementById('settingContactEmail').value,
                 timezone: document.getElementById('settingTimezone').value,
-                dateFormat: document.getElementById('settingDateFormat').value,
-                maintenanceMode: document.getElementById('settingMaintenanceMode').checked,
+                date_format: document.getElementById('settingDateFormat').value,
+                maintenance_mode: document.getElementById('settingMaintenanceMode').checked,
 
                 // Internship
-                defaultHours: parseInt(document.getElementById('settingDefaultHours').value),
-                workStart: document.getElementById('settingWorkStart').value,
-                workEnd: document.getElementById('settingWorkEnd').value,
-                gracePeriod: parseInt(document.getElementById('settingGracePeriod').value),
-                overtimeThreshold: parseFloat(document.getElementById('settingOvertimeThreshold').value),
-                autoApproveIntern: document.getElementById('settingAutoApproveIntern').checked,
-                requireOvertimeApproval: document.getElementById('settingRequireOvertimeApproval').checked,
+                default_hours: parseInt(document.getElementById('settingDefaultHours').value),
+                work_start: document.getElementById('settingWorkStart').value,
+                work_end: document.getElementById('settingWorkEnd').value,
+                grace_period: parseInt(document.getElementById('settingGracePeriod').value),
+                overtime_threshold: parseFloat(document.getElementById('settingOvertimeThreshold').value),
+                auto_approve_intern: document.getElementById('settingAutoApproveIntern').checked,
+                require_overtime_approval: document.getElementById('settingRequireOvertimeApproval').checked,
 
                 // Notifications
-                emailNotifications: document.getElementById('settingEmailNotifications').checked,
-                bookingAlerts: document.getElementById('settingBookingAlerts').checked,
-                internAlerts: document.getElementById('settingInternAlerts').checked,
-                issueAlerts: document.getElementById('settingIssueAlerts').checked,
-                soundNotifications: document.getElementById('settingSoundNotifications').checked,
-                notificationInterval: document.getElementById('settingNotificationInterval').value,
+                email_notifications: document.getElementById('settingEmailNotifications').checked,
+                booking_alerts: document.getElementById('settingBookingAlerts').checked,
+                intern_alerts: document.getElementById('settingInternAlerts').checked,
+                issue_alerts: document.getElementById('settingIssueAlerts').checked,
+                sound_notifications: document.getElementById('settingSoundNotifications').checked,
+                notification_interval: parseInt(document.getElementById('settingNotificationInterval').value),
 
                 // Scheduler
-                bookingDuration: parseInt(document.getElementById('settingBookingDuration').value),
-                minAdvanceBooking: parseInt(document.getElementById('settingMinAdvanceBooking').value),
-                maxAdvanceBooking: parseInt(document.getElementById('settingMaxAdvanceBooking').value),
-                autoApproveBooking: document.getElementById('settingAutoApproveBooking').checked,
-                weekendBookings: document.getElementById('settingWeekendBookings').checked,
-                bookingStart: document.getElementById('settingBookingStart').value,
-                bookingEnd: document.getElementById('settingBookingEnd').value,
+                booking_duration: parseInt(document.getElementById('settingBookingDuration').value),
+                min_advance_booking: parseInt(document.getElementById('settingMinAdvanceBooking').value),
+                max_advance_booking: parseInt(document.getElementById('settingMaxAdvanceBooking').value),
+                auto_approve_booking: document.getElementById('settingAutoApproveBooking').checked,
+                weekend_bookings: document.getElementById('settingWeekendBookings').checked,
+                booking_start: document.getElementById('settingBookingStart').value,
+                booking_end: document.getElementById('settingBookingEnd').value,
 
                 // Appearance
-                primaryColor: document.getElementById('settingPrimaryColor').value,
-                accentColor: document.getElementById('settingAccentColor').value,
-                sidebarStyle: document.getElementById('settingSidebarStyle').value,
-                compactMode: document.getElementById('settingCompactMode').checked,
+                primary_color: document.getElementById('settingPrimaryColor').value,
+                accent_color: document.getElementById('settingAccentColor').value,
+                sidebar_style: document.getElementById('settingSidebarStyle').value,
+                compact_mode: document.getElementById('settingCompactMode').checked,
                 animations: document.getElementById('settingAnimations').checked
             };
 
-            localStorage.setItem('adminSettings', JSON.stringify(settings));
+            try {
+                const response = await fetch('/admin/settings', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({ settings: settings })
+                });
 
-            // Apply some settings immediately
-            applySettings(settings);
-
-            showToast('success', 'Settings Saved', 'Your settings have been saved successfully!');
+                const data = await response.json();
+                
+                if (data.success) {
+                    applySettings(settings);
+                    showToast('success', 'Settings Saved', data.message);
+                } else {
+                    showToast('error', 'Error', 'Failed to save settings');
+                }
+            } catch (error) {
+                console.error('Error saving settings:', error);
+                showToast('error', 'Error', 'Failed to save settings');
+            }
         }
 
         function applySettings(settings) {
@@ -8039,11 +8119,11 @@
             if (window.notificationInterval) {
                 clearInterval(window.notificationInterval);
             }
-            const interval = parseInt(settings.notificationInterval) * 1000;
+            const interval = parseInt(settings.notification_interval || 30) * 1000;
             window.notificationInterval = setInterval(loadAdminNotifications, interval);
 
             // Apply compact mode
-            if (settings.compactMode) {
+            if (settings.compact_mode) {
                 document.body.classList.add('compact-mode');
             } else {
                 document.body.classList.remove('compact-mode');
@@ -8055,20 +8135,81 @@
             } else {
                 document.body.classList.remove('no-animations');
             }
+
+            // Apply primary color
+            const primaryColor = settings.primary_color || '#7B1D3A';
+            document.documentElement.style.setProperty('--primary-color', primaryColor);
+            
+            // Apply accent color  
+            const accentColor = settings.accent_color || '#FFBF00';
+            document.documentElement.style.setProperty('--accent-color', accentColor);
+
+            // Apply sidebar style
+            const sidebar = document.querySelector('.sidebar');
+            if (sidebar && settings.sidebar_style) {
+                sidebar.classList.remove('sidebar-gradient', 'sidebar-solid', 'sidebar-dark');
+                if (settings.sidebar_style === 'gradient') {
+                    sidebar.classList.add('sidebar-gradient');
+                } else if (settings.sidebar_style === 'solid') {
+                    sidebar.classList.add('sidebar-solid');
+                } else if (settings.sidebar_style === 'dark') {
+                    sidebar.classList.add('sidebar-dark');
+                }
+            }
+
+            // Store settings in session storage for quick access
+            sessionStorage.setItem('adminSettings', JSON.stringify(settings));
         }
 
-        function resetSettingsForm() {
+        // Load and apply settings on page load
+        async function loadAndApplySettings() {
+            try {
+                const response = await fetch('/admin/settings');
+                const data = await response.json();
+                
+                if (data.success) {
+                    applySettings(data.settings);
+                } else {
+                    applySettings(getDefaultSettings());
+                }
+            } catch (error) {
+                console.error('Error loading settings:', error);
+                applySettings(getDefaultSettings());
+            }
+        }
+
+        // Initialize settings on page load
+        loadAndApplySettings();
+
+        async function resetSettingsForm() {
             const defaults = getDefaultSettings();
-            localStorage.setItem('adminSettings', JSON.stringify(defaults));
-            loadSettingsFromStorage();
-            showToast('info', 'Form Reset', 'Settings form has been reset to defaults.');
+            populateSettingsForm(defaults);
+            showToast('info', 'Form Reset', 'Settings form has been reset to defaults. Click Save to apply.');
         }
 
-        function resetSettings() {
+        async function resetSettings() {
             if (confirm('Are you sure you want to reset all settings to defaults? This action cannot be undone.')) {
-                localStorage.removeItem('adminSettings');
-                loadSettingsFromStorage();
-                showToast('success', 'Settings Reset', 'All settings have been reset to defaults.');
+                try {
+                    const response = await fetch('/admin/settings/reset', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        }
+                    });
+
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        await loadSettingsFromStorage();
+                        showToast('success', 'Settings Reset', data.message);
+                    } else {
+                        showToast('error', 'Error', 'Failed to reset settings');
+                    }
+                } catch (error) {
+                    console.error('Error resetting settings:', error);
+                    showToast('error', 'Error', 'Failed to reset settings');
+                }
             }
         }
 
@@ -8107,16 +8248,50 @@
             }
         }
 
-        function clearOldData(type) {
-            if (confirm(`Are you sure you want to clear old ${type}? This action cannot be undone.`)) {
-                showToast('info', 'Clearing...', `Clearing old ${type}...`);
+        async function clearOldData(type) {
+            const days = document.getElementById('cleanupDays')?.value || 90;
+            
+            const typeLabels = {
+                'attendance': 'attendance records',
+                'tasks': 'completed tasks',
+                'bookings': 'old bookings',
+                'notifications': 'notifications',
+                'all': 'all old data'
+            };
 
-                setTimeout(() => {
-                    if (type === 'notifications') {
-                        localStorage.removeItem('readNotifications');
+            if (confirm(`Are you sure you want to clear ${typeLabels[type]} older than ${days} days? This action cannot be undone.`)) {
+                if (type === 'notifications') {
+                    localStorage.removeItem('readNotifications');
+                    showToast('success', 'Cleared', 'Notifications have been cleared.');
+                    return;
+                }
+
+                showToast('info', 'Clearing...', `Clearing old ${typeLabels[type]}...`);
+
+                try {
+                    const response = await fetch('/admin/settings/clear-data', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: JSON.stringify({
+                            data_type: type,
+                            older_than_days: parseInt(days)
+                        })
+                    });
+
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        showToast('success', 'Cleared', data.message);
+                    } else {
+                        showToast('error', 'Error', 'Failed to clear data');
                     }
-                    showToast('success', 'Cleared', `Old ${type} have been cleared.`);
-                }, 500);
+                } catch (error) {
+                    console.error('Error clearing data:', error);
+                    showToast('error', 'Error', 'Failed to clear data');
+                }
             }
         }
 
@@ -9872,8 +10047,8 @@
             const paymentMethodLabels = {
                 'bank_transfer': '🏦 Bank Transfer',
                 'bank_deposit': '💵 Bank Deposit',
-                'gcash': '📱 GCash',
-                'maya': '📱 Maya',
+                'gcash': '<img src="/images/gcashicon.png" alt="GCash" style="height: 16px; width: auto; vertical-align: middle; margin-right: 4px;">GCash',
+                'maya': '<img src="/images/mayaIcon.avif" alt="Maya" style="height: 16px; width: auto; vertical-align: middle; margin-right: 4px;">Maya',
                 'check': '📄 Check Payment',
                 'cash': '💰 Cash'
             };

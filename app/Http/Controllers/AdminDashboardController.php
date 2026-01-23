@@ -20,6 +20,7 @@ use App\Models\TeamLeaderReport;
 
 
 use App\Models\UserPermission;
+use App\Models\Setting;
 
 use Carbon\Carbon;
 
@@ -1175,5 +1176,100 @@ class AdminDashboardController extends Controller
         };
 
         return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Get all settings
+     */
+    public function getSettings()
+    {
+        $settings = Setting::getAllSettings();
+        $defaults = Setting::getDefaults();
+        
+        // Merge defaults with saved settings
+        $merged = [];
+        foreach ($defaults as $key => $default) {
+            $merged[$key] = array_key_exists($key, $settings) ? $settings[$key] : $default['value'];
+        }
+        
+        return response()->json(['success' => true, 'settings' => $merged]);
+    }
+
+    /**
+     * Save settings
+     */
+    public function saveSettings(Request $request)
+    {
+        $validated = $request->validate([
+            'settings' => 'required|array',
+        ]);
+
+        $defaults = Setting::getDefaults();
+        
+        foreach ($validated['settings'] as $key => $value) {
+            $type = isset($defaults[$key]) ? $defaults[$key]['type'] : 'string';
+            Setting::set($key, $value, $type);
+        }
+
+        return response()->json(['success' => true, 'message' => 'Settings saved successfully!']);
+    }
+
+    /**
+     * Reset settings to defaults
+     */
+    public function resetSettings()
+    {
+        $defaults = Setting::getDefaults();
+        
+        foreach ($defaults as $key => $default) {
+            Setting::set($key, $default['value'], $default['type']);
+        }
+
+        return response()->json(['success' => true, 'message' => 'Settings reset to defaults!']);
+    }
+
+    /**
+     * Clear old data (maintenance)
+     */
+    public function clearOldData(Request $request)
+    {
+        $validated = $request->validate([
+            'data_type' => 'required|in:attendance,tasks,bookings,all',
+            'older_than_days' => 'required|integer|min:30',
+        ]);
+
+        $cutoffDate = Carbon::now()->subDays($validated['older_than_days']);
+        $deleted = 0;
+
+        switch ($validated['data_type']) {
+            case 'attendance':
+                $deleted = Attendance::where('date', '<', $cutoffDate)->delete();
+                break;
+            case 'tasks':
+                $deleted = Task::where('status', 'Completed')
+                    ->where('updated_at', '<', $cutoffDate)
+                    ->delete();
+                break;
+            case 'bookings':
+                $deleted = Booking::where('booking_date', '<', $cutoffDate)
+                    ->whereIn('status', ['approved', 'rejected', 'completed', 'cancelled'])
+                    ->delete();
+                break;
+            case 'all':
+                $deleted += Attendance::where('date', '<', $cutoffDate)->delete();
+                $deleted += Task::where('status', 'Completed')
+                    ->where('updated_at', '<', $cutoffDate)
+                    ->delete();
+                $deleted += Booking::where('booking_date', '<', $cutoffDate)
+                    ->whereIn('status', ['approved', 'rejected', 'completed', 'cancelled'])
+                    ->delete();
+                break;
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => "Successfully deleted {$deleted} old records.",
+            'deleted' => $deleted
+        ]);
     }
 }

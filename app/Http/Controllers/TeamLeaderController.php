@@ -157,18 +157,34 @@ class TeamLeaderController extends Controller
         // If user has incubatee tracker access
         if (in_array('incubatee_tracker', $viewableModules)) {
             $incubateeData = [
-                'submissions' => StartupSubmission::orderBy('created_at', 'desc')->limit(10)->get(),
+                'moaRequests' => StartupSubmission::where('type', 'moa')
+                    ->with('reviewer')
+                    ->orderBy('created_at', 'desc')
+                    ->get(),
+                'paymentSubmissions' => StartupSubmission::where('type', 'finance')
+                    ->with('reviewer')
+                    ->orderBy('created_at', 'desc')
+                    ->get(),
                 'totalSubmissions' => StartupSubmission::count(),
                 'pendingSubmissions' => StartupSubmission::where('status', 'pending')->count(),
+                'pendingMoaCount' => StartupSubmission::where('type', 'moa')->where('status', 'pending')->count(),
+                'pendingPaymentCount' => StartupSubmission::where('type', 'finance')->where('status', 'pending')->count(),
+                'activeIncubatees' => StartupSubmission::where('type', 'moa')
+                    ->whereIn('status', ['approved', 'completed'])
+                    ->distinct('company_name')
+                    ->count('company_name'),
             ];
         }
 
         // If user has issues management access
         if (in_array('issues_management', $viewableModules)) {
+            $allIssues = RoomIssue::orderBy('created_at', 'desc')->get();
             $issuesData = [
-                'issues' => RoomIssue::orderBy('created_at', 'desc')->limit(10)->get(),
-                'totalIssues' => RoomIssue::count(),
-                'pendingIssues' => RoomIssue::where('status', 'pending')->count(),
+                'issues' => $allIssues,
+                'totalIssues' => $allIssues->count(),
+                'pendingIssues' => $allIssues->where('status', 'pending')->count(),
+                'inProgressIssues' => $allIssues->where('status', 'in_progress')->count(),
+                'resolvedIssues' => $allIssues->where('status', 'resolved')->count(),
             ];
         }
 
@@ -302,7 +318,7 @@ class TeamLeaderController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'requirements' => 'nullable|string',
-            'priority' => 'required|in:Low,Medium,High',
+            'priority' => 'required|in:Low,Medium,High,Urgent',
             'due_date' => 'required|date|after_or_equal:today',
         ]);
 
@@ -356,8 +372,8 @@ class TeamLeaderController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'requirements' => 'nullable|string',
-            'priority' => 'required|in:Low,Medium,High',
-            'status' => 'required|in:Not Started,In Progress,Completed,On Hold',
+            'priority' => 'required|in:Low,Medium,High,Urgent',
+            'status' => 'required|in:Not Started,Pending,In Progress,Completed,On Hold',
             'due_date' => 'required|date',
             'progress' => 'required|integer|min:0|max:100',
             'notes' => 'nullable|string',
@@ -382,7 +398,7 @@ class TeamLeaderController extends Controller
             'completed_date' => $request->status === 'Completed' ? Carbon::today() : null,
         ]);
 
-        return redirect()->route('team-leader.tasks')->with('success', 'Task updated successfully.');
+        return redirect()->route('team-leader.dashboard')->with('success', 'Task updated successfully.');
     }
 
     /**
@@ -397,7 +413,7 @@ class TeamLeaderController extends Controller
 
         $task->delete();
 
-        return redirect()->route('team-leader.tasks')->with('success', 'Task deleted successfully.');
+        return redirect()->route('team-leader.dashboard')->with('success', 'Task deleted successfully.');
     }
 
     /**
@@ -723,6 +739,78 @@ class TeamLeaderController extends Controller
             'success' => true,
             'stats' => $stats,
             'updated_at' => Carbon::now('Asia/Manila')->format('h:i:s A'),
+        ]);
+    }
+
+    /**
+     * Update a startup submission status (for incubatee tracker)
+     */
+    public function updateSubmission(Request $request, StartupSubmission $submission)
+    {
+        // Check if user has edit access to incubatee_tracker
+        $user = Auth::user();
+        $editableModules = $user->getEditableModules();
+        
+        if (!in_array('incubatee_tracker', $editableModules)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You do not have permission to edit incubatee submissions.'
+            ], 403);
+        }
+
+        $validated = $request->validate([
+            'status' => 'required|in:pending,under_review,approved,rejected',
+            'admin_notes' => 'nullable|string|max:1000',
+        ]);
+
+        $submission->status = $validated['status'];
+        $submission->admin_notes = $validated['admin_notes'] ?? $submission->admin_notes;
+        $submission->reviewed_by = $user->id;
+        $submission->reviewed_at = Carbon::now();
+        $submission->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Submission updated successfully.',
+            'submission' => $submission
+        ]);
+    }
+
+    /**
+     * Update a room issue status (for issues management)
+     */
+    public function updateRoomIssue(Request $request, RoomIssue $roomIssue)
+    {
+        // Check if user has edit access to issues_management
+        $user = Auth::user();
+        $editableModules = $user->getEditableModules();
+        
+        if (!in_array('issues_management', $editableModules)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You do not have permission to edit room issues.'
+            ], 403);
+        }
+
+        $validated = $request->validate([
+            'status' => 'required|in:pending,in_progress,resolved,closed',
+            'admin_notes' => 'nullable|string|max:1000',
+        ]);
+
+        $roomIssue->status = $validated['status'];
+        $roomIssue->admin_notes = $validated['admin_notes'] ?? $roomIssue->admin_notes;
+        $roomIssue->resolved_by = $user->id;
+        
+        if ($validated['status'] === 'resolved' || $validated['status'] === 'closed') {
+            $roomIssue->resolved_at = Carbon::now();
+        }
+        
+        $roomIssue->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Room issue updated successfully.',
+            'issue' => $roomIssue
         ]);
     }
 }

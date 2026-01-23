@@ -143,6 +143,12 @@ Route::middleware(['admin'])->group(function () {
     Route::get('/admin/export/tasks', [AdminDashboardController::class, 'exportTasks'])->name('admin.export.tasks');
     Route::get('/admin/export/bookings', [AdminDashboardController::class, 'exportBookings'])->name('admin.export.bookings');
 
+    // Settings routes
+    Route::get('/admin/settings', [AdminDashboardController::class, 'getSettings'])->name('admin.settings.get');
+    Route::post('/admin/settings', [AdminDashboardController::class, 'saveSettings'])->name('admin.settings.save');
+    Route::post('/admin/settings/reset', [AdminDashboardController::class, 'resetSettings'])->name('admin.settings.reset');
+    Route::post('/admin/settings/clear-data', [AdminDashboardController::class, 'clearOldData'])->name('admin.settings.clear-data');
+
     Route::post('/admin/attendance/{attendance}/approve-overtime', [AdminDashboardController::class, 'approveOvertime'])->name('admin.attendance.approve-overtime');
 
     // Task routes
@@ -284,4 +290,8 @@ Route::middleware(['team.leader'])->prefix('team-leader')->name('team-leader.')-
 
     // Attendance Viewing
     Route::get('/attendance', [TeamLeaderController::class, 'attendance'])->name('attendance');
+
+    // Incubatee Tracker (Submissions Management)
+    Route::put('/submissions/{submission}', [TeamLeaderController::class, 'updateSubmission'])->name('submissions.update');
+    Route::put('/room-issues/{roomIssue}', [TeamLeaderController::class, 'updateRoomIssue'])->name('room-issues.update');
 });

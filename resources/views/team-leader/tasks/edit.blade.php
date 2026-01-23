@@ -102,6 +102,7 @@
                 <div class="form-group">
                     <label class="form-label">Status <span class="required">*</span></label>
                     <select name="status" class="form-input" required>
+                        <option value="Not Started" @if(old('status', $task->status) === 'Not Started') selected @endif>Not Started</option>
                         <option value="Pending" @if(old('status', $task->status) === 'Pending') selected @endif>Pending</option>
                         <option value="In Progress" @if(old('status', $task->status) === 'In Progress') selected @endif>In Progress</option>
                         <option value="Completed" @if(old('status', $task->status) === 'Completed') selected @endif>Completed</option>
