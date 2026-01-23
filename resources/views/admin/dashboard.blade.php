@@ -7894,7 +7894,7 @@
             return {
                 // General
                 systemName: 'UP Management System',
-                officeName: 'University of Pangasinan',
+                officeName: 'University of the Philippines',
                 contactEmail: '',
                 timezone: 'Asia/Manila',
                 dateFormat: 'M d, Y',
