@@ -2526,6 +2526,190 @@
         .confirm-modal-btn.confirm.success:hover {
             box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
         }
+
+        /* ========== Settings Page Styles ========== */
+        .settings-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 14px 16px;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #4B5563;
+            text-align: left;
+            transition: all 0.2s;
+        }
+
+        .settings-nav-item:hover {
+            background: #F3F4F6;
+            color: #1F2937;
+        }
+
+        .settings-nav-item.active {
+            background: linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%);
+            color: white;
+        }
+
+        .settings-nav-item i {
+            width: 20px;
+            font-size: 15px;
+        }
+
+        .settings-tab {
+            display: none;
+        }
+
+        .settings-tab.active {
+            display: block;
+        }
+
+        .settings-group {
+            margin-bottom: 24px;
+        }
+
+        .settings-label {
+            display: block;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .settings-input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #E5E7EB;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s;
+            background: #FAFAFA;
+        }
+
+        .settings-input:focus {
+            outline: none;
+            border-color: #7B1D3A;
+            box-shadow: 0 0 0 3px rgba(123, 29, 58, 0.1);
+            background: white;
+        }
+
+        .settings-hint {
+            font-size: 12px;
+            color: #9CA3AF;
+            margin-top: 6px;
+        }
+
+        .settings-toggle-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 26px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #D1D5DB;
+            transition: 0.3s;
+            border-radius: 26px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background: linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%);
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(22px);
+        }
+
+        .settings-btn {
+            padding: 10px 16px;
+            background: #7B1D3A;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 13px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .settings-btn:hover {
+            background: #5a1428;
+            transform: translateY(-1px);
+        }
+
+        .settings-btn.warning {
+            background: #F59E0B;
+        }
+
+        .settings-btn.warning:hover {
+            background: #D97706;
+        }
+
+        .settings-btn.danger {
+            background: #EF4444;
+        }
+
+        .settings-btn.danger:hover {
+            background: #DC2626;
+        }
+
+        /* Compact mode */
+        body.compact-mode .page-content {
+            padding: 16px;
+        }
+
+        body.compact-mode .stats-grid {
+            gap: 12px;
+        }
+
+        body.compact-mode .stat-card {
+            padding: 16px;
+        }
+
+        /* No animations mode */
+        body.no-animations * {
+            animation: none !important;
+            transition: none !important;
+        }
     </style>
 </head>
 <body>
@@ -2610,7 +2794,7 @@
                 <i class="fas fa-calendar-alt"></i>
                 <span>Scheduler</span>
             </a>
-            <a href="#" class="menu-item">
+            <a href="#" class="menu-item" onclick="loadPage(event, 'admin-settings')">
                 <i class="fas fa-cog"></i>
                 <span>Settings</span>
             </a>
@@ -2735,78 +2919,23 @@
             <div class="table-card">
                 <div class="table-header">
                     <h3 class="table-title">Recent Activity</h3>
-                    <a href="#" class="view-all-btn">View All <i class="fas fa-arrow-right"></i></a>
                 </div>
                 <table>
                     <thead>
                         <tr>
-                            <th>Student Name</th>
+                            <th>Name</th>
                             <th>System</th>
                             <th>Action</th>
                             <th>Status</th>
                             <th>Date</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="recentActivityBody">
                         <tr>
-                            <td>
-                                <div style="display: flex; align-items: center; gap: 12px;">
-                                    <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #FFBF00, #FFA500); display: flex; align-items: center; justify-content: center; color: #7B1D3A; font-weight: 700;">K</div>
-                                    <span style="font-weight: 600;">Kingsley Laran</span>
-                                </div>
+                            <td colspan="5" style="text-align: center; padding: 40px; color: #9CA3AF;">
+                                <i class="fas fa-inbox" style="font-size: 32px; margin-bottom: 12px; display: block;"></i>
+                                No recent activity
                             </td>
-                            <td>Intern Management</td>
-                            <td>Profile Updated</td>
-                            <td><span class="status-badge status-active">Active</span></td>
-                            <td>Dec 15, 2:30 PM</td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div style="display: flex; align-items: center; gap: 12px;">
-                                    <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #FFBF00, #FFA500); display: flex; align-items: center; justify-content: center; color: #7B1D3A; font-weight: 700;">J</div>
-                                    <span style="font-weight: 600;">Julliana Laurena</span>
-                                </div>
-                            </td>
-                            <td>Research Tracking</td>
-                            <td>Project Submitted</td>
-                            <td><span class="status-badge status-completed">Completed</span></td>
-                            <td>Dec 15, 1:15 PM</td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div style="display: flex; align-items: center; gap: 12px;">
-                                    <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #FFBF00, #FFA500); display: flex; align-items: center; justify-content: center; color: #7B1D3A; font-weight: 700;">R</div>
-                                    <span style="font-weight: 600;">Ruther Marte</span>
-                                </div>
-                            </td>
-                            <td>Digital Records</td>
-                            <td>Document Viewed</td>
-                            <td><span class="status-badge status-active">Active</span></td>
-                            <td>Dec 14, 5:45 PM</td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div style="display: flex; align-items: center; gap: 12px;">
-                                    <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #FFBF00, #FFA500); display: flex; align-items: center; justify-content: center; color: #7B1D3A; font-weight: 700;">M</div>
-                                    <span style="font-weight: 600;">Mj Bersabal</span>
-                                </div>
-                            </td>
-                            <td>Scheduler</td>
-                            <td>Event Created</td>
-                            <td><span class="status-badge status-pending">Pending</span></td>
-                            <td>Dec 14, 3:20 PM</td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div style="display: flex; align-items: center; gap: 12px;">
-                                    <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #FFBF00, #FFA500); display: flex; align-items: center; justify-content: center; color: #7B1D3A; font-weight: 700;">B</div>
-                                    <span style="font-weight: 600;">Brejean Abarico</span>
-                                </div>
-                            </td>
-                            <td>Incubatee Tracker</td>
-                            <td>Milestone Updated</td>
-                            <td><span class="status-badge status-active">Active</span></td>
-                            <td>Dec 14, 11:00 AM</td>
                         </tr>
                     </tbody>
                 </table>
@@ -5234,9 +5363,508 @@
                 </div>
             </div>
 
-    </main>
+            <!-- ========== SETTINGS SECTION ========== -->
+            <div id="admin-settings" class="page-content">
+                <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                    <div>
+                        <h1 style="font-size: 24px; font-weight: 700; color: #1F2937; margin: 0;">System Settings</h1>
+                        <p style="color: #6B7280; margin-top: 4px;">Configure system preferences and manage application settings</p>
+                    </div>
+                </div>
 
-    <!-- Assign Team Leader Modal (Select from Interns) -->
+                <!-- Settings Grid -->
+                <div style="display: grid; grid-template-columns: 280px 1fr; gap: 24px;">
+                    <!-- Settings Navigation -->
+                    <div style="background: white; border-radius: 12px; padding: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); height: fit-content; position: sticky; top: 20px;">
+                        <button class="settings-nav-item active" onclick="showSettingsTab('general')" id="settingsNavGeneral">
+                            <i class="fas fa-cog"></i>
+                            <span>General Settings</span>
+                        </button>
+                        <button class="settings-nav-item" onclick="showSettingsTab('internship')" id="settingsNavInternship">
+                            <i class="fas fa-user-graduate"></i>
+                            <span>Internship Settings</span>
+                        </button>
+                        <button class="settings-nav-item" onclick="showSettingsTab('notifications')" id="settingsNavNotifications">
+                            <i class="fas fa-bell"></i>
+                            <span>Notifications</span>
+                        </button>
+                        <button class="settings-nav-item" onclick="showSettingsTab('scheduler')" id="settingsNavScheduler">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span>Scheduler Settings</span>
+                        </button>
+                        <button class="settings-nav-item" onclick="showSettingsTab('appearance')" id="settingsNavAppearance">
+                            <i class="fas fa-palette"></i>
+                            <span>Appearance</span>
+                        </button>
+                        <button class="settings-nav-item" onclick="showSettingsTab('backup')" id="settingsNavBackup">
+                            <i class="fas fa-database"></i>
+                            <span>Backup & Data</span>
+                        </button>
+                        <button class="settings-nav-item" onclick="showSettingsTab('about')" id="settingsNavAbout">
+                            <i class="fas fa-info-circle"></i>
+                            <span>About System</span>
+                        </button>
+                    </div>
+
+                    <!-- Settings Content -->
+                    <div style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+
+                        <!-- General Settings Tab -->
+                        <div id="settingsTabGeneral" class="settings-tab active">
+                            <h3 style="font-size: 18px; font-weight: 700; color: #1F2937; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                                <i class="fas fa-cog" style="color: #7B1D3A;"></i>
+                                General Settings
+                            </h3>
+
+                            <div class="settings-group">
+                                <label class="settings-label">System Name</label>
+                                <input type="text" id="settingSystemName" class="settings-input" value="UP Management System" placeholder="Enter system name">
+                                <p class="settings-hint">This name appears in the browser title and headers</p>
+                            </div>
+
+                            <div class="settings-group">
+                                <label class="settings-label">Office Name</label>
+                                <input type="text" id="settingOfficeName" class="settings-input" value="University of Pangasinan" placeholder="Enter office/organization name">
+                            </div>
+
+                            <div class="settings-group">
+                                <label class="settings-label">Contact Email</label>
+                                <input type="email" id="settingContactEmail" class="settings-input" value="" placeholder="admin@example.com">
+                                <p class="settings-hint">Used for system notifications and user inquiries</p>
+                            </div>
+
+                            <div class="settings-group">
+                                <label class="settings-label">Timezone</label>
+                                <select id="settingTimezone" class="settings-input">
+                                    <option value="Asia/Manila" selected>Asia/Manila (Philippine Standard Time)</option>
+                                    <option value="UTC">UTC (Coordinated Universal Time)</option>
+                                    <option value="Asia/Singapore">Asia/Singapore</option>
+                                    <option value="Asia/Tokyo">Asia/Tokyo</option>
+                                </select>
+                            </div>
+
+                            <div class="settings-group">
+                                <label class="settings-label">Date Format</label>
+                                <select id="settingDateFormat" class="settings-input">
+                                    <option value="M d, Y">Jan 23, 2026</option>
+                                    <option value="d/m/Y">23/01/2026</option>
+                                    <option value="m/d/Y">01/23/2026</option>
+                                    <option value="Y-m-d">2026-01-23</option>
+                                </select>
+                            </div>
+
+                            <div class="settings-group">
+                                <div class="settings-toggle-row">
+                                    <div>
+                                        <label class="settings-label" style="margin-bottom: 0;">Maintenance Mode</label>
+                                        <p class="settings-hint" style="margin-top: 4px;">Temporarily disable access for non-admin users</p>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="settingMaintenanceMode">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Internship Settings Tab -->
+                        <div id="settingsTabInternship" class="settings-tab">
+                            <h3 style="font-size: 18px; font-weight: 700; color: #1F2937; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                                <i class="fas fa-user-graduate" style="color: #7B1D3A;"></i>
+                                Internship Settings
+                            </h3>
+
+                            <div class="settings-group">
+                                <label class="settings-label">Default Required Hours</label>
+                                <input type="number" id="settingDefaultHours" class="settings-input" value="480" min="1" max="1000">
+                                <p class="settings-hint">Default OJT hours required for interns (can be overridden per school)</p>
+                            </div>
+
+                            <div class="settings-group">
+                                <label class="settings-label">Work Hours Start</label>
+                                <input type="time" id="settingWorkStart" class="settings-input" value="08:00">
+                            </div>
+
+                            <div class="settings-group">
+                                <label class="settings-label">Work Hours End</label>
+                                <input type="time" id="settingWorkEnd" class="settings-input" value="17:00">
+                            </div>
+
+                            <div class="settings-group">
+                                <label class="settings-label">Grace Period (minutes)</label>
+                                <input type="number" id="settingGracePeriod" class="settings-input" value="15" min="0" max="60">
+                                <p class="settings-hint">Minutes allowed after start time before marking as late</p>
+                            </div>
+
+                            <div class="settings-group">
+                                <label class="settings-label">Overtime Threshold (hours)</label>
+                                <input type="number" id="settingOvertimeThreshold" class="settings-input" value="8" min="1" max="12" step="0.5">
+                                <p class="settings-hint">Hours after which overtime starts counting</p>
+                            </div>
+
+                            <div class="settings-group">
+                                <div class="settings-toggle-row">
+                                    <div>
+                                        <label class="settings-label" style="margin-bottom: 0;">Auto-Approve Intern Registration</label>
+                                        <p class="settings-hint" style="margin-top: 4px;">Automatically approve new intern registrations</p>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="settingAutoApproveIntern">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="settings-group">
+                                <div class="settings-toggle-row">
+                                    <div>
+                                        <label class="settings-label" style="margin-bottom: 0;">Require Overtime Approval</label>
+                                        <p class="settings-hint" style="margin-top: 4px;">Overtime hours need admin approval before counting</p>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="settingRequireOvertimeApproval" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Notifications Settings Tab -->
+                        <div id="settingsTabNotifications" class="settings-tab">
+                            <h3 style="font-size: 18px; font-weight: 700; color: #1F2937; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                                <i class="fas fa-bell" style="color: #7B1D3A;"></i>
+                                Notification Settings
+                            </h3>
+
+                            <div class="settings-group">
+                                <div class="settings-toggle-row">
+                                    <div>
+                                        <label class="settings-label" style="margin-bottom: 0;">Email Notifications</label>
+                                        <p class="settings-hint" style="margin-top: 4px;">Send email notifications for important events</p>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="settingEmailNotifications" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="settings-group">
+                                <div class="settings-toggle-row">
+                                    <div>
+                                        <label class="settings-label" style="margin-bottom: 0;">New Booking Alerts</label>
+                                        <p class="settings-hint" style="margin-top: 4px;">Get notified when new booking requests arrive</p>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="settingBookingAlerts" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="settings-group">
+                                <div class="settings-toggle-row">
+                                    <div>
+                                        <label class="settings-label" style="margin-bottom: 0;">New Intern Registration Alerts</label>
+                                        <p class="settings-hint" style="margin-top: 4px;">Get notified when new interns register</p>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="settingInternAlerts" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="settings-group">
+                                <div class="settings-toggle-row">
+                                    <div>
+                                        <label class="settings-label" style="margin-bottom: 0;">Issue Report Alerts</label>
+                                        <p class="settings-hint" style="margin-top: 4px;">Get notified when new issues are reported</p>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="settingIssueAlerts" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="settings-group">
+                                <div class="settings-toggle-row">
+                                    <div>
+                                        <label class="settings-label" style="margin-bottom: 0;">Sound Notifications</label>
+                                        <p class="settings-hint" style="margin-top: 4px;">Play sound when new notifications arrive</p>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="settingSoundNotifications" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="settings-group">
+                                <label class="settings-label">Notification Refresh Interval (seconds)</label>
+                                <select id="settingNotificationInterval" class="settings-input">
+                                    <option value="5">5 seconds (Real-time)</option>
+                                    <option value="10" selected>10 seconds</option>
+                                    <option value="30">30 seconds</option>
+                                    <option value="60">1 minute</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Scheduler Settings Tab -->
+                        <div id="settingsTabScheduler" class="settings-tab">
+                            <h3 style="font-size: 18px; font-weight: 700; color: #1F2937; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                                <i class="fas fa-calendar-alt" style="color: #7B1D3A;"></i>
+                                Scheduler Settings
+                            </h3>
+
+                            <div class="settings-group">
+                                <label class="settings-label">Default Booking Duration (hours)</label>
+                                <input type="number" id="settingBookingDuration" class="settings-input" value="2" min="1" max="8">
+                            </div>
+
+                            <div class="settings-group">
+                                <label class="settings-label">Minimum Advance Booking (days)</label>
+                                <input type="number" id="settingMinAdvanceBooking" class="settings-input" value="1" min="0" max="30">
+                                <p class="settings-hint">Minimum days before the event date for booking requests</p>
+                            </div>
+
+                            <div class="settings-group">
+                                <label class="settings-label">Maximum Advance Booking (days)</label>
+                                <input type="number" id="settingMaxAdvanceBooking" class="settings-input" value="90" min="7" max="365">
+                                <p class="settings-hint">How far in advance bookings can be made</p>
+                            </div>
+
+                            <div class="settings-group">
+                                <div class="settings-toggle-row">
+                                    <div>
+                                        <label class="settings-label" style="margin-bottom: 0;">Auto-Approve Bookings</label>
+                                        <p class="settings-hint" style="margin-top: 4px;">Automatically approve booking requests</p>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="settingAutoApproveBooking">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="settings-group">
+                                <div class="settings-toggle-row">
+                                    <div>
+                                        <label class="settings-label" style="margin-bottom: 0;">Allow Weekend Bookings</label>
+                                        <p class="settings-hint" style="margin-top: 4px;">Allow booking requests on Saturdays and Sundays</p>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="settingWeekendBookings">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="settings-group">
+                                <label class="settings-label">Booking Hours Start</label>
+                                <input type="time" id="settingBookingStart" class="settings-input" value="08:00">
+                            </div>
+
+                            <div class="settings-group">
+                                <label class="settings-label">Booking Hours End</label>
+                                <input type="time" id="settingBookingEnd" class="settings-input" value="17:00">
+                            </div>
+                        </div>
+
+                        <!-- Appearance Settings Tab -->
+                        <div id="settingsTabAppearance" class="settings-tab">
+                            <h3 style="font-size: 18px; font-weight: 700; color: #1F2937; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                                <i class="fas fa-palette" style="color: #7B1D3A;"></i>
+                                Appearance Settings
+                            </h3>
+
+                            <div class="settings-group">
+                                <label class="settings-label">Primary Color</label>
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <input type="color" id="settingPrimaryColor" value="#7B1D3A" style="width: 60px; height: 40px; border: none; border-radius: 8px; cursor: pointer;">
+                                    <input type="text" id="settingPrimaryColorHex" class="settings-input" value="#7B1D3A" style="width: 120px;" readonly>
+                                </div>
+                            </div>
+
+                            <div class="settings-group">
+                                <label class="settings-label">Accent Color</label>
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <input type="color" id="settingAccentColor" value="#FFBF00" style="width: 60px; height: 40px; border: none; border-radius: 8px; cursor: pointer;">
+                                    <input type="text" id="settingAccentColorHex" class="settings-input" value="#FFBF00" style="width: 120px;" readonly>
+                                </div>
+                            </div>
+
+                            <div class="settings-group">
+                                <label class="settings-label">Sidebar Style</label>
+                                <select id="settingSidebarStyle" class="settings-input">
+                                    <option value="gradient" selected>Gradient (Maroon)</option>
+                                    <option value="solid">Solid Color</option>
+                                    <option value="dark">Dark Mode</option>
+                                </select>
+                            </div>
+
+                            <div class="settings-group">
+                                <div class="settings-toggle-row">
+                                    <div>
+                                        <label class="settings-label" style="margin-bottom: 0;">Compact Mode</label>
+                                        <p class="settings-hint" style="margin-top: 4px;">Reduce spacing and padding throughout the interface</p>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="settingCompactMode">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="settings-group">
+                                <div class="settings-toggle-row">
+                                    <div>
+                                        <label class="settings-label" style="margin-bottom: 0;">Show Dashboard Animations</label>
+                                        <p class="settings-hint" style="margin-top: 4px;">Enable smooth animations and transitions</p>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="settingAnimations" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Backup & Data Tab -->
+                        <div id="settingsTabBackup" class="settings-tab">
+                            <h3 style="font-size: 18px; font-weight: 700; color: #1F2937; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                                <i class="fas fa-database" style="color: #7B1D3A;"></i>
+                                Backup & Data Management
+                            </h3>
+
+                            <div style="background: #F0FDF4; border: 1px solid #86EFAC; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+                                <h4 style="color: #065F46; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                                    <i class="fas fa-shield-alt"></i> Data Backup
+                                </h4>
+                                <p style="color: #047857; font-size: 14px; margin-bottom: 16px;">Export system data for backup purposes</p>
+                                <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                                    <button onclick="exportData('interns')" class="settings-btn">
+                                        <i class="fas fa-user-graduate"></i> Export Interns
+                                    </button>
+                                    <button onclick="exportData('attendance')" class="settings-btn">
+                                        <i class="fas fa-clock"></i> Export Attendance
+                                    </button>
+                                    <button onclick="exportData('tasks')" class="settings-btn">
+                                        <i class="fas fa-tasks"></i> Export Tasks
+                                    </button>
+                                    <button onclick="exportData('bookings')" class="settings-btn">
+                                        <i class="fas fa-calendar"></i> Export Bookings
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div style="background: #FEF3C7; border: 1px solid #FCD34D; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+                                <h4 style="color: #92400E; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                                    <i class="fas fa-broom"></i> Data Cleanup
+                                </h4>
+                                <p style="color: #A16207; font-size: 14px; margin-bottom: 16px;">Clear old or unnecessary data to improve performance</p>
+                                <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                                    <button onclick="clearOldData('notifications')" class="settings-btn warning">
+                                        <i class="fas fa-bell-slash"></i> Clear Old Notifications
+                                    </button>
+                                    <button onclick="clearOldData('logs')" class="settings-btn warning">
+                                        <i class="fas fa-file-alt"></i> Clear Activity Logs
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div style="background: #FEE2E2; border: 1px solid #FECACA; border-radius: 12px; padding: 20px;">
+                                <h4 style="color: #991B1B; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                                    <i class="fas fa-exclamation-triangle"></i> Danger Zone
+                                </h4>
+                                <p style="color: #DC2626; font-size: 14px; margin-bottom: 16px;">These actions are irreversible. Proceed with caution.</p>
+                                <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                                    <button onclick="resetSettings()" class="settings-btn danger">
+                                        <i class="fas fa-undo"></i> Reset All Settings
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- About Tab -->
+                        <div id="settingsTabAbout" class="settings-tab">
+                            <h3 style="font-size: 18px; font-weight: 700; color: #1F2937; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                                <i class="fas fa-info-circle" style="color: #7B1D3A;"></i>
+                                About System
+                            </h3>
+
+                            <div style="text-align: center; padding: 40px 20px; background: linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%); border-radius: 16px; color: white; margin-bottom: 24px;">
+                                <div style="width: 80px; height: 80px; background: white; border-radius: 20px; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center;">
+                                    <img src="{{ asset('images/up logo.png') }}" alt="UP Logo" style="width: 60px; height: 60px; object-fit: contain;">
+                                </div>
+                                <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 8px;">UP Management System</h2>
+                                <p style="opacity: 0.9; margin-bottom: 4px;">Version 1.0.0</p>
+                                <p style="opacity: 0.7; font-size: 13px;">© 2026 University of Pangasinan</p>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px;">
+                                <div style="background: #F9FAFB; padding: 16px; border-radius: 10px;">
+                                    <div style="color: #6B7280; font-size: 12px; text-transform: uppercase; margin-bottom: 4px;">Framework</div>
+                                    <div style="font-weight: 600; color: #1F2937;">Laravel {{ app()->version() }}</div>
+                                </div>
+                                <div style="background: #F9FAFB; padding: 16px; border-radius: 10px;">
+                                    <div style="color: #6B7280; font-size: 12px; text-transform: uppercase; margin-bottom: 4px;">PHP Version</div>
+                                    <div style="font-weight: 600; color: #1F2937;">{{ phpversion() }}</div>
+                                </div>
+                                <div style="background: #F9FAFB; padding: 16px; border-radius: 10px;">
+                                    <div style="color: #6B7280; font-size: 12px; text-transform: uppercase; margin-bottom: 4px;">Server Time</div>
+                                    <div style="font-weight: 600; color: #1F2937;" id="serverTime">{{ now()->setTimezone('Asia/Manila')->format('M d, Y g:i A') }}</div>
+                                </div>
+                                <div style="background: #F9FAFB; padding: 16px; border-radius: 10px;">
+                                    <div style="color: #6B7280; font-size: 12px; text-transform: uppercase; margin-bottom: 4px;">Environment</div>
+                                    <div style="font-weight: 600; color: #1F2937;">{{ ucfirst(config('app.env')) }}</div>
+                                </div>
+                            </div>
+
+                            <div style="background: #F9FAFB; padding: 20px; border-radius: 12px;">
+                                <h4 style="font-weight: 600; color: #1F2937; margin-bottom: 12px;">System Modules</h4>
+                                <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                    <span style="background: #DBEAFE; color: #1E40AF; padding: 6px 12px; border-radius: 20px; font-size: 13px;">
+                                        <i class="fas fa-user-graduate"></i> Intern Management
+                                    </span>
+                                    <span style="background: #D1FAE5; color: #065F46; padding: 6px 12px; border-radius: 20px; font-size: 13px;">
+                                        <i class="fas fa-clock"></i> Time & Attendance
+                                    </span>
+                                    <span style="background: #FEF3C7; color: #92400E; padding: 6px 12px; border-radius: 20px; font-size: 13px;">
+                                        <i class="fas fa-tasks"></i> Task Management
+                                    </span>
+                                    <span style="background: #FCE7F3; color: #9D174D; padding: 6px 12px; border-radius: 20px; font-size: 13px;">
+                                        <i class="fas fa-calendar"></i> Scheduler
+                                    </span>
+                                    <span style="background: #E0E7FF; color: #3730A3; padding: 6px 12px; border-radius: 20px; font-size: 13px;">
+                                        <i class="fas fa-rocket"></i> Incubatee Tracker
+                                    </span>
+                                    <span style="background: #FEE2E2; color: #991B1B; padding: 6px 12px; border-radius: 20px; font-size: 13px;">
+                                        <i class="fas fa-exclamation-circle"></i> Issues Management
+                                    </span>
+                                    <span style="background: #F3E8FF; color: #6B21A8; padding: 6px 12px; border-radius: 20px; font-size: 13px;">
+                                        <i class="fas fa-folder"></i> Digital Records
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Save Button -->
+                        <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid #E5E7EB; display: flex; justify-content: flex-end; gap: 12px;">
+                            <button onclick="resetSettingsForm()" style="padding: 12px 24px; background: #F3F4F6; color: #374151; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+                                <i class="fas fa-undo"></i> Reset
+                            </button>
+                            <button onclick="saveSettings()" style="padding: 12px 24px; background: linear-gradient(135deg, #7B1D3A, #5a1428); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 8px;">
+                                <i class="fas fa-save"></i> Save Settings
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+    </main>
     <div id="assignTeamLeaderModal" class="modal-overlay">
         <div class="modal-content" style="max-width: 600px;">
             <div class="modal-header">
@@ -7039,8 +7667,8 @@
             showToast('success', 'Notifications Cleared', 'All notifications have been marked as read.');
         }
 
-        // Refresh notifications every 30 seconds
-        setInterval(loadNotifications, 30000);
+        // Refresh notifications every 10 seconds for real-time updates
+        setInterval(loadNotifications, 10000);
 
         // Logout function - uses Laravel logout
         function handleLogout(event) {
@@ -7132,10 +7760,295 @@
                 breadcrumb.innerHTML = 'Dashboard > <span>Digital Records</span>';
             } else if (pageId === 'scheduler') {
                 breadcrumb.innerHTML = 'Dashboard > <span>Scheduler & Events</span>';
+            } else if (pageId === 'admin-settings') {
+                breadcrumb.innerHTML = 'Dashboard > <span>Settings</span>';
+                loadSettingsFromStorage();
             } else if (pageId === 'dashboard-overview') {
                 breadcrumb.innerHTML = 'Dashboard > <span>Overview</span>';
             }
         }
+
+        // ===== SETTINGS PAGE FUNCTIONS =====
+
+        function showSettingsTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.settings-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Remove active class from all nav items
+            document.querySelectorAll('.settings-nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            // Show selected tab
+            const selectedTab = document.getElementById('settingsTab' + tabName.charAt(0).toUpperCase() + tabName.slice(1));
+            if (selectedTab) {
+                selectedTab.classList.add('active');
+            }
+
+            // Add active class to nav item
+            const navItem = document.getElementById('settingsNav' + tabName.charAt(0).toUpperCase() + tabName.slice(1));
+            if (navItem) {
+                navItem.classList.add('active');
+            }
+        }
+
+        function getDefaultSettings() {
+            return {
+                // General
+                systemName: 'UP Management System',
+                officeName: 'University of Pangasinan',
+                contactEmail: '',
+                timezone: 'Asia/Manila',
+                dateFormat: 'M d, Y',
+                maintenanceMode: false,
+
+                // Internship
+                defaultHours: 480,
+                workStart: '08:00',
+                workEnd: '17:00',
+                gracePeriod: 15,
+                overtimeThreshold: 8,
+                autoApproveIntern: false,
+                requireOvertimeApproval: true,
+
+                // Notifications
+                emailNotifications: true,
+                bookingAlerts: true,
+                internAlerts: true,
+                issueAlerts: true,
+                soundNotifications: true,
+                notificationInterval: '10',
+
+                // Scheduler
+                bookingDuration: 2,
+                minAdvanceBooking: 1,
+                maxAdvanceBooking: 90,
+                autoApproveBooking: false,
+                weekendBookings: false,
+                bookingStart: '08:00',
+                bookingEnd: '17:00',
+
+                // Appearance
+                primaryColor: '#7B1D3A',
+                accentColor: '#FFBF00',
+                sidebarStyle: 'gradient',
+                compactMode: false,
+                animations: true
+            };
+        }
+
+        function loadSettingsFromStorage() {
+            const settings = JSON.parse(localStorage.getItem('adminSettings')) || getDefaultSettings();
+
+            // General Settings
+            document.getElementById('settingSystemName').value = settings.systemName || '';
+            document.getElementById('settingOfficeName').value = settings.officeName || '';
+            document.getElementById('settingContactEmail').value = settings.contactEmail || '';
+            document.getElementById('settingTimezone').value = settings.timezone || 'Asia/Manila';
+            document.getElementById('settingDateFormat').value = settings.dateFormat || 'M d, Y';
+            document.getElementById('settingMaintenanceMode').checked = settings.maintenanceMode || false;
+
+            // Internship Settings
+            document.getElementById('settingDefaultHours').value = settings.defaultHours || 480;
+            document.getElementById('settingWorkStart').value = settings.workStart || '08:00';
+            document.getElementById('settingWorkEnd').value = settings.workEnd || '17:00';
+            document.getElementById('settingGracePeriod').value = settings.gracePeriod || 15;
+            document.getElementById('settingOvertimeThreshold').value = settings.overtimeThreshold || 8;
+            document.getElementById('settingAutoApproveIntern').checked = settings.autoApproveIntern || false;
+            document.getElementById('settingRequireOvertimeApproval').checked = settings.requireOvertimeApproval !== false;
+
+            // Notification Settings
+            document.getElementById('settingEmailNotifications').checked = settings.emailNotifications !== false;
+            document.getElementById('settingBookingAlerts').checked = settings.bookingAlerts !== false;
+            document.getElementById('settingInternAlerts').checked = settings.internAlerts !== false;
+            document.getElementById('settingIssueAlerts').checked = settings.issueAlerts !== false;
+            document.getElementById('settingSoundNotifications').checked = settings.soundNotifications !== false;
+            document.getElementById('settingNotificationInterval').value = settings.notificationInterval || '10';
+
+            // Scheduler Settings
+            document.getElementById('settingBookingDuration').value = settings.bookingDuration || 2;
+            document.getElementById('settingMinAdvanceBooking').value = settings.minAdvanceBooking || 1;
+            document.getElementById('settingMaxAdvanceBooking').value = settings.maxAdvanceBooking || 90;
+            document.getElementById('settingAutoApproveBooking').checked = settings.autoApproveBooking || false;
+            document.getElementById('settingWeekendBookings').checked = settings.weekendBookings || false;
+            document.getElementById('settingBookingStart').value = settings.bookingStart || '08:00';
+            document.getElementById('settingBookingEnd').value = settings.bookingEnd || '17:00';
+
+            // Appearance Settings
+            document.getElementById('settingPrimaryColor').value = settings.primaryColor || '#7B1D3A';
+            document.getElementById('settingPrimaryColorHex').value = settings.primaryColor || '#7B1D3A';
+            document.getElementById('settingAccentColor').value = settings.accentColor || '#FFBF00';
+            document.getElementById('settingAccentColorHex').value = settings.accentColor || '#FFBF00';
+            document.getElementById('settingSidebarStyle').value = settings.sidebarStyle || 'gradient';
+            document.getElementById('settingCompactMode').checked = settings.compactMode || false;
+            document.getElementById('settingAnimations').checked = settings.animations !== false;
+        }
+
+        function saveSettings() {
+            const settings = {
+                // General
+                systemName: document.getElementById('settingSystemName').value,
+                officeName: document.getElementById('settingOfficeName').value,
+                contactEmail: document.getElementById('settingContactEmail').value,
+                timezone: document.getElementById('settingTimezone').value,
+                dateFormat: document.getElementById('settingDateFormat').value,
+                maintenanceMode: document.getElementById('settingMaintenanceMode').checked,
+
+                // Internship
+                defaultHours: parseInt(document.getElementById('settingDefaultHours').value),
+                workStart: document.getElementById('settingWorkStart').value,
+                workEnd: document.getElementById('settingWorkEnd').value,
+                gracePeriod: parseInt(document.getElementById('settingGracePeriod').value),
+                overtimeThreshold: parseFloat(document.getElementById('settingOvertimeThreshold').value),
+                autoApproveIntern: document.getElementById('settingAutoApproveIntern').checked,
+                requireOvertimeApproval: document.getElementById('settingRequireOvertimeApproval').checked,
+
+                // Notifications
+                emailNotifications: document.getElementById('settingEmailNotifications').checked,
+                bookingAlerts: document.getElementById('settingBookingAlerts').checked,
+                internAlerts: document.getElementById('settingInternAlerts').checked,
+                issueAlerts: document.getElementById('settingIssueAlerts').checked,
+                soundNotifications: document.getElementById('settingSoundNotifications').checked,
+                notificationInterval: document.getElementById('settingNotificationInterval').value,
+
+                // Scheduler
+                bookingDuration: parseInt(document.getElementById('settingBookingDuration').value),
+                minAdvanceBooking: parseInt(document.getElementById('settingMinAdvanceBooking').value),
+                maxAdvanceBooking: parseInt(document.getElementById('settingMaxAdvanceBooking').value),
+                autoApproveBooking: document.getElementById('settingAutoApproveBooking').checked,
+                weekendBookings: document.getElementById('settingWeekendBookings').checked,
+                bookingStart: document.getElementById('settingBookingStart').value,
+                bookingEnd: document.getElementById('settingBookingEnd').value,
+
+                // Appearance
+                primaryColor: document.getElementById('settingPrimaryColor').value,
+                accentColor: document.getElementById('settingAccentColor').value,
+                sidebarStyle: document.getElementById('settingSidebarStyle').value,
+                compactMode: document.getElementById('settingCompactMode').checked,
+                animations: document.getElementById('settingAnimations').checked
+            };
+
+            localStorage.setItem('adminSettings', JSON.stringify(settings));
+
+            // Apply some settings immediately
+            applySettings(settings);
+
+            showToast('success', 'Settings Saved', 'Your settings have been saved successfully!');
+        }
+
+        function applySettings(settings) {
+            // Update notification polling interval
+            if (window.notificationInterval) {
+                clearInterval(window.notificationInterval);
+            }
+            const interval = parseInt(settings.notificationInterval) * 1000;
+            window.notificationInterval = setInterval(loadAdminNotifications, interval);
+
+            // Apply compact mode
+            if (settings.compactMode) {
+                document.body.classList.add('compact-mode');
+            } else {
+                document.body.classList.remove('compact-mode');
+            }
+
+            // Apply animations setting
+            if (!settings.animations) {
+                document.body.classList.add('no-animations');
+            } else {
+                document.body.classList.remove('no-animations');
+            }
+        }
+
+        function resetSettingsForm() {
+            const defaults = getDefaultSettings();
+            localStorage.setItem('adminSettings', JSON.stringify(defaults));
+            loadSettingsFromStorage();
+            showToast('info', 'Form Reset', 'Settings form has been reset to defaults.');
+        }
+
+        function resetSettings() {
+            if (confirm('Are you sure you want to reset all settings to defaults? This action cannot be undone.')) {
+                localStorage.removeItem('adminSettings');
+                loadSettingsFromStorage();
+                showToast('success', 'Settings Reset', 'All settings have been reset to defaults.');
+            }
+        }
+
+        function exportData(type) {
+            showToast('info', 'Exporting...', `Preparing ${type} data export...`);
+
+            // Create a simple CSV export simulation
+            let url = '';
+            switch(type) {
+                case 'interns':
+                    url = '/admin/export/interns';
+                    break;
+                case 'attendance':
+                    url = '/admin/export/attendance';
+                    break;
+                case 'tasks':
+                    url = '/admin/export/tasks';
+                    break;
+                case 'bookings':
+                    url = '/admin/export/bookings';
+                    break;
+            }
+
+            // Trigger download
+            if (url) {
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `${type}_export_${new Date().toISOString().split('T')[0]}.csv`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                setTimeout(() => {
+                    showToast('success', 'Export Ready', `Your ${type} data has been exported.`);
+                }, 1000);
+            }
+        }
+
+        function clearOldData(type) {
+            if (confirm(`Are you sure you want to clear old ${type}? This action cannot be undone.`)) {
+                showToast('info', 'Clearing...', `Clearing old ${type}...`);
+
+                setTimeout(() => {
+                    if (type === 'notifications') {
+                        localStorage.removeItem('readNotifications');
+                    }
+                    showToast('success', 'Cleared', `Old ${type} have been cleared.`);
+                }, 500);
+            }
+        }
+
+        // Color picker sync
+        document.addEventListener('DOMContentLoaded', function() {
+            const primaryColor = document.getElementById('settingPrimaryColor');
+            const primaryColorHex = document.getElementById('settingPrimaryColorHex');
+            const accentColor = document.getElementById('settingAccentColor');
+            const accentColorHex = document.getElementById('settingAccentColorHex');
+
+            if (primaryColor && primaryColorHex) {
+                primaryColor.addEventListener('input', function() {
+                    primaryColorHex.value = this.value.toUpperCase();
+                });
+            }
+
+            if (accentColor && accentColorHex) {
+                accentColor.addEventListener('input', function() {
+                    accentColorHex.value = this.value.toUpperCase();
+                });
+            }
+
+            // Load settings on page load if settings page was last page
+            const savedPage = localStorage.getItem('adminCurrentPage');
+            if (savedPage === 'admin-settings') {
+                loadSettingsFromStorage();
+            }
+        });
 
         // ===== TEAM LEADER MANAGEMENT FUNCTIONS =====
 
@@ -11838,13 +12751,14 @@ University of the Philippines Cebu
         goldGradient.addColorStop(0, 'rgba(255, 191, 0, 0.9)');
         goldGradient.addColorStop(1, 'rgba(255, 191, 0, 0.4)');
 
+        // Initialize charts with empty data first
         const barChart = new Chart(barCtx, {
             type: 'bar',
             data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                labels: [],
                 datasets: [{
                     label: 'Active Interns',
-                    data: [185, 195, 210, 225, 235, 245],
+                    data: [],
                     backgroundColor: maroonGradient,
                     borderColor: '#7B1D3A',
                     borderWidth: 0,
@@ -11854,7 +12768,7 @@ University of the Philippines Cebu
                     categoryPercentage: 0.7
                 }, {
                     label: 'Completed Tasks',
-                    data: [165, 180, 190, 205, 215, 230],
+                    data: [],
                     backgroundColor: goldGradient,
                     borderColor: '#FFBF00',
                     borderWidth: 0,
@@ -11932,9 +12846,9 @@ University of the Philippines Cebu
         const pieChart = new Chart(pieCtx, {
             type: 'doughnut',
             data: {
-                labels: ['Intern Management', 'Research Tracking', 'Digital Records', 'Incubatee Tracker', 'Scheduler'],
+                labels: ['Intern Management', 'Task Management', 'Digital Records', 'Incubatee Tracker', 'Scheduler'],
                 datasets: [{
-                    data: [35, 25, 20, 12, 8],
+                    data: [20, 20, 20, 20, 20],
                     backgroundColor: [
                         '#7B1D3A',
                         '#FFBF00',
@@ -11995,6 +12909,49 @@ University of the Philippines Cebu
                 }
             }
         });
+
+        // ============================================
+        // Real-time Chart Data Functions
+        // ============================================
+        async function loadChartData() {
+            try {
+                const response = await fetch('/admin/chart-data');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+
+                // Update Bar Chart with monthly data
+                if (data.monthlyData && data.monthlyData.length > 0) {
+                    barChart.data.labels = data.monthlyData.map(item => item.month);
+                    barChart.data.datasets[0].data = data.monthlyData.map(item => item.activeInterns);
+                    barChart.data.datasets[1].data = data.monthlyData.map(item => item.completedTasks);
+                    barChart.update('none');
+                }
+
+                // Update Pie Chart with system usage
+                if (data.systemUsage) {
+                    pieChart.data.datasets[0].data = [
+                        data.systemUsage.internManagement,
+                        data.systemUsage.taskManagement,
+                        data.systemUsage.digitalRecords,
+                        data.systemUsage.incubateeTracker,
+                        data.systemUsage.scheduler
+                    ];
+                    pieChart.update('none');
+                }
+
+                console.log('Charts updated:', data.lastUpdated);
+            } catch (error) {
+                console.error('Error loading chart data:', error);
+            }
+        }
+
+        // Load chart data on page load
+        loadChartData();
+
+        // Refresh chart data every 30 seconds
+        setInterval(loadChartData, 30000);
 
         // ===== SCHOOL MANAGEMENT FUNCTIONS =====
 

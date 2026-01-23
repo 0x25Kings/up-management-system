@@ -752,4 +752,428 @@ class AdminDashboardController extends Controller
             'permissions' => $user->getPermissionsArray()
         ]);
     }
+
+    /**
+     * Get recent activity for real-time updates
+     */
+    public function getRecentActivity()
+    {
+        $activities = [];
+        $timezone = 'Asia/Manila';
+
+        // Get recent attendance records (time-in/time-out) - last 30 days
+        $recentAttendances = Attendance::with('intern')
+            ->whereDate('date', '>=', Carbon::now($timezone)->subDays(30))
+            ->orderBy('updated_at', 'desc')
+            ->limit(15)
+            ->get();
+
+        foreach ($recentAttendances as $attendance) {
+            if ($attendance->intern) {
+                $action = $attendance->time_out ? 'Time Out Recorded' : 'Time In Recorded';
+                $activities[] = [
+                    'id' => 'attendance_' . $attendance->id,
+                    'name' => $attendance->intern->name,
+                    'initial' => strtoupper(substr($attendance->intern->name, 0, 1)),
+                    'system' => 'Intern Management',
+                    'action' => $action,
+                    'status' => 'Active',
+                    'status_class' => 'status-active',
+                    'date' => $attendance->updated_at,
+                    'date_formatted' => $attendance->updated_at->setTimezone($timezone)->format('M d, g:i A'),
+                ];
+            }
+        }
+
+        // Get recent task updates - last 30 days
+        $recentTasks = Task::with('intern')
+            ->whereDate('updated_at', '>=', Carbon::now($timezone)->subDays(30))
+            ->orderBy('updated_at', 'desc')
+            ->limit(15)
+            ->get();
+
+        foreach ($recentTasks as $task) {
+            if ($task->intern) {
+                $status = ucfirst($task->status);
+                $statusClass = $task->status === 'completed' ? 'status-completed' :
+                              ($task->status === 'in_progress' ? 'status-active' : 'status-pending');
+                $activities[] = [
+                    'id' => 'task_' . $task->id,
+                    'name' => $task->intern->name,
+                    'initial' => strtoupper(substr($task->intern->name, 0, 1)),
+                    'system' => 'Task Management',
+                    'action' => 'Task: ' . $task->title,
+                    'status' => $status,
+                    'status_class' => $statusClass,
+                    'date' => $task->updated_at,
+                    'date_formatted' => $task->updated_at->setTimezone($timezone)->format('M d, g:i A'),
+                ];
+            }
+        }
+
+        // Get recent bookings - last 30 days
+        $recentBookings = Booking::whereDate('updated_at', '>=', Carbon::now($timezone)->subDays(30))
+            ->orderBy('updated_at', 'desc')
+            ->limit(15)
+            ->get();
+
+        foreach ($recentBookings as $booking) {
+            $status = ucfirst($booking->status);
+            $statusClass = $booking->status === 'approved' ? 'status-completed' :
+                          ($booking->status === 'pending' ? 'status-pending' : 'status-active');
+            $activities[] = [
+                'id' => 'booking_' . $booking->id,
+                'name' => $booking->agency_name ?? $booking->contact_person ?? 'Unknown',
+                'initial' => strtoupper(substr($booking->agency_name ?? $booking->contact_person ?? 'U', 0, 1)),
+                'system' => 'Scheduler',
+                'action' => 'Booking: ' . ($booking->event_name ?? 'Event'),
+                'status' => $status,
+                'status_class' => $statusClass,
+                'date' => $booking->updated_at,
+                'date_formatted' => $booking->updated_at->setTimezone($timezone)->format('M d, g:i A'),
+            ];
+        }
+
+        // Get recent startup submissions - last 30 days
+        $recentSubmissions = StartupSubmission::with('startup')
+            ->whereDate('updated_at', '>=', Carbon::now($timezone)->subDays(30))
+            ->orderBy('updated_at', 'desc')
+            ->limit(15)
+            ->get();
+
+        foreach ($recentSubmissions as $submission) {
+            $status = ucfirst($submission->status);
+            $statusClass = $submission->status === 'approved' ? 'status-completed' :
+                          ($submission->status === 'pending' ? 'status-pending' : 'status-active');
+            // Try multiple fields to get the name
+            $name = $submission->company_name
+                ?? $submission->contact_person
+                ?? ($submission->startup ? $submission->startup->startup_name : null)
+                ?? $submission->title
+                ?? 'Unknown';
+            $activities[] = [
+                'id' => 'submission_' . $submission->id,
+                'name' => $name,
+                'initial' => strtoupper(substr($name, 0, 1)),
+                'system' => 'Incubatee Tracker',
+                'action' => ucfirst($submission->type ?? 'Document') . ' Submission',
+                'status' => $status,
+                'status_class' => $statusClass,
+                'date' => $submission->updated_at,
+                'date_formatted' => $submission->updated_at->setTimezone($timezone)->format('M d, g:i A'),
+            ];
+        }
+
+        // Get recent room issues - last 30 days
+        $recentIssues = RoomIssue::with('startup')
+            ->whereDate('updated_at', '>=', Carbon::now($timezone)->subDays(30))
+            ->orderBy('updated_at', 'desc')
+            ->limit(15)
+            ->get();
+
+        foreach ($recentIssues as $issue) {
+            $status = ucfirst(str_replace('_', ' ', $issue->status));
+            $statusClass = $issue->status === 'resolved' ? 'status-completed' :
+                          ($issue->status === 'pending' ? 'status-pending' : 'status-active');
+            // Use contact_person, company_name, or startup name
+            $name = $issue->contact_person
+                ?? $issue->company_name
+                ?? ($issue->startup ? $issue->startup->startup_name : null)
+                ?? 'Unknown';
+            $activities[] = [
+                'id' => 'issue_' . $issue->id,
+                'name' => $name,
+                'initial' => strtoupper(substr($name, 0, 1)),
+                'system' => 'Issues Management',
+                'action' => 'Issue: ' . ($issue->issue_type ?? $issue->category ?? 'Report'),
+                'status' => $status,
+                'status_class' => $statusClass,
+                'date' => $issue->updated_at,
+                'date_formatted' => $issue->updated_at->setTimezone($timezone)->format('M d, g:i A'),
+            ];
+        }
+
+        // Get recent intern registrations - last 30 days
+        $recentInterns = Intern::whereDate('updated_at', '>=', Carbon::now($timezone)->subDays(30))
+            ->orderBy('updated_at', 'desc')
+            ->limit(15)
+            ->get();
+
+        foreach ($recentInterns as $intern) {
+            $status = ucfirst($intern->status);
+            $statusClass = $intern->status === 'Active' ? 'status-active' :
+                          ($intern->status === 'Completed' ? 'status-completed' : 'status-pending');
+            $action = $intern->approval_status === 'pending' ? 'Registration Pending' :
+                     ($intern->created_at->eq($intern->updated_at) ? 'Registered' : 'Profile Updated');
+            $activities[] = [
+                'id' => 'intern_' . $intern->id,
+                'name' => $intern->name,
+                'initial' => strtoupper(substr($intern->name, 0, 1)),
+                'system' => 'Intern Management',
+                'action' => $action,
+                'status' => $status,
+                'status_class' => $statusClass,
+                'date' => $intern->updated_at,
+                'date_formatted' => $intern->updated_at->setTimezone($timezone)->format('M d, g:i A'),
+            ];
+        }
+
+        // Sort all activities by date descending and take top 10
+        usort($activities, function($a, $b) {
+            return $b['date']->timestamp - $a['date']->timestamp;
+        });
+
+        $activities = array_slice($activities, 0, 10);
+
+        // Remove Carbon objects for JSON response
+        foreach ($activities as &$activity) {
+            unset($activity['date']);
+        }
+
+        return response()->json($activities);
+    }
+
+    /**
+     * Get chart data for real-time dashboard updates
+     */
+    public function getChartData()
+    {
+        $timezone = 'Asia/Manila';
+
+        // Get monthly intern data for the last 6 months
+        $monthlyData = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $date = Carbon::now($timezone)->subMonths($i);
+            $monthName = $date->format('M');
+            $monthStart = $date->startOfMonth()->toDateString();
+            $monthEnd = $date->endOfMonth()->toDateString();
+
+            // Count active interns for this month
+            $activeInterns = Intern::approved()
+                ->where('status', 'Active')
+                ->where('created_at', '<=', $monthEnd)
+                ->count();
+
+            // Count completed tasks for this month
+            $completedTasks = Task::where('status', 'completed')
+                ->whereBetween('updated_at', [$monthStart, $monthEnd])
+                ->count();
+
+            $monthlyData[] = [
+                'month' => $monthName,
+                'activeInterns' => $activeInterns,
+                'completedTasks' => $completedTasks
+            ];
+        }
+
+        // Get system usage data (pie chart)
+        $totalInterns = Intern::approved()->count();
+        $totalTasks = Task::count();
+        $totalBookings = Booking::count();
+        $totalSubmissions = StartupSubmission::count();
+        $totalDocuments = Document::count();
+
+        $total = $totalInterns + $totalTasks + $totalBookings + $totalSubmissions + $totalDocuments;
+
+        // Calculate percentages (avoid division by zero)
+        if ($total > 0) {
+            $systemUsage = [
+                'internManagement' => round(($totalInterns / $total) * 100),
+                'taskManagement' => round(($totalTasks / $total) * 100),
+                'scheduler' => round(($totalBookings / $total) * 100),
+                'incubateeTracker' => round(($totalSubmissions / $total) * 100),
+                'digitalRecords' => round(($totalDocuments / $total) * 100)
+            ];
+        } else {
+            $systemUsage = [
+                'internManagement' => 20,
+                'taskManagement' => 20,
+                'scheduler' => 20,
+                'incubateeTracker' => 20,
+                'digitalRecords' => 20
+            ];
+        }
+
+        // Get real-time stats
+        $stats = [
+            'totalInterns' => $totalInterns,
+            'activeInterns' => Intern::approved()->where('status', 'Active')->count(),
+            'pendingTasks' => Task::where('status', 'pending')->count(),
+            'completedTasks' => Task::where('status', 'completed')->count(),
+            'pendingBookings' => Booking::where('status', 'pending')->count(),
+            'todayAttendance' => Attendance::whereDate('date', Carbon::now($timezone)->toDateString())->count(),
+        ];
+
+        return response()->json([
+            'monthlyData' => $monthlyData,
+            'systemUsage' => $systemUsage,
+            'stats' => $stats,
+            'lastUpdated' => Carbon::now($timezone)->format('M d, g:i A')
+        ]);
+    }
+
+    /**
+     * Export interns data to CSV
+     */
+    public function exportInterns()
+    {
+        $interns = Intern::approved()->with('schoolRelation')->get();
+
+        $filename = 'interns_export_' . date('Y-m-d') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+
+        $callback = function() use ($interns) {
+            $file = fopen('php://output', 'w');
+
+            // Add headers
+            fputcsv($file, ['ID', 'Name', 'Email', 'School', 'Status', 'Required Hours', 'Completed Hours', 'Start Date', 'End Date', 'Created At']);
+
+            foreach ($interns as $intern) {
+                fputcsv($file, [
+                    $intern->id,
+                    $intern->name,
+                    $intern->email,
+                    $intern->schoolRelation ? $intern->schoolRelation->name : $intern->school,
+                    $intern->status,
+                    $intern->required_hours,
+                    $intern->completed_hours,
+                    $intern->start_date,
+                    $intern->end_date,
+                    $intern->created_at
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Export attendance data to CSV
+     */
+    public function exportAttendance()
+    {
+        $attendances = Attendance::with('intern')->orderBy('date', 'desc')->get();
+
+        $filename = 'attendance_export_' . date('Y-m-d') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+
+        $callback = function() use ($attendances) {
+            $file = fopen('php://output', 'w');
+
+            // Add headers
+            fputcsv($file, ['ID', 'Intern Name', 'Date', 'Time In', 'Time Out', 'Hours Worked', 'Overtime', 'Undertime', 'Status']);
+
+            foreach ($attendances as $attendance) {
+                fputcsv($file, [
+                    $attendance->id,
+                    $attendance->intern ? $attendance->intern->name : 'N/A',
+                    $attendance->date,
+                    $attendance->time_in,
+                    $attendance->time_out,
+                    $attendance->hours_worked,
+                    $attendance->overtime ?? 0,
+                    $attendance->undertime ?? 0,
+                    $attendance->status ?? 'Present'
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Export tasks data to CSV
+     */
+    public function exportTasks()
+    {
+        $tasks = Task::with(['intern', 'assignedBy'])->orderBy('created_at', 'desc')->get();
+
+        $filename = 'tasks_export_' . date('Y-m-d') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+
+        $callback = function() use ($tasks) {
+            $file = fopen('php://output', 'w');
+
+            // Add headers
+            fputcsv($file, ['ID', 'Title', 'Description', 'Assigned To', 'Assigned By', 'Due Date', 'Status', 'Priority', 'Created At']);
+
+            foreach ($tasks as $task) {
+                fputcsv($file, [
+                    $task->id,
+                    $task->title,
+                    $task->description,
+                    $task->intern ? $task->intern->name : 'N/A',
+                    $task->assignedBy ? $task->assignedBy->name : 'Admin',
+                    $task->due_date,
+                    $task->status,
+                    $task->priority ?? 'Normal',
+                    $task->created_at
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Export bookings data to CSV
+     */
+    public function exportBookings()
+    {
+        $bookings = Booking::with('approvedBy')->orderBy('booking_date', 'desc')->get();
+
+        $filename = 'bookings_export_' . date('Y-m-d') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+
+        $callback = function() use ($bookings) {
+            $file = fopen('php://output', 'w');
+
+            // Add headers
+            fputcsv($file, ['ID', 'Contact Person', 'Email', 'Phone', 'Organization', 'Room', 'Purpose', 'Booking Date', 'Start Time', 'End Time', 'Status', 'Approved By', 'Created At']);
+
+            foreach ($bookings as $booking) {
+                fputcsv($file, [
+                    $booking->id,
+                    $booking->contact_person,
+                    $booking->email,
+                    $booking->phone ?? 'N/A',
+                    $booking->organization ?? 'N/A',
+                    $booking->room,
+                    $booking->purpose,
+                    $booking->booking_date,
+                    $booking->time_start,
+                    $booking->time_end,
+                    $booking->status,
+                    $booking->approvedBy ? $booking->approvedBy->name : 'N/A',
+                    $booking->created_at
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
 }

@@ -134,6 +134,15 @@ Route::post('/admin/logout', [AdminAuthController::class, 'logout'])->name('admi
 Route::middleware(['admin'])->group(function () {
     Route::get('/admin', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
     Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard.home');
+    Route::get('/admin/recent-activity', [AdminDashboardController::class, 'getRecentActivity'])->name('admin.recent-activity');
+    Route::get('/admin/chart-data', [AdminDashboardController::class, 'getChartData'])->name('admin.chart-data');
+
+    // Export routes
+    Route::get('/admin/export/interns', [AdminDashboardController::class, 'exportInterns'])->name('admin.export.interns');
+    Route::get('/admin/export/attendance', [AdminDashboardController::class, 'exportAttendance'])->name('admin.export.attendance');
+    Route::get('/admin/export/tasks', [AdminDashboardController::class, 'exportTasks'])->name('admin.export.tasks');
+    Route::get('/admin/export/bookings', [AdminDashboardController::class, 'exportBookings'])->name('admin.export.bookings');
+
     Route::post('/admin/attendance/{attendance}/approve-overtime', [AdminDashboardController::class, 'approveOvertime'])->name('admin.attendance.approve-overtime');
 
     // Task routes
