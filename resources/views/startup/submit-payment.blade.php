@@ -142,16 +142,6 @@
                     @enderror
                 </div>
 
-                <!-- Payment Date -->
-                <div class="form-group">
-                    <label>Payment Date <span>*</span></label>
-                    <input type="date" name="payment_date" class="form-input @error('payment_date') error @enderror" 
-                           value="{{ old('payment_date', date('Y-m-d')) }}" required>
-                    @error('payment_date')
-                        <div class="error-message">{{ $message }}</div>
-                    @enderror
-                </div>
-
                 <!-- Payment Proof Upload -->
                 <div class="form-group">
                     <label>Payment Proof <span>*</span></label>
@@ -243,10 +233,7 @@
                                     <span style="color: #6B7280; font-size: 13px;"><i class="fas fa-credit-card" style="width: 16px; color: #9CA3AF;"></i> Payment Method:</span>
                                     <span id="verifyMethod" style="font-weight: 600; color: #1F2937; background: #F3F4F6; padding: 4px 10px; border-radius: 6px;"></span>
                                 </div>
-                                <div style="display: flex; justify-content: space-between; padding: 12px 0; align-items: center;">
-                                    <span style="color: #6B7280; font-size: 13px;"><i class="fas fa-calendar" style="width: 16px; color: #9CA3AF;"></i> Payment Date:</span>
-                                    <span id="verifyDate" style="font-weight: 600; color: #1F2937; background: #F3F4F6; padding: 4px 10px; border-radius: 6px;"></span>
-                                </div>
+
                             </div>
                             
                             <!-- Match Checklist -->
@@ -257,7 +244,6 @@
                                 <ul style="font-size: 12px; color: #713F12; margin: 0; padding-left: 18px;">
                                     <li>Amount shown on receipt</li>
                                     <li>Transaction/Reference number</li>
-                                    <li>Date of payment</li>
                                 </ul>
                             </div>
                         </div>
@@ -1297,12 +1283,10 @@
         const amount = document.querySelector('input[name="amount"]').value || '0';
         const methodSelect = document.querySelector('select[name="payment_method"]');
         const method = methodSelect.options[methodSelect.selectedIndex]?.text || '-';
-        const date = document.querySelector('input[name="payment_date"]').value || '-';
 
         document.getElementById('verifyInvoice').textContent = invoice;
         document.getElementById('verifyAmount').textContent = '₱' + parseFloat(amount).toLocaleString('en-PH', {minimumFractionDigits: 2});
         document.getElementById('verifyMethod').textContent = method.replace(/^[^\s]+\s/, ''); // Remove emoji
-        document.getElementById('verifyDate').textContent = date ? new Date(date).toLocaleDateString('en-PH', {year: 'numeric', month: 'long', day: 'numeric'}) : '-';
     }
 
     // Update verification details when form fields change
@@ -1319,7 +1303,6 @@
         updateVerificationDetails();
         updateDisplayFormMethod();
     });
-    document.querySelector('input[name="payment_date"]').addEventListener('change', updateVerificationDetails);
     
     // Update display functions
     function updateDisplayFormInvoice() {
@@ -1440,10 +1423,6 @@
         checkMethodMatch(); // Also update OCR match in real-time
     });
     
-    document.querySelector('input[name="payment_date"]').addEventListener('change', function() {
-        validateFieldLive(this, 'Payment Date');
-    });
-
     // Flag to track if we're doing a validated submit
     let isValidatedSubmit = false;
     
@@ -1468,7 +1447,6 @@
         const formInvoice = document.querySelector('input[name="invoice_number"]').value.trim();
         const formAmount = document.querySelector('input[name="amount"]').value.trim();
         const formMethod = document.querySelector('select[name="payment_method"]').value;
-        const formDate = document.querySelector('input[name="payment_date"]').value;
         const formNotes = document.querySelector('textarea[name="notes"]').value;
         const confirmInvoice = confirmInvoiceInput.value.trim();
         
@@ -1497,11 +1475,6 @@
         // === VALIDATE PAYMENT METHOD ===
         if (!formMethod) {
             errors.push({ field: 'Payment Method', message: 'Please select a Payment Method.' });
-        }
-        
-        // === VALIDATE PAYMENT DATE ===
-        if (!formDate) {
-            errors.push({ field: 'Payment Date', message: 'Payment Date is required.' });
         }
         
         // === VALIDATE NOTES LENGTH ===
@@ -1536,7 +1509,6 @@
             updateCheckboxValidation();
             validateFieldLive(document.querySelector('input[name="invoice_number"]'), 'Reference Number');
             validateFieldLive(document.querySelector('input[name="amount"]'), 'Amount');
-            validateFieldLive(document.querySelector('input[name="payment_date"]'), 'Payment Date');
             
             showValidationErrorsPopup(errors);
             return false;

@@ -3663,34 +3663,50 @@
                 </div>
 
                 <!-- Stats Overview -->
-                <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 24px;">
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #3B82F6, #2563EB);">
-                            <i class="fas fa-file-alt"></i>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
+                    <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #DBEAFE, #93C5FD); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-file-alt" style="color: #2563EB; font-size: 20px;"></i>
+                            </div>
+                            <div>
+                                <div style="font-size: 28px; font-weight: 700; color: #1F2937;">{{ $startupDocuments->count() }}</div>
+                                <div style="font-size: 13px; color: #6B7280;">Total Documents</div>
+                            </div>
                         </div>
-                        <div class="stat-value">{{ $startupDocuments->count() }}</div>
-                        <div class="stat-label">Total Documents</div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #F59E0B, #D97706);">
-                            <i class="fas fa-clock"></i>
+                    <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #FEF3C7, #FCD34D); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-clock" style="color: #D97706; font-size: 20px;"></i>
+                            </div>
+                            <div>
+                                <div style="font-size: 28px; font-weight: 700; color: #D97706;">{{ $startupDocuments->where('status', 'pending')->count() }}</div>
+                                <div style="font-size: 13px; color: #6B7280;">Pending Review</div>
+                            </div>
                         </div>
-                        <div class="stat-value">{{ $startupDocuments->where('status', 'pending')->count() }}</div>
-                        <div class="stat-label">Pending Review</div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #6366F1, #4F46E5);">
-                            <i class="fas fa-search"></i>
+                    <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #E0E7FF, #A5B4FC); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-search" style="color: #4F46E5; font-size: 20px;"></i>
+                            </div>
+                            <div>
+                                <div style="font-size: 28px; font-weight: 700; color: #4F46E5;">{{ $startupDocuments->where('status', 'under_review')->count() }}</div>
+                                <div style="font-size: 13px; color: #6B7280;">Under Review</div>
+                            </div>
                         </div>
-                        <div class="stat-value">{{ $startupDocuments->where('status', 'under_review')->count() }}</div>
-                        <div class="stat-label">Under Review</div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #10B981, #059669);">
-                            <i class="fas fa-check-circle"></i>
+                    <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #D1FAE5, #6EE7B7); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-check-circle" style="color: #059669; font-size: 20px;"></i>
+                            </div>
+                            <div>
+                                <div style="font-size: 28px; font-weight: 700; color: #059669;">{{ $startupDocuments->whereIn('status', ['approved', 'completed'])->count() }}</div>
+                                <div style="font-size: 13px; color: #6B7280;">Approved</div>
+                            </div>
                         </div>
-                        <div class="stat-value">{{ $startupDocuments->whereIn('status', ['approved', 'completed'])->count() }}</div>
-                        <div class="stat-label">Approved</div>
                     </div>
                 </div>
 
@@ -3968,34 +3984,50 @@
                 </div>
 
                 <!-- Stats Overview -->
-                <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 24px;">
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #10B981, #059669);">
-                            <i class="fas fa-check-circle"></i>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
+                    <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #D1FAE5, #6EE7B7); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-check-circle" style="color: #059669; font-size: 20px;"></i>
+                            </div>
+                            <div>
+                                <div style="font-size: 28px; font-weight: 700; color: #059669;">{{ $activeIncubatees }}</div>
+                                <div style="font-size: 13px; color: #6B7280;">Active Incubatees</div>
+                            </div>
                         </div>
-                        <div class="stat-value">{{ $activeIncubatees }}</div>
-                        <div class="stat-label">Active Incubatees</div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #3B82F6, #2563EB);">
-                            <i class="fas fa-file-contract"></i>
+                    <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #DBEAFE, #93C5FD); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-file-contract" style="color: #2563EB; font-size: 20px;"></i>
+                            </div>
+                            <div>
+                                <div style="font-size: 28px; font-weight: 700; color: #2563EB;">{{ $moaRequests->count() }}</div>
+                                <div style="font-size: 13px; color: #6B7280;">Total MOA Requests</div>
+                            </div>
                         </div>
-                        <div class="stat-value">{{ $moaRequests->count() }}</div>
-                        <div class="stat-label">Total MOA Requests</div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #F59E0B, #D97706);">
-                            <i class="fas fa-exclamation-circle"></i>
+                    <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #FEF3C7, #FCD34D); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-exclamation-circle" style="color: #D97706; font-size: 20px;"></i>
+                            </div>
+                            <div>
+                                <div style="font-size: 28px; font-weight: 700; color: #D97706;">{{ $pendingMoaCount }}</div>
+                                <div style="font-size: 13px; color: #6B7280;">Pending MOAs</div>
+                            </div>
                         </div>
-                        <div class="stat-value">{{ $pendingMoaCount }}</div>
-                        <div class="stat-label">Pending MOAs</div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #6366F1, #4F46E5);">
-                            <i class="fas fa-money-bill-wave"></i>
+                    <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #E0E7FF, #A5B4FC); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-money-bill-wave" style="color: #4F46E5; font-size: 20px;"></i>
+                            </div>
+                            <div>
+                                <div style="font-size: 28px; font-weight: 700; color: #4F46E5;">{{ $pendingPaymentCount }}</div>
+                                <div style="font-size: 13px; color: #6B7280;">Pending Payments</div>
+                            </div>
                         </div>
-                        <div class="stat-value">{{ $pendingPaymentCount }}</div>
-                        <div class="stat-label">Pending Payments</div>
                     </div>
                 </div>
 
@@ -4199,34 +4231,50 @@
                 </div>
 
                 <!-- Stats Overview -->
-                <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 24px;">
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #EF4444, #DC2626);">
-                            <i class="fas fa-exclamation-circle"></i>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
+                    <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #FEE2E2, #FCA5A5); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-exclamation-circle" style="color: #DC2626; font-size: 20px;"></i>
+                            </div>
+                            <div>
+                                <div style="font-size: 28px; font-weight: 700; color: #DC2626;">{{ $openIssues }}</div>
+                                <div style="font-size: 13px; color: #6B7280;">Open Issues</div>
+                            </div>
                         </div>
-                        <div class="stat-value">{{ $openIssues }}</div>
-                        <div class="stat-label">Open Issues</div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #F59E0B, #D97706);">
-                            <i class="fas fa-clock"></i>
+                    <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #FEF3C7, #FCD34D); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-clock" style="color: #D97706; font-size: 20px;"></i>
+                            </div>
+                            <div>
+                                <div style="font-size: 28px; font-weight: 700; color: #D97706;">{{ $inProgressIssues }}</div>
+                                <div style="font-size: 13px; color: #6B7280;">In Progress</div>
+                            </div>
                         </div>
-                        <div class="stat-value">{{ $inProgressIssues }}</div>
-                        <div class="stat-label">In Progress</div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #10B981, #059669);">
-                            <i class="fas fa-check-circle"></i>
+                    <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #D1FAE5, #6EE7B7); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-check-circle" style="color: #059669; font-size: 20px;"></i>
+                            </div>
+                            <div>
+                                <div style="font-size: 28px; font-weight: 700; color: #059669;">{{ $resolvedThisMonth }}</div>
+                                <div style="font-size: 13px; color: #6B7280;">Resolved (This Month)</div>
+                            </div>
                         </div>
-                        <div class="stat-value">{{ $resolvedThisMonth }}</div>
-                        <div class="stat-label">Resolved (This Month)</div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #6366F1, #4F46E5);">
-                            <i class="fas fa-building"></i>
+                    <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #E0E7FF, #A5B4FC); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-building" style="color: #4F46E5; font-size: 20px;"></i>
+                            </div>
+                            <div>
+                                <div style="font-size: 28px; font-weight: 700; color: #4F46E5;">{{ $roomIssues->count() }}</div>
+                                <div style="font-size: 13px; color: #6B7280;">Total Reports</div>
+                            </div>
                         </div>
-                        <div class="stat-value">{{ $roomIssues->count() }}</div>
-                        <div class="stat-label">Total Reports</div>
                     </div>
                 </div>
 
@@ -4388,34 +4436,50 @@
                 </div>
 
                 <!-- Stats Overview -->
-                <div class="stats-grid" id="startupStatsGrid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 24px;">
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #7B1D3A, #A62450);">
-                            <i class="fas fa-building"></i>
+                <div id="startupStatsGrid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
+                    <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #F3E8FF, #DDD6FE); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-building" style="color: #7B1D3A; font-size: 20px;"></i>
+                            </div>
+                            <div>
+                                <div id="totalStartupsCount" style="font-size: 28px; font-weight: 700; color: #1F2937;">0</div>
+                                <div style="font-size: 13px; color: #6B7280;">Total Startups</div>
+                            </div>
                         </div>
-                        <div class="stat-value" id="totalStartupsCount">0</div>
-                        <div class="stat-label">Total Startups</div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #10B981, #059669);">
-                            <i class="fas fa-check-circle"></i>
+                    <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #D1FAE5, #6EE7B7); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-check-circle" style="color: #059669; font-size: 20px;"></i>
+                            </div>
+                            <div>
+                                <div id="activeStartupsCount" style="font-size: 28px; font-weight: 700; color: #059669;">0</div>
+                                <div style="font-size: 13px; color: #6B7280;">Active Accounts</div>
+                            </div>
                         </div>
-                        <div class="stat-value" id="activeStartupsCount">0</div>
-                        <div class="stat-label">Active Accounts</div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #F59E0B, #D97706);">
-                            <i class="fas fa-file-contract"></i>
+                    <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #FEF3C7, #FCD34D); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-file-contract" style="color: #D97706; font-size: 20px;"></i>
+                            </div>
+                            <div>
+                                <div id="pendingMoaCount" style="font-size: 28px; font-weight: 700; color: #D97706;">0</div>
+                                <div style="font-size: 13px; color: #6B7280;">Pending MOA</div>
+                            </div>
                         </div>
-                        <div class="stat-value" id="pendingMoaCount">0</div>
-                        <div class="stat-label">Pending MOA</div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #EF4444, #DC2626);">
-                            <i class="fas fa-ban"></i>
+                    <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #FEE2E2, #FCA5A5); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-ban" style="color: #DC2626; font-size: 20px;"></i>
+                            </div>
+                            <div>
+                                <div id="inactiveStartupsCount" style="font-size: 28px; font-weight: 700; color: #DC2626;">0</div>
+                                <div style="font-size: 13px; color: #6B7280;">Inactive Accounts</div>
+                            </div>
                         </div>
-                        <div class="stat-value" id="inactiveStartupsCount">0</div>
-                        <div class="stat-label">Inactive Accounts</div>
                     </div>
                 </div>
 
@@ -4620,34 +4684,50 @@
                 </div>
 
                 <!-- Stats Overview -->
-                <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 24px;">
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #3B82F6, #2563EB);">
-                            <i class="fas fa-folder"></i>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
+                    <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #DBEAFE, #93C5FD); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-folder" style="color: #2563EB; font-size: 20px;"></i>
+                            </div>
+                            <div>
+                                <div id="dr-total-folders" style="font-size: 28px; font-weight: 700; color: #1F2937;">--</div>
+                                <div style="font-size: 13px; color: #6B7280;">Total Folders</div>
+                            </div>
                         </div>
-                        <div class="stat-value" id="dr-total-folders">--</div>
-                        <div class="stat-label">Total Folders</div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #10B981, #059669);">
-                            <i class="fas fa-file"></i>
+                    <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #D1FAE5, #6EE7B7); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-file" style="color: #059669; font-size: 20px;"></i>
+                            </div>
+                            <div>
+                                <div id="dr-total-files" style="font-size: 28px; font-weight: 700; color: #059669;">--</div>
+                                <div style="font-size: 13px; color: #6B7280;">Total Files</div>
+                            </div>
                         </div>
-                        <div class="stat-value" id="dr-total-files">--</div>
-                        <div class="stat-label">Total Files</div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #8B5CF6, #7C3AED);">
-                            <i class="fas fa-hdd"></i>
+                    <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #EDE9FE, #C4B5FD); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-hdd" style="color: #7C3AED; font-size: 20px;"></i>
+                            </div>
+                            <div>
+                                <div id="dr-storage-used" style="font-size: 28px; font-weight: 700; color: #7C3AED;">--</div>
+                                <div style="font-size: 13px; color: #6B7280;">Storage Used</div>
+                            </div>
                         </div>
-                        <div class="stat-value" id="dr-storage-used">--</div>
-                        <div class="stat-label">Storage Used</div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #F59E0B, #D97706);">
-                            <i class="fas fa-clock"></i>
+                    <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #FEF3C7, #FCD34D); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-clock" style="color: #D97706; font-size: 20px;"></i>
+                            </div>
+                            <div>
+                                <div id="dr-recent-uploads" style="font-size: 28px; font-weight: 700; color: #D97706;">--</div>
+                                <div style="font-size: 13px; color: #6B7280;">Recent Uploads (7d)</div>
+                            </div>
                         </div>
-                        <div class="stat-value" id="dr-recent-uploads">--</div>
-                        <div class="stat-label">Recent Uploads (7d)</div>
                     </div>
                 </div>
 
@@ -4721,34 +4801,50 @@
                 </div>
 
                 <!-- Stats Overview -->
-                <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 24px;">
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #F59E0B, #D97706);">
-                            <i class="fas fa-clock"></i>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
+                    <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #FEF3C7, #FCD34D); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-clock" style="color: #D97706; font-size: 20px;"></i>
+                            </div>
+                            <div>
+                                <div id="pendingBookingsCount" style="font-size: 28px; font-weight: 700; color: #D97706;">{{ $pendingBookings ?? 0 }}</div>
+                                <div style="font-size: 13px; color: #6B7280;">Pending Requests</div>
+                            </div>
                         </div>
-                        <div class="stat-value" id="pendingBookingsCount">{{ $pendingBookings ?? 0 }}</div>
-                        <div class="stat-label">Pending Requests</div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #3B82F6, #2563EB);">
-                            <i class="fas fa-calendar-check"></i>
+                    <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #DBEAFE, #93C5FD); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-calendar-check" style="color: #2563EB; font-size: 20px;"></i>
+                            </div>
+                            <div>
+                                <div style="font-size: 28px; font-weight: 700; color: #2563EB;">{{ $todayBookings ?? 0 }}</div>
+                                <div style="font-size: 13px; color: #6B7280;">Today's Bookings</div>
+                            </div>
                         </div>
-                        <div class="stat-value">{{ $todayBookings ?? 0 }}</div>
-                        <div class="stat-label">Today's Bookings</div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #10B981, #059669);">
-                            <i class="fas fa-calendar-alt"></i>
+                    <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #D1FAE5, #6EE7B7); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-calendar-alt" style="color: #059669; font-size: 20px;"></i>
+                            </div>
+                            <div>
+                                <div style="font-size: 28px; font-weight: 700; color: #059669;">{{ isset($upcomingBookings) ? $upcomingBookings->count() : 0 }}</div>
+                                <div style="font-size: 13px; color: #6B7280;">Upcoming Events</div>
+                            </div>
                         </div>
-                        <div class="stat-value">{{ isset($upcomingBookings) ? $upcomingBookings->count() : 0 }}</div>
-                        <div class="stat-label">Upcoming Events</div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #8B5CF6, #7C3AED);">
-                            <i class="fas fa-building"></i>
+                    <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #EDE9FE, #C4B5FD); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-building" style="color: #7C3AED; font-size: 20px;"></i>
+                            </div>
+                            <div>
+                                <div style="font-size: 28px; font-weight: 700; color: #7C3AED;">{{ isset($allBookings) ? $allBookings->where('status', 'approved')->count() : 0 }}</div>
+                                <div style="font-size: 13px; color: #6B7280;">Total Approved</div>
+                            </div>
                         </div>
-                        <div class="stat-value">{{ isset($allBookings) ? $allBookings->where('status', 'approved')->count() : 0 }}</div>
-                        <div class="stat-label">Total Approved</div>
                     </div>
                 </div>
 
