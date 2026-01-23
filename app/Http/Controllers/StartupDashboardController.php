@@ -257,13 +257,22 @@ class StartupDashboardController extends Controller
 
         $validated = $request->validate([
             'invoice_number' => 'required|string|max:100',
-            'amount' => 'required|numeric|min:0',
+            'amount' => 'required|numeric|min:0.01',
             'payment_method' => 'required|string|max:50',
-            'payment_date' => 'required|date',
             'payment_proof' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
             'proof_verified' => 'required|accepted',
             'notes' => 'nullable|string|max:1000',
         ], [
+            'invoice_number.required' => 'Reference Number is required. Please enter the transaction reference number from your receipt.',
+            'invoice_number.max' => 'Reference Number must not exceed 100 characters.',
+            'amount.required' => 'Amount Paid is required. Please enter the payment amount.',
+            'amount.numeric' => 'Amount Paid must be a valid number.',
+            'amount.min' => 'Amount Paid must be greater than zero.',
+            'payment_method.required' => 'Payment Method is required. Please select how you made the payment.',
+            'payment_proof.required' => 'Payment Proof is required. Please upload your receipt or transaction screenshot.',
+            'payment_proof.file' => 'Payment Proof must be a valid file.',
+            'payment_proof.mimes' => 'Payment Proof must be a PDF, JPG, JPEG, or PNG file.',
+            'payment_proof.max' => 'Payment Proof must not exceed 5MB.',
             'proof_verified.required' => 'You must confirm that your payment proof matches the details entered.',
             'proof_verified.accepted' => 'You must confirm that your payment proof matches the details entered.',
         ]);
@@ -294,7 +303,7 @@ class StartupDashboardController extends Controller
             'invoice_number' => $validated['invoice_number'],
             'amount' => $validated['amount'],
             'payment_method' => $validated['payment_method'],
-            'payment_date' => $validated['payment_date'],
+            'payment_date' => now(), // Automatically set to submission date/time
             'payment_proof_path' => $path,
             'original_filename' => $file->getClientOriginalName(),
             'notes' => $validated['notes'] ?? null,
