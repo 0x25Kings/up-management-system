@@ -31,14 +31,22 @@ return new class extends Migration
             });
         }
 
+<<<<<<< HEAD
         // Add startup_id to startup_submissions table if it doesn't exist
+=======
+        // Add startup_id to startup_submissions table
+>>>>>>> 3ba34d6a2ce7c3e226dca0e6775fbc9358dc6154
         if (!Schema::hasColumn('startup_submissions', 'startup_id')) {
             Schema::table('startup_submissions', function (Blueprint $table) {
                 $table->foreignId('startup_id')->nullable()->after('id')->constrained('startups')->nullOnDelete();
             });
         }
 
+<<<<<<< HEAD
         // Add startup_id to room_issues table if it doesn't exist
+=======
+        // Add startup_id to room_issues table
+>>>>>>> 3ba34d6a2ce7c3e226dca0e6775fbc9358dc6154
         if (!Schema::hasColumn('room_issues', 'startup_id')) {
             Schema::table('room_issues', function (Blueprint $table) {
                 $table->foreignId('startup_id')->nullable()->after('id')->constrained('startups')->nullOnDelete();
