@@ -285,35 +285,59 @@
             background: var(--white);
             padding: 24px;
             border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
-            border-left: 5px solid;
-            transition: transform 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            border: 1px solid #E5E7EB;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
 
-        .stat-card:hover { transform: translateY(-4px); }
-        .stat-card.maroon { border-left-color: var(--maroon); }
-        .stat-card.green { border-left-color: var(--forest-green); }
-        .stat-card.gold { border-left-color: var(--gold-dark); }
-        .stat-card.red { border-left-color: #DC2626; }
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            opacity: 0.1;
+            transform: translate(30%, -30%);
+        }
+
+        .stat-card.maroon::after { background: var(--maroon); }
+        .stat-card.green::after { background: var(--forest-green); }
+        .stat-card.gold::after { background: var(--gold-dark); }
+        .stat-card.red::after { background: #DC2626; }
+
+        .stat-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
 
         .stat-icon {
-            width: 50px;
-            height: 50px;
+            width: 52px;
+            height: 52px;
             border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
-            margin-bottom: 16px;
+            font-size: 22px;
         }
 
-        .stat-icon.maroon { background: rgba(123, 17, 19, 0.1); color: var(--maroon); }
-        .stat-icon.green { background: rgba(34, 139, 34, 0.1); color: var(--forest-green); }
-        .stat-icon.gold { background: rgba(255, 215, 0, 0.2); color: var(--gold-dark); }
-        .stat-icon.red { background: rgba(220, 38, 38, 0.1); color: #DC2626; }
+        .stat-icon.maroon { background: linear-gradient(135deg, rgba(123, 17, 19, 0.15), rgba(123, 17, 19, 0.25)); color: var(--maroon); }
+        .stat-icon.green { background: linear-gradient(135deg, #D1FAE5, #A7F3D0); color: #059669; }
+        .stat-icon.gold { background: linear-gradient(135deg, #FEF3C7, #FDE68A); color: #D97706; }
+        .stat-icon.red { background: linear-gradient(135deg, #FEE2E2, #FECACA); color: #DC2626; }
 
-        .stat-value { font-size: 32px; font-weight: 800; color: #1F2937; }
-        .stat-label { font-size: 13px; color: #6B7280; font-weight: 600; margin-top: 4px; }
+        .stat-value { font-size: 36px; font-weight: 800; color: #1F2937; line-height: 1; }
+        .stat-label { font-size: 14px; color: #6B7280; font-weight: 500; margin-top: 6px; }
 
         /* Cards */
         .card {
@@ -610,6 +634,140 @@
         .task-overview-label { color: #6B7280; font-weight: 600; font-size: 13px; }
         @media (max-width: 768px) { .task-overview-grid { grid-template-columns: repeat(2, 1fr); } }
 
+        /* File Grid & List View for Digital Records */
+        .tl-file-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 16px;
+        }
+
+        .tl-file-item {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .tl-file-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(123, 17, 19, 0.15);
+            border-color: var(--maroon);
+        }
+
+        .tl-file-item.folder-item {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.08) 0%, rgba(255, 193, 7, 0.12) 100%);
+        }
+
+        .tl-file-item.folder-item:hover {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 193, 7, 0.2) 100%);
+        }
+
+        .tl-file-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            font-size: 28px;
+        }
+
+        .tl-file-icon.folder {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+            color: white;
+        }
+
+        .tl-file-icon.pdf {
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+            color: white;
+        }
+
+        .tl-file-icon.word {
+            background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+            color: white;
+        }
+
+        .tl-file-icon.excel {
+            background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
+            color: white;
+        }
+
+        .tl-file-icon.image {
+            background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+            color: white;
+        }
+
+        .tl-file-icon.default {
+            background: linear-gradient(135deg, #6B7280 0%, #4B5563 100%);
+            color: white;
+        }
+
+        .tl-file-name {
+            font-weight: 600;
+            color: #1F2937;
+            font-size: 13px;
+            margin-bottom: 4px;
+            word-break: break-word;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .tl-file-meta {
+            font-size: 11px;
+            color: #9CA3AF;
+        }
+
+        .tl-file-item .delete-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: rgba(220, 38, 38, 0.1);
+            border: none;
+            color: #DC2626;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .tl-file-item:hover .delete-btn {
+            display: flex;
+        }
+
+        .tl-file-item .delete-btn:hover {
+            background: #DC2626;
+            color: white;
+        }
+
+        /* View toggle button */
+        .view-toggle-btn {
+            background: var(--off-white);
+            border: 2px solid rgba(123, 17, 19, 0.1);
+            color: var(--maroon);
+            padding: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .view-toggle-btn:hover, .view-toggle-btn.active {
+            background: var(--maroon);
+            color: white;
+            border-color: var(--maroon);
+        }
+
         /* Toast notification */
         .toast {
             position: fixed;
@@ -774,32 +932,44 @@
 
             <div class="stats-grid">
                 <div class="stat-card maroon">
-                    <div class="stat-icon maroon"><i class="fas fa-users"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon maroon"><i class="fas fa-users"></i></div>
+                    </div>
                     <div class="stat-value">{{ $totalInterns }}</div>
                     <div class="stat-label">Total Interns</div>
                 </div>
                 <div class="stat-card green">
-                    <div class="stat-icon green"><i class="fas fa-user-check"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon green"><i class="fas fa-user-check"></i></div>
+                    </div>
                     <div class="stat-value">{{ $allInterns->where('status', 'Active')->count() }}</div>
                     <div class="stat-label">Active Interns</div>
                 </div>
                 <div class="stat-card gold">
-                    <div class="stat-icon gold"><i class="fas fa-tasks"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon gold"><i class="fas fa-tasks"></i></div>
+                    </div>
                     <div class="stat-value">{{ $totalTasks }}</div>
                     <div class="stat-label">Total Tasks</div>
                 </div>
                 <div class="stat-card green">
-                    <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+                    </div>
                     <div class="stat-value">{{ $completedTasks }}</div>
                     <div class="stat-label">Completed Tasks</div>
                 </div>
                 <div class="stat-card red">
-                    <div class="stat-icon red"><i class="fas fa-exclamation-triangle"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon red"><i class="fas fa-exclamation-triangle"></i></div>
+                    </div>
                     <div class="stat-value">{{ $overdueTasks }}</div>
                     <div class="stat-label">Overdue Tasks</div>
                 </div>
                 <div class="stat-card maroon">
-                    <div class="stat-icon maroon"><i class="fas fa-clock"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon maroon"><i class="fas fa-clock"></i></div>
+                    </div>
                     <div class="stat-value">{{ $presentToday }}</div>
                     <div class="stat-label">Present Today</div>
                 </div>
@@ -943,17 +1113,23 @@
         <div id="interns" class="page-content">
             <div class="stats-grid">
                 <div class="stat-card maroon">
-                    <div class="stat-icon maroon"><i class="fas fa-users"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon maroon"><i class="fas fa-users"></i></div>
+                    </div>
                     <div class="stat-value">{{ $allInterns->count() }}</div>
                     <div class="stat-label">Total Interns</div>
                 </div>
                 <div class="stat-card green">
-                    <div class="stat-icon green"><i class="fas fa-user-check"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon green"><i class="fas fa-user-check"></i></div>
+                    </div>
                     <div class="stat-value">{{ $allInterns->where('status', 'Active')->count() }}</div>
                     <div class="stat-label">Active</div>
                 </div>
                 <div class="stat-card gold">
-                    <div class="stat-icon gold"><i class="fas fa-user-graduate"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon gold"><i class="fas fa-user-graduate"></i></div>
+                    </div>
                     <div class="stat-value">{{ $allInterns->where('status', 'Completed')->count() }}</div>
                     <div class="stat-label">Completed</div>
                 </div>
@@ -1031,36 +1207,41 @@
         <div id="tasks" class="page-content">
             <div class="stats-grid">
                 <div class="stat-card gold">
-                    <div class="stat-icon gold"><i class="fas fa-clock"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon gold"><i class="fas fa-clock"></i></div>
+                    </div>
                     <div class="stat-value">{{ $pendingTasks }}</div>
                     <div class="stat-label">Pending</div>
                 </div>
                 <div class="stat-card maroon">
-                    <div class="stat-icon maroon"><i class="fas fa-spinner"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon maroon"><i class="fas fa-spinner"></i></div>
+                    </div>
                     <div class="stat-value">{{ $inProgressTasks }}</div>
                     <div class="stat-label">In Progress</div>
                 </div>
                 <div class="stat-card green">
-                    <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+                    </div>
                     <div class="stat-value">{{ $completedTasks }}</div>
                     <div class="stat-label">Completed</div>
                 </div>
                 <div class="stat-card red">
-                    <div class="stat-icon red"><i class="fas fa-exclamation-triangle"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon red"><i class="fas fa-exclamation-triangle"></i></div>
+                    </div>
                     <div class="stat-value">{{ $overdueTasks }}</div>
                     <div class="stat-label">Overdue</div>
                 </div>
             </div>
 
-            <div class="quick-actions">
-                <button class="btn btn-primary" onclick="openCreateTaskModal()">
-                    <i class="fas fa-plus"></i> Create New Task
-                </button>
-            </div>
-
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title"><i class="fas fa-tasks"></i> All Tasks</h3>
+                    <button class="btn btn-primary btn-sm" onclick="openCreateTaskModal()">
+                        <i class="fas fa-plus"></i> Create Task
+                    </button>
                 </div>
                 <div class="card-body" style="padding: 0; overflow-x: auto;">
                     @if($allTasks->count() > 0)
@@ -1141,9 +1322,6 @@
                         <i class="fas fa-tasks"></i>
                         <h4>No tasks yet</h4>
                         <p>Create your first task to get started</p>
-                        <button class="btn btn-primary" style="margin-top: 16px;" onclick="openCreateTaskModal()">
-                            <i class="fas fa-plus"></i> Create Task
-                        </button>
                     </div>
                     @endif
                 </div>
@@ -1154,17 +1332,23 @@
         <div id="attendance" class="page-content">
             <div class="stats-grid">
                 <div class="stat-card green">
-                    <div class="stat-icon green"><i class="fas fa-user-check"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon green"><i class="fas fa-user-check"></i></div>
+                    </div>
                     <div class="stat-value">{{ $presentToday }}</div>
                     <div class="stat-label">Present Today</div>
                 </div>
                 <div class="stat-card red">
-                    <div class="stat-icon red"><i class="fas fa-user-times"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon red"><i class="fas fa-user-times"></i></div>
+                    </div>
                     <div class="stat-value">{{ $absentToday }}</div>
                     <div class="stat-label">Absent Today</div>
                 </div>
                 <div class="stat-card gold">
-                    <div class="stat-icon gold"><i class="fas fa-clock"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon gold"><i class="fas fa-clock"></i></div>
+                    </div>
                     <div class="stat-value">{{ $lateToday }}</div>
                     <div class="stat-label">Late Today</div>
                 </div>
@@ -1250,36 +1434,41 @@
         <div id="reports" class="page-content">
             <div class="stats-grid">
                 <div class="stat-card maroon">
-                    <div class="stat-icon maroon"><i class="fas fa-file-alt"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon maroon"><i class="fas fa-file-alt"></i></div>
+                    </div>
                     <div class="stat-value">{{ $allReports->count() }}</div>
                     <div class="stat-label">Total Reports</div>
                 </div>
                 <div class="stat-card gold">
-                    <div class="stat-icon gold"><i class="fas fa-edit"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon gold"><i class="fas fa-edit"></i></div>
+                    </div>
                     <div class="stat-value">{{ $allReports->where('status', 'draft')->count() }}</div>
                     <div class="stat-label">Drafts</div>
                 </div>
                 <div class="stat-card green">
-                    <div class="stat-icon green"><i class="fas fa-paper-plane"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon green"><i class="fas fa-paper-plane"></i></div>
+                    </div>
                     <div class="stat-value">{{ $allReports->where('status', 'submitted')->count() }}</div>
                     <div class="stat-label">Submitted</div>
                 </div>
                 <div class="stat-card green">
-                    <div class="stat-icon green"><i class="fas fa-check-double"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon green"><i class="fas fa-check-double"></i></div>
+                    </div>
                     <div class="stat-value">{{ $allReports->where('status', 'reviewed')->count() }}</div>
                     <div class="stat-label">Reviewed</div>
                 </div>
             </div>
 
-            <div class="quick-actions">
-                <button class="btn btn-success" onclick="openCreateReportModal()">
-                    <i class="fas fa-plus"></i> Create New Report
-                </button>
-            </div>
-
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title"><i class="fas fa-file-alt"></i> My Reports</h3>
+                    <button class="btn btn-success btn-sm" onclick="openCreateReportModal()">
+                        <i class="fas fa-plus"></i> Create Report
+                    </button>
                 </div>
                 <div class="card-body" style="padding: 0; overflow-x: auto;">
                     @if($allReports->count() > 0)
@@ -1335,9 +1524,6 @@
                         <i class="fas fa-file-alt"></i>
                         <h4>No reports yet</h4>
                         <p>Create your first report to submit to admin</p>
-                        <button class="btn btn-success" style="margin-top: 16px;" onclick="openCreateReportModal()">
-                            <i class="fas fa-plus"></i> Create Report
-                        </button>
                     </div>
                     @endif
                 </div>
@@ -1351,22 +1537,30 @@
         <div id="scheduler" class="page-content">
             <div class="stats-grid">
                 <div class="stat-card maroon">
-                    <div class="stat-icon maroon"><i class="fas fa-calendar-alt"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon maroon"><i class="fas fa-calendar-alt"></i></div>
+                    </div>
                     <div class="stat-value" id="tlTotalBookings">{{ isset($schedulerData['bookings']) ? $schedulerData['bookings']->count() : 0 }}</div>
                     <div class="stat-label">Total Bookings</div>
                 </div>
                 <div class="stat-card gold">
-                    <div class="stat-icon gold"><i class="fas fa-clock"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon gold"><i class="fas fa-clock"></i></div>
+                    </div>
                     <div class="stat-value" id="tlPendingBookings">{{ $schedulerData['pendingBookings'] ?? 0 }}</div>
                     <div class="stat-label">Pending Bookings</div>
                 </div>
                 <div class="stat-card green">
-                    <div class="stat-icon green"><i class="fas fa-calendar-check"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon green"><i class="fas fa-calendar-check"></i></div>
+                    </div>
                     <div class="stat-value" id="tlTotalEvents">{{ isset($schedulerData['events']) ? $schedulerData['events']->count() : 0 }}</div>
                     <div class="stat-label">Total Events</div>
                 </div>
                 <div class="stat-card red">
-                    <div class="stat-icon red"><i class="fas fa-ban"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon red"><i class="fas fa-ban"></i></div>
+                    </div>
                     <div class="stat-value" id="tlBlockedDates">{{ isset($schedulerData['blockedDates']) ? $schedulerData['blockedDates']->count() : 0 }}</div>
                     <div class="stat-label">Blocked Dates</div>
                 </div>
@@ -1496,12 +1690,16 @@
         <div id="incubatee-tracker" class="page-content">
             <div class="stats-grid">
                 <div class="stat-card maroon">
-                    <div class="stat-icon maroon"><i class="fas fa-rocket"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon maroon"><i class="fas fa-rocket"></i></div>
+                    </div>
                     <div class="stat-value">{{ $incubateeData['totalSubmissions'] ?? 0 }}</div>
                     <div class="stat-label">Total Submissions</div>
                 </div>
                 <div class="stat-card gold">
-                    <div class="stat-icon gold"><i class="fas fa-hourglass-half"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon gold"><i class="fas fa-hourglass-half"></i></div>
+                    </div>
                     <div class="stat-value">{{ $incubateeData['pendingSubmissions'] ?? 0 }}</div>
                     <div class="stat-label">Pending Review</div>
                 </div>
@@ -1561,12 +1759,16 @@
         <div id="issues-management" class="page-content">
             <div class="stats-grid">
                 <div class="stat-card maroon">
-                    <div class="stat-icon maroon"><i class="fas fa-exclamation-triangle"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon maroon"><i class="fas fa-exclamation-triangle"></i></div>
+                    </div>
                     <div class="stat-value">{{ $issuesData['totalIssues'] ?? 0 }}</div>
                     <div class="stat-label">Total Issues</div>
                 </div>
                 <div class="stat-card gold">
-                    <div class="stat-icon gold"><i class="fas fa-clock"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon gold"><i class="fas fa-clock"></i></div>
+                    </div>
                     <div class="stat-value">{{ $issuesData['pendingIssues'] ?? 0 }}</div>
                     <div class="stat-label">Pending Issues</div>
                 </div>
@@ -1624,84 +1826,127 @@
         {{-- DIGITAL RECORDS PAGE --}}
         @if(in_array('digital_records', $viewableModules))
         <div id="digital-records" class="page-content">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-file-alt"></i> Digital Records</h3>
+            <div style="margin-bottom: 24px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                    <div>
+                        <h2 style="font-size: 28px; font-weight: 700; color: #1F2937; margin-bottom: 8px;">Digital Records Management</h2>
+                        <p style="color: #6B7280; font-size: 14px;">Organize and manage all your documents, files, and records in a secure digital repository</p>
+                    </div>
                     @if(in_array('digital_records', $editableModules))
-                    <span class="badge badge-success"><i class="fas fa-edit"></i> Edit Access</span>
+                    <span class="badge badge-success" style="padding: 8px 16px; font-size: 13px;"><i class="fas fa-edit"></i> Edit Access</span>
                     @else
-                    <span class="badge badge-info"><i class="fas fa-eye"></i> View Only</span>
+                    <span class="badge badge-info" style="padding: 8px 16px; font-size: 13px;"><i class="fas fa-eye"></i> View Only</span>
                     @endif
                 </div>
-                <div class="card-body">
-                    <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); margin-bottom: 18px;">
-                        <div class="stat-card maroon">
-                            <div class="stat-icon maroon"><i class="fas fa-folder"></i></div>
-                            <div class="stat-value" id="tl-dr-total-folders">--</div>
-                            <div class="stat-label">Total Folders</div>
-                        </div>
-                        <div class="stat-card green">
-                            <div class="stat-icon green"><i class="fas fa-file"></i></div>
-                            <div class="stat-value" id="tl-dr-total-files">--</div>
-                            <div class="stat-label">Total Files</div>
-                        </div>
-                        <div class="stat-card gold">
-                            <div class="stat-icon gold"><i class="fas fa-hdd"></i></div>
-                            <div class="stat-value" id="tl-dr-storage-used">--</div>
-                            <div class="stat-label">Storage Used</div>
-                        </div>
-                        <div class="stat-card red">
-                            <div class="stat-icon red"><i class="fas fa-clock"></i></div>
-                            <div class="stat-value" id="tl-dr-recent-uploads">--</div>
-                            <div class="stat-label">Recent Uploads (7d)</div>
-                        </div>
-                    </div>
+            </div>
 
-                    @if(!in_array('digital_records', $editableModules))
-                    <div class="alert alert-warning" style="margin-bottom: 14px;">
-                        <i class="fas fa-eye"></i>
-                        <div>
-                            <div style="font-weight: 700;">View-only access</div>
-                            <div style="font-size: 13px;">You can browse and download files. Editing/deleting is disabled.</div>
+            <!-- Stats Overview -->
+            <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 24px;">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #DBEAFE, #BFDBFE); color: #2563EB;">
+                            <i class="fas fa-folder"></i>
                         </div>
                     </div>
+                    <div class="stat-value" id="tl-dr-total-folders">--</div>
+                    <div class="stat-label">Total Folders</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #D1FAE5, #A7F3D0); color: #059669;">
+                            <i class="fas fa-file"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" id="tl-dr-total-files">--</div>
+                    <div class="stat-label">Total Files</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #EDE9FE, #DDD6FE); color: #7C3AED;">
+                            <i class="fas fa-hdd"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" id="tl-dr-storage-used">--</div>
+                    <div class="stat-label">Storage Used</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #FEF3C7, #FDE68A); color: #D97706;">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" id="tl-dr-recent-uploads">--</div>
+                    <div class="stat-label">Recent Uploads (7d)</div>
+                </div>
+            </div>
+
+            @if(!in_array('digital_records', $editableModules))
+            <div class="alert alert-warning" style="margin-bottom: 20px; display: flex; align-items: center; gap: 12px; padding: 16px; background: #FEF3C7; border-radius: 12px; border: 1px solid #F59E0B;">
+                <i class="fas fa-eye" style="font-size: 20px; color: #D97706;"></i>
+                <div>
+                    <div style="font-weight: 700; color: #92400E;">View-only access</div>
+                    <div style="font-size: 13px; color: #B45309;">You can browse and download files. Editing/deleting is disabled.</div>
+                </div>
+            </div>
+            @endif
+
+            <!-- Action Bar -->
+            <div style="background: white; padding: 16px 20px; border-radius: 12px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <button class="btn btn-secondary btn-sm" id="tl-dr-back-btn" style="display: none;" onclick="tlDrGoBack()">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                    <span id="tl-dr-current-path" style="font-size: 14px; color: #6B7280; font-weight: 500;">
+                        <i class="fas fa-home"></i> Root
+                    </span>
+                </div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <input type="text" id="tl-dr-search" placeholder="Search files..." class="form-input" style="padding: 8px 12px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 14px; min-width: 220px;" oninput="tlDrFilter(this.value)">
+                    <button class="btn btn-secondary btn-sm" onclick="tlToggleViewMode()" style="padding: 8px 12px;">
+                        <i class="fas fa-th" id="tl-view-icon"></i>
+                    </button>
+                    <button class="btn btn-secondary btn-sm" onclick="tlDrRefresh()" style="padding: 8px 12px;">
+                        <i class="fas fa-sync"></i>
+                    </button>
+                    @if(in_array('digital_records', $editableModules))
+                    <button class="btn btn-primary btn-sm" onclick="tlOpenCreateFolderModal()" style="padding: 8px 16px;">
+                        <i class="fas fa-folder-plus"></i> New Folder
+                    </button>
                     @endif
+                </div>
+            </div>
 
-                    <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom: 12px;">
-                        <div style="font-size: 13px; color: #6B7280; font-weight: 600;">
-                            <i class="fas fa-home"></i> <span id="tl-dr-current-path">Root</span>
-                        </div>
-                        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                            <button class="btn btn-secondary btn-sm" id="tl-dr-back-btn" style="display:none;" onclick="tlDrGoBack()"><i class="fas fa-arrow-left"></i> Back</button>
-                            <input id="tl-dr-search" type="text" class="form-input" placeholder="Search..." style="min-width: 220px;" oninput="tlDrFilter(this.value)">
-                            <button class="btn btn-secondary btn-sm" onclick="tlDrRefresh()"><i class="fas fa-sync"></i> Refresh</button>
-                            @if(in_array('digital_records', $editableModules))
-                            <button class="btn btn-primary btn-sm" onclick="tlOpenCreateFolderModal()"><i class="fas fa-folder-plus"></i> New Folder</button>
-                            @endif
-                        </div>
-                    </div>
+            <!-- File Browser - Grid View -->
+            <div id="tl-grid-view" class="tl-file-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 16px;">
+                <div style="grid-column: span 7; text-align: center; padding: 50px; color: #9CA3AF;">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 50px; margin-bottom: 16px;"></i>
+                    <p style="font-size: 16px;">Loading documents...</p>
+                </div>
+            </div>
 
-                    <div class="card" style="border-radius: 14px; overflow: hidden; border: 1px solid rgba(0,0,0,0.06);">
-                        <div style="overflow-x:auto;">
-                            <table class="data-table" style="width:100%;">
-                                <thead>
-                                    <tr>
-                                        <th style="width: 45%;">Name</th>
-                                        <th style="width: 15%;">Type</th>
-                                        <th style="width: 15%;">Size</th>
-                                        <th style="width: 20%;">Modified</th>
-                                        <th style="width: 5%; text-align:right;">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tl-dr-table-body">
-                                    <tr>
-                                        <td colspan="5" style="text-align:center; padding: 32px; color:#9CA3AF;">
-                                            <i class="fas fa-spinner fa-spin" style="margin-right:8px;"></i> Loading...
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+            <!-- File Browser - List View -->
+            <div id="tl-list-view" style="display: none;">
+                <div class="card" style="border-radius: 14px; overflow: hidden; border: 1px solid rgba(0,0,0,0.06);">
+                    <div style="overflow-x: auto;">
+                        <table class="data-table" style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th style="width: 40%;">Name</th>
+                                    <th>Type</th>
+                                    <th>Size</th>
+                                    <th>Modified</th>
+                                    <th style="width: 100px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tl-list-view-body">
+                                <tr>
+                                    <td colspan="5" style="text-align: center; padding: 50px; color: #9CA3AF;">
+                                        <i class="fas fa-spinner fa-spin" style="font-size: 30px; margin-bottom: 16px;"></i>
+                                        <p>Loading documents...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -2520,65 +2765,148 @@
         }
 
         function tlRenderDigitalRecordsTable(items) {
-            const tbody = document.getElementById('tl-dr-table-body');
-            if (!tbody) return;
+            const gridView = document.getElementById('tl-grid-view');
+            const listViewBody = document.getElementById('tl-list-view-body');
+
+            if (!gridView && !listViewBody) return;
 
             const filtered = (items || []).filter(i => {
                 if (!tlDrSearchQuery) return true;
                 return (i.name || '').toLowerCase().includes(tlDrSearchQuery);
             });
 
+            // Render empty state
             if (!filtered.length) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="5" style="text-align:center; padding: 32px; color:#9CA3AF;">
-                            <i class="fas fa-folder-open" style="margin-right:8px;"></i> No items found
-                        </td>
-                    </tr>
+                const emptyHtml = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 60px 24px; color: #9CA3AF;">
+                        <i class="fas fa-folder-open" style="font-size: 48px; margin-bottom: 16px; color: rgba(123, 17, 19, 0.2);"></i>
+                        <h4 style="font-size: 16px; font-weight: 700; color: var(--maroon); margin-bottom: 8px;">No items found</h4>
+                        <p>This folder is empty or no items match your search</p>
+                    </div>
                 `;
+                if (gridView) gridView.innerHTML = emptyHtml;
+                if (listViewBody) listViewBody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 32px; color:#9CA3AF;"><i class="fas fa-folder-open" style="margin-right:8px;"></i> No items found</td></tr>`;
                 return;
             }
 
-            tbody.innerHTML = filtered.map(item => {
-                const isFolder = item.is_folder;
-                const type = isFolder ? 'Folder' : 'File';
-                const size = isFolder ? `${item.item_count || 0} item(s)` : (item.size || '--');
-                const modified = item.modified || '--';
+            // Render Grid View
+            if (gridView) {
+                gridView.innerHTML = filtered.map(item => {
+                    const isFolder = item.is_folder;
+                    const iconInfo = tlGetFileIcon(item.name, isFolder);
+                    const size = isFolder ? `${item.item_count || 0} item(s)` : (item.size || '');
+                    const onClickHandler = isFolder
+                        ? `tlOpenFolder('${tlEscapeHtml(item.path)}')`
+                        : `tlDownloadFile('${tlEscapeHtml(item.path)}')`;
 
-                const openClick = isFolder
-                    ? `onclick=\"tlOpenFolder('${tlEscapeHtml(item.path)}')\"`
-                    : `onclick=\"tlDownloadFile('${tlEscapeHtml(item.path)}')\"`;
+                    const deleteBtn = tlDrHasEditAccess
+                        ? (isFolder && item.id
+                            ? `<button class="delete-btn" onclick="event.stopPropagation(); tlDeleteFolder(${item.id}, '${tlEscapeHtml(item.name)}')"><i class="fas fa-trash"></i></button>`
+                            : (!isFolder
+                                ? `<button class="delete-btn" onclick="event.stopPropagation(); tlDeleteFile('${tlEscapeHtml(item.path)}', '${tlEscapeHtml(item.name)}')"><i class="fas fa-trash"></i></button>`
+                                : ''))
+                        : '';
 
-                const downloadBtn = !isFolder
-                    ? `<button class=\"btn btn-secondary btn-sm\" style=\"padding:6px 10px;\" onclick=\"event.stopPropagation(); tlDownloadFile('${tlEscapeHtml(item.path)}')\"><i class=\"fas fa-download\"></i></button>`
-                    : '';
-
-                const deleteBtn = tlDrHasEditAccess
-                    ? (isFolder
-                        ? (item.id
-                            ? `<button class=\"btn btn-danger btn-sm\" style=\"padding:6px 10px;\" onclick=\"event.stopPropagation(); tlDeleteFolder(${item.id}, '${tlEscapeHtml(item.name)}')\"><i class=\"fas fa-trash\"></i></button>`
-                            : '')
-                        : `<button class=\"btn btn-danger btn-sm\" style=\"padding:6px 10px;\" onclick=\"event.stopPropagation(); tlDeleteFile('${tlEscapeHtml(item.path)}', '${tlEscapeHtml(item.name)}')\"><i class=\"fas fa-trash\"></i></button>`)
-                    : '';
-
-                return `
-                    <tr style="cursor:pointer;" ${openClick}>
-                        <td>
-                            <div style="display:flex; align-items:center; gap:10px;">
-                                <i class="fas ${isFolder ? 'fa-folder' : 'fa-file'}" style="color:${isFolder ? '#F59E0B' : '#6B7280'};"></i>
-                                <strong>${tlEscapeHtml(item.name)}</strong>
-                            </div>
-                        </td>
-                        <td>${type}</td>
-                        <td>${tlEscapeHtml(size)}</td>
-                        <td>${tlEscapeHtml(modified)}</td>
-                        <td style="text-align:right; white-space:nowrap;">
-                            ${downloadBtn}
+                    return `
+                        <div class="tl-file-item ${isFolder ? 'folder-item' : ''}" onclick="${onClickHandler}" style="position: relative;">
                             ${deleteBtn}
-                        </td>
-                    </tr>
-                `;
-            }).join('');
+                            <div class="tl-file-icon ${iconInfo.class}">
+                                <i class="${iconInfo.icon}"></i>
+                            </div>
+                            <div class="tl-file-name">${tlEscapeHtml(item.name)}</div>
+                            <div class="tl-file-meta">${size}</div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // Render List View
+            if (listViewBody) {
+                listViewBody.innerHTML = filtered.map(item => {
+                    const isFolder = item.is_folder;
+                    const type = isFolder ? 'Folder' : 'File';
+                    const size = isFolder ? `${item.item_count || 0} item(s)` : (item.size || '--');
+                    const modified = item.modified || '--';
+
+                    const openClick = isFolder
+                        ? `onclick="tlOpenFolder('${tlEscapeHtml(item.path)}')"`
+                        : `onclick="tlDownloadFile('${tlEscapeHtml(item.path)}')"`;
+
+                    const downloadBtn = !isFolder
+                        ? `<button class="btn btn-secondary btn-sm" style="padding:6px 10px;" onclick="event.stopPropagation(); tlDownloadFile('${tlEscapeHtml(item.path)}')"><i class="fas fa-download"></i></button>`
+                        : '';
+
+                    const deleteBtn = tlDrHasEditAccess
+                        ? (isFolder
+                            ? (item.id
+                                ? `<button class="btn btn-danger btn-sm" style="padding:6px 10px;" onclick="event.stopPropagation(); tlDeleteFolder(${item.id}, '${tlEscapeHtml(item.name)}')"><i class="fas fa-trash"></i></button>`
+                                : '')
+                            : `<button class="btn btn-danger btn-sm" style="padding:6px 10px;" onclick="event.stopPropagation(); tlDeleteFile('${tlEscapeHtml(item.path)}', '${tlEscapeHtml(item.name)}')"><i class="fas fa-trash"></i></button>`)
+                        : '';
+
+                    return `
+                        <tr style="cursor:pointer;" ${openClick}>
+                            <td>
+                                <div style="display:flex; align-items:center; gap:10px;">
+                                    <i class="fas ${isFolder ? 'fa-folder' : 'fa-file'}" style="color:${isFolder ? '#F59E0B' : '#6B7280'};"></i>
+                                    <strong>${tlEscapeHtml(item.name)}</strong>
+                                </div>
+                            </td>
+                            <td>${type}</td>
+                            <td>${tlEscapeHtml(size)}</td>
+                            <td>${tlEscapeHtml(modified)}</td>
+                            <td style="text-align:right; white-space:nowrap;">
+                                ${downloadBtn}
+                                ${deleteBtn}
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+        }
+
+        // Get file icon based on extension
+        function tlGetFileIcon(filename, isFolder) {
+            if (isFolder) {
+                return { icon: 'fas fa-folder', class: 'folder' };
+            }
+
+            const ext = (filename || '').split('.').pop().toLowerCase();
+            const icons = {
+                pdf: { icon: 'fas fa-file-pdf', class: 'pdf' },
+                doc: { icon: 'fas fa-file-word', class: 'word' },
+                docx: { icon: 'fas fa-file-word', class: 'word' },
+                xls: { icon: 'fas fa-file-excel', class: 'excel' },
+                xlsx: { icon: 'fas fa-file-excel', class: 'excel' },
+                csv: { icon: 'fas fa-file-excel', class: 'excel' },
+                png: { icon: 'fas fa-file-image', class: 'image' },
+                jpg: { icon: 'fas fa-file-image', class: 'image' },
+                jpeg: { icon: 'fas fa-file-image', class: 'image' },
+                gif: { icon: 'fas fa-file-image', class: 'image' },
+                webp: { icon: 'fas fa-file-image', class: 'image' },
+                svg: { icon: 'fas fa-file-image', class: 'image' }
+            };
+
+            return icons[ext] || { icon: 'fas fa-file', class: 'default' };
+        }
+
+        // Toggle between grid and list view
+        let tlViewMode = 'grid';
+        function tlToggleViewMode() {
+            tlViewMode = tlViewMode === 'grid' ? 'list' : 'grid';
+            const gridView = document.getElementById('tl-grid-view');
+            const listView = document.getElementById('tl-list-view');
+            const viewIcon = document.getElementById('tl-view-icon');
+
+            if (tlViewMode === 'grid') {
+                if (gridView) gridView.style.display = 'grid';
+                if (listView) listView.style.display = 'none';
+                if (viewIcon) viewIcon.className = 'fas fa-th';
+            } else {
+                if (gridView) gridView.style.display = 'none';
+                if (listView) listView.style.display = 'block';
+                if (viewIcon) viewIcon.className = 'fas fa-list';
+            }
         }
 
         function tlFormatBytes(bytes) {

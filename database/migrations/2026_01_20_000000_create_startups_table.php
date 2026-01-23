@@ -11,33 +11,47 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('startups', function (Blueprint $table) {
-            $table->id();
-            $table->string('startup_code')->unique();
-            $table->string('password');
-            $table->string('company_name');
-            $table->string('contact_person');
-            $table->string('email');
-            $table->string('phone')->nullable();
-            $table->string('room_number')->nullable();
-            $table->string('address')->nullable();
-            $table->text('description')->nullable();
-            $table->enum('status', ['active', 'inactive', 'suspended'])->default('active');
-            $table->enum('moa_status', ['none', 'pending', 'active', 'expired'])->default('none');
-            $table->date('moa_expiry')->nullable();
-            $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('startups')) {
+            Schema::create('startups', function (Blueprint $table) {
+                $table->id();
+                $table->string('startup_code')->unique();
+                $table->string('password');
+                $table->string('company_name');
+                $table->string('contact_person');
+                $table->string('email');
+                $table->string('phone')->nullable();
+                $table->string('room_number')->nullable();
+                $table->string('address')->nullable();
+                $table->text('description')->nullable();
+                $table->enum('status', ['active', 'inactive', 'suspended'])->default('active');
+                $table->enum('moa_status', ['none', 'pending', 'active', 'expired'])->default('none');
+                $table->date('moa_expiry')->nullable();
+                $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
+                $table->timestamps();
+            });
+        }
 
+<<<<<<< HEAD
+        // Add startup_id to startup_submissions table if it doesn't exist
+=======
         // Add startup_id to startup_submissions table
-        Schema::table('startup_submissions', function (Blueprint $table) {
-            $table->foreignId('startup_id')->nullable()->after('id')->constrained('startups')->nullOnDelete();
-        });
+>>>>>>> 3ba34d6a2ce7c3e226dca0e6775fbc9358dc6154
+        if (!Schema::hasColumn('startup_submissions', 'startup_id')) {
+            Schema::table('startup_submissions', function (Blueprint $table) {
+                $table->foreignId('startup_id')->nullable()->after('id')->constrained('startups')->nullOnDelete();
+            });
+        }
 
+<<<<<<< HEAD
+        // Add startup_id to room_issues table if it doesn't exist
+=======
         // Add startup_id to room_issues table
-        Schema::table('room_issues', function (Blueprint $table) {
-            $table->foreignId('startup_id')->nullable()->after('id')->constrained('startups')->nullOnDelete();
-        });
+>>>>>>> 3ba34d6a2ce7c3e226dca0e6775fbc9358dc6154
+        if (!Schema::hasColumn('room_issues', 'startup_id')) {
+            Schema::table('room_issues', function (Blueprint $table) {
+                $table->foreignId('startup_id')->nullable()->after('id')->constrained('startups')->nullOnDelete();
+            });
+        }
     }
 
     /**
@@ -45,15 +59,19 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('room_issues', function (Blueprint $table) {
-            $table->dropForeign(['startup_id']);
-            $table->dropColumn('startup_id');
-        });
+        if (Schema::hasColumn('room_issues', 'startup_id')) {
+            Schema::table('room_issues', function (Blueprint $table) {
+                $table->dropForeign(['startup_id']);
+                $table->dropColumn('startup_id');
+            });
+        }
 
-        Schema::table('startup_submissions', function (Blueprint $table) {
-            $table->dropForeign(['startup_id']);
-            $table->dropColumn('startup_id');
-        });
+        if (Schema::hasColumn('startup_submissions', 'startup_id')) {
+            Schema::table('startup_submissions', function (Blueprint $table) {
+                $table->dropForeign(['startup_id']);
+                $table->dropColumn('startup_id');
+            });
+        }
 
         Schema::dropIfExists('startups');
     }

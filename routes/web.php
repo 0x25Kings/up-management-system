@@ -72,6 +72,7 @@ Route::get('/startup/moa-template', [StartupController::class, 'downloadMoaTempl
 // Startup Portal Authentication Routes
 Route::get('/startup/login', [StartupAuthController::class, 'showLoginForm'])->name('startup.login');
 Route::post('/startup/verify-code', [StartupAuthController::class, 'verifyCode'])->name('startup.verify-code');
+Route::get('/startup/login-password', [StartupAuthController::class, 'showLoginPasswordForm'])->name('startup.login-password');
 Route::get('/startup/set-password', [StartupAuthController::class, 'showSetPasswordForm'])->name('startup.set-password');
 Route::post('/startup/set-password', [StartupAuthController::class, 'setPassword'])->name('startup.set-password.submit');
 Route::post('/startup/login', [StartupAuthController::class, 'login'])->name('startup.login.submit');
@@ -168,11 +169,13 @@ Route::middleware(['admin'])->group(function () {
     Route::delete('/admin/documents/folder', [DocumentController::class, 'deleteFolder'])->name('admin.documents.deleteFolder');
 
     // Startup Submissions Management (Admin)
+    Route::get('/admin/startup-submissions', [AdminStartupController::class, 'getSubmissions'])->name('admin.startup-submissions.index');
     Route::get('/admin/submissions/{submission}', [AdminStartupController::class, 'getSubmission'])->name('admin.submissions.show');
     Route::put('/admin/submissions/{submission}', [AdminStartupController::class, 'updateSubmission'])->name('admin.submissions.update');
     Route::delete('/admin/submissions/{submission}', [AdminStartupController::class, 'deleteSubmission'])->name('admin.submissions.destroy');
 
     // Room Issues Management (Admin)
+    Route::get('/admin/room-issues', [AdminStartupController::class, 'getRoomIssues'])->name('admin.room-issues.index');
     Route::get('/admin/room-issues/{roomIssue}', [AdminStartupController::class, 'getRoomIssue'])->name('admin.room-issues.show');
     Route::put('/admin/room-issues/{roomIssue}', [AdminStartupController::class, 'updateRoomIssue'])->name('admin.room-issues.update');
     Route::delete('/admin/room-issues/{roomIssue}', [AdminStartupController::class, 'deleteRoomIssue'])->name('admin.room-issues.destroy');

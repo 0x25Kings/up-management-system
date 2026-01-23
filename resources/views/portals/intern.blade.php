@@ -398,6 +398,9 @@
             height: 20px;
             overflow: hidden;
             margin-top: 8px;
+            width: 100%;
+            display: block;
+            position: relative;
         }
 
         .progress-bar {
@@ -405,6 +408,11 @@
             background: linear-gradient(135deg, #FFBF00 0%, #FFA500 100%);
             border-radius: 10px;
             transition: width 0.5s ease;
+            min-width: 0;
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
         }
 
         .profile-grid {
