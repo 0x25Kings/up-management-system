@@ -51,27 +51,50 @@ class StartupAuthController extends Controller
             return redirect()->route('startup.set-password');
         }
 
-        // Password is set, show login form with password field
-        return view('startup.login-password', [
-            'startup' => $startup,
-            'startup_code' => $startup->startup_code,
-        ]);
+        // Password is set, redirect to login password page
+        session(['startup_login_id' => $startup->id]);
+        return redirect()->route('startup.login-password');
     }
 
     /**
-     * Show the set password form for new accounts
+     * Show the login password form for existing accounts
      */
-    public function showSetPasswordForm()
+    public function showLoginPasswordForm()
     {
-        $startupId = session('startup_setup_id');
-        
+        $startupId = session('startup_login_id');
+
         if (!$startupId) {
             return redirect()->route('startup.login')
                 ->withErrors(['startup_code' => 'Please enter your startup code first.']);
         }
 
         $startup = Startup::find($startupId);
-        
+
+        if (!$startup) {
+            session()->forget('startup_login_id');
+            return redirect()->route('startup.login')
+                ->withErrors(['startup_code' => 'Invalid startup code.']);
+        }
+
+        return view('startup.login-password', [
+            'startup' => $startup,
+            'startup_code' => $startup->startup_code,
+        ]);
+    }
+    /**
+     * Show the set password form for new accounts
+     */
+    public function showSetPasswordForm()
+    {
+        $startupId = session('startup_setup_id');
+
+        if (!$startupId) {
+            return redirect()->route('startup.login')
+                ->withErrors(['startup_code' => 'Please enter your startup code first.']);
+        }
+
+        $startup = Startup::find($startupId);
+
         if (!$startup) {
             session()->forget('startup_setup_id');
             return redirect()->route('startup.login')
@@ -93,14 +116,14 @@ class StartupAuthController extends Controller
     public function setPassword(Request $request)
     {
         $startupId = session('startup_setup_id');
-        
+
         if (!$startupId) {
             return redirect()->route('startup.login')
                 ->withErrors(['startup_code' => 'Please enter your startup code first.']);
         }
 
         $startup = Startup::find($startupId);
-        
+
         if (!$startup) {
             session()->forget('startup_setup_id');
             return redirect()->route('startup.login')

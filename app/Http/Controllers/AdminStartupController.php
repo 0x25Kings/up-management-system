@@ -10,6 +10,53 @@ use Illuminate\Support\Facades\Auth;
 class AdminStartupController extends Controller
 {
     /**
+     * Get all startup submissions for notifications
+     */
+    public function getSubmissions()
+    {
+        $submissions = StartupSubmission::orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($submission) {
+                return [
+                    'id' => $submission->id,
+                    'tracking_code' => $submission->tracking_code,
+                    'startup_name' => $submission->company_name,
+                    'industry' => $submission->type ?? 'General',
+                    'contact_person' => $submission->contact_person,
+                    'email' => $submission->email,
+                    'status' => $submission->status,
+                    'created_at' => $submission->created_at->toISOString(),
+                ];
+            });
+
+        return response()->json($submissions);
+    }
+
+    /**
+     * Get all room issues for notifications
+     */
+    public function getRoomIssues()
+    {
+        $issues = RoomIssue::orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($issue) {
+                return [
+                    'id' => $issue->id,
+                    'tracking_code' => $issue->tracking_code,
+                    'room_location' => $issue->room_number ?? 'Unknown Room',
+                    'category' => $issue->issue_type_label ?? $issue->issue_type,
+                    'description' => $issue->description,
+                    'company_name' => $issue->company_name,
+                    'status' => $issue->status,
+                    'priority' => $issue->priority,
+                    'created_at' => $issue->created_at->toISOString(),
+                ];
+            });
+
+        return response()->json($issues);
+    }
+
+    /**
      * Update a startup submission status (documents, MOA, payments)
      */
     public function updateSubmission(Request $request, StartupSubmission $submission)

@@ -4273,37 +4273,37 @@
                 </div>
 
                 <!-- Issues Table -->
-                <div class="table-card">
-                    <div class="table-header">
-                        <h3 class="table-title">All Room Issues & Complaints</h3>
+                <div class="table-card" style="overflow-x: auto;">
+                    <div class="table-header" style="flex-wrap: wrap; gap: 12px;">
+                        <h3 class="table-title" style="font-size: 15px;">All Room Issues & Complaints</h3>
                         <div style="display: flex; gap: 8px;">
-                            <button style="padding: 8px 16px; background: white; color: #7B1D3A; border: 2px solid #7B1D3A; border-radius: 6px; font-weight: 600; cursor: pointer;">
+                            <button style="padding: 6px 12px; background: white; color: #7B1D3A; border: 2px solid #7B1D3A; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 12px;">
                                 <i class="fas fa-download"></i> Export
                             </button>
                         </div>
                     </div>
-                    <table>
+                    <table style="min-width: 900px; font-size: 13px;">
                         <thead>
                             <tr>
-                                <th>Tracking Code</th>
-                                <th>Room/Description</th>
-                                <th>Issue Type</th>
-                                <th>Reported By</th>
-                                <th>Priority</th>
-                                <th>Status</th>
-                                <th>Date Reported</th>
-                                <th>Actions</th>
+                                <th style="padding: 10px 12px; font-size: 11px;">Code</th>
+                                <th style="padding: 10px 12px; font-size: 11px;">Room/Description</th>
+                                <th style="padding: 10px 12px; font-size: 11px;">Type</th>
+                                <th style="padding: 10px 12px; font-size: 11px;">Reported By</th>
+                                <th style="padding: 10px 12px; font-size: 11px;">Priority</th>
+                                <th style="padding: 10px 12px; font-size: 11px;">Status</th>
+                                <th style="padding: 10px 12px; font-size: 11px;">Date</th>
+                                <th style="padding: 10px 12px; font-size: 11px; width: 90px;">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse($roomIssues as $issue)
                             <tr class="issue-row" data-status="{{ $issue->status }}" data-type="{{ $issue->issue_type }}" data-priority="{{ $issue->priority }}">
-                                <td><strong>{{ $issue->tracking_code }}</strong></td>
-                                <td>
-                                    <div style="font-weight: 600; margin-bottom: 4px;">Room {{ $issue->room_number }}</div>
-                                    <div style="font-size: 12px; color: #6B7280; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ Str::limit($issue->description, 60) }}</div>
+                                <td style="padding: 10px 12px;"><strong style="font-size: 12px;">{{ $issue->tracking_code }}</strong></td>
+                                <td style="padding: 10px 12px;">
+                                    <div style="font-weight: 600; margin-bottom: 2px; font-size: 12px;">Room {{ $issue->room_number }}</div>
+                                    <div style="font-size: 11px; color: #6B7280; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ Str::limit($issue->description, 40) }}</div>
                                 </td>
-                                <td>
+                                <td style="padding: 10px 12px;">
                                     @php
                                         $typeColors = [
                                             'electrical' => ['bg' => '#FEF3C7', 'text' => '#92400E'],
@@ -4317,18 +4317,18 @@
                                         ];
                                         $color = $typeColors[$issue->issue_type] ?? $typeColors['other'];
                                     @endphp
-                                    <span class="status-badge" style="background: {{ $color['bg'] }}; color: {{ $color['text'] }};">{{ $issue->issue_type_label }}</span>
+                                    <span class="status-badge" style="background: {{ $color['bg'] }}; color: {{ $color['text'] }}; font-size: 10px; padding: 3px 8px;">{{ $issue->issue_type_label }}</span>
                                 </td>
-                                <td>
-                                    <div style="display: flex; align-items: center; gap: 8px;">
-                                        <div class="avatar">{{ strtoupper(substr($issue->contact_person, 0, 1)) }}</div>
+                                <td style="padding: 10px 12px;">
+                                    <div style="display: flex; align-items: center; gap: 6px;">
+                                        <div class="avatar" style="width: 28px; height: 28px; font-size: 11px;">{{ strtoupper(substr($issue->contact_person, 0, 1)) }}</div>
                                         <div>
-                                            <span style="font-weight: 600;">{{ $issue->contact_person }}</span>
-                                            <div style="font-size: 11px; color: #6B7280;">{{ $issue->company_name }}</div>
+                                            <span style="font-weight: 600; font-size: 12px;">{{ Str::limit($issue->contact_person, 15) }}</span>
+                                            <div style="font-size: 10px; color: #6B7280;">{{ Str::limit($issue->company_name, 15) }}</div>
                                         </div>
                                     </div>
                                 </td>
-                                <td>
+                                <td style="padding: 10px 12px;">
                                     @php
                                         $priorityClasses = [
                                             'urgent' => 'priority-critical',
@@ -4338,32 +4338,32 @@
                                         ];
                                         $priorityClass = $priorityClasses[$issue->priority] ?? 'priority-medium';
                                     @endphp
-                                    <span class="priority-badge {{ $priorityClass }}">{{ ucfirst($issue->priority) }}</span>
+                                    <span class="priority-badge {{ $priorityClass }}" style="font-size: 10px; padding: 3px 8px;">{{ ucfirst($issue->priority) }}</span>
                                 </td>
-                                <td>
+                                <td style="padding: 10px 12px;">
                                     @if($issue->status == 'pending')
-                                        <span class="status-badge" style="background: #FEE2E2; color: #991B1B;">Pending</span>
+                                        <span class="status-badge" style="background: #FEE2E2; color: #991B1B; font-size: 10px; padding: 3px 8px;">Pending</span>
                                     @elseif($issue->status == 'in_progress')
-                                        <span class="status-badge" style="background: #FEF3C7; color: #92400E;">In Progress</span>
+                                        <span class="status-badge" style="background: #FEF3C7; color: #92400E; font-size: 10px; padding: 3px 8px;">In Progress</span>
                                     @elseif($issue->status == 'resolved')
-                                        <span class="status-badge" style="background: #DCFCE7; color: #166534;">Resolved</span>
+                                        <span class="status-badge" style="background: #DCFCE7; color: #166534; font-size: 10px; padding: 3px 8px;">Resolved</span>
                                         @if($issue->resolved_at)
-                                        <div style="font-size: 11px; color: #10B981; margin-top: 2px;">{{ $issue->resolved_at->format('M d') }}</div>
+                                        <div style="font-size: 10px; color: #10B981; margin-top: 2px;">{{ $issue->resolved_at->format('M d') }}</div>
                                         @endif
                                     @elseif($issue->status == 'closed')
-                                        <span class="status-badge" style="background: #E5E7EB; color: #374151;">Closed</span>
+                                        <span class="status-badge" style="background: #E5E7EB; color: #374151; font-size: 10px; padding: 3px 8px;">Closed</span>
                                     @else
-                                        <span class="status-badge" style="background: #E5E7EB; color: #374151;">{{ ucfirst($issue->status) }}</span>
+                                        <span class="status-badge" style="background: #E5E7EB; color: #374151; font-size: 10px; padding: 3px 8px;">{{ ucfirst($issue->status) }}</span>
                                     @endif
                                 </td>
-                                <td>{{ $issue->created_at->format('M d, Y') }}</td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button class="btn-action btn-view" onclick="viewRoomIssueDetails('{{ $issue->id }}')"><i class="fas fa-eye"></i></button>
+                                <td style="padding: 10px 12px; font-size: 12px;">{{ $issue->created_at->format('M d, Y') }}</td>
+                                <td style="padding: 10px 12px;">
+                                    <div class="action-buttons" style="gap: 4px;">
+                                        <button class="btn-action btn-view" style="width: 26px; height: 26px; font-size: 11px;" onclick="viewRoomIssueDetails('{{ $issue->id }}')"><i class="fas fa-eye"></i></button>
                                         @if($issue->photo_path)
-                                        <a href="{{ asset('storage/' . $issue->photo_path) }}" target="_blank" class="btn-action btn-edit"><i class="fas fa-image"></i></a>
+                                        <a href="{{ asset('storage/' . $issue->photo_path) }}" target="_blank" class="btn-action btn-edit" style="width: 26px; height: 26px; font-size: 11px;"><i class="fas fa-image"></i></a>
                                         @endif
-                                        <button class="btn-action" style="background: #10B981; color: white;" onclick="updateIssueStatus('{{ $issue->id }}')"><i class="fas fa-check"></i></button>
+                                        <button class="btn-action" style="background: #10B981; color: white; width: 26px; height: 26px; font-size: 11px;" onclick="updateIssueStatus('{{ $issue->id }}')"><i class="fas fa-check"></i></button>
                                     </div>
                                 </td>
                             </tr>
@@ -4485,108 +4485,106 @@
 
             <!-- Create/Edit Startup Modal -->
             <div id="startupModal" class="modal" style="display: none;">
-                <div class="modal-content" style="max-width: 650px; border-radius: 16px; overflow: hidden;">
+                <div class="modal-content" style="max-width: 580px; width: 95%; border-radius: 16px; overflow: hidden;">
                     <!-- Modal Header with Gradient -->
-                    <div style="background: linear-gradient(135deg, #7B1D3A 0%, #A62450 100%); padding: 28px 32px; position: relative;">
-                        <div style="display: flex; align-items: center; gap: 16px;">
-                            <div style="width: 56px; height: 56px; background: rgba(255,255,255,0.2); border-radius: 14px; display: flex; align-items: center; justify-content: center;">
-                                <i class="fas fa-building" style="font-size: 24px; color: white;"></i>
+                    <div style="background: linear-gradient(135deg, #7B1D3A 0%, #A62450 100%); padding: 20px 24px; position: relative;">
+                        <div style="display: flex; align-items: center; gap: 14px;">
+                            <div style="width: 48px; height: 48px; background: rgba(255,255,255,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-building" style="font-size: 20px; color: white;"></i>
                             </div>
                             <div>
-                                <h3 id="startupModalTitle" style="font-size: 22px; font-weight: 700; color: white; margin: 0;">Create Startup Account</h3>
-                                <p style="color: rgba(255,255,255,0.8); font-size: 14px; margin-top: 4px;">Fill in the details to create a new startup portal account</p>
+                                <h3 id="startupModalTitle" style="font-size: 18px; font-weight: 700; color: white; margin: 0;">Create Startup Account</h3>
+                                <p style="color: rgba(255,255,255,0.8); font-size: 12px; margin-top: 2px;">Fill in details to create a new startup account</p>
                             </div>
                         </div>
-                        <button type="button" onclick="closeStartupModal()" style="position: absolute; top: 20px; right: 20px; width: 36px; height: 36px; background: rgba(255,255,255,0.2); border: none; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s;">
-                            <i class="fas fa-times" style="color: white; font-size: 16px;"></i>
+                        <button type="button" onclick="closeStartupModal()" style="position: absolute; top: 16px; right: 16px; width: 32px; height: 32px; background: rgba(255,255,255,0.2); border: none; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s;">
+                            <i class="fas fa-times" style="color: white; font-size: 14px;"></i>
                         </button>
                     </div>
 
                     <form id="startupForm" onsubmit="saveStartup(event)">
                         <input type="hidden" id="startupId" name="startup_id">
-                        <div style="padding: 28px 32px;">
+                        <div style="padding: 20px 24px; max-height: 60vh; overflow-y: auto;">
                             <!-- Company Info Section -->
-                            <div style="margin-bottom: 24px;">
-                                <h4 style="font-size: 14px; font-weight: 600; color: #7B1D3A; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                            <div style="margin-bottom: 20px;">
+                                <h4 style="font-size: 12px; font-weight: 600; color: #7B1D3A; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
                                     <i class="fas fa-briefcase"></i> Company Information
                                 </h4>
-                                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px;">
+                                <div style="display: flex; flex-direction: column; gap: 12px;">
                                     <div class="form-group" style="margin-bottom: 0;">
-                                        <label style="display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px;">Company Name <span style="color: #EF4444;">*</span></label>
+                                        <label style="display: block; font-size: 12px; font-weight: 600; color: #374151; margin-bottom: 4px;">Company Name <span style="color: #EF4444;">*</span></label>
                                         <div style="position: relative;">
-                                            <i class="fas fa-building" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #9CA3AF;"></i>
-                                            <input type="text" id="companyName" name="company_name" required placeholder="Enter company name" style="width: 100%; padding: 12px 12px 12px 42px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px; transition: all 0.3s;">
+                                            <i class="fas fa-building" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9CA3AF; font-size: 13px;"></i>
+                                            <input type="text" id="companyName" name="company_name" required placeholder="Enter company name" style="width: 100%; padding: 10px 10px 10px 36px; border: 2px solid #E5E7EB; border-radius: 8px; font-size: 13px; transition: all 0.3s; box-sizing: border-box;">
                                         </div>
                                     </div>
                                     <div class="form-group" style="margin-bottom: 0;">
-                                        <label style="display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px;">Room Number</label>
+                                        <label style="display: block; font-size: 12px; font-weight: 600; color: #374151; margin-bottom: 4px;">Room Number</label>
                                         <div style="position: relative;">
-                                            <i class="fas fa-door-open" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #9CA3AF;"></i>
-                                            <input type="text" id="roomNumber" name="room_number" placeholder="e.g., 101" style="width: 100%; padding: 12px 12px 12px 42px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px; transition: all 0.3s;">
+                                            <i class="fas fa-door-open" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9CA3AF; font-size: 13px;"></i>
+                                            <input type="text" id="roomNumber" name="room_number" placeholder="e.g., 101" style="width: 100%; padding: 10px 10px 10px 36px; border: 2px solid #E5E7EB; border-radius: 8px; font-size: 13px; transition: all 0.3s; box-sizing: border-box;">
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Contact Info Section -->
-                            <div style="margin-bottom: 24px;">
-                                <h4 style="font-size: 14px; font-weight: 600; color: #7B1D3A; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                            <div style="margin-bottom: 20px;">
+                                <h4 style="font-size: 12px; font-weight: 600; color: #7B1D3A; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
                                     <i class="fas fa-user"></i> Contact Information
                                 </h4>
-                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                                <div style="display: flex; flex-direction: column; gap: 12px;">
                                     <div class="form-group" style="margin-bottom: 0;">
-                                        <label style="display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px;">Contact Person <span style="color: #EF4444;">*</span></label>
+                                        <label style="display: block; font-size: 12px; font-weight: 600; color: #374151; margin-bottom: 4px;">Contact Person <span style="color: #EF4444;">*</span></label>
                                         <div style="position: relative;">
-                                            <i class="fas fa-user-tie" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #9CA3AF;"></i>
-                                            <input type="text" id="contactPerson" name="contact_person" required placeholder="Full name" style="width: 100%; padding: 12px 12px 12px 42px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px; transition: all 0.3s;">
+                                            <i class="fas fa-user-tie" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9CA3AF; font-size: 13px;"></i>
+                                            <input type="text" id="contactPerson" name="contact_person" required placeholder="Full name" style="width: 100%; padding: 10px 10px 10px 36px; border: 2px solid #E5E7EB; border-radius: 8px; font-size: 13px; transition: all 0.3s; box-sizing: border-box;">
                                         </div>
                                     </div>
                                     <div class="form-group" style="margin-bottom: 0;">
-                                        <label style="display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px;">Email Address <span style="color: #EF4444;">*</span></label>
+                                        <label style="display: block; font-size: 12px; font-weight: 600; color: #374151; margin-bottom: 4px;">Email Address <span style="color: #EF4444;">*</span></label>
                                         <div style="position: relative;">
-                                            <i class="fas fa-envelope" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #9CA3AF;"></i>
-                                            <input type="email" id="startupEmail" name="email" required placeholder="email@company.com" style="width: 100%; padding: 12px 12px 12px 42px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px; transition: all 0.3s;">
+                                            <i class="fas fa-envelope" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9CA3AF; font-size: 13px;"></i>
+                                            <input type="email" id="startupEmail" name="email" required placeholder="email@company.com" style="width: 100%; padding: 10px 10px 10px 36px; border: 2px solid #E5E7EB; border-radius: 8px; font-size: 13px; transition: all 0.3s; box-sizing: border-box;">
                                         </div>
                                     </div>
-                                </div>
-                                <div style="margin-top: 16px;">
                                     <div class="form-group" style="margin-bottom: 0;">
-                                        <label style="display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px;">Phone Number</label>
+                                        <label style="display: block; font-size: 12px; font-weight: 600; color: #374151; margin-bottom: 4px;">Phone Number</label>
                                         <div style="position: relative;">
-                                            <i class="fas fa-phone" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #9CA3AF;"></i>
-                                            <input type="text" id="startupPhone" name="phone" placeholder="e.g., +63 912 345 6789" style="width: 100%; padding: 12px 12px 12px 42px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px; transition: all 0.3s;">
+                                            <i class="fas fa-phone" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9CA3AF; font-size: 13px;"></i>
+                                            <input type="text" id="startupPhone" name="phone" placeholder="e.g., +63 912 345 6789" style="width: 100%; padding: 10px 10px 10px 36px; border: 2px solid #E5E7EB; border-radius: 8px; font-size: 13px; transition: all 0.3s; box-sizing: border-box;">
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Credentials Section (shown after creation) -->
-                            <div id="credentialsSection" style="display: none; background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%); padding: 24px; border-radius: 12px; border: 2px solid #86EFAC; margin-top: 24px;">
-                                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
-                                    <div style="width: 44px; height: 44px; background: #166534; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-                                        <i class="fas fa-key" style="color: white; font-size: 18px;"></i>
+                            <div id="credentialsSection" style="display: none; background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%); padding: 16px; border-radius: 10px; border: 2px solid #86EFAC;">
+                                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                                    <div style="width: 36px; height: 36px; background: #166534; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-key" style="color: white; font-size: 14px;"></i>
                                     </div>
                                     <div>
-                                        <h4 style="color: #166534; font-size: 16px; font-weight: 700; margin: 0;">Startup Code Generated!</h4>
-                                        <p style="color: #15803D; font-size: 12px; margin: 0;">Share this code with the startup - they will create their password on first login</p>
+                                        <h4 style="color: #166534; font-size: 14px; font-weight: 700; margin: 0;">Startup Code Generated!</h4>
+                                        <p style="color: #15803D; font-size: 11px; margin: 0;">Share this code with the startup</p>
                                     </div>
                                 </div>
-                                <div style="background: white; padding: 20px; border-radius: 10px; border: 1px solid #BBF7D0; text-align: center;">
-                                    <label style="font-size: 11px; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Startup Code</label>
-                                    <div id="generatedCode" style="font-family: 'Courier New', monospace; font-size: 24px; font-weight: 700; color: #166534; margin-top: 8px;"></div>
+                                <div style="background: white; padding: 14px; border-radius: 8px; border: 1px solid #BBF7D0; text-align: center;">
+                                    <label style="font-size: 10px; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Startup Code</label>
+                                    <div id="generatedCode" style="font-family: 'Courier New', monospace; font-size: 20px; font-weight: 700; color: #166534; margin-top: 4px;"></div>
                                 </div>
-                                <button type="button" onclick="copyStartupCode()" style="margin-top: 16px; width: 100%; padding: 12px; background: #166534; color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.3s;">
-                                    <i class="fas fa-copy"></i> Copy Code to Clipboard
+                                <button type="button" onclick="copyStartupCode()" style="margin-top: 12px; width: 100%; padding: 10px; background: #166534; color: white; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.3s;">
+                                    <i class="fas fa-copy"></i> Copy Code
                                 </button>
                             </div>
                         </div>
 
                         <!-- Modal Footer -->
-                        <div style="padding: 20px 32px; background: #F9FAFB; border-top: 1px solid #E5E7EB; display: flex; justify-content: flex-end; gap: 12px;">
-                            <button type="button" onclick="closeStartupModal()" style="padding: 12px 24px; background: white; color: #6B7280; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s;">
+                        <div style="padding: 16px 24px; background: #F9FAFB; border-top: 1px solid #E5E7EB; display: flex; justify-content: flex-end; gap: 10px;">
+                            <button type="button" onclick="closeStartupModal()" style="padding: 10px 18px; background: white; color: #6B7280; border: 2px solid #E5E7EB; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.3s;">
                                 Cancel
                             </button>
-                            <button type="submit" id="startupSubmitBtn" style="padding: 12px 28px; background: linear-gradient(135deg, #7B1D3A 0%, #A62450 100%); color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.3s;">
+                            <button type="submit" id="startupSubmitBtn" style="padding: 10px 20px; background: linear-gradient(135deg, #7B1D3A 0%, #A62450 100%); color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.3s;">
                                 <i class="fas fa-plus-circle"></i> Create Account
                             </button>
                         </div>
@@ -6177,19 +6175,19 @@
 
     <!-- View Room Issue Details Modal -->
     <div id="roomIssueDetailsModal" class="modal-overlay">
-        <div class="modal-content" style="max-width: 650px;">
-            <div class="modal-header">
-                <h3 class="modal-title"><i class="fas fa-exclamation-circle" style="margin-right: 8px;"></i>Room Issue Details</h3>
+        <div class="modal-content" style="max-width: 520px; width: 95%;">
+            <div class="modal-header" style="padding: 16px 20px;">
+                <h3 class="modal-title" style="font-size: 16px;"><i class="fas fa-exclamation-circle" style="margin-right: 8px;"></i>Room Issue Details</h3>
                 <button class="modal-close" onclick="closeRoomIssueDetailsModal()">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <div class="modal-body" id="roomIssueDetailsContent">
+            <div class="modal-body" id="roomIssueDetailsContent" style="padding: 16px 20px; max-height: 60vh; overflow-y: auto;">
                 <!-- Issue details will be loaded here -->
             </div>
-            <div class="modal-footer">
-                <button class="btn-modal secondary" onclick="closeRoomIssueDetailsModal()">Close</button>
-                <button class="btn-modal primary" onclick="openUpdateIssueStatusModal()">
+            <div class="modal-footer" style="padding: 12px 20px;">
+                <button class="btn-modal secondary" style="padding: 8px 16px; font-size: 13px;" onclick="closeRoomIssueDetailsModal()">Close</button>
+                <button class="btn-modal primary" style="padding: 8px 16px; font-size: 13px;" onclick="openUpdateIssueStatusModal()">
                     <i class="fas fa-edit"></i> Update Status
                 </button>
             </div>
@@ -6198,25 +6196,25 @@
 
     <!-- Update Issue Status Modal -->
     <div id="updateIssueStatusModal" class="modal-overlay">
-        <div class="modal-content" style="max-width: 500px;">
-            <div class="modal-header">
-                <h3 class="modal-title"><i class="fas fa-edit" style="margin-right: 8px;"></i>Update Issue Status</h3>
+        <div class="modal-content" style="max-width: 420px; width: 95%;">
+            <div class="modal-header" style="padding: 16px 20px;">
+                <h3 class="modal-title" style="font-size: 16px;"><i class="fas fa-edit" style="margin-right: 8px;"></i>Update Issue Status</h3>
                 <button class="modal-close" onclick="closeUpdateIssueStatusModal()">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body" style="padding: 16px 20px; max-height: 60vh; overflow-y: auto;">
                 <form id="updateIssueStatusForm">
                     <input type="hidden" id="updateIssueId">
 
-                    <div class="form-group">
-                        <label class="form-label">Issue Info</label>
-                        <div id="updateIssueInfo" style="background: #F3F4F6; padding: 12px; border-radius: 8px; font-size: 14px;"></div>
+                    <div class="form-group" style="margin-bottom: 14px;">
+                        <label class="form-label" style="font-size: 12px; margin-bottom: 4px;">Issue Info</label>
+                        <div id="updateIssueInfo" style="background: #F3F4F6; padding: 10px 12px; border-radius: 6px; font-size: 13px;"></div>
                     </div>
 
-                    <div class="form-group">
-                        <label class="form-label required">New Status</label>
-                        <select id="updateIssueNewStatus" class="form-select" required>
+                    <div class="form-group" style="margin-bottom: 14px;">
+                        <label class="form-label required" style="font-size: 12px; margin-bottom: 4px;">New Status</label>
+                        <select id="updateIssueNewStatus" class="form-select" required style="padding: 10px 12px; font-size: 13px;">
                             <option value="">-- Select Status --</option>
                             <option value="pending">Pending</option>
                             <option value="in_progress">In Progress</option>
@@ -6225,20 +6223,20 @@
                         </select>
                     </div>
 
-                    <div class="form-group">
-                        <label class="form-label">Assigned To (Optional)</label>
-                        <input type="text" id="updateIssueAssignee" class="form-input" placeholder="Enter assignee name">
+                    <div class="form-group" style="margin-bottom: 14px;">
+                        <label class="form-label" style="font-size: 12px; margin-bottom: 4px;">Assigned To (Optional)</label>
+                        <input type="text" id="updateIssueAssignee" class="form-input" placeholder="Enter assignee name" style="padding: 10px 12px; font-size: 13px;">
                     </div>
 
-                    <div class="form-group">
-                        <label class="form-label">Resolution Notes</label>
-                        <textarea id="updateIssueNotes" class="form-input" rows="3" placeholder="Add resolution notes or updates..."></textarea>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label" style="font-size: 12px; margin-bottom: 4px;">Resolution Notes</label>
+                        <textarea id="updateIssueNotes" class="form-input" rows="3" placeholder="Add resolution notes..." style="padding: 10px 12px; font-size: 13px; resize: vertical;"></textarea>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer">
-                <button class="btn-modal secondary" onclick="closeUpdateIssueStatusModal()">Cancel</button>
-                <button class="btn-modal primary" onclick="submitIssueStatusUpdate()">
+            <div class="modal-footer" style="padding: 12px 20px;">
+                <button class="btn-modal secondary" style="padding: 8px 16px; font-size: 13px;" onclick="closeUpdateIssueStatusModal()">Cancel</button>
+                <button class="btn-modal primary" style="padding: 8px 16px; font-size: 13px;" onclick="submitIssueStatusUpdate()">
                     <i class="fas fa-check"></i> Update Status
                 </button>
             </div>
@@ -6750,6 +6748,28 @@
         let previousIssueCount = 0;
         let isFirstLoad = true;
 
+        // Get read notification IDs from localStorage
+        function getReadNotifications() {
+            try {
+                return JSON.parse(localStorage.getItem('readNotifications') || '[]');
+            } catch (e) {
+                return [];
+            }
+        }
+
+        // Save read notification IDs to localStorage
+        function saveReadNotifications(ids) {
+            localStorage.setItem('readNotifications', JSON.stringify(ids));
+        }
+
+        // Generate unique ID for a notification
+        function getNotificationId(type, item) {
+            if (type === 'booking') return `booking_${item.id}`;
+            if (type === 'startup') return `startup_${item.id}`;
+            if (type === 'issue') return `issue_${item.id}`;
+            return `${type}_${item.id}`;
+        }
+
         function toggleNotificationDropdown() {
             const dropdown = document.getElementById('notificationDropdown');
             dropdown.classList.toggle('active');
@@ -6766,21 +6786,43 @@
 
         async function loadNotifications() {
             try {
+                let bookings = [];
+                let startups = [];
+                let issues = [];
+
                 // Fetch pending bookings
-                const bookingsResponse = await fetch('/admin/bookings');
-                const bookingsData = await bookingsResponse.json();
-                const bookings = bookingsData.bookings || bookingsData;
-                const pendingBookings = bookings.filter(b => b.status === 'pending');
+                try {
+                    const bookingsResponse = await fetch('/admin/bookings');
+                    if (bookingsResponse.ok) {
+                        const bookingsData = await bookingsResponse.json();
+                        bookings = bookingsData.bookings || bookingsData || [];
+                    }
+                } catch (e) {
+                    console.warn('Error fetching bookings:', e);
+                }
+                const pendingBookings = Array.isArray(bookings) ? bookings.filter(b => b.status === 'pending') : [];
 
                 // Fetch startup submissions
-                const startupsResponse = await fetch('/admin/startup-submissions');
-                const startups = await startupsResponse.json();
-                const pendingStartups = startups.filter(s => s.status === 'pending');
+                try {
+                    const startupsResponse = await fetch('/admin/startup-submissions');
+                    if (startupsResponse.ok) {
+                        startups = await startupsResponse.json();
+                    }
+                } catch (e) {
+                    console.warn('Error fetching startups:', e);
+                }
+                const pendingStartups = Array.isArray(startups) ? startups.filter(s => s.status === 'pending') : [];
 
                 // Fetch room issues
-                const issuesResponse = await fetch('/admin/room-issues');
-                const issues = await issuesResponse.json();
-                const pendingIssues = issues.filter(i => i.status === 'pending' || i.status === 'in_progress');
+                try {
+                    const issuesResponse = await fetch('/admin/room-issues');
+                    if (issuesResponse.ok) {
+                        issues = await issuesResponse.json();
+                    }
+                } catch (e) {
+                    console.warn('Error fetching issues:', e);
+                }
+                const pendingIssues = Array.isArray(issues) ? issues.filter(i => i.status === 'pending' || i.status === 'in_progress') : [];
 
                 // Check for new items and show toast notifications
                 if (!isFirstLoad) {
@@ -6834,40 +6876,55 @@
                 previousIssueCount = pendingIssues.length;
                 isFirstLoad = false;
 
-                // Build notifications array
+                // Get read notification IDs
+                const readIds = getReadNotifications();
+
+                // Build notifications array (excluding read ones)
                 notifications = [];
 
                 pendingBookings.forEach(booking => {
-                    notifications.push({
-                        type: 'booking',
-                        icon: 'fa-calendar-check',
-                        title: 'New Booking Request',
-                        text: `${booking.agency_name} - ${booking.event_name}`,
-                        time: formatTimeAgo(booking.created_at),
-                        page: 'scheduler'
-                    });
+                    const notifId = getNotificationId('booking', booking);
+                    if (!readIds.includes(notifId)) {
+                        notifications.push({
+                            id: notifId,
+                            type: 'booking',
+                            icon: 'fa-calendar-check',
+                            title: 'New Booking Request',
+                            text: `${booking.agency_name} - ${booking.event_name}`,
+                            time: formatTimeAgo(booking.created_at),
+                            page: 'scheduler'
+                        });
+                    }
                 });
 
                 pendingStartups.forEach(startup => {
-                    notifications.push({
-                        type: 'startup',
-                        icon: 'fa-rocket',
-                        title: 'New Startup Application',
-                        text: `${startup.startup_name} - ${startup.industry}`,
-                        time: formatTimeAgo(startup.created_at),
-                        page: 'incubatee-tracker'
-                    });
+                    const notifId = getNotificationId('startup', startup);
+                    if (!readIds.includes(notifId)) {
+                        notifications.push({
+                            id: notifId,
+                            type: 'startup',
+                            icon: 'fa-rocket',
+                            title: 'New Startup Application',
+                            text: `${startup.startup_name} - ${startup.industry}`,
+                            time: formatTimeAgo(startup.created_at),
+                            page: 'incubatee-tracker'
+                        });
+                    }
                 });
 
                 pendingIssues.forEach(issue => {
-                    notifications.push({
-                        type: 'issue',
-                        icon: 'fa-exclamation-circle',
-                        title: issue.status === 'pending' ? 'New Issue Reported' : 'Issue In Progress',
-                        text: `${issue.room_location} - ${issue.category}`,
-                        time: formatTimeAgo(issue.created_at),
-                        page: 'issues-management'
-                    });
+                    const notifId = getNotificationId('issue', issue);
+                    if (!readIds.includes(notifId)) {
+                        notifications.push({
+                            id: notifId,
+                            type: 'issue',
+                            icon: 'fa-exclamation-circle',
+                            title: issue.status === 'pending' ? 'New Issue Reported' : 'Issue In Progress',
+                            text: `${issue.room_location} - ${issue.category}`,
+                            time: formatTimeAgo(issue.created_at),
+                            page: 'issues-management'
+                        });
+                    }
                 });
 
                 renderNotifications();
@@ -6934,7 +6991,7 @@
                 `;
             } else {
                 list.innerHTML = notifications.map(notif => `
-                    <div class="notification-item" onclick="handleNotificationClick('${notif.page}')">
+                    <div class="notification-item" onclick="handleNotificationClick('${notif.page}', '${notif.id}')">
                         <div class="notification-icon ${notif.type}">
                             <i class="fas ${notif.icon}"></i>
                         </div>
@@ -6948,7 +7005,19 @@
             }
         }
 
-        function handleNotificationClick(page) {
+        function handleNotificationClick(page, notifId) {
+            // Mark this notification as read
+            if (notifId) {
+                const readIds = getReadNotifications();
+                if (!readIds.includes(notifId)) {
+                    readIds.push(notifId);
+                    saveReadNotifications(readIds);
+                }
+                // Remove from current notifications
+                notifications = notifications.filter(n => n.id !== notifId);
+                renderNotifications();
+            }
+
             document.getElementById('notificationDropdown').classList.remove('active');
             // Navigate to the relevant page
             const fakeEvent = { preventDefault: () => {} };
@@ -6956,6 +7025,15 @@
         }
 
         function markAllAsRead() {
+            // Save all current notification IDs as read
+            const readIds = getReadNotifications();
+            notifications.forEach(notif => {
+                if (notif.id && !readIds.includes(notif.id)) {
+                    readIds.push(notif.id);
+                }
+            });
+            saveReadNotifications(readIds);
+
             notifications = [];
             renderNotifications();
             showToast('success', 'Notifications Cleared', 'All notifications have been marked as read.');
@@ -8939,7 +9017,8 @@
         // ========== ROOM ISSUE DETAILS MODAL FUNCTIONS ==========
 
         function viewRoomIssueDetails(issueId) {
-            const issue = roomIssuesData[issueId];
+            // Try both string and number keys
+            const issue = roomIssuesData[issueId] || roomIssuesData[String(issueId)] || roomIssuesData[Number(issueId)];
             if (!issue) {
                 alert('Issue not found');
                 return;
@@ -9049,7 +9128,8 @@
         }
 
         function openUpdateIssueStatusModal() {
-            const issue = roomIssuesData[currentIssueId];
+            // Try both string and number keys
+            const issue = roomIssuesData[currentIssueId] || roomIssuesData[String(currentIssueId)] || roomIssuesData[Number(currentIssueId)];
             if (!issue) return;
 
             document.getElementById('updateIssueId').value = currentIssueId;
@@ -9071,7 +9151,28 @@
 
         function updateIssueStatus(issueId) {
             currentIssueId = issueId;
-            openUpdateIssueStatusModal();
+            // Try both string and number keys since JSON might have integer keys
+            const issue = roomIssuesData[issueId] || roomIssuesData[String(issueId)] || roomIssuesData[Number(issueId)];
+
+            console.log('Updating issue:', issueId, typeof issueId);
+            console.log('Issue data:', issue);
+            console.log('All issues data keys:', Object.keys(roomIssuesData));
+
+            if (!issue) {
+                alert('Issue data not found. Please refresh the page and try again.');
+                return;
+            }
+
+            document.getElementById('updateIssueId').value = issueId;
+            document.getElementById('updateIssueInfo').innerHTML = `
+                <strong>${issue.tracking_code}</strong><br>
+                Room ${issue.room_number} - ${issue.issue_type_label}
+            `;
+            document.getElementById('updateIssueNewStatus').value = issue.status;
+            document.getElementById('updateIssueAssignee').value = '';
+            document.getElementById('updateIssueNotes').value = issue.admin_notes || '';
+
+            document.getElementById('updateIssueStatusModal').style.display = 'flex';
         }
 
         function submitIssueStatusUpdate() {
@@ -9080,13 +9181,22 @@
             const assignee = document.getElementById('updateIssueAssignee').value;
             const notes = document.getElementById('updateIssueNotes').value;
 
+            if (!issueId) {
+                alert('No issue selected. Please try again.');
+                return;
+            }
+
             if (!newStatus) {
                 alert('Please select a new status');
                 return;
             }
 
             // Disable button and show loading
-            const submitBtn = document.querySelector('#updateIssueStatusModal .btn-primary');
+            const submitBtn = document.querySelector('#updateIssueStatusModal .btn-modal.primary');
+            if (!submitBtn) {
+                console.error('Submit button not found');
+                return;
+            }
             const originalText = submitBtn.innerHTML;
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
@@ -9095,7 +9205,7 @@
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                     'Accept': 'application/json'
                 },
                 body: JSON.stringify({
@@ -9104,7 +9214,14 @@
                     assignee: assignee
                 })
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        throw new Error(`Server error: ${response.status} - ${text}`);
+                    });
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.success) {
                     alert(`Issue ${data.issue.tracking_code} has been updated to: ${data.issue.status_label}!`);
@@ -9116,7 +9233,7 @@
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('An error occurred while updating the issue');
+                alert('An error occurred while updating the issue: ' + error.message);
             })
             .finally(() => {
                 submitBtn.disabled = false;

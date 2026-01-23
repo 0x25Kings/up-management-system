@@ -285,35 +285,59 @@
             background: var(--white);
             padding: 24px;
             border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
-            border-left: 5px solid;
-            transition: transform 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            border: 1px solid #E5E7EB;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
 
-        .stat-card:hover { transform: translateY(-4px); }
-        .stat-card.maroon { border-left-color: var(--maroon); }
-        .stat-card.green { border-left-color: var(--forest-green); }
-        .stat-card.gold { border-left-color: var(--gold-dark); }
-        .stat-card.red { border-left-color: #DC2626; }
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            opacity: 0.1;
+            transform: translate(30%, -30%);
+        }
+
+        .stat-card.maroon::after { background: var(--maroon); }
+        .stat-card.green::after { background: var(--forest-green); }
+        .stat-card.gold::after { background: var(--gold-dark); }
+        .stat-card.red::after { background: #DC2626; }
+
+        .stat-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
 
         .stat-icon {
-            width: 50px;
-            height: 50px;
+            width: 52px;
+            height: 52px;
             border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
-            margin-bottom: 16px;
+            font-size: 22px;
         }
 
-        .stat-icon.maroon { background: rgba(123, 17, 19, 0.1); color: var(--maroon); }
-        .stat-icon.green { background: rgba(34, 139, 34, 0.1); color: var(--forest-green); }
-        .stat-icon.gold { background: rgba(255, 215, 0, 0.2); color: var(--gold-dark); }
-        .stat-icon.red { background: rgba(220, 38, 38, 0.1); color: #DC2626; }
+        .stat-icon.maroon { background: linear-gradient(135deg, rgba(123, 17, 19, 0.15), rgba(123, 17, 19, 0.25)); color: var(--maroon); }
+        .stat-icon.green { background: linear-gradient(135deg, #D1FAE5, #A7F3D0); color: #059669; }
+        .stat-icon.gold { background: linear-gradient(135deg, #FEF3C7, #FDE68A); color: #D97706; }
+        .stat-icon.red { background: linear-gradient(135deg, #FEE2E2, #FECACA); color: #DC2626; }
 
-        .stat-value { font-size: 32px; font-weight: 800; color: #1F2937; }
-        .stat-label { font-size: 13px; color: #6B7280; font-weight: 600; margin-top: 4px; }
+        .stat-value { font-size: 36px; font-weight: 800; color: #1F2937; line-height: 1; }
+        .stat-label { font-size: 14px; color: #6B7280; font-weight: 500; margin-top: 6px; }
 
         /* Cards */
         .card {
@@ -908,32 +932,44 @@
 
             <div class="stats-grid">
                 <div class="stat-card maroon">
-                    <div class="stat-icon maroon"><i class="fas fa-users"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon maroon"><i class="fas fa-users"></i></div>
+                    </div>
                     <div class="stat-value">{{ $totalInterns }}</div>
                     <div class="stat-label">Total Interns</div>
                 </div>
                 <div class="stat-card green">
-                    <div class="stat-icon green"><i class="fas fa-user-check"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon green"><i class="fas fa-user-check"></i></div>
+                    </div>
                     <div class="stat-value">{{ $allInterns->where('status', 'Active')->count() }}</div>
                     <div class="stat-label">Active Interns</div>
                 </div>
                 <div class="stat-card gold">
-                    <div class="stat-icon gold"><i class="fas fa-tasks"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon gold"><i class="fas fa-tasks"></i></div>
+                    </div>
                     <div class="stat-value">{{ $totalTasks }}</div>
                     <div class="stat-label">Total Tasks</div>
                 </div>
                 <div class="stat-card green">
-                    <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+                    </div>
                     <div class="stat-value">{{ $completedTasks }}</div>
                     <div class="stat-label">Completed Tasks</div>
                 </div>
                 <div class="stat-card red">
-                    <div class="stat-icon red"><i class="fas fa-exclamation-triangle"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon red"><i class="fas fa-exclamation-triangle"></i></div>
+                    </div>
                     <div class="stat-value">{{ $overdueTasks }}</div>
                     <div class="stat-label">Overdue Tasks</div>
                 </div>
                 <div class="stat-card maroon">
-                    <div class="stat-icon maroon"><i class="fas fa-clock"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon maroon"><i class="fas fa-clock"></i></div>
+                    </div>
                     <div class="stat-value">{{ $presentToday }}</div>
                     <div class="stat-label">Present Today</div>
                 </div>
@@ -1077,17 +1113,23 @@
         <div id="interns" class="page-content">
             <div class="stats-grid">
                 <div class="stat-card maroon">
-                    <div class="stat-icon maroon"><i class="fas fa-users"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon maroon"><i class="fas fa-users"></i></div>
+                    </div>
                     <div class="stat-value">{{ $allInterns->count() }}</div>
                     <div class="stat-label">Total Interns</div>
                 </div>
                 <div class="stat-card green">
-                    <div class="stat-icon green"><i class="fas fa-user-check"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon green"><i class="fas fa-user-check"></i></div>
+                    </div>
                     <div class="stat-value">{{ $allInterns->where('status', 'Active')->count() }}</div>
                     <div class="stat-label">Active</div>
                 </div>
                 <div class="stat-card gold">
-                    <div class="stat-icon gold"><i class="fas fa-user-graduate"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon gold"><i class="fas fa-user-graduate"></i></div>
+                    </div>
                     <div class="stat-value">{{ $allInterns->where('status', 'Completed')->count() }}</div>
                     <div class="stat-label">Completed</div>
                 </div>
@@ -1165,36 +1207,41 @@
         <div id="tasks" class="page-content">
             <div class="stats-grid">
                 <div class="stat-card gold">
-                    <div class="stat-icon gold"><i class="fas fa-clock"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon gold"><i class="fas fa-clock"></i></div>
+                    </div>
                     <div class="stat-value">{{ $pendingTasks }}</div>
                     <div class="stat-label">Pending</div>
                 </div>
                 <div class="stat-card maroon">
-                    <div class="stat-icon maroon"><i class="fas fa-spinner"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon maroon"><i class="fas fa-spinner"></i></div>
+                    </div>
                     <div class="stat-value">{{ $inProgressTasks }}</div>
                     <div class="stat-label">In Progress</div>
                 </div>
                 <div class="stat-card green">
-                    <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+                    </div>
                     <div class="stat-value">{{ $completedTasks }}</div>
                     <div class="stat-label">Completed</div>
                 </div>
                 <div class="stat-card red">
-                    <div class="stat-icon red"><i class="fas fa-exclamation-triangle"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon red"><i class="fas fa-exclamation-triangle"></i></div>
+                    </div>
                     <div class="stat-value">{{ $overdueTasks }}</div>
                     <div class="stat-label">Overdue</div>
                 </div>
             </div>
 
-            <div class="quick-actions">
-                <button class="btn btn-primary" onclick="openCreateTaskModal()">
-                    <i class="fas fa-plus"></i> Create New Task
-                </button>
-            </div>
-
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title"><i class="fas fa-tasks"></i> All Tasks</h3>
+                    <button class="btn btn-primary btn-sm" onclick="openCreateTaskModal()">
+                        <i class="fas fa-plus"></i> Create Task
+                    </button>
                 </div>
                 <div class="card-body" style="padding: 0; overflow-x: auto;">
                     @if($allTasks->count() > 0)
@@ -1275,9 +1322,6 @@
                         <i class="fas fa-tasks"></i>
                         <h4>No tasks yet</h4>
                         <p>Create your first task to get started</p>
-                        <button class="btn btn-primary" style="margin-top: 16px;" onclick="openCreateTaskModal()">
-                            <i class="fas fa-plus"></i> Create Task
-                        </button>
                     </div>
                     @endif
                 </div>
@@ -1288,17 +1332,23 @@
         <div id="attendance" class="page-content">
             <div class="stats-grid">
                 <div class="stat-card green">
-                    <div class="stat-icon green"><i class="fas fa-user-check"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon green"><i class="fas fa-user-check"></i></div>
+                    </div>
                     <div class="stat-value">{{ $presentToday }}</div>
                     <div class="stat-label">Present Today</div>
                 </div>
                 <div class="stat-card red">
-                    <div class="stat-icon red"><i class="fas fa-user-times"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon red"><i class="fas fa-user-times"></i></div>
+                    </div>
                     <div class="stat-value">{{ $absentToday }}</div>
                     <div class="stat-label">Absent Today</div>
                 </div>
                 <div class="stat-card gold">
-                    <div class="stat-icon gold"><i class="fas fa-clock"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon gold"><i class="fas fa-clock"></i></div>
+                    </div>
                     <div class="stat-value">{{ $lateToday }}</div>
                     <div class="stat-label">Late Today</div>
                 </div>
@@ -1384,36 +1434,41 @@
         <div id="reports" class="page-content">
             <div class="stats-grid">
                 <div class="stat-card maroon">
-                    <div class="stat-icon maroon"><i class="fas fa-file-alt"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon maroon"><i class="fas fa-file-alt"></i></div>
+                    </div>
                     <div class="stat-value">{{ $allReports->count() }}</div>
                     <div class="stat-label">Total Reports</div>
                 </div>
                 <div class="stat-card gold">
-                    <div class="stat-icon gold"><i class="fas fa-edit"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon gold"><i class="fas fa-edit"></i></div>
+                    </div>
                     <div class="stat-value">{{ $allReports->where('status', 'draft')->count() }}</div>
                     <div class="stat-label">Drafts</div>
                 </div>
                 <div class="stat-card green">
-                    <div class="stat-icon green"><i class="fas fa-paper-plane"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon green"><i class="fas fa-paper-plane"></i></div>
+                    </div>
                     <div class="stat-value">{{ $allReports->where('status', 'submitted')->count() }}</div>
                     <div class="stat-label">Submitted</div>
                 </div>
                 <div class="stat-card green">
-                    <div class="stat-icon green"><i class="fas fa-check-double"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon green"><i class="fas fa-check-double"></i></div>
+                    </div>
                     <div class="stat-value">{{ $allReports->where('status', 'reviewed')->count() }}</div>
                     <div class="stat-label">Reviewed</div>
                 </div>
             </div>
 
-            <div class="quick-actions">
-                <button class="btn btn-success" onclick="openCreateReportModal()">
-                    <i class="fas fa-plus"></i> Create New Report
-                </button>
-            </div>
-
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title"><i class="fas fa-file-alt"></i> My Reports</h3>
+                    <button class="btn btn-success btn-sm" onclick="openCreateReportModal()">
+                        <i class="fas fa-plus"></i> Create Report
+                    </button>
                 </div>
                 <div class="card-body" style="padding: 0; overflow-x: auto;">
                     @if($allReports->count() > 0)
@@ -1469,9 +1524,6 @@
                         <i class="fas fa-file-alt"></i>
                         <h4>No reports yet</h4>
                         <p>Create your first report to submit to admin</p>
-                        <button class="btn btn-success" style="margin-top: 16px;" onclick="openCreateReportModal()">
-                            <i class="fas fa-plus"></i> Create Report
-                        </button>
                     </div>
                     @endif
                 </div>
@@ -1485,22 +1537,30 @@
         <div id="scheduler" class="page-content">
             <div class="stats-grid">
                 <div class="stat-card maroon">
-                    <div class="stat-icon maroon"><i class="fas fa-calendar-alt"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon maroon"><i class="fas fa-calendar-alt"></i></div>
+                    </div>
                     <div class="stat-value" id="tlTotalBookings">{{ isset($schedulerData['bookings']) ? $schedulerData['bookings']->count() : 0 }}</div>
                     <div class="stat-label">Total Bookings</div>
                 </div>
                 <div class="stat-card gold">
-                    <div class="stat-icon gold"><i class="fas fa-clock"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon gold"><i class="fas fa-clock"></i></div>
+                    </div>
                     <div class="stat-value" id="tlPendingBookings">{{ $schedulerData['pendingBookings'] ?? 0 }}</div>
                     <div class="stat-label">Pending Bookings</div>
                 </div>
                 <div class="stat-card green">
-                    <div class="stat-icon green"><i class="fas fa-calendar-check"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon green"><i class="fas fa-calendar-check"></i></div>
+                    </div>
                     <div class="stat-value" id="tlTotalEvents">{{ isset($schedulerData['events']) ? $schedulerData['events']->count() : 0 }}</div>
                     <div class="stat-label">Total Events</div>
                 </div>
                 <div class="stat-card red">
-                    <div class="stat-icon red"><i class="fas fa-ban"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon red"><i class="fas fa-ban"></i></div>
+                    </div>
                     <div class="stat-value" id="tlBlockedDates">{{ isset($schedulerData['blockedDates']) ? $schedulerData['blockedDates']->count() : 0 }}</div>
                     <div class="stat-label">Blocked Dates</div>
                 </div>
@@ -1630,12 +1690,16 @@
         <div id="incubatee-tracker" class="page-content">
             <div class="stats-grid">
                 <div class="stat-card maroon">
-                    <div class="stat-icon maroon"><i class="fas fa-rocket"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon maroon"><i class="fas fa-rocket"></i></div>
+                    </div>
                     <div class="stat-value">{{ $incubateeData['totalSubmissions'] ?? 0 }}</div>
                     <div class="stat-label">Total Submissions</div>
                 </div>
                 <div class="stat-card gold">
-                    <div class="stat-icon gold"><i class="fas fa-hourglass-half"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon gold"><i class="fas fa-hourglass-half"></i></div>
+                    </div>
                     <div class="stat-value">{{ $incubateeData['pendingSubmissions'] ?? 0 }}</div>
                     <div class="stat-label">Pending Review</div>
                 </div>
@@ -1695,12 +1759,16 @@
         <div id="issues-management" class="page-content">
             <div class="stats-grid">
                 <div class="stat-card maroon">
-                    <div class="stat-icon maroon"><i class="fas fa-exclamation-triangle"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon maroon"><i class="fas fa-exclamation-triangle"></i></div>
+                    </div>
                     <div class="stat-value">{{ $issuesData['totalIssues'] ?? 0 }}</div>
                     <div class="stat-label">Total Issues</div>
                 </div>
                 <div class="stat-card gold">
-                    <div class="stat-icon gold"><i class="fas fa-clock"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon gold"><i class="fas fa-clock"></i></div>
+                    </div>
                     <div class="stat-value">{{ $issuesData['pendingIssues'] ?? 0 }}</div>
                     <div class="stat-label">Pending Issues</div>
                 </div>
@@ -1774,30 +1842,38 @@
 
             <!-- Stats Overview -->
             <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 24px;">
-                <div class="stat-card" style="border-left: 5px solid #3B82F6;">
-                    <div class="stat-icon" style="background: linear-gradient(135deg, #3B82F6, #2563EB); color: white;">
-                        <i class="fas fa-folder"></i>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #DBEAFE, #BFDBFE); color: #2563EB;">
+                            <i class="fas fa-folder"></i>
+                        </div>
                     </div>
                     <div class="stat-value" id="tl-dr-total-folders">--</div>
                     <div class="stat-label">Total Folders</div>
                 </div>
-                <div class="stat-card" style="border-left: 5px solid #10B981;">
-                    <div class="stat-icon" style="background: linear-gradient(135deg, #10B981, #059669); color: white;">
-                        <i class="fas fa-file"></i>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #D1FAE5, #A7F3D0); color: #059669;">
+                            <i class="fas fa-file"></i>
+                        </div>
                     </div>
                     <div class="stat-value" id="tl-dr-total-files">--</div>
                     <div class="stat-label">Total Files</div>
                 </div>
-                <div class="stat-card" style="border-left: 5px solid #8B5CF6;">
-                    <div class="stat-icon" style="background: linear-gradient(135deg, #8B5CF6, #7C3AED); color: white;">
-                        <i class="fas fa-hdd"></i>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #EDE9FE, #DDD6FE); color: #7C3AED;">
+                            <i class="fas fa-hdd"></i>
+                        </div>
                     </div>
                     <div class="stat-value" id="tl-dr-storage-used">--</div>
                     <div class="stat-label">Storage Used</div>
                 </div>
-                <div class="stat-card" style="border-left: 5px solid #F59E0B;">
-                    <div class="stat-icon" style="background: linear-gradient(135deg, #F59E0B, #D97706); color: white;">
-                        <i class="fas fa-clock"></i>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #FEF3C7, #FDE68A); color: #D97706;">
+                            <i class="fas fa-clock"></i>
+                        </div>
                     </div>
                     <div class="stat-value" id="tl-dr-recent-uploads">--</div>
                     <div class="stat-label">Recent Uploads (7d)</div>
