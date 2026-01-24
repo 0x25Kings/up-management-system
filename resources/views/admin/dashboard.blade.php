@@ -4364,9 +4364,6 @@
                                 <td>
                                     <div class="action-buttons">
                                         <button class="btn-action btn-view" onclick="viewPaymentDetails('{{ $payment->id }}')" title="View Details"><i class="fas fa-eye"></i></button>
-                                        @if($payment->payment_proof_path)
-                                        <a href="{{ asset('storage/' . $payment->payment_proof_path) }}" target="_blank" class="btn-action btn-edit" title="View Receipt"><i class="fas fa-receipt"></i></a>
-                                        @endif
                                         <button class="btn-action" style="background: #10B981; color: white;" onclick="reviewSubmission('{{ $payment->id }}', 'finance')" title="Review"><i class="fas fa-clipboard-check"></i></button>
                                     </div>
                                 </td>
@@ -6877,21 +6874,33 @@
 
     <!-- View Payment Details Modal -->
     <div id="paymentDetailsModal" class="modal-overlay">
-        <div class="modal-content" style="max-width: 600px;">
+        <div class="modal-content" style="max-width: 950px;">
             <div class="modal-header">
                 <h3 class="modal-title"><i class="fas fa-credit-card" style="margin-right: 8px;"></i>Payment Submission Details</h3>
                 <button class="modal-close" onclick="closePaymentDetailsModal()">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <div class="modal-body" id="paymentDetailsContent">
-                <!-- Payment details will be loaded here -->
+            <div class="modal-body" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                <!-- Left side: Payment Details -->
+                <div id="paymentDetailsContent">
+                    <!-- Payment details will be loaded here -->
+                </div>
+                <!-- Right side: Payment Proof -->
+                <div id="paymentProofContainer" style="display: flex; flex-direction: column; gap: 12px;">
+                    <h4 style="font-size: 14px; font-weight: 600; color: #374151; margin: 0; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-receipt" style="color: #7B1D3A;"></i> Payment Proof
+                    </h4>
+                    <div id="paymentProofPreview" style="flex: 1; background: #F9FAFB; border: 2px dashed #E5E7EB; border-radius: 12px; display: flex; align-items: center; justify-content: center; min-height: 350px; overflow: hidden;">
+                        <!-- Proof preview will be loaded here -->
+                    </div>
+                    <a id="paymentProofBtn" href="#" target="_blank" class="btn-modal" style="background: #6366F1; color: white; text-decoration: none; text-align: center; width: 100%;">
+                        <i class="fas fa-external-link-alt"></i> Open Full Size
+                    </a>
+                </div>
             </div>
             <div class="modal-footer">
                 <button class="btn-modal secondary" onclick="closePaymentDetailsModal()">Close</button>
-                <a id="paymentProofBtn" href="#" target="_blank" class="btn-modal" style="background: #6366F1; color: white; text-decoration: none;">
-                    <i class="fas fa-receipt"></i> View Proof
-                </a>
                 <button class="btn-modal primary" onclick="openReviewPaymentModal()">
                     <i class="fas fa-clipboard-check"></i> Review Payment
                 </button>
@@ -10066,54 +10075,54 @@
                         </span>
                     </div>
 
-                    <div style="background: linear-gradient(135deg, #10B981, #059669); color: white; padding: 20px; border-radius: 12px; text-align: center;">
+                    <div style="background: linear-gradient(135deg, #10B981, #059669); color: white; padding: 16px; border-radius: 12px; text-align: center;">
                         <div style="font-size: 12px; opacity: 0.9;">Payment Amount</div>
-                        <div style="font-size: 32px; font-weight: 700;">₱${parseFloat(payment.amount).toLocaleString('en-US', {minimumFractionDigits: 2})}</div>
-                        <div style="font-size: 14px; margin-top: 8px;">Invoice #${payment.invoice_number}</div>
+                        <div style="font-size: 28px; font-weight: 700;">₱${parseFloat(payment.amount).toLocaleString('en-US', {minimumFractionDigits: 2})}</div>
+                        <div style="font-size: 13px; margin-top: 6px;">Invoice #${payment.invoice_number}</div>
                     </div>
 
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                         <div>
-                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Company Name</div>
-                            <div style="font-weight: 600;">${payment.company_name}</div>
+                            <div style="font-size: 11px; color: #6B7280; margin-bottom: 2px;">Company Name</div>
+                            <div style="font-weight: 600; font-size: 13px;">${payment.company_name}</div>
                         </div>
                         <div>
-                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Contact Person</div>
-                            <div style="font-weight: 600;">${payment.contact_person}</div>
+                            <div style="font-size: 11px; color: #6B7280; margin-bottom: 2px;">Contact Person</div>
+                            <div style="font-weight: 600; font-size: 13px;">${payment.contact_person}</div>
                         </div>
                         <div>
-                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Email</div>
-                            <div>${payment.email}</div>
+                            <div style="font-size: 11px; color: #6B7280; margin-bottom: 2px;">Email</div>
+                            <div style="font-size: 13px;">${payment.email}</div>
                         </div>
                         <div>
-                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Phone</div>
-                            <div>${payment.phone || 'N/A'}</div>
+                            <div style="font-size: 11px; color: #6B7280; margin-bottom: 2px;">Phone</div>
+                            <div style="font-size: 13px;">${payment.phone || 'N/A'}</div>
                         </div>
                         <div>
-                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Payment Method</div>
-                            <div style="font-weight: 600;">${methodLabel}</div>
+                            <div style="font-size: 11px; color: #6B7280; margin-bottom: 2px;">Payment Method</div>
+                            <div style="font-weight: 600; font-size: 13px;">${methodLabel}</div>
                         </div>
                         <div>
-                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Payment Date</div>
-                            <div style="font-weight: 600;">${payment.payment_date || 'N/A'}</div>
+                            <div style="font-size: 11px; color: #6B7280; margin-bottom: 2px;">Payment Date</div>
+                            <div style="font-weight: 600; font-size: 13px;">${payment.payment_date || 'N/A'}</div>
                         </div>
                     </div>
 
                     ${payment.notes ? `
                     <div>
-                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Submitter Notes</div>
-                        <div style="background: #F3F4F6; padding: 12px; border-radius: 8px;">${payment.notes}</div>
+                        <div style="font-size: 11px; color: #6B7280; margin-bottom: 4px;">Submitter Notes</div>
+                        <div style="background: #F3F4F6; padding: 10px; border-radius: 8px; font-size: 13px;">${payment.notes}</div>
                     </div>
                     ` : ''}
 
                     ${payment.admin_notes ? `
                     <div>
-                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Admin Notes</div>
-                        <div style="background: #FEF3C7; padding: 12px; border-radius: 8px;">${payment.admin_notes}</div>
+                        <div style="font-size: 11px; color: #6B7280; margin-bottom: 4px;">Admin Notes</div>
+                        <div style="background: #FEF3C7; padding: 10px; border-radius: 8px; font-size: 13px;">${payment.admin_notes}</div>
                     </div>
                     ` : ''}
 
-                    <div style="display: flex; gap: 16px; font-size: 12px; color: #6B7280;">
+                    <div style="display: flex; gap: 12px; font-size: 11px; color: #6B7280; flex-wrap: wrap;">
                         <div><i class="fas fa-calendar"></i> Submitted: ${payment.created_at}</div>
                         ${payment.reviewed_at ? `<div><i class="fas fa-check-circle"></i> Verified: ${payment.reviewed_at}</div>` : ''}
                     </div>
@@ -10121,7 +10130,50 @@
             `;
 
             document.getElementById('paymentDetailsContent').innerHTML = content;
-            document.getElementById('paymentProofBtn').href = payment.payment_proof_path ? '/storage/' + payment.payment_proof_path : '#';
+            
+            // Set up payment proof preview
+            const proofPath = payment.payment_proof_path ? '/storage/' + payment.payment_proof_path : null;
+            const proofContainer = document.getElementById('paymentProofPreview');
+            const proofBtn = document.getElementById('paymentProofBtn');
+            
+            if (proofPath) {
+                const fileExtension = proofPath.split('.').pop().toLowerCase();
+                if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileExtension)) {
+                    proofContainer.innerHTML = `
+                        <img src="${proofPath}" alt="Payment Proof" 
+                            style="max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; cursor: pointer;" 
+                            onclick="window.open('${proofPath}', '_blank')"
+                            onerror="this.parentElement.innerHTML='<div style=\'text-align: center; color: #9CA3AF; padding: 20px;\'><i class=\'fas fa-image\' style=\'font-size: 48px; margin-bottom: 12px;\'></i><p>Unable to load image</p></div>'">
+                    `;
+                } else if (fileExtension === 'pdf') {
+                    proofContainer.innerHTML = `
+                        <div style="text-align: center; color: #6B7280; padding: 20px;">
+                            <i class="fas fa-file-pdf" style="font-size: 64px; color: #EF4444; margin-bottom: 16px;"></i>
+                            <p style="font-weight: 600; margin-bottom: 8px;">PDF Document</p>
+                            <p style="font-size: 12px;">Click "Open Full Size" to view</p>
+                        </div>
+                    `;
+                } else {
+                    proofContainer.innerHTML = `
+                        <div style="text-align: center; color: #6B7280; padding: 20px;">
+                            <i class="fas fa-file" style="font-size: 64px; margin-bottom: 16px;"></i>
+                            <p style="font-weight: 600; margin-bottom: 8px;">Document File</p>
+                            <p style="font-size: 12px;">Click "Open Full Size" to view</p>
+                        </div>
+                    `;
+                }
+                proofBtn.href = proofPath;
+                proofBtn.style.display = 'block';
+            } else {
+                proofContainer.innerHTML = `
+                    <div style="text-align: center; color: #9CA3AF; padding: 20px;">
+                        <i class="fas fa-image" style="font-size: 48px; margin-bottom: 12px;"></i>
+                        <p>No payment proof uploaded</p>
+                    </div>
+                `;
+                proofBtn.style.display = 'none';
+            }
+            
             document.getElementById('paymentDetailsModal').style.display = 'flex';
         }
 
