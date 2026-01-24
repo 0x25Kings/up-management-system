@@ -904,7 +904,6 @@
             <div style="display: flex; align-items: center; gap: 20px;">
                 <!-- Auto-refresh indicator -->
                 <div id="refreshIndicator" style="display: flex; align-items: center; gap: 12px; padding: 8px 16px; background: rgba(34, 139, 34, 0.08); border-radius: 12px; font-size: 12px; border: 1px solid rgba(34, 139, 34, 0.15);">
-                    <span class="live-indicator">LIVE</span>
                     <i class="fas fa-sync-alt" id="refreshIcon" style="color: var(--forest-green);"></i>
                     <span style="color: #6B7280;">Updated: <strong id="lastUpdatedTime" style="color: var(--forest-green);">Just now</strong></span>
                     <button onclick="manualRefresh()" style="background: var(--forest-green); color: white; border: none; padding: 5px 12px; border-radius: 8px; font-size: 11px; cursor: pointer; font-weight: 600; transition: all 0.2s;" title="Refresh now" onmouseover="this.style.background='var(--forest-green-dark)'" onmouseout="this.style.background='var(--forest-green)'">
@@ -1184,9 +1183,14 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <button class="btn btn-sm btn-secondary" onclick="viewIntern({{ $intern->id }})" title="View Details">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
+                                    <div style="display: flex; gap: 6px;">
+                                        <button class="btn btn-sm btn-secondary" onclick="viewIntern({{ $intern->id }})" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-sm" style="background: #F59E0B; color: white;" onclick="editIntern({{ $intern->id }})" title="Edit Intern">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                             @endforeach
@@ -1688,55 +1692,164 @@
         {{-- INCUBATEE TRACKER PAGE --}}
         @if(in_array('incubatee_tracker', $viewableModules))
         <div id="incubatee-tracker" class="page-content">
-            <div class="stats-grid">
-                <div class="stat-card maroon">
-                    <div class="stat-header">
-                        <div class="stat-icon maroon"><i class="fas fa-rocket"></i></div>
-                    </div>
-                    <div class="stat-value">{{ $incubateeData['totalSubmissions'] ?? 0 }}</div>
-                    <div class="stat-label">Total Submissions</div>
+            <div style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
+                <div>
+                    <h2 style="font-size: 28px; font-weight: 700; color: #1F2937; margin-bottom: 8px;">Incubatee Management & Tracking</h2>
+                    <p style="color: #6B7280; font-size: 14px;">Monitor MOA requests, payment submissions, and incubatee activities from the startup portal</p>
                 </div>
-                <div class="stat-card gold">
+                @if(in_array('incubatee_tracker', $editableModules))
+                <span class="badge badge-success" style="padding: 8px 16px; font-size: 13px;"><i class="fas fa-edit"></i> Edit Access</span>
+                @else
+                <span class="badge badge-info" style="padding: 8px 16px; font-size: 13px;"><i class="fas fa-eye"></i> View Only</span>
+                @endif
+            </div>
+
+            <!-- Stats Overview -->
+            <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 24px;">
+                <div class="stat-card">
                     <div class="stat-header">
-                        <div class="stat-icon gold"><i class="fas fa-hourglass-half"></i></div>
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #D1FAE5, #6EE7B7); color: #059669;">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
                     </div>
-                    <div class="stat-value">{{ $incubateeData['pendingSubmissions'] ?? 0 }}</div>
-                    <div class="stat-label">Pending Review</div>
+                    <div class="stat-value" style="color: #059669;">{{ $incubateeData['activeIncubatees'] ?? 0 }}</div>
+                    <div class="stat-label">Active Incubatees</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #DBEAFE, #93C5FD); color: #2563EB;">
+                            <i class="fas fa-file-contract"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" style="color: #2563EB;">{{ isset($incubateeData['moaRequests']) ? $incubateeData['moaRequests']->count() : 0 }}</div>
+                    <div class="stat-label">Total MOA Requests</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #FEF3C7, #FCD34D); color: #D97706;">
+                            <i class="fas fa-exclamation-circle"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" style="color: #D97706;">{{ $incubateeData['pendingMoaCount'] ?? 0 }}</div>
+                    <div class="stat-label">Pending MOAs</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #E0E7FF, #A5B4FC); color: #4F46E5;">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" style="color: #4F46E5;">{{ $incubateeData['pendingPaymentCount'] ?? 0 }}</div>
+                    <div class="stat-label">Pending Payments</div>
                 </div>
             </div>
 
-            <div class="card">
+            <!-- Tabs for MOA and Payments -->
+            <div style="display: flex; gap: 8px; margin-bottom: 20px;">
+                <button class="filter-tab active" onclick="tlSwitchIncubateeTab('moa')" id="tlMoaTabBtn" style="padding: 10px 20px; border: none; background: #7B1D3A; color: white; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-file-contract"></i> MOA Requests
+                </button>
+                <button class="filter-tab" onclick="tlSwitchIncubateeTab('payments')" id="tlPaymentsTabBtn" style="padding: 10px 20px; border: 1px solid #E5E7EB; background: white; color: #6B7280; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-credit-card"></i> Payment Submissions
+                </button>
+            </div>
+
+            <!-- Filter Bar -->
+            <div style="background: white; padding: 16px; border-radius: 12px; margin-bottom: 20px; display: flex; gap: 16px; align-items: center; flex-wrap: wrap; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 14px; font-weight: 500; color: #374151;">Status:</span>
+                    <select onchange="tlFilterIncubatees()" id="tlIncubateeStatusFilter" style="padding: 8px 12px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 14px;">
+                        <option value="all">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="under_review">Under Review</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+                <div style="flex: 1; min-width: 200px;">
+                    <div style="position: relative;">
+                        <i class="fas fa-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9CA3AF;"></i>
+                        <input type="text" placeholder="Search incubatees..." onkeyup="tlSearchIncubatees()" id="tlIncubateeSearchInput" style="width: 100%; padding: 8px 12px 8px 36px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 14px;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- MOA Requests Table -->
+            <div id="tl-moa-table" class="card">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-rocket"></i> Startup Submissions</h3>
-                    @if(in_array('incubatee_tracker', $editableModules))
-                    <span class="badge badge-success"><i class="fas fa-edit"></i> Edit Access</span>
-                    @else
-                    <span class="badge badge-info"><i class="fas fa-eye"></i> View Only</span>
-                    @endif
+                    <h3 class="card-title"><i class="fas fa-file-contract"></i> MOA Requests from Startups</h3>
                 </div>
                 <div class="card-body" style="padding: 0; overflow-x: auto;">
-                    @if(isset($incubateeData['submissions']) && $incubateeData['submissions']->count() > 0)
+                    @if(isset($incubateeData['moaRequests']) && $incubateeData['moaRequests']->count() > 0)
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th>Startup Name</th>
-                                <th>Type</th>
-                                <th>Contact</th>
+                                <th>Tracking Code</th>
+                                <th>Company/Startup</th>
+                                <th>Contact Person</th>
+                                <th>MOA Purpose</th>
                                 <th>Submitted</th>
                                 <th>Status</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($incubateeData['submissions'] as $submission)
-                            <tr>
-                                <td><strong>{{ $submission->startup_name }}</strong></td>
-                                <td><span class="badge badge-info">{{ ucfirst($submission->submission_type) }}</span></td>
-                                <td>{{ $submission->contact_person }}</td>
-                                <td>{{ $submission->created_at->format('M d, Y') }}</td>
+                            @foreach($incubateeData['moaRequests'] as $moa)
+                            <tr class="tl-incubatee-row" data-status="{{ $moa->status }}">
+                                <td><strong style="color: #7B1D3A;">{{ $moa->tracking_code }}</strong></td>
                                 <td>
-                                    <span class="badge badge-{{ $submission->status === 'approved' ? 'success' : ($submission->status === 'pending' ? 'warning' : 'danger') }}">
-                                        {{ ucfirst($submission->status) }}
-                                    </span>
+                                    <div style="font-weight: 600; margin-bottom: 2px;">{{ $moa->company_name }}</div>
+                                    <div style="font-size: 12px; color: #6B7280;">{{ $moa->email }}</div>
+                                </td>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #7B1D3A, #5a1428); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 12px;">
+                                            {{ strtoupper(substr($moa->contact_person, 0, 1)) }}
+                                        </div>
+                                        <div>
+                                            <span style="font-weight: 600;">{{ $moa->contact_person }}</span>
+                                            @if($moa->phone)
+                                            <div style="font-size: 11px; color: #6B7280;">{{ $moa->phone }}</div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="font-weight: 500;">{{ $moa->moa_purpose }}</div>
+                                    @if($moa->moa_details)
+                                    <div style="font-size: 11px; color: #6B7280; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                        {{ Str::limit($moa->moa_details, 50) }}
+                                    </div>
+                                    @endif
+                                </td>
+                                <td>{{ $moa->created_at->format('M d, Y') }}</td>
+                                <td>
+                                    @if($moa->status == 'pending')
+                                        <span class="badge badge-warning">Pending</span>
+                                    @elseif($moa->status == 'under_review')
+                                        <span class="badge badge-info">Under Review</span>
+                                    @elseif($moa->status == 'approved')
+                                        <span class="badge badge-success">Approved</span>
+                                        @if($moa->reviewed_at)
+                                        <div style="font-size: 10px; color: #10B981; margin-top: 2px;">{{ $moa->reviewed_at->format('M d, Y') }}</div>
+                                        @endif
+                                    @elseif($moa->status == 'rejected')
+                                        <span class="badge badge-danger">Rejected</span>
+                                    @else
+                                        <span class="badge">{{ ucfirst($moa->status) }}</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    <div style="display: flex; gap: 6px;">
+                                        <button class="btn btn-sm btn-secondary" onclick="tlViewMoaDetails('{{ $moa->id }}')" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        @if(in_array('incubatee_tracker', $editableModules))
+                                        <button class="btn btn-sm btn-primary" onclick="tlReviewSubmission('{{ $moa->id }}', 'moa')" title="Review">
+                                            <i class="fas fa-clipboard-check"></i>
+                                        </button>
+                                        @endif
+                                    </div>
                                 </td>
                             </tr>
                             @endforeach
@@ -1744,9 +1857,97 @@
                     </table>
                     @else
                     <div class="empty-state">
-                        <i class="fas fa-rocket"></i>
-                        <h4>No submissions found</h4>
-                        <p>There are no startup submissions to display</p>
+                        <i class="fas fa-file-contract"></i>
+                        <h4>No MOA requests yet</h4>
+                        <p>MOA requests from startups will appear here</p>
+                    </div>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Payment Submissions Table -->
+            <div id="tl-payments-table" class="card" style="display: none;">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-credit-card"></i> Payment Submissions from Startups</h3>
+                </div>
+                <div class="card-body" style="padding: 0; overflow-x: auto;">
+                    @if(isset($incubateeData['paymentSubmissions']) && $incubateeData['paymentSubmissions']->count() > 0)
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Tracking Code</th>
+                                <th>Company/Startup</th>
+                                <th>Invoice #</th>
+                                <th>Amount</th>
+                                <th>Method</th>
+                                <th>Submitted</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @php
+                                $methodLabels = [
+                                    'bank_transfer' => '🏦 Bank Transfer',
+                                    'bank_deposit' => '💵 Bank Deposit',
+                                    'gcash' => '<img src="' . asset('images/gcashicon.png') . '" alt="GCash" style="height: 16px; width: auto; vertical-align: middle; margin-right: 4px;">GCash',
+                                    'maya' => '<img src="' . asset('images/mayaIcon.avif') . '" alt="Maya" style="height: 16px; width: auto; vertical-align: middle; margin-right: 4px;">Maya',
+                                    'check' => '📄 Check',
+                                    'cash' => '💰 Cash'
+                                ];
+                            @endphp
+                            @foreach($incubateeData['paymentSubmissions'] as $payment)
+                            <tr class="tl-incubatee-row" data-status="{{ $payment->status }}">
+                                <td><strong style="color: #7B1D3A;">{{ $payment->tracking_code }}</strong></td>
+                                <td>
+                                    <div style="font-weight: 600; margin-bottom: 2px;">{{ $payment->company_name }}</div>
+                                    <div style="font-size: 12px; color: #6B7280;">{{ $payment->contact_person }}</div>
+                                </td>
+                                <td><strong>{{ $payment->invoice_number }}</strong></td>
+                                <td style="font-weight: 700; color: #059669;">₱{{ number_format($payment->amount, 2) }}</td>
+                                <td>
+                                    <span style="font-size: 12px;">{!! $methodLabels[$payment->payment_method] ?? $payment->payment_method ?? 'N/A' !!}</span>
+                                </td>
+                                <td>{{ $payment->created_at->format('M d, Y') }}</td>
+                                <td>
+                                    @if($payment->status == 'pending')
+                                        <span class="badge badge-warning">Pending</span>
+                                    @elseif($payment->status == 'under_review')
+                                        <span class="badge badge-info">Under Review</span>
+                                    @elseif($payment->status == 'approved')
+                                        <span class="badge badge-success">Verified</span>
+                                    @elseif($payment->status == 'rejected')
+                                        <span class="badge badge-danger">Rejected</span>
+                                    @else
+                                        <span class="badge">{{ ucfirst($payment->status) }}</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    <div style="display: flex; gap: 6px;">
+                                        <button class="btn btn-sm btn-secondary" onclick="tlViewPaymentDetails('{{ $payment->id }}')" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        @if($payment->payment_proof_path)
+                                        <a href="{{ asset('storage/' . $payment->payment_proof_path) }}" target="_blank" class="btn btn-sm" style="background: #6366F1; color: white;" title="View Proof">
+                                            <i class="fas fa-receipt"></i>
+                                        </a>
+                                        @endif
+                                        @if(in_array('incubatee_tracker', $editableModules))
+                                        <button class="btn btn-sm btn-primary" onclick="tlReviewSubmission('{{ $payment->id }}', 'finance')" title="Review">
+                                            <i class="fas fa-clipboard-check"></i>
+                                        </button>
+                                        @endif
+                                    </div>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                    @else
+                    <div class="empty-state">
+                        <i class="fas fa-credit-card"></i>
+                        <h4>No payment submissions yet</h4>
+                        <p>Payment submissions from startups will appear here</p>
                     </div>
                     @endif
                 </div>
@@ -1757,55 +1958,194 @@
         {{-- ISSUES MANAGEMENT PAGE --}}
         @if(in_array('issues_management', $viewableModules))
         <div id="issues-management" class="page-content">
-            <div class="stats-grid">
-                <div class="stat-card maroon">
+            <div style="margin-bottom: 24px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                    <div>
+                        <h2 style="font-size: 28px; font-weight: 700; color: #1F2937; margin-bottom: 8px;">Issues & Complaints</h2>
+                        <p style="color: #6B7280; font-size: 14px;">Manage and track room issues and maintenance requests from startups</p>
+                    </div>
+                    @if(in_array('issues_management', $editableModules))
+                    <span class="badge badge-success" style="padding: 8px 16px; font-size: 13px;"><i class="fas fa-edit"></i> Edit Access</span>
+                    @else
+                    <span class="badge badge-info" style="padding: 8px 16px; font-size: 13px;"><i class="fas fa-eye"></i> View Only</span>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Stats Overview -->
+            <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); margin-bottom: 24px;">
+                <div class="stat-card">
                     <div class="stat-header">
-                        <div class="stat-icon maroon"><i class="fas fa-exclamation-triangle"></i></div>
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #7B1D3A20, #7B1D3A40); color: #7B1D3A;">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
                     </div>
                     <div class="stat-value">{{ $issuesData['totalIssues'] ?? 0 }}</div>
                     <div class="stat-label">Total Issues</div>
                 </div>
-                <div class="stat-card gold">
+                <div class="stat-card">
                     <div class="stat-header">
-                        <div class="stat-icon gold"><i class="fas fa-clock"></i></div>
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #FEF3C7, #FDE68A); color: #D97706;">
+                            <i class="fas fa-clock"></i>
+                        </div>
                     </div>
                     <div class="stat-value">{{ $issuesData['pendingIssues'] ?? 0 }}</div>
                     <div class="stat-label">Pending Issues</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #DBEAFE, #BFDBFE); color: #2563EB;">
+                            <i class="fas fa-tools"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value">{{ $issuesData['inProgressIssues'] ?? 0 }}</div>
+                    <div class="stat-label">In Progress</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #D1FAE5, #A7F3D0); color: #059669;">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value">{{ $issuesData['resolvedIssues'] ?? 0 }}</div>
+                    <div class="stat-label">Resolved</div>
+                </div>
+            </div>
+
+            <!-- Filter Bar -->
+            <div style="background: white; padding: 16px 20px; border-radius: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+                <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 13px; color: #6B7280;">Status:</span>
+                        <select id="tlIssueStatusFilter" onchange="tlFilterIssues()" style="padding: 8px 12px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 13px; min-width: 120px;">
+                            <option value="all">All Status</option>
+                            <option value="pending">Pending</option>
+                            <option value="in_progress">In Progress</option>
+                            <option value="resolved">Resolved</option>
+                            <option value="closed">Closed</option>
+                        </select>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 13px; color: #6B7280;">Type:</span>
+                        <select id="tlIssueTypeFilter" onchange="tlFilterIssues()" style="padding: 8px 12px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 13px; min-width: 120px;">
+                            <option value="all">All Types</option>
+                            <option value="electrical">Electrical</option>
+                            <option value="plumbing">Plumbing</option>
+                            <option value="aircon">AC/Ventilation</option>
+                            <option value="internet">Internet/Network</option>
+                            <option value="furniture">Furniture</option>
+                            <option value="cleaning">Cleaning</option>
+                            <option value="security">Security</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 13px; color: #6B7280;">Priority:</span>
+                        <select id="tlIssuePriorityFilter" onchange="tlFilterIssues()" style="padding: 8px 12px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 13px; min-width: 120px;">
+                            <option value="all">All Priorities</option>
+                            <option value="urgent">Urgent</option>
+                            <option value="high">High</option>
+                            <option value="medium">Medium</option>
+                            <option value="low">Low</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px; background: #F3F4F6; padding: 8px 12px; border-radius: 8px;">
+                    <i class="fas fa-search" style="color: #9CA3AF;"></i>
+                    <input type="text" id="tlIssueSearchInput" placeholder="Search issues..." onkeyup="tlSearchIssues()" style="border: none; background: transparent; outline: none; font-size: 13px; min-width: 180px;">
                 </div>
             </div>
 
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title"><i class="fas fa-exclamation-triangle"></i> Room Issues & Complaints</h3>
-                    @if(in_array('issues_management', $editableModules))
-                    <span class="badge badge-success"><i class="fas fa-edit"></i> Edit Access</span>
-                    @else
-                    <span class="badge badge-info"><i class="fas fa-eye"></i> View Only</span>
-                    @endif
                 </div>
                 <div class="card-body" style="padding: 0; overflow-x: auto;">
                     @if(isset($issuesData['issues']) && $issuesData['issues']->count() > 0)
-                    <table class="data-table">
+                    <table class="data-table" style="min-width: 900px;">
                         <thead>
                             <tr>
-                                <th>Startup</th>
-                                <th>Issue Type</th>
-                                <th>Description</th>
-                                <th>Reported</th>
-                                <th>Status</th>
+                                <th style="width: 90px;">Code</th>
+                                <th>Room/Description</th>
+                                <th style="width: 100px;">Type</th>
+                                <th>Reported By</th>
+                                <th style="width: 80px;">Priority</th>
+                                <th style="width: 100px;">Status</th>
+                                <th style="width: 90px;">Date</th>
+                                <th style="width: 100px;">Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="tlIssuesTableBody">
                             @foreach($issuesData['issues'] as $issue)
-                            <tr>
-                                <td><strong>{{ $issue->startup_name }}</strong></td>
-                                <td><span class="badge badge-info">{{ ucfirst($issue->issue_type) }}</span></td>
-                                <td>{{ Str::limit($issue->description, 50) }}</td>
-                                <td>{{ $issue->created_at->format('M d, Y') }}</td>
+                            <tr class="tl-issue-row" data-status="{{ $issue->status }}" data-type="{{ $issue->issue_type }}" data-priority="{{ $issue->priority ?? 'medium' }}">
+                                <td><strong style="color: #7B1D3A;">{{ $issue->tracking_code }}</strong></td>
                                 <td>
-                                    <span class="badge badge-{{ $issue->status === 'resolved' ? 'success' : ($issue->status === 'pending' ? 'warning' : 'info') }}">
-                                        {{ ucfirst($issue->status) }}
-                                    </span>
+                                    <div style="font-weight: 600; margin-bottom: 2px;">Room {{ $issue->room_number }}</div>
+                                    <div style="font-size: 12px; color: #6B7280;">{{ Str::limit($issue->description, 40) }}</div>
+                                </td>
+                                <td>
+                                    @php
+                                        $typeColors = [
+                                            'electrical' => ['bg' => '#FEF3C7', 'text' => '#92400E'],
+                                            'plumbing' => ['bg' => '#DBEAFE', 'text' => '#1E40AF'],
+                                            'aircon' => ['bg' => '#E0F2FE', 'text' => '#0369A1'],
+                                            'internet' => ['bg' => '#FEE2E2', 'text' => '#991B1B'],
+                                            'furniture' => ['bg' => '#F3E8FF', 'text' => '#6B21A8'],
+                                            'cleaning' => ['bg' => '#DCFCE7', 'text' => '#166534'],
+                                            'security' => ['bg' => '#FCE7F3', 'text' => '#9D174D'],
+                                            'other' => ['bg' => '#E5E7EB', 'text' => '#374151'],
+                                        ];
+                                        $typeColor = $typeColors[$issue->issue_type] ?? $typeColors['other'];
+                                        $issueTypeLabel = ucfirst(str_replace('_', ' ', $issue->issue_type));
+                                    @endphp
+                                    <span class="badge" style="background: {{ $typeColor['bg'] }}; color: {{ $typeColor['text'] }}; font-size: 11px;">{{ $issueTypeLabel }}</span>
+                                </td>
+                                <td>
+                                    <div style="font-weight: 600; font-size: 13px;">{{ Str::limit($issue->contact_person ?? 'N/A', 15) }}</div>
+                                    <div style="font-size: 11px; color: #6B7280;">{{ Str::limit($issue->company_name ?? $issue->startup_name ?? 'N/A', 18) }}</div>
+                                </td>
+                                <td>
+                                    @php
+                                        $priorityColors = [
+                                            'urgent' => ['bg' => '#FEE2E2', 'text' => '#DC2626'],
+                                            'high' => ['bg' => '#FEF3C7', 'text' => '#D97706'],
+                                            'medium' => ['bg' => '#DBEAFE', 'text' => '#2563EB'],
+                                            'low' => ['bg' => '#D1FAE5', 'text' => '#059669'],
+                                        ];
+                                        $priorityColor = $priorityColors[$issue->priority ?? 'medium'] ?? $priorityColors['medium'];
+                                    @endphp
+                                    <span class="badge" style="background: {{ $priorityColor['bg'] }}; color: {{ $priorityColor['text'] }}; font-size: 11px;">{{ ucfirst($issue->priority ?? 'Medium') }}</span>
+                                </td>
+                                <td>
+                                    @if($issue->status == 'pending')
+                                        <span class="badge badge-warning" style="font-size: 11px;">Pending</span>
+                                    @elseif($issue->status == 'in_progress')
+                                        <span class="badge badge-info" style="font-size: 11px;">In Progress</span>
+                                    @elseif($issue->status == 'resolved')
+                                        <span class="badge badge-success" style="font-size: 11px;">Resolved</span>
+                                    @elseif($issue->status == 'closed')
+                                        <span class="badge" style="background: #E5E7EB; color: #374151; font-size: 11px;">Closed</span>
+                                    @else
+                                        <span class="badge" style="background: #E5E7EB; color: #374151; font-size: 11px;">{{ ucfirst($issue->status) }}</span>
+                                    @endif
+                                </td>
+                                <td style="font-size: 12px;">{{ $issue->created_at->format('M d, Y') }}</td>
+                                <td>
+                                    <div style="display: flex; gap: 4px;">
+                                        <button onclick="tlViewIssueDetails('{{ $issue->id }}')" class="btn btn-sm btn-secondary" style="padding: 6px 8px;" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        @if($issue->photo_path)
+                                        <a href="{{ asset('storage/' . $issue->photo_path) }}" target="_blank" class="btn btn-sm btn-secondary" style="padding: 6px 8px;" title="View Photo">
+                                            <i class="fas fa-image"></i>
+                                        </a>
+                                        @endif
+                                        @if(in_array('issues_management', $editableModules))
+                                        <button onclick="tlUpdateIssueStatus('{{ $issue->id }}')" class="btn btn-sm btn-primary" style="padding: 6px 8px; background: #10B981;" title="Update Status">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                        @endif
+                                    </div>
                                 </td>
                             </tr>
                             @endforeach
@@ -1813,7 +2153,7 @@
                     </table>
                     @else
                     <div class="empty-state">
-                        <i class="fas fa-exclamation-triangle"></i>
+                        <i class="fas fa-check-circle"></i>
                         <h4>No issues found</h4>
                         <p>There are no room issues or complaints to display</p>
                     </div>
@@ -1955,6 +2295,210 @@
     </div>
 
     <!-- ==================== MODALS ==================== -->
+
+    <!-- ===== INCUBATEE TRACKER MODALS ===== -->
+    @if(in_array('incubatee_tracker', $viewableModules))
+    
+    <!-- MOA Details Modal -->
+    <div id="tlMoaDetailsModal" class="modal-overlay">
+        <div class="modal" style="max-width: 650px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-file-contract"></i> MOA Request Details</h3>
+                <button class="modal-close" onclick="tlCloseMoaDetailsModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body" id="tlMoaDetailsContent">
+                <!-- MOA details will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="tlCloseMoaDetailsModal()">Close</button>
+                @if(in_array('incubatee_tracker', $editableModules))
+                <button class="btn btn-primary" onclick="tlOpenReviewMoaModal()">
+                    <i class="fas fa-clipboard-check"></i> Review MOA
+                </button>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <!-- Review MOA Modal -->
+    @if(in_array('incubatee_tracker', $editableModules))
+    <div id="tlReviewMoaModal" class="modal-overlay">
+        <div class="modal" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-clipboard-check"></i> Review MOA Request</h3>
+                <button class="modal-close" onclick="tlCloseReviewMoaModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="tlReviewMoaForm">
+                    <input type="hidden" id="tlReviewMoaId">
+
+                    <div class="form-group">
+                        <label class="form-label">MOA Info</label>
+                        <div id="tlReviewMoaInfo" style="background: #F3F4F6; padding: 12px; border-radius: 8px; font-size: 14px;"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Review Action <span style="color: #EF4444;">*</span></label>
+                        <select id="tlReviewMoaAction" class="form-control" required>
+                            <option value="">-- Select Action --</option>
+                            <option value="under_review">Mark as Under Review</option>
+                            <option value="approved">Approve MOA Request</option>
+                            <option value="rejected">Reject MOA Request</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Admin Notes</label>
+                        <textarea id="tlReviewMoaNotes" class="form-control" rows="3" placeholder="Add notes for this review..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="tlCloseReviewMoaModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="tlSubmitMoaReview()">
+                    <i class="fas fa-check"></i> Submit Review
+                </button>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    <!-- Payment Details Modal -->
+    <div id="tlPaymentDetailsModal" class="modal-overlay">
+        <div class="modal" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-credit-card"></i> Payment Submission Details</h3>
+                <button class="modal-close" onclick="tlClosePaymentDetailsModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body" id="tlPaymentDetailsContent">
+                <!-- Payment details will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="tlClosePaymentDetailsModal()">Close</button>
+                <a id="tlPaymentProofBtn" href="#" target="_blank" class="btn" style="background: #6366F1; color: white;">
+                    <i class="fas fa-receipt"></i> View Proof
+                </a>
+                @if(in_array('incubatee_tracker', $editableModules))
+                <button class="btn btn-primary" onclick="tlOpenReviewPaymentModal()">
+                    <i class="fas fa-clipboard-check"></i> Review Payment
+                </button>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <!-- Review Payment Modal -->
+    @if(in_array('incubatee_tracker', $editableModules))
+    <div id="tlReviewPaymentModal" class="modal-overlay">
+        <div class="modal" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-clipboard-check"></i> Review Payment</h3>
+                <button class="modal-close" onclick="tlCloseReviewPaymentModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="tlReviewPaymentForm">
+                    <input type="hidden" id="tlReviewPaymentId">
+
+                    <div class="form-group">
+                        <label class="form-label">Payment Info</label>
+                        <div id="tlReviewPaymentInfo" style="background: #F3F4F6; padding: 12px; border-radius: 8px; font-size: 14px;"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Verification Action <span style="color: #EF4444;">*</span></label>
+                        <select id="tlReviewPaymentAction" class="form-control" required>
+                            <option value="">-- Select Action --</option>
+                            <option value="under_review">Mark as Under Review</option>
+                            <option value="approved">Verify Payment</option>
+                            <option value="rejected">Reject Payment</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Admin Notes</label>
+                        <textarea id="tlReviewPaymentNotes" class="form-control" rows="3" placeholder="Add notes for this verification..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="tlCloseReviewPaymentModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="tlSubmitPaymentReview()">
+                    <i class="fas fa-check"></i> Submit Review
+                </button>
+            </div>
+        </div>
+    </div>
+    @endif
+    @endif
+
+    <!-- ===== ISSUES MANAGEMENT MODALS ===== -->
+    @if(in_array('issues_management', $viewableModules))
+    
+    <!-- View Room Issue Details Modal -->
+    <div id="tlIssueDetailsModal" class="modal-overlay">
+        <div class="modal" style="max-width: 580px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-exclamation-circle"></i> Room Issue Details</h3>
+                <button class="modal-close" onclick="tlCloseIssueDetailsModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body" id="tlIssueDetailsContent" style="max-height: 60vh; overflow-y: auto;">
+                <!-- Issue details will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="tlCloseIssueDetailsModal()">Close</button>
+                @if(in_array('issues_management', $editableModules))
+                <button class="btn btn-primary" onclick="tlOpenUpdateIssueStatusModal()">
+                    <i class="fas fa-edit"></i> Update Status
+                </button>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <!-- Update Issue Status Modal -->
+    @if(in_array('issues_management', $editableModules))
+    <div id="tlUpdateIssueStatusModal" class="modal-overlay">
+        <div class="modal" style="max-width: 450px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-edit"></i> Update Issue Status</h3>
+                <button class="modal-close" onclick="tlCloseUpdateIssueStatusModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="tlUpdateIssueStatusForm">
+                    <input type="hidden" id="tlUpdateIssueId">
+
+                    <div class="form-group">
+                        <label class="form-label">Issue Info</label>
+                        <div id="tlUpdateIssueInfo" style="background: #F3F4F6; padding: 12px; border-radius: 8px; font-size: 14px;"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">New Status <span style="color: #EF4444;">*</span></label>
+                        <select id="tlUpdateIssueNewStatus" class="form-control" required>
+                            <option value="">-- Select Status --</option>
+                            <option value="pending">Pending</option>
+                            <option value="in_progress">In Progress</option>
+                            <option value="resolved">Resolved</option>
+                            <option value="closed">Closed</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Resolution Notes</label>
+                        <textarea id="tlUpdateIssueNotes" class="form-control" rows="3" placeholder="Add resolution notes..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="tlCloseUpdateIssueStatusModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="tlSubmitIssueStatusUpdate()">
+                    <i class="fas fa-check"></i> Update Status
+                </button>
+            </div>
+        </div>
+    </div>
+    @endif
+    @endif
 
     @if(in_array('digital_records', $editableModules))
     <div id="tlCreateFolderModal" class="modal-overlay">
@@ -2142,6 +2686,73 @@
                     <p style="margin-top: 16px; color: #6B7280;">Loading intern details...</p>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Edit Intern Modal -->
+    <div id="editInternModal" class="modal-overlay">
+        <div class="modal modal-lg">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-edit"></i> Edit Intern</h3>
+                <button class="modal-close" onclick="closeModal('editInternModal')">&times;</button>
+            </div>
+            <form id="editInternForm" onsubmit="submitEditIntern(event)">
+                <input type="hidden" id="editInternId">
+                <div class="modal-body">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Full Name *</label>
+                            <input type="text" id="editInternName" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email *</label>
+                            <input type="email" id="editInternEmail" class="form-input" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Phone</label>
+                            <input type="text" id="editInternPhone" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Course</label>
+                            <input type="text" id="editInternCourse" class="form-input">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Year Level</label>
+                            <input type="text" id="editInternYearLevel" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Required Hours</label>
+                            <input type="number" id="editInternRequiredHours" class="form-input" min="0">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Start Date</label>
+                            <input type="date" id="editInternStartDate" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">End Date</label>
+                            <input type="date" id="editInternEndDate" class="form-input">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Status</label>
+                        <select id="editInternStatus" class="form-select">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('editInternModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Changes</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -2451,6 +3062,690 @@
         const tasksData = @json($allTasks);
         const reportsData = @json($allReports);
         const internsData = @json($allInterns);
+
+        // ========== INCUBATEE TRACKER DATA ==========
+        @if(in_array('incubatee_tracker', $viewableModules))
+        @php
+            $moaRequestsData = isset($incubateeData['moaRequests']) ? $incubateeData['moaRequests']->map(function($m) {
+                return [
+                    'id' => $m->id,
+                    'tracking_code' => $m->tracking_code,
+                    'company_name' => $m->company_name,
+                    'contact_person' => $m->contact_person,
+                    'email' => $m->email,
+                    'phone' => $m->phone,
+                    'moa_purpose' => $m->moa_purpose,
+                    'moa_details' => $m->moa_details,
+                    'notes' => $m->notes,
+                    'status' => $m->status,
+                    'admin_notes' => $m->admin_notes,
+                    'created_at' => $m->created_at->format('M d, Y h:i A'),
+                    'reviewed_at' => $m->reviewed_at ? $m->reviewed_at->format('M d, Y h:i A') : null,
+                ];
+            })->keyBy('id')->toArray() : [];
+
+            $paymentSubmissionsData = isset($incubateeData['paymentSubmissions']) ? $incubateeData['paymentSubmissions']->map(function($p) {
+                return [
+                    'id' => $p->id,
+                    'tracking_code' => $p->tracking_code,
+                    'company_name' => $p->company_name,
+                    'contact_person' => $p->contact_person,
+                    'email' => $p->email,
+                    'phone' => $p->phone,
+                    'invoice_number' => $p->invoice_number,
+                    'amount' => $p->amount,
+                    'payment_method' => $p->payment_method,
+                    'payment_date' => $p->payment_date ? \Carbon\Carbon::parse($p->payment_date)->format('M d, Y') : null,
+                    'payment_proof_path' => $p->payment_proof_path,
+                    'notes' => $p->notes,
+                    'status' => $p->status,
+                    'admin_notes' => $p->admin_notes,
+                    'created_at' => $p->created_at->format('M d, Y h:i A'),
+                    'reviewed_at' => $p->reviewed_at ? $p->reviewed_at->format('M d, Y h:i A') : null,
+                ];
+            })->keyBy('id')->toArray() : [];
+        @endphp
+
+        const tlMoaRequestsData = @json($moaRequestsData);
+        const tlPaymentSubmissionsData = @json($paymentSubmissionsData);
+        let tlCurrentMoaId = null;
+        let tlCurrentPaymentId = null;
+        const tlHasIncubateeEditAccess = {{ in_array('incubatee_tracker', $editableModules) ? 'true' : 'false' }};
+
+        // ===== INCUBATEE TRACKER FUNCTIONS =====
+
+        function tlSwitchIncubateeTab(tabType) {
+            const moaTable = document.getElementById('tl-moa-table');
+            const paymentsTable = document.getElementById('tl-payments-table');
+            const moaBtn = document.getElementById('tlMoaTabBtn');
+            const paymentsBtn = document.getElementById('tlPaymentsTabBtn');
+
+            if (tabType === 'moa') {
+                moaTable.style.display = 'block';
+                paymentsTable.style.display = 'none';
+                moaBtn.style.background = '#7B1D3A';
+                moaBtn.style.color = 'white';
+                moaBtn.style.border = 'none';
+                paymentsBtn.style.background = 'white';
+                paymentsBtn.style.color = '#6B7280';
+                paymentsBtn.style.border = '1px solid #E5E7EB';
+            } else if (tabType === 'payments') {
+                moaTable.style.display = 'none';
+                paymentsTable.style.display = 'block';
+                moaBtn.style.background = 'white';
+                moaBtn.style.color = '#6B7280';
+                moaBtn.style.border = '1px solid #E5E7EB';
+                paymentsBtn.style.background = '#7B1D3A';
+                paymentsBtn.style.color = 'white';
+                paymentsBtn.style.border = 'none';
+            }
+        }
+
+        function tlFilterIncubatees() {
+            const statusFilter = document.getElementById('tlIncubateeStatusFilter').value;
+            const rows = document.querySelectorAll('.tl-incubatee-row');
+
+            rows.forEach(row => {
+                const status = row.getAttribute('data-status');
+                const matchStatus = statusFilter === 'all' || status === statusFilter;
+                row.style.display = matchStatus ? '' : 'none';
+            });
+        }
+
+        function tlSearchIncubatees() {
+            const searchTerm = document.getElementById('tlIncubateeSearchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('.tl-incubatee-row');
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        }
+
+        function tlViewMoaDetails(moaId) {
+            const moa = tlMoaRequestsData[moaId];
+            if (!moa) {
+                showToast('MOA request not found', true);
+                return;
+            }
+
+            tlCurrentMoaId = moaId;
+
+            const statusColors = {
+                'pending': { bg: '#FEF3C7', text: '#92400E' },
+                'under_review': { bg: '#DBEAFE', text: '#1E40AF' },
+                'approved': { bg: '#DCFCE7', text: '#166534' },
+                'rejected': { bg: '#FEE2E2', text: '#991B1B' }
+            };
+            const color = statusColors[moa.status] || { bg: '#E5E7EB', text: '#374151' };
+
+            const content = `
+                <div style="display: grid; gap: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid #E5E7EB;">
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280;">Tracking Code</div>
+                            <div style="font-size: 18px; font-weight: 700; color: #7B1D3A;">${moa.tracking_code}</div>
+                        </div>
+                        <span style="background: ${color.bg}; color: ${color.text}; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                            ${moa.status.replace('_', ' ').toUpperCase()}
+                        </span>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Company/Startup Name</div>
+                            <div style="font-weight: 600;">${moa.company_name}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Contact Person</div>
+                            <div style="font-weight: 600;">${moa.contact_person}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Email</div>
+                            <div>${moa.email}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Phone</div>
+                            <div>${moa.phone || 'N/A'}</div>
+                        </div>
+                    </div>
+
+                    <div style="background: #F9FAFB; padding: 16px; border-radius: 8px;">
+                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 8px;">MOA Purpose</div>
+                        <div style="font-weight: 600; font-size: 16px; color: #7B1D3A;">${moa.moa_purpose}</div>
+                    </div>
+
+                    <div>
+                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">MOA Details</div>
+                        <div style="background: #F3F4F6; padding: 12px; border-radius: 8px; white-space: pre-wrap;">${moa.moa_details || 'No details provided'}</div>
+                    </div>
+
+                    ${moa.notes ? `
+                    <div>
+                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Additional Notes</div>
+                        <div style="background: #F3F4F6; padding: 12px; border-radius: 8px;">${moa.notes}</div>
+                    </div>
+                    ` : ''}
+
+                    ${moa.admin_notes ? `
+                    <div>
+                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Admin Notes</div>
+                        <div style="background: #FEF3C7; padding: 12px; border-radius: 8px;">${moa.admin_notes}</div>
+                    </div>
+                    ` : ''}
+
+                    <div style="display: flex; gap: 16px; font-size: 12px; color: #6B7280;">
+                        <div><i class="fas fa-calendar"></i> Submitted: ${moa.created_at}</div>
+                        ${moa.reviewed_at ? `<div><i class="fas fa-check-circle"></i> Reviewed: ${moa.reviewed_at}</div>` : ''}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('tlMoaDetailsContent').innerHTML = content;
+            openModal('tlMoaDetailsModal');
+        }
+
+        function tlCloseMoaDetailsModal() {
+            closeModal('tlMoaDetailsModal');
+            tlCurrentMoaId = null;
+        }
+
+        function tlOpenReviewMoaModal() {
+            const moa = tlMoaRequestsData[tlCurrentMoaId];
+            if (!moa) return;
+
+            document.getElementById('tlReviewMoaId').value = tlCurrentMoaId;
+            document.getElementById('tlReviewMoaInfo').innerHTML = `
+                <strong>${moa.tracking_code}</strong><br>
+                ${moa.company_name} - ${moa.moa_purpose}
+            `;
+            document.getElementById('tlReviewMoaAction').value = '';
+            document.getElementById('tlReviewMoaNotes').value = '';
+
+            tlCloseMoaDetailsModal();
+            openModal('tlReviewMoaModal');
+        }
+
+        function tlCloseReviewMoaModal() {
+            closeModal('tlReviewMoaModal');
+        }
+
+        function tlSubmitMoaReview() {
+            const moaId = document.getElementById('tlReviewMoaId').value;
+            const action = document.getElementById('tlReviewMoaAction').value;
+            const notes = document.getElementById('tlReviewMoaNotes').value;
+
+            if (!action) {
+                showToast('Please select a review action', true);
+                return;
+            }
+
+            fetch(`/team-leader/submissions/${moaId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    status: action,
+                    admin_notes: notes
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast(`MOA Request ${data.submission.tracking_code} has been ${action === 'approved' ? 'approved' : action === 'rejected' ? 'rejected' : 'updated'}!`);
+                    tlCloseReviewMoaModal();
+                    location.reload();
+                } else {
+                    showToast(data.message || 'Failed to update MOA request', true);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('An error occurred while updating the MOA request', true);
+            });
+        }
+
+        function tlReviewSubmission(id, type) {
+            if (type === 'moa') {
+                tlCurrentMoaId = id;
+                tlOpenReviewMoaModal();
+            } else if (type === 'finance') {
+                tlCurrentPaymentId = id;
+                tlOpenReviewPaymentModal();
+            }
+        }
+
+        function tlViewPaymentDetails(paymentId) {
+            const payment = tlPaymentSubmissionsData[paymentId];
+            if (!payment) {
+                showToast('Payment submission not found', true);
+                return;
+            }
+
+            tlCurrentPaymentId = paymentId;
+
+            const statusColors = {
+                'pending': { bg: '#FEF3C7', text: '#92400E' },
+                'under_review': { bg: '#DBEAFE', text: '#1E40AF' },
+                'approved': { bg: '#DCFCE7', text: '#166534' },
+                'rejected': { bg: '#FEE2E2', text: '#991B1B' }
+            };
+            const color = statusColors[payment.status] || { bg: '#E5E7EB', text: '#374151' };
+
+            const paymentMethodLabels = {
+                'bank_transfer': '🏦 Bank Transfer',
+                'bank_deposit': '💵 Bank Deposit',
+                'gcash': '<img src="/images/gcashicon.png" alt="GCash" style="height: 16px; width: auto; vertical-align: middle; margin-right: 4px;">GCash',
+                'maya': '<img src="/images/mayaIcon.avif" alt="Maya" style="height: 16px; width: auto; vertical-align: middle; margin-right: 4px;">Maya',
+                'check': '📄 Check Payment',
+                'cash': '💰 Cash'
+            };
+            const methodLabel = paymentMethodLabels[payment.payment_method] || payment.payment_method || 'N/A';
+
+            const content = `
+                <div style="display: grid; gap: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid #E5E7EB;">
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280;">Tracking Code</div>
+                            <div style="font-size: 18px; font-weight: 700; color: #7B1D3A;">${payment.tracking_code}</div>
+                        </div>
+                        <span style="background: ${color.bg}; color: ${color.text}; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                            ${payment.status === 'approved' ? 'VERIFIED' : payment.status.replace('_', ' ').toUpperCase()}
+                        </span>
+                    </div>
+
+                    <div style="background: linear-gradient(135deg, #10B981, #059669); color: white; padding: 20px; border-radius: 12px; text-align: center;">
+                        <div style="font-size: 12px; opacity: 0.9;">Payment Amount</div>
+                        <div style="font-size: 32px; font-weight: 700;">₱${parseFloat(payment.amount).toLocaleString('en-US', {minimumFractionDigits: 2})}</div>
+                        <div style="font-size: 14px; margin-top: 8px;">Invoice #${payment.invoice_number}</div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Company Name</div>
+                            <div style="font-weight: 600;">${payment.company_name}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Contact Person</div>
+                            <div style="font-weight: 600;">${payment.contact_person}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Email</div>
+                            <div>${payment.email}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Phone</div>
+                            <div>${payment.phone || 'N/A'}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Payment Method</div>
+                            <div style="font-weight: 600;">${methodLabel}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Payment Date</div>
+                            <div style="font-weight: 600;">${payment.payment_date || 'N/A'}</div>
+                        </div>
+                    </div>
+
+                    ${payment.notes ? `
+                    <div>
+                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Submitter Notes</div>
+                        <div style="background: #F3F4F6; padding: 12px; border-radius: 8px;">${payment.notes}</div>
+                    </div>
+                    ` : ''}
+
+                    ${payment.admin_notes ? `
+                    <div>
+                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Admin Notes</div>
+                        <div style="background: #FEF3C7; padding: 12px; border-radius: 8px;">${payment.admin_notes}</div>
+                    </div>
+                    ` : ''}
+
+                    <div style="display: flex; gap: 16px; font-size: 12px; color: #6B7280;">
+                        <div><i class="fas fa-calendar"></i> Submitted: ${payment.created_at}</div>
+                        ${payment.reviewed_at ? `<div><i class="fas fa-check-circle"></i> Verified: ${payment.reviewed_at}</div>` : ''}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('tlPaymentDetailsContent').innerHTML = content;
+            document.getElementById('tlPaymentProofBtn').href = payment.payment_proof_path ? '/storage/' + payment.payment_proof_path : '#';
+            document.getElementById('tlPaymentProofBtn').style.display = payment.payment_proof_path ? '' : 'none';
+            openModal('tlPaymentDetailsModal');
+        }
+
+        function tlClosePaymentDetailsModal() {
+            closeModal('tlPaymentDetailsModal');
+            tlCurrentPaymentId = null;
+        }
+
+        function tlOpenReviewPaymentModal() {
+            const payment = tlPaymentSubmissionsData[tlCurrentPaymentId];
+            if (!payment) return;
+
+            document.getElementById('tlReviewPaymentId').value = tlCurrentPaymentId;
+            document.getElementById('tlReviewPaymentInfo').innerHTML = `
+                <strong>${payment.tracking_code}</strong><br>
+                ${payment.company_name} - ₱${parseFloat(payment.amount).toLocaleString('en-US', {minimumFractionDigits: 2})}
+            `;
+            document.getElementById('tlReviewPaymentAction').value = '';
+            document.getElementById('tlReviewPaymentNotes').value = '';
+
+            tlClosePaymentDetailsModal();
+            openModal('tlReviewPaymentModal');
+        }
+
+        function tlCloseReviewPaymentModal() {
+            closeModal('tlReviewPaymentModal');
+        }
+
+        function tlSubmitPaymentReview() {
+            const paymentId = document.getElementById('tlReviewPaymentId').value;
+            const action = document.getElementById('tlReviewPaymentAction').value;
+            const notes = document.getElementById('tlReviewPaymentNotes').value;
+
+            if (!action) {
+                showToast('Please select a verification action', true);
+                return;
+            }
+
+            fetch(`/team-leader/submissions/${paymentId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    status: action,
+                    admin_notes: notes
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast(`Payment ${data.submission.tracking_code} has been ${action === 'approved' ? 'verified' : action === 'rejected' ? 'rejected' : 'updated'}!`);
+                    tlCloseReviewPaymentModal();
+                    location.reload();
+                } else {
+                    showToast(data.message || 'Failed to update payment submission', true);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('An error occurred while updating the payment submission', true);
+            });
+        }
+        @endif
+
+        // ===== ISSUES MANAGEMENT FUNCTIONS =====
+        @if(in_array('issues_management', $viewableModules))
+        
+        // Store issues data for modal access
+        const tlIssuesData = {
+            @if(isset($issuesData['issues']))
+            @foreach($issuesData['issues'] as $issue)
+            '{{ $issue->id }}': {
+                id: '{{ $issue->id }}',
+                tracking_code: '{{ $issue->tracking_code }}',
+                room_number: '{{ $issue->room_number }}',
+                issue_type: '{{ $issue->issue_type }}',
+                issue_type_label: '{{ ucfirst(str_replace("_", " ", $issue->issue_type)) }}',
+                description: {!! json_encode($issue->description) !!},
+                company_name: '{{ addslashes($issue->company_name ?? $issue->startup_name ?? "N/A") }}',
+                contact_person: '{{ addslashes($issue->contact_person ?? "N/A") }}',
+                email: '{{ $issue->email ?? "N/A" }}',
+                phone: '{{ $issue->phone ?? "N/A" }}',
+                priority: '{{ $issue->priority ?? "medium" }}',
+                status: '{{ $issue->status }}',
+                status_label: '{{ ucfirst(str_replace("_", " ", $issue->status)) }}',
+                photo_path: '{{ $issue->photo_path ?? "" }}',
+                admin_notes: {!! json_encode($issue->admin_notes ?? '') !!},
+                created_at: '{{ $issue->created_at->format("M d, Y h:i A") }}',
+                resolved_at: '{{ $issue->resolved_at ? $issue->resolved_at->format("M d, Y h:i A") : "" }}'
+            },
+            @endforeach
+            @endif
+        };
+
+        let tlCurrentIssueId = null;
+
+        function tlViewIssueDetails(issueId) {
+            const issue = tlIssuesData[issueId] || tlIssuesData[String(issueId)];
+            if (!issue) {
+                showToast('Issue not found', true);
+                return;
+            }
+
+            tlCurrentIssueId = issueId;
+
+            const statusColors = {
+                'pending': { bg: '#FEF3C7', text: '#92400E' },
+                'in_progress': { bg: '#DBEAFE', text: '#2563EB' },
+                'resolved': { bg: '#D1FAE5', text: '#059669' },
+                'closed': { bg: '#E5E7EB', text: '#374151' }
+            };
+            const color = statusColors[issue.status] || { bg: '#E5E7EB', text: '#374151' };
+
+            const priorityColors = {
+                'urgent': '#DC2626',
+                'high': '#F59E0B',
+                'medium': '#3B82F6',
+                'low': '#10B981'
+            };
+
+            const content = `
+                <div style="display: grid; gap: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid #E5E7EB;">
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280;">Tracking Code</div>
+                            <div style="font-size: 18px; font-weight: 700; color: #7B1D3A;">${issue.tracking_code}</div>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <span style="background: ${priorityColors[issue.priority] || '#6B7280'}; color: white; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;">
+                                ${issue.priority.toUpperCase()}
+                            </span>
+                            <span style="background: ${color.bg}; color: ${color.text}; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;">
+                                ${issue.status_label}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div style="background: linear-gradient(135deg, #7B1D3A, #5a1428); color: white; padding: 16px; border-radius: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-size: 12px; opacity: 0.9;">Room Number</div>
+                                <div style="font-size: 24px; font-weight: 700;">${issue.room_number}</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 12px; opacity: 0.9;">Issue Type</div>
+                                <div style="font-size: 16px; font-weight: 600;">${issue.issue_type_label}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Issue Description</div>
+                        <div style="background: #F3F4F6; padding: 12px; border-radius: 8px; white-space: pre-wrap;">${issue.description}</div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Company Name</div>
+                            <div style="font-weight: 600;">${issue.company_name}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Reported By</div>
+                            <div style="font-weight: 600;">${issue.contact_person}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Email</div>
+                            <div>${issue.email}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Phone</div>
+                            <div>${issue.phone}</div>
+                        </div>
+                    </div>
+
+                    ${issue.photo_path ? `
+                    <div>
+                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 8px;">Photo Evidence</div>
+                        <a href="/storage/${issue.photo_path}" target="_blank">
+                            <img src="/storage/${issue.photo_path}" alt="Issue Photo" style="max-width: 100%; max-height: 200px; border-radius: 8px; border: 1px solid #E5E7EB;">
+                        </a>
+                    </div>
+                    ` : ''}
+
+                    ${issue.admin_notes ? `
+                    <div>
+                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Resolution Notes</div>
+                        <div style="background: #FEF3C7; padding: 12px; border-radius: 8px;">${issue.admin_notes}</div>
+                    </div>
+                    ` : ''}
+
+                    <div style="display: flex; gap: 16px; font-size: 12px; color: #6B7280;">
+                        <div><i class="fas fa-calendar"></i> Reported: ${issue.created_at}</div>
+                        ${issue.resolved_at ? `<div><i class="fas fa-check-circle"></i> Resolved: ${issue.resolved_at}</div>` : ''}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('tlIssueDetailsContent').innerHTML = content;
+            openModal('tlIssueDetailsModal');
+        }
+
+        function tlCloseIssueDetailsModal() {
+            closeModal('tlIssueDetailsModal');
+            tlCurrentIssueId = null;
+        }
+
+        function tlOpenUpdateIssueStatusModal() {
+            const issue = tlIssuesData[tlCurrentIssueId] || tlIssuesData[String(tlCurrentIssueId)];
+            if (!issue) return;
+
+            document.getElementById('tlUpdateIssueId').value = tlCurrentIssueId;
+            document.getElementById('tlUpdateIssueInfo').innerHTML = `
+                <strong>${issue.tracking_code}</strong><br>
+                Room ${issue.room_number} - ${issue.issue_type_label}
+            `;
+            document.getElementById('tlUpdateIssueNewStatus').value = issue.status;
+            document.getElementById('tlUpdateIssueNotes').value = issue.admin_notes || '';
+
+            closeModal('tlIssueDetailsModal');
+            openModal('tlUpdateIssueStatusModal');
+        }
+
+        function tlUpdateIssueStatus(issueId) {
+            tlCurrentIssueId = issueId;
+            const issue = tlIssuesData[issueId] || tlIssuesData[String(issueId)];
+
+            if (!issue) {
+                showToast('Issue data not found. Please refresh the page.', true);
+                return;
+            }
+
+            document.getElementById('tlUpdateIssueId').value = issueId;
+            document.getElementById('tlUpdateIssueInfo').innerHTML = `
+                <strong>${issue.tracking_code}</strong><br>
+                Room ${issue.room_number} - ${issue.issue_type_label}
+            `;
+            document.getElementById('tlUpdateIssueNewStatus').value = issue.status;
+            document.getElementById('tlUpdateIssueNotes').value = issue.admin_notes || '';
+
+            openModal('tlUpdateIssueStatusModal');
+        }
+
+        function tlCloseUpdateIssueStatusModal() {
+            closeModal('tlUpdateIssueStatusModal');
+        }
+
+        function tlSubmitIssueStatusUpdate() {
+            const issueId = document.getElementById('tlUpdateIssueId').value;
+            const newStatus = document.getElementById('tlUpdateIssueNewStatus').value;
+            const notes = document.getElementById('tlUpdateIssueNotes').value;
+
+            if (!issueId) {
+                showToast('No issue selected', true);
+                return;
+            }
+
+            if (!newStatus) {
+                showToast('Please select a new status', true);
+                return;
+            }
+
+            // Disable button and show loading
+            const submitBtn = document.querySelector('#tlUpdateIssueStatusModal .btn-primary');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+
+            fetch(`/team-leader/room-issues/${issueId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    status: newStatus,
+                    admin_notes: notes
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast(`Issue has been updated to: ${newStatus.replace('_', ' ')}!`);
+                    tlCloseUpdateIssueStatusModal();
+                    location.reload();
+                } else {
+                    showToast(data.message || 'Failed to update issue', true);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('An error occurred while updating the issue', true);
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            });
+        }
+
+        // Issues filter and search functions
+        function tlFilterIssues() {
+            const statusFilter = document.getElementById('tlIssueStatusFilter').value;
+            const typeFilter = document.getElementById('tlIssueTypeFilter').value;
+            const priorityFilter = document.getElementById('tlIssuePriorityFilter').value;
+            const rows = document.querySelectorAll('.tl-issue-row');
+
+            rows.forEach(row => {
+                const status = row.getAttribute('data-status');
+                const type = row.getAttribute('data-type');
+                const priority = row.getAttribute('data-priority');
+
+                const matchStatus = statusFilter === 'all' || status === statusFilter;
+                const matchType = typeFilter === 'all' || type === typeFilter;
+                const matchPriority = priorityFilter === 'all' || priority === priorityFilter;
+
+                row.style.display = (matchStatus && matchType && matchPriority) ? '' : 'none';
+            });
+        }
+
+        function tlSearchIssues() {
+            const searchTerm = document.getElementById('tlIssueSearchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('.tl-issue-row');
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        }
+        @endif
 
         // Page navigation
         const menuItems = document.querySelectorAll('.menu-item[data-page]');
@@ -3036,6 +4331,75 @@
                     </div>
                 ` : '<p style="color: #6B7280; text-align: center; padding: 20px;">No tasks assigned yet</p>'}
             `;
+        }
+
+        function editIntern(internId) {
+            const intern = internsData.find(i => i.id === internId);
+            if (!intern) {
+                showToast('error', 'Error', 'Intern not found');
+                return;
+            }
+
+            document.getElementById('editInternId').value = intern.id;
+            document.getElementById('editInternName').value = intern.name || '';
+            document.getElementById('editInternEmail').value = intern.email || '';
+            document.getElementById('editInternPhone').value = intern.phone || '';
+            document.getElementById('editInternCourse').value = intern.course || '';
+            document.getElementById('editInternYearLevel').value = intern.year_level || '';
+            document.getElementById('editInternRequiredHours').value = intern.required_hours || '';
+            document.getElementById('editInternStartDate').value = intern.start_date || '';
+            document.getElementById('editInternEndDate').value = intern.end_date || '';
+            document.getElementById('editInternStatus').value = intern.status || 'Active';
+
+            openModal('editInternModal');
+        }
+
+        async function submitEditIntern(event) {
+            event.preventDefault();
+            const internId = document.getElementById('editInternId').value;
+            const submitBtn = document.querySelector('#editInternForm button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+
+            try {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+                const response = await fetch(`/admin/interns/${internId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({
+                        name: document.getElementById('editInternName').value,
+                        email: document.getElementById('editInternEmail').value,
+                        phone: document.getElementById('editInternPhone').value,
+                        course: document.getElementById('editInternCourse').value,
+                        year_level: document.getElementById('editInternYearLevel').value,
+                        required_hours: document.getElementById('editInternRequiredHours').value || null,
+                        start_date: document.getElementById('editInternStartDate').value || null,
+                        end_date: document.getElementById('editInternEndDate').value || null,
+                        status: document.getElementById('editInternStatus').value
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showToast('success', 'Success', 'Intern details updated successfully');
+                    closeModal('editInternModal');
+                    location.reload();
+                } else {
+                    throw new Error(data.message || 'Failed to update intern');
+                }
+            } catch (error) {
+                console.error('Error updating intern:', error);
+                showToast('error', 'Error', error.message || 'Failed to update intern');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
         }
 
         // ========== REPORT FUNCTIONS ==========

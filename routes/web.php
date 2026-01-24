@@ -41,6 +41,7 @@ Route::post('/intern/update-profile', [InternController::class, 'updateProfile']
 Route::post('/intern/update-profile-picture', [InternController::class, 'updateProfilePicture'])->name('intern.update.picture');
 Route::post('/intern/time-in', [InternController::class, 'timeIn'])->name('intern.timein');
 Route::post('/intern/time-out', [InternController::class, 'timeOut'])->name('intern.timeout');
+Route::get('/intern/realtime-status', [InternController::class, 'getRealtimeStatus'])->name('intern.realtime');
 
 // Intern Task Management Routes
 Route::get('/intern/tasks/{task}', [InternController::class, 'getTask'])->name('intern.task.show');
@@ -143,6 +144,12 @@ Route::middleware(['admin'])->group(function () {
     Route::get('/admin/export/tasks', [AdminDashboardController::class, 'exportTasks'])->name('admin.export.tasks');
     Route::get('/admin/export/bookings', [AdminDashboardController::class, 'exportBookings'])->name('admin.export.bookings');
 
+    // Settings routes
+    Route::get('/admin/settings', [AdminDashboardController::class, 'getSettings'])->name('admin.settings.get');
+    Route::post('/admin/settings', [AdminDashboardController::class, 'saveSettings'])->name('admin.settings.save');
+    Route::post('/admin/settings/reset', [AdminDashboardController::class, 'resetSettings'])->name('admin.settings.reset');
+    Route::post('/admin/settings/clear-data', [AdminDashboardController::class, 'clearOldData'])->name('admin.settings.clear-data');
+
     Route::post('/admin/attendance/{attendance}/approve-overtime', [AdminDashboardController::class, 'approveOvertime'])->name('admin.attendance.approve-overtime');
 
     // Task routes
@@ -209,6 +216,7 @@ Route::middleware(['admin'])->group(function () {
     // Intern Approval Routes (Admin)
     Route::get('/admin/interns/pending', [SchoolController::class, 'getPendingInterns'])->name('admin.interns.pending');
     Route::get('/admin/interns/{intern}', [InternController::class, 'show'])->name('admin.interns.show');
+    Route::put('/admin/interns/{intern}', [InternController::class, 'update'])->name('admin.interns.update');
     Route::post('/admin/interns/{intern}/approve', [SchoolController::class, 'approveIntern'])->name('admin.interns.approve');
     Route::post('/admin/interns/{intern}/reject', [SchoolController::class, 'rejectIntern'])->name('admin.interns.reject');
     Route::post('/admin/interns/school/{school}/approve-all', [SchoolController::class, 'approveAllBySchool'])->name('admin.interns.approveAllBySchool');
@@ -284,4 +292,8 @@ Route::middleware(['team.leader'])->prefix('team-leader')->name('team-leader.')-
 
     // Attendance Viewing
     Route::get('/attendance', [TeamLeaderController::class, 'attendance'])->name('attendance');
+
+    // Incubatee Tracker (Submissions Management)
+    Route::put('/submissions/{submission}', [TeamLeaderController::class, 'updateSubmission'])->name('submissions.update');
+    Route::put('/room-issues/{roomIssue}', [TeamLeaderController::class, 'updateRoomIssue'])->name('room-issues.update');
 });

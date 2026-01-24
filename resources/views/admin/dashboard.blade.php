@@ -9,6 +9,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        :root {
+            --primary-color: #7B1D3A;
+            --accent-color: #FFBF00;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -20,8 +25,23 @@
             background: #F9FAFB;
         }
 
+        body.compact-mode .sidebar {
+            width: 220px;
+            min-width: 220px;
+            max-width: 220px;
+        }
+
+        body.compact-mode .main-content {
+            margin-left: 220px;
+        }
+
+        body.no-animations * {
+            transition: none !important;
+            animation: none !important;
+        }
+
         .sidebar {
-            background: linear-gradient(180deg, #7B1D3A 0%, #5a1428 50%, #4a1020 100%);
+            background: linear-gradient(180deg, var(--primary-color) 0%, #5a1428 50%, #4a1020 100%);
             width: 260px;
             min-width: 260px;
             max-width: 260px;
@@ -33,6 +53,18 @@
             overflow-x: hidden;
             z-index: 1000;
             box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .sidebar.sidebar-gradient {
+            background: linear-gradient(180deg, var(--primary-color) 0%, #5a1428 50%, #4a1020 100%);
+        }
+
+        .sidebar.sidebar-solid {
+            background: var(--primary-color);
+        }
+
+        .sidebar.sidebar-dark {
+            background: linear-gradient(180deg, #1F2937 0%, #111827 100%);
         }
 
         .sidebar::-webkit-scrollbar {
@@ -3200,7 +3232,7 @@
                                         <td>
                                             <div class="action-buttons">
                                                 <button class="btn-action btn-view" onclick="viewInternDetails({{ $intern->id }})" title="View"><i class="fas fa-eye"></i></button>
-                                                <button class="btn-action btn-edit" title="Edit"><i class="fas fa-edit"></i></button>
+                                                <button class="btn-action btn-edit" onclick="editIntern({{ $intern->id }})" title="Edit"><i class="fas fa-edit"></i></button>
                                             </div>
                                         </td>
                                     </tr>
@@ -4298,8 +4330,8 @@
                                 $methodLabels = [
                                     'bank_transfer' => '🏦 Bank Transfer',
                                     'bank_deposit' => '💵 Bank Deposit',
-                                    'gcash' => '📱 GCash',
-                                    'maya' => '📱 Maya',
+                                    'gcash' => '<img src="' . asset('images/gcashicon.png') . '" alt="GCash" style="height: 16px; width: auto; vertical-align: middle; margin-right: 4px;">GCash',
+                                    'maya' => '<img src="' . asset('images/mayaIcon.avif') . '" alt="Maya" style="height: 16px; width: auto; vertical-align: middle; margin-right: 4px;">Maya',
                                     'check' => '📄 Check',
                                     'cash' => '💰 Cash'
                                 ];
@@ -4313,7 +4345,7 @@
                                 <td><strong>{{ $payment->invoice_number }}</strong></td>
                                 <td style="font-weight: 700; color: #059669;">₱{{ number_format($payment->amount, 2) }}</td>
                                 <td>
-                                    <span style="font-size: 12px;">{{ $methodLabels[$payment->payment_method] ?? $payment->payment_method ?? 'N/A' }}</span>
+                                    <span style="font-size: 12px;">{!! $methodLabels[$payment->payment_method] ?? $payment->payment_method ?? 'N/A' !!}</span>
                                 </td>
                                 <td>{{ $payment->payment_date ? \Carbon\Carbon::parse($payment->payment_date)->format('M d, Y') : 'N/A' }}</td>
                                 <td>
@@ -4332,9 +4364,6 @@
                                 <td>
                                     <div class="action-buttons">
                                         <button class="btn-action btn-view" onclick="viewPaymentDetails('{{ $payment->id }}')" title="View Details"><i class="fas fa-eye"></i></button>
-                                        @if($payment->payment_proof_path)
-                                        <a href="{{ asset('storage/' . $payment->payment_proof_path) }}" target="_blank" class="btn-action btn-edit" title="View Receipt"><i class="fas fa-receipt"></i></a>
-                                        @endif
                                         <button class="btn-action" style="background: #10B981; color: white;" onclick="reviewSubmission('{{ $payment->id }}', 'finance')" title="Review"><i class="fas fa-clipboard-check"></i></button>
                                     </div>
                                 </td>
@@ -4535,12 +4564,12 @@
                                 </td>
                                 <td style="padding: 10px 12px; font-size: 12px;">{{ $issue->created_at->format('M d, Y') }}</td>
                                 <td style="padding: 10px 12px;">
-                                    <div class="action-buttons" style="gap: 4px;">
-                                        <button class="btn-action btn-view" style="width: 26px; height: 26px; font-size: 11px;" onclick="viewRoomIssueDetails('{{ $issue->id }}')"><i class="fas fa-eye"></i></button>
+                                    <div class="action-buttons" style="gap: 4px; justify-content: center;">
+                                        <button class="btn-action btn-view" style="width: 26px; height: 26px; font-size: 11px; display: flex; align-items: center; justify-content: center;" onclick="viewRoomIssueDetails('{{ $issue->id }}')"><i class="fas fa-eye"></i></button>
                                         @if($issue->photo_path)
-                                        <a href="{{ asset('storage/' . $issue->photo_path) }}" target="_blank" class="btn-action btn-edit" style="width: 26px; height: 26px; font-size: 11px;"><i class="fas fa-image"></i></a>
+                                        <a href="{{ asset('storage/' . $issue->photo_path) }}" target="_blank" class="btn-action btn-edit" style="width: 26px; height: 26px; font-size: 11px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-image"></i></a>
                                         @endif
-                                        <button class="btn-action" style="background: #10B981; color: white; width: 26px; height: 26px; font-size: 11px;" onclick="updateIssueStatus('{{ $issue->id }}')"><i class="fas fa-check"></i></button>
+                                        <button class="btn-action" style="background: #10B981; color: white; width: 26px; height: 26px; font-size: 11px; display: flex; align-items: center; justify-content: center;" onclick="updateIssueStatus('{{ $issue->id }}')"><i class="fas fa-check"></i></button>
                                     </div>
                                 </td>
                             </tr>
@@ -5861,12 +5890,27 @@
                                     <i class="fas fa-broom"></i> Data Cleanup
                                 </h4>
                                 <p style="color: #A16207; font-size: 14px; margin-bottom: 16px;">Clear old or unnecessary data to improve performance</p>
+                                
+                                <div class="settings-group" style="margin-bottom: 16px;">
+                                    <label class="settings-label">Delete records older than (days)</label>
+                                    <input type="number" id="cleanupDays" class="settings-input" value="90" min="30" max="365" style="width: 150px;">
+                                </div>
+                                
                                 <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                                    <button onclick="clearOldData('notifications')" class="settings-btn warning">
-                                        <i class="fas fa-bell-slash"></i> Clear Old Notifications
+                                    <button onclick="clearOldData('attendance')" class="settings-btn warning">
+                                        <i class="fas fa-clock"></i> Clear Old Attendance
                                     </button>
-                                    <button onclick="clearOldData('logs')" class="settings-btn warning">
-                                        <i class="fas fa-file-alt"></i> Clear Activity Logs
+                                    <button onclick="clearOldData('tasks')" class="settings-btn warning">
+                                        <i class="fas fa-tasks"></i> Clear Completed Tasks
+                                    </button>
+                                    <button onclick="clearOldData('bookings')" class="settings-btn warning">
+                                        <i class="fas fa-calendar-times"></i> Clear Old Bookings
+                                    </button>
+                                    <button onclick="clearOldData('notifications')" class="settings-btn warning">
+                                        <i class="fas fa-bell-slash"></i> Clear Notifications
+                                    </button>
+                                    <button onclick="clearOldData('all')" class="settings-btn danger">
+                                        <i class="fas fa-trash-alt"></i> Clear All Old Data
                                     </button>
                                 </div>
                             </div>
@@ -6830,21 +6874,33 @@
 
     <!-- View Payment Details Modal -->
     <div id="paymentDetailsModal" class="modal-overlay">
-        <div class="modal-content" style="max-width: 600px;">
+        <div class="modal-content" style="max-width: 950px;">
             <div class="modal-header">
                 <h3 class="modal-title"><i class="fas fa-credit-card" style="margin-right: 8px;"></i>Payment Submission Details</h3>
                 <button class="modal-close" onclick="closePaymentDetailsModal()">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <div class="modal-body" id="paymentDetailsContent">
-                <!-- Payment details will be loaded here -->
+            <div class="modal-body" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                <!-- Left side: Payment Details -->
+                <div id="paymentDetailsContent">
+                    <!-- Payment details will be loaded here -->
+                </div>
+                <!-- Right side: Payment Proof -->
+                <div id="paymentProofContainer" style="display: flex; flex-direction: column; gap: 12px;">
+                    <h4 style="font-size: 14px; font-weight: 600; color: #374151; margin: 0; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-receipt" style="color: #7B1D3A;"></i> Payment Proof
+                    </h4>
+                    <div id="paymentProofPreview" style="flex: 1; background: #F9FAFB; border: 2px dashed #E5E7EB; border-radius: 12px; display: flex; align-items: center; justify-content: center; min-height: 350px; overflow: hidden;">
+                        <!-- Proof preview will be loaded here -->
+                    </div>
+                    <a id="paymentProofBtn" href="#" target="_blank" class="btn-modal" style="background: #6366F1; color: white; text-decoration: none; text-align: center; width: 100%;">
+                        <i class="fas fa-external-link-alt"></i> Open Full Size
+                    </a>
+                </div>
             </div>
             <div class="modal-footer">
                 <button class="btn-modal secondary" onclick="closePaymentDetailsModal()">Close</button>
-                <a id="paymentProofBtn" href="#" target="_blank" class="btn-modal" style="background: #6366F1; color: white; text-decoration: none;">
-                    <i class="fas fa-receipt"></i> View Proof
-                </a>
                 <button class="btn-modal primary" onclick="openReviewPaymentModal()">
                     <i class="fas fa-clipboard-check"></i> Review Payment
                 </button>
@@ -7196,7 +7252,7 @@
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+            <div class="modal-body">
                 <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 24px; padding: 20px; background: linear-gradient(135deg, #FEF3C7, #FDE68A); border-radius: 12px;">
                     <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #FFBF00, #FFA500); display: flex; align-items: center; justify-content: center; color: #7B1D3A; font-weight: 700; font-size: 32px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); overflow: hidden; cursor: pointer; position: relative;" id="internDetailAvatar" onclick="zoomProfilePicture()" title="Click to view full size">
                         A
@@ -7278,8 +7334,75 @@
                     </div>
                 </div>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer" style="border-top: none;">
                 <button class="btn-modal secondary" onclick="closeInternDetailsModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Intern Modal -->
+    <div id="editInternModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-user-edit" style="margin-right: 8px; color: #7B1D3A;"></i>Edit Intern</h3>
+                <button class="modal-close" onclick="closeEditInternModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="editInternForm">
+                    <input type="hidden" id="editInternId">
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label class="form-label required">Full Name</label>
+                            <input type="text" id="editInternName" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">Email</label>
+                            <input type="email" id="editInternEmail" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Phone</label>
+                            <input type="text" id="editInternPhone" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Course</label>
+                            <input type="text" id="editInternCourse" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Year Level</label>
+                            <input type="text" id="editInternYearLevel" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Required Hours</label>
+                            <input type="number" id="editInternRequiredHours" class="form-input" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Start Date</label>
+                            <input type="date" id="editInternStartDate" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">End Date</label>
+                            <input type="date" id="editInternEndDate" class="form-input">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Status</label>
+                        <select id="editInternStatus" class="form-select">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal secondary" onclick="closeEditInternModal()">Cancel</button>
+                <button class="btn-modal primary" onclick="saveInternChanges()">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
             </div>
         </div>
     </div>
@@ -7893,145 +8016,178 @@
         function getDefaultSettings() {
             return {
                 // General
-                systemName: 'UP Management System',
-                officeName: 'University of the Philippines',
-                contactEmail: '',
+                system_name: 'UP Management System',
+                office_name: 'University of the Philippines',
+                contact_email: '',
                 timezone: 'Asia/Manila',
-                dateFormat: 'M d, Y',
-                maintenanceMode: false,
+                date_format: 'M d, Y',
+                maintenance_mode: false,
 
                 // Internship
-                defaultHours: 480,
-                workStart: '08:00',
-                workEnd: '17:00',
-                gracePeriod: 15,
-                overtimeThreshold: 8,
-                autoApproveIntern: false,
-                requireOvertimeApproval: true,
+                default_hours: 480,
+                work_start: '08:00',
+                work_end: '17:00',
+                grace_period: 15,
+                overtime_threshold: 8,
+                auto_approve_intern: false,
+                require_overtime_approval: true,
 
                 // Notifications
-                emailNotifications: true,
-                bookingAlerts: true,
-                internAlerts: true,
-                issueAlerts: true,
-                soundNotifications: true,
-                notificationInterval: '10',
+                email_notifications: true,
+                booking_alerts: true,
+                intern_alerts: true,
+                issue_alerts: true,
+                sound_notifications: true,
+                notification_interval: 30,
 
                 // Scheduler
-                bookingDuration: 2,
-                minAdvanceBooking: 1,
-                maxAdvanceBooking: 90,
-                autoApproveBooking: false,
-                weekendBookings: false,
-                bookingStart: '08:00',
-                bookingEnd: '17:00',
+                booking_duration: 2,
+                min_advance_booking: 1,
+                max_advance_booking: 90,
+                auto_approve_booking: false,
+                weekend_bookings: false,
+                booking_start: '08:00',
+                booking_end: '17:00',
 
                 // Appearance
-                primaryColor: '#7B1D3A',
-                accentColor: '#FFBF00',
-                sidebarStyle: 'gradient',
-                compactMode: false,
+                primary_color: '#7B1D3A',
+                accent_color: '#FFBF00',
+                sidebar_style: 'gradient',
+                compact_mode: false,
                 animations: true
             };
         }
 
-        function loadSettingsFromStorage() {
-            const settings = JSON.parse(localStorage.getItem('adminSettings')) || getDefaultSettings();
-
-            // General Settings
-            document.getElementById('settingSystemName').value = settings.systemName || '';
-            document.getElementById('settingOfficeName').value = settings.officeName || '';
-            document.getElementById('settingContactEmail').value = settings.contactEmail || '';
-            document.getElementById('settingTimezone').value = settings.timezone || 'Asia/Manila';
-            document.getElementById('settingDateFormat').value = settings.dateFormat || 'M d, Y';
-            document.getElementById('settingMaintenanceMode').checked = settings.maintenanceMode || false;
-
-            // Internship Settings
-            document.getElementById('settingDefaultHours').value = settings.defaultHours || 480;
-            document.getElementById('settingWorkStart').value = settings.workStart || '08:00';
-            document.getElementById('settingWorkEnd').value = settings.workEnd || '17:00';
-            document.getElementById('settingGracePeriod').value = settings.gracePeriod || 15;
-            document.getElementById('settingOvertimeThreshold').value = settings.overtimeThreshold || 8;
-            document.getElementById('settingAutoApproveIntern').checked = settings.autoApproveIntern || false;
-            document.getElementById('settingRequireOvertimeApproval').checked = settings.requireOvertimeApproval !== false;
-
-            // Notification Settings
-            document.getElementById('settingEmailNotifications').checked = settings.emailNotifications !== false;
-            document.getElementById('settingBookingAlerts').checked = settings.bookingAlerts !== false;
-            document.getElementById('settingInternAlerts').checked = settings.internAlerts !== false;
-            document.getElementById('settingIssueAlerts').checked = settings.issueAlerts !== false;
-            document.getElementById('settingSoundNotifications').checked = settings.soundNotifications !== false;
-            document.getElementById('settingNotificationInterval').value = settings.notificationInterval || '10';
-
-            // Scheduler Settings
-            document.getElementById('settingBookingDuration').value = settings.bookingDuration || 2;
-            document.getElementById('settingMinAdvanceBooking').value = settings.minAdvanceBooking || 1;
-            document.getElementById('settingMaxAdvanceBooking').value = settings.maxAdvanceBooking || 90;
-            document.getElementById('settingAutoApproveBooking').checked = settings.autoApproveBooking || false;
-            document.getElementById('settingWeekendBookings').checked = settings.weekendBookings || false;
-            document.getElementById('settingBookingStart').value = settings.bookingStart || '08:00';
-            document.getElementById('settingBookingEnd').value = settings.bookingEnd || '17:00';
-
-            // Appearance Settings
-            document.getElementById('settingPrimaryColor').value = settings.primaryColor || '#7B1D3A';
-            document.getElementById('settingPrimaryColorHex').value = settings.primaryColor || '#7B1D3A';
-            document.getElementById('settingAccentColor').value = settings.accentColor || '#FFBF00';
-            document.getElementById('settingAccentColorHex').value = settings.accentColor || '#FFBF00';
-            document.getElementById('settingSidebarStyle').value = settings.sidebarStyle || 'gradient';
-            document.getElementById('settingCompactMode').checked = settings.compactMode || false;
-            document.getElementById('settingAnimations').checked = settings.animations !== false;
+        async function loadSettingsFromStorage() {
+            try {
+                const response = await fetch('/admin/settings');
+                const data = await response.json();
+                
+                if (data.success) {
+                    populateSettingsForm(data.settings);
+                } else {
+                    populateSettingsForm(getDefaultSettings());
+                }
+            } catch (error) {
+                console.error('Error loading settings:', error);
+                populateSettingsForm(getDefaultSettings());
+            }
         }
 
-        function saveSettings() {
+        function populateSettingsForm(settings) {
+            // General Settings
+            document.getElementById('settingSystemName').value = settings.system_name || '';
+            document.getElementById('settingOfficeName').value = settings.office_name || '';
+            document.getElementById('settingContactEmail').value = settings.contact_email || '';
+            document.getElementById('settingTimezone').value = settings.timezone || 'Asia/Manila';
+            document.getElementById('settingDateFormat').value = settings.date_format || 'M d, Y';
+            document.getElementById('settingMaintenanceMode').checked = settings.maintenance_mode || false;
+
+            // Internship Settings
+            document.getElementById('settingDefaultHours').value = settings.default_hours || 480;
+            document.getElementById('settingWorkStart').value = settings.work_start || '08:00';
+            document.getElementById('settingWorkEnd').value = settings.work_end || '17:00';
+            document.getElementById('settingGracePeriod').value = settings.grace_period || 15;
+            document.getElementById('settingOvertimeThreshold').value = settings.overtime_threshold || 8;
+            document.getElementById('settingAutoApproveIntern').checked = settings.auto_approve_intern || false;
+            document.getElementById('settingRequireOvertimeApproval').checked = settings.require_overtime_approval !== false;
+
+            // Notification Settings
+            document.getElementById('settingEmailNotifications').checked = settings.email_notifications !== false;
+            document.getElementById('settingBookingAlerts').checked = settings.booking_alerts !== false;
+            document.getElementById('settingInternAlerts').checked = settings.intern_alerts !== false;
+            document.getElementById('settingIssueAlerts').checked = settings.issue_alerts !== false;
+            document.getElementById('settingSoundNotifications').checked = settings.sound_notifications !== false;
+            document.getElementById('settingNotificationInterval').value = settings.notification_interval || 30;
+
+            // Scheduler Settings
+            document.getElementById('settingBookingDuration').value = settings.booking_duration || 2;
+            document.getElementById('settingMinAdvanceBooking').value = settings.min_advance_booking || 1;
+            document.getElementById('settingMaxAdvanceBooking').value = settings.max_advance_booking || 90;
+            document.getElementById('settingAutoApproveBooking').checked = settings.auto_approve_booking || false;
+            document.getElementById('settingWeekendBookings').checked = settings.weekend_bookings || false;
+            document.getElementById('settingBookingStart').value = settings.booking_start || '08:00';
+            document.getElementById('settingBookingEnd').value = settings.booking_end || '17:00';
+
+            // Appearance Settings
+            document.getElementById('settingPrimaryColor').value = settings.primary_color || '#7B1D3A';
+            document.getElementById('settingPrimaryColorHex').value = settings.primary_color || '#7B1D3A';
+            document.getElementById('settingAccentColor').value = settings.accent_color || '#FFBF00';
+            document.getElementById('settingAccentColorHex').value = settings.accent_color || '#FFBF00';
+            document.getElementById('settingSidebarStyle').value = settings.sidebar_style || 'gradient';
+            document.getElementById('settingCompactMode').checked = settings.compact_mode || false;
+            document.getElementById('settingAnimations').checked = settings.animations !== false;
+
+            // Apply settings
+            applySettings(settings);
+        }
+
+        async function saveSettings() {
             const settings = {
                 // General
-                systemName: document.getElementById('settingSystemName').value,
-                officeName: document.getElementById('settingOfficeName').value,
-                contactEmail: document.getElementById('settingContactEmail').value,
+                system_name: document.getElementById('settingSystemName').value,
+                office_name: document.getElementById('settingOfficeName').value,
+                contact_email: document.getElementById('settingContactEmail').value,
                 timezone: document.getElementById('settingTimezone').value,
-                dateFormat: document.getElementById('settingDateFormat').value,
-                maintenanceMode: document.getElementById('settingMaintenanceMode').checked,
+                date_format: document.getElementById('settingDateFormat').value,
+                maintenance_mode: document.getElementById('settingMaintenanceMode').checked,
 
                 // Internship
-                defaultHours: parseInt(document.getElementById('settingDefaultHours').value),
-                workStart: document.getElementById('settingWorkStart').value,
-                workEnd: document.getElementById('settingWorkEnd').value,
-                gracePeriod: parseInt(document.getElementById('settingGracePeriod').value),
-                overtimeThreshold: parseFloat(document.getElementById('settingOvertimeThreshold').value),
-                autoApproveIntern: document.getElementById('settingAutoApproveIntern').checked,
-                requireOvertimeApproval: document.getElementById('settingRequireOvertimeApproval').checked,
+                default_hours: parseInt(document.getElementById('settingDefaultHours').value),
+                work_start: document.getElementById('settingWorkStart').value,
+                work_end: document.getElementById('settingWorkEnd').value,
+                grace_period: parseInt(document.getElementById('settingGracePeriod').value),
+                overtime_threshold: parseFloat(document.getElementById('settingOvertimeThreshold').value),
+                auto_approve_intern: document.getElementById('settingAutoApproveIntern').checked,
+                require_overtime_approval: document.getElementById('settingRequireOvertimeApproval').checked,
 
                 // Notifications
-                emailNotifications: document.getElementById('settingEmailNotifications').checked,
-                bookingAlerts: document.getElementById('settingBookingAlerts').checked,
-                internAlerts: document.getElementById('settingInternAlerts').checked,
-                issueAlerts: document.getElementById('settingIssueAlerts').checked,
-                soundNotifications: document.getElementById('settingSoundNotifications').checked,
-                notificationInterval: document.getElementById('settingNotificationInterval').value,
+                email_notifications: document.getElementById('settingEmailNotifications').checked,
+                booking_alerts: document.getElementById('settingBookingAlerts').checked,
+                intern_alerts: document.getElementById('settingInternAlerts').checked,
+                issue_alerts: document.getElementById('settingIssueAlerts').checked,
+                sound_notifications: document.getElementById('settingSoundNotifications').checked,
+                notification_interval: parseInt(document.getElementById('settingNotificationInterval').value),
 
                 // Scheduler
-                bookingDuration: parseInt(document.getElementById('settingBookingDuration').value),
-                minAdvanceBooking: parseInt(document.getElementById('settingMinAdvanceBooking').value),
-                maxAdvanceBooking: parseInt(document.getElementById('settingMaxAdvanceBooking').value),
-                autoApproveBooking: document.getElementById('settingAutoApproveBooking').checked,
-                weekendBookings: document.getElementById('settingWeekendBookings').checked,
-                bookingStart: document.getElementById('settingBookingStart').value,
-                bookingEnd: document.getElementById('settingBookingEnd').value,
+                booking_duration: parseInt(document.getElementById('settingBookingDuration').value),
+                min_advance_booking: parseInt(document.getElementById('settingMinAdvanceBooking').value),
+                max_advance_booking: parseInt(document.getElementById('settingMaxAdvanceBooking').value),
+                auto_approve_booking: document.getElementById('settingAutoApproveBooking').checked,
+                weekend_bookings: document.getElementById('settingWeekendBookings').checked,
+                booking_start: document.getElementById('settingBookingStart').value,
+                booking_end: document.getElementById('settingBookingEnd').value,
 
                 // Appearance
-                primaryColor: document.getElementById('settingPrimaryColor').value,
-                accentColor: document.getElementById('settingAccentColor').value,
-                sidebarStyle: document.getElementById('settingSidebarStyle').value,
-                compactMode: document.getElementById('settingCompactMode').checked,
+                primary_color: document.getElementById('settingPrimaryColor').value,
+                accent_color: document.getElementById('settingAccentColor').value,
+                sidebar_style: document.getElementById('settingSidebarStyle').value,
+                compact_mode: document.getElementById('settingCompactMode').checked,
                 animations: document.getElementById('settingAnimations').checked
             };
 
-            localStorage.setItem('adminSettings', JSON.stringify(settings));
+            try {
+                const response = await fetch('/admin/settings', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({ settings: settings })
+                });
 
-            // Apply some settings immediately
-            applySettings(settings);
-
-            showToast('success', 'Settings Saved', 'Your settings have been saved successfully!');
+                const data = await response.json();
+                
+                if (data.success) {
+                    applySettings(settings);
+                    showToast('success', 'Settings Saved', data.message);
+                } else {
+                    showToast('error', 'Error', 'Failed to save settings');
+                }
+            } catch (error) {
+                console.error('Error saving settings:', error);
+                showToast('error', 'Error', 'Failed to save settings');
+            }
         }
 
         function applySettings(settings) {
@@ -8039,11 +8195,11 @@
             if (window.notificationInterval) {
                 clearInterval(window.notificationInterval);
             }
-            const interval = parseInt(settings.notificationInterval) * 1000;
+            const interval = parseInt(settings.notification_interval || 30) * 1000;
             window.notificationInterval = setInterval(loadAdminNotifications, interval);
 
             // Apply compact mode
-            if (settings.compactMode) {
+            if (settings.compact_mode) {
                 document.body.classList.add('compact-mode');
             } else {
                 document.body.classList.remove('compact-mode');
@@ -8055,20 +8211,81 @@
             } else {
                 document.body.classList.remove('no-animations');
             }
+
+            // Apply primary color
+            const primaryColor = settings.primary_color || '#7B1D3A';
+            document.documentElement.style.setProperty('--primary-color', primaryColor);
+            
+            // Apply accent color  
+            const accentColor = settings.accent_color || '#FFBF00';
+            document.documentElement.style.setProperty('--accent-color', accentColor);
+
+            // Apply sidebar style
+            const sidebar = document.querySelector('.sidebar');
+            if (sidebar && settings.sidebar_style) {
+                sidebar.classList.remove('sidebar-gradient', 'sidebar-solid', 'sidebar-dark');
+                if (settings.sidebar_style === 'gradient') {
+                    sidebar.classList.add('sidebar-gradient');
+                } else if (settings.sidebar_style === 'solid') {
+                    sidebar.classList.add('sidebar-solid');
+                } else if (settings.sidebar_style === 'dark') {
+                    sidebar.classList.add('sidebar-dark');
+                }
+            }
+
+            // Store settings in session storage for quick access
+            sessionStorage.setItem('adminSettings', JSON.stringify(settings));
         }
 
-        function resetSettingsForm() {
+        // Load and apply settings on page load
+        async function loadAndApplySettings() {
+            try {
+                const response = await fetch('/admin/settings');
+                const data = await response.json();
+                
+                if (data.success) {
+                    applySettings(data.settings);
+                } else {
+                    applySettings(getDefaultSettings());
+                }
+            } catch (error) {
+                console.error('Error loading settings:', error);
+                applySettings(getDefaultSettings());
+            }
+        }
+
+        // Initialize settings on page load
+        loadAndApplySettings();
+
+        async function resetSettingsForm() {
             const defaults = getDefaultSettings();
-            localStorage.setItem('adminSettings', JSON.stringify(defaults));
-            loadSettingsFromStorage();
-            showToast('info', 'Form Reset', 'Settings form has been reset to defaults.');
+            populateSettingsForm(defaults);
+            showToast('info', 'Form Reset', 'Settings form has been reset to defaults. Click Save to apply.');
         }
 
-        function resetSettings() {
+        async function resetSettings() {
             if (confirm('Are you sure you want to reset all settings to defaults? This action cannot be undone.')) {
-                localStorage.removeItem('adminSettings');
-                loadSettingsFromStorage();
-                showToast('success', 'Settings Reset', 'All settings have been reset to defaults.');
+                try {
+                    const response = await fetch('/admin/settings/reset', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        }
+                    });
+
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        await loadSettingsFromStorage();
+                        showToast('success', 'Settings Reset', data.message);
+                    } else {
+                        showToast('error', 'Error', 'Failed to reset settings');
+                    }
+                } catch (error) {
+                    console.error('Error resetting settings:', error);
+                    showToast('error', 'Error', 'Failed to reset settings');
+                }
             }
         }
 
@@ -8107,16 +8324,50 @@
             }
         }
 
-        function clearOldData(type) {
-            if (confirm(`Are you sure you want to clear old ${type}? This action cannot be undone.`)) {
-                showToast('info', 'Clearing...', `Clearing old ${type}...`);
+        async function clearOldData(type) {
+            const days = document.getElementById('cleanupDays')?.value || 90;
+            
+            const typeLabels = {
+                'attendance': 'attendance records',
+                'tasks': 'completed tasks',
+                'bookings': 'old bookings',
+                'notifications': 'notifications',
+                'all': 'all old data'
+            };
 
-                setTimeout(() => {
-                    if (type === 'notifications') {
-                        localStorage.removeItem('readNotifications');
+            if (confirm(`Are you sure you want to clear ${typeLabels[type]} older than ${days} days? This action cannot be undone.`)) {
+                if (type === 'notifications') {
+                    localStorage.removeItem('readNotifications');
+                    showToast('success', 'Cleared', 'Notifications have been cleared.');
+                    return;
+                }
+
+                showToast('info', 'Clearing...', `Clearing old ${typeLabels[type]}...`);
+
+                try {
+                    const response = await fetch('/admin/settings/clear-data', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: JSON.stringify({
+                            data_type: type,
+                            older_than_days: parseInt(days)
+                        })
+                    });
+
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        showToast('success', 'Cleared', data.message);
+                    } else {
+                        showToast('error', 'Error', 'Failed to clear data');
                     }
-                    showToast('success', 'Cleared', `Old ${type} have been cleared.`);
-                }, 500);
+                } catch (error) {
+                    console.error('Error clearing data:', error);
+                    showToast('error', 'Error', 'Failed to clear data');
+                }
             }
         }
 
@@ -9872,8 +10123,8 @@
             const paymentMethodLabels = {
                 'bank_transfer': '🏦 Bank Transfer',
                 'bank_deposit': '💵 Bank Deposit',
-                'gcash': '📱 GCash',
-                'maya': '📱 Maya',
+                'gcash': '<img src="/images/gcashicon.png" alt="GCash" style="height: 16px; width: auto; vertical-align: middle; margin-right: 4px;">GCash',
+                'maya': '<img src="/images/mayaIcon.avif" alt="Maya" style="height: 16px; width: auto; vertical-align: middle; margin-right: 4px;">Maya',
                 'check': '📄 Check Payment',
                 'cash': '💰 Cash'
             };
@@ -9891,54 +10142,54 @@
                         </span>
                     </div>
 
-                    <div style="background: linear-gradient(135deg, #10B981, #059669); color: white; padding: 20px; border-radius: 12px; text-align: center;">
+                    <div style="background: linear-gradient(135deg, #10B981, #059669); color: white; padding: 16px; border-radius: 12px; text-align: center;">
                         <div style="font-size: 12px; opacity: 0.9;">Payment Amount</div>
-                        <div style="font-size: 32px; font-weight: 700;">₱${parseFloat(payment.amount).toLocaleString('en-US', {minimumFractionDigits: 2})}</div>
-                        <div style="font-size: 14px; margin-top: 8px;">Invoice #${payment.invoice_number}</div>
+                        <div style="font-size: 28px; font-weight: 700;">₱${parseFloat(payment.amount).toLocaleString('en-US', {minimumFractionDigits: 2})}</div>
+                        <div style="font-size: 13px; margin-top: 6px;">Invoice #${payment.invoice_number}</div>
                     </div>
 
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                         <div>
-                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Company Name</div>
-                            <div style="font-weight: 600;">${payment.company_name}</div>
+                            <div style="font-size: 11px; color: #6B7280; margin-bottom: 2px;">Company Name</div>
+                            <div style="font-weight: 600; font-size: 13px;">${payment.company_name}</div>
                         </div>
                         <div>
-                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Contact Person</div>
-                            <div style="font-weight: 600;">${payment.contact_person}</div>
+                            <div style="font-size: 11px; color: #6B7280; margin-bottom: 2px;">Contact Person</div>
+                            <div style="font-weight: 600; font-size: 13px;">${payment.contact_person}</div>
                         </div>
                         <div>
-                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Email</div>
-                            <div>${payment.email}</div>
+                            <div style="font-size: 11px; color: #6B7280; margin-bottom: 2px;">Email</div>
+                            <div style="font-size: 13px;">${payment.email}</div>
                         </div>
                         <div>
-                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Phone</div>
-                            <div>${payment.phone || 'N/A'}</div>
+                            <div style="font-size: 11px; color: #6B7280; margin-bottom: 2px;">Phone</div>
+                            <div style="font-size: 13px;">${payment.phone || 'N/A'}</div>
                         </div>
                         <div>
-                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Payment Method</div>
-                            <div style="font-weight: 600;">${methodLabel}</div>
+                            <div style="font-size: 11px; color: #6B7280; margin-bottom: 2px;">Payment Method</div>
+                            <div style="font-weight: 600; font-size: 13px;">${methodLabel}</div>
                         </div>
                         <div>
-                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Payment Date</div>
-                            <div style="font-weight: 600;">${payment.payment_date || 'N/A'}</div>
+                            <div style="font-size: 11px; color: #6B7280; margin-bottom: 2px;">Payment Date</div>
+                            <div style="font-weight: 600; font-size: 13px;">${payment.payment_date || 'N/A'}</div>
                         </div>
                     </div>
 
                     ${payment.notes ? `
                     <div>
-                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Submitter Notes</div>
-                        <div style="background: #F3F4F6; padding: 12px; border-radius: 8px;">${payment.notes}</div>
+                        <div style="font-size: 11px; color: #6B7280; margin-bottom: 4px;">Submitter Notes</div>
+                        <div style="background: #F3F4F6; padding: 10px; border-radius: 8px; font-size: 13px;">${payment.notes}</div>
                     </div>
                     ` : ''}
 
                     ${payment.admin_notes ? `
                     <div>
-                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Admin Notes</div>
-                        <div style="background: #FEF3C7; padding: 12px; border-radius: 8px;">${payment.admin_notes}</div>
+                        <div style="font-size: 11px; color: #6B7280; margin-bottom: 4px;">Admin Notes</div>
+                        <div style="background: #FEF3C7; padding: 10px; border-radius: 8px; font-size: 13px;">${payment.admin_notes}</div>
                     </div>
                     ` : ''}
 
-                    <div style="display: flex; gap: 16px; font-size: 12px; color: #6B7280;">
+                    <div style="display: flex; gap: 12px; font-size: 11px; color: #6B7280; flex-wrap: wrap;">
                         <div><i class="fas fa-calendar"></i> Submitted: ${payment.created_at}</div>
                         ${payment.reviewed_at ? `<div><i class="fas fa-check-circle"></i> Verified: ${payment.reviewed_at}</div>` : ''}
                     </div>
@@ -9946,7 +10197,50 @@
             `;
 
             document.getElementById('paymentDetailsContent').innerHTML = content;
-            document.getElementById('paymentProofBtn').href = payment.payment_proof_path ? '/storage/' + payment.payment_proof_path : '#';
+            
+            // Set up payment proof preview
+            const proofPath = payment.payment_proof_path ? '/storage/' + payment.payment_proof_path : null;
+            const proofContainer = document.getElementById('paymentProofPreview');
+            const proofBtn = document.getElementById('paymentProofBtn');
+            
+            if (proofPath) {
+                const fileExtension = proofPath.split('.').pop().toLowerCase();
+                if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileExtension)) {
+                    proofContainer.innerHTML = `
+                        <img src="${proofPath}" alt="Payment Proof" 
+                            style="max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; cursor: pointer;" 
+                            onclick="window.open('${proofPath}', '_blank')"
+                            onerror="this.parentElement.innerHTML='<div style=\'text-align: center; color: #9CA3AF; padding: 20px;\'><i class=\'fas fa-image\' style=\'font-size: 48px; margin-bottom: 12px;\'></i><p>Unable to load image</p></div>'">
+                    `;
+                } else if (fileExtension === 'pdf') {
+                    proofContainer.innerHTML = `
+                        <div style="text-align: center; color: #6B7280; padding: 20px;">
+                            <i class="fas fa-file-pdf" style="font-size: 64px; color: #EF4444; margin-bottom: 16px;"></i>
+                            <p style="font-weight: 600; margin-bottom: 8px;">PDF Document</p>
+                            <p style="font-size: 12px;">Click "Open Full Size" to view</p>
+                        </div>
+                    `;
+                } else {
+                    proofContainer.innerHTML = `
+                        <div style="text-align: center; color: #6B7280; padding: 20px;">
+                            <i class="fas fa-file" style="font-size: 64px; margin-bottom: 16px;"></i>
+                            <p style="font-weight: 600; margin-bottom: 8px;">Document File</p>
+                            <p style="font-size: 12px;">Click "Open Full Size" to view</p>
+                        </div>
+                    `;
+                }
+                proofBtn.href = proofPath;
+                proofBtn.style.display = 'block';
+            } else {
+                proofContainer.innerHTML = `
+                    <div style="text-align: center; color: #9CA3AF; padding: 20px;">
+                        <i class="fas fa-image" style="font-size: 48px; margin-bottom: 12px;"></i>
+                        <p>No payment proof uploaded</p>
+                    </div>
+                `;
+                proofBtn.style.display = 'none';
+            }
+            
             document.getElementById('paymentDetailsModal').style.display = 'flex';
         }
 
@@ -13407,6 +13701,97 @@ University of the Philippines Cebu
         function closeInternDetailsModal() {
             document.getElementById('internDetailsModal').classList.remove('active');
             document.body.style.overflow = 'auto';
+        }
+
+        // Edit Intern Functions
+        async function editIntern(internId) {
+            try {
+                const response = await fetch(`/admin/interns/${internId}`, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch intern details');
+                }
+
+                const data = await response.json();
+                const intern = data.intern;
+
+                // Populate form
+                document.getElementById('editInternId').value = intern.id;
+                document.getElementById('editInternName').value = intern.name || '';
+                document.getElementById('editInternEmail').value = intern.email || '';
+                document.getElementById('editInternPhone').value = intern.phone || '';
+                document.getElementById('editInternCourse').value = intern.course || '';
+                document.getElementById('editInternYearLevel').value = intern.year_level || '';
+                document.getElementById('editInternRequiredHours').value = intern.required_hours || '';
+                document.getElementById('editInternStartDate').value = intern.start_date ? intern.start_date.split('T')[0] : '';
+                document.getElementById('editInternEndDate').value = intern.end_date ? intern.end_date.split('T')[0] : '';
+                document.getElementById('editInternStatus').value = intern.status || 'Active';
+
+                // Show modal
+                document.getElementById('editInternModal').classList.add('active');
+                document.body.style.overflow = 'hidden';
+
+            } catch (error) {
+                console.error('Error fetching intern details:', error);
+                showToast('error', 'Error', 'Failed to load intern details');
+            }
+        }
+
+        function closeEditInternModal() {
+            document.getElementById('editInternModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        async function saveInternChanges() {
+            const internId = document.getElementById('editInternId').value;
+            const submitBtn = document.querySelector('#editInternModal .btn-modal.primary');
+            const originalText = submitBtn.innerHTML;
+
+            try {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+                const response = await fetch(`/admin/interns/${internId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({
+                        name: document.getElementById('editInternName').value,
+                        email: document.getElementById('editInternEmail').value,
+                        phone: document.getElementById('editInternPhone').value,
+                        course: document.getElementById('editInternCourse').value,
+                        year_level: document.getElementById('editInternYearLevel').value,
+                        required_hours: document.getElementById('editInternRequiredHours').value || null,
+                        start_date: document.getElementById('editInternStartDate').value || null,
+                        end_date: document.getElementById('editInternEndDate').value || null,
+                        status: document.getElementById('editInternStatus').value
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showToast('success', 'Success', 'Intern details updated successfully');
+                    closeEditInternModal();
+                    location.reload();
+                } else {
+                    throw new Error(data.message || 'Failed to update intern');
+                }
+            } catch (error) {
+                console.error('Error updating intern:', error);
+                showToast('error', 'Error', error.message || 'Failed to update intern');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
         }
 
         // Events Management Functions

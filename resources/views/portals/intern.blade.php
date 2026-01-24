@@ -701,6 +701,32 @@
                                 <i class="fas fa-arrow-left" style="margin-right: 4px;"></i> Use different code
                             </a>
                         </div>
+                        @elseif(session('show_intern_password'))
+                        <!-- Intern Password Entry -->
+                        <div style="background: #FEF3C7; border: 2px solid #FCD34D; border-radius: 12px; padding: 16px; margin-bottom: 16px;">
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                                <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #FFBF00, #FFA500); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-user-graduate" style="color: #7B1D3A;"></i>
+                                </div>
+                                <div>
+                                    <div style="font-weight: 600; color: #92400E;">Intern Login</div>
+                                    <div style="font-size: 13px; color: #B45309;">{{ session('intern_name') }}</div>
+                                </div>
+                            </div>
+                            <input type="hidden" name="reference_code" value="{{ old('reference_code') }}">
+                            <div style="display: flex; gap: 12px;">
+                                <input type="password" name="password" placeholder="Enter your password" style="flex: 1; padding: 14px 16px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px;" autofocus>
+                                <button type="submit" class="btn-primary" style="padding: 14px 24px; background: linear-gradient(135deg, #7B1D3A, #5a1428);">
+                                    <i class="fas fa-unlock" style="margin-right: 6px;"></i> Login
+                                </button>
+                            </div>
+                            @error('password')
+                                <div style="color: #DC2626; font-size: 13px; margin-top: 8px;">{{ $message }}</div>
+                            @enderror
+                            <a href="{{ route('intern.portal') }}" style="display: inline-block; margin-top: 12px; color: #6B7280; font-size: 13px; text-decoration: none;">
+                                <i class="fas fa-arrow-left" style="margin-right: 4px;"></i> Use different code
+                            </a>
+                        </div>
                         @else
                         <!-- Regular Reference Code Entry -->
                         <div style="display: flex; gap: 12px;">
@@ -824,6 +850,17 @@
                                 <option value="4th Year" {{ old('year_level') == '4th Year' ? 'selected' : '' }}>4th Year</option>
                                 <option value="5th Year" {{ old('year_level') == '5th Year' ? 'selected' : '' }}>5th Year</option>
                             </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-lock" style="color: #7B1D3A; margin-right: 6px;"></i>Password</label>
+                            <input type="password" name="password" placeholder="Create a password" required minlength="6">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-lock" style="color: #7B1D3A; margin-right: 6px;"></i>Confirm Password</label>
+                            <input type="password" name="password_confirmation" placeholder="Confirm your password" required minlength="6">
                         </div>
                     </div>
 
@@ -1031,14 +1068,14 @@
                         }
                         $progressPercentage = $intern->required_hours > 0 ? round(($actualCompletedHours / $intern->required_hours) * 100, 1) : 0;
                     @endphp
-                    <span style="font-size: 24px; font-weight: 700; color: #7B1D3A;">{{ min($progressPercentage, 100) }}%</span>
+                    <span data-progress-text style="font-size: 24px; font-weight: 700; color: #7B1D3A;">{{ min($progressPercentage, 100) }}%</span>
                 </div>
                 <div class="content-card-body">
                     <div class="progress-bar-container">
-                        <div class="progress-bar" style="width: {{ min($progressPercentage, 100) }}%;"></div>
+                        <div class="progress-bar" data-progress-bar style="width: {{ min($progressPercentage, 100) }}%;"></div>
                     </div>
                     <div style="display: flex; justify-content: space-between; margin-top: 12px; color: #6B7280; font-size: 14px;">
-                        <span>{{ number_format(max(0, $actualCompletedHours), 2) }} hours completed</span>
+                        <span data-completed-hours>{{ number_format(max(0, $actualCompletedHours), 2) }} hrs</span>
                         <span>{{ $intern->required_hours }} hours required</span>
                     </div>
                 </div>
@@ -1078,7 +1115,7 @@
                             @endphp
                             <button type="button" class="btn-primary" style="justify-content: flex-start; display: flex; align-items: center; cursor: pointer;" onclick="showPage('tasks');">
                                 <i class="fas fa-tasks" style="margin-right: 10px;"></i>
-                                View Tasks ({{ $pendingTasks }} pending)
+                                View Tasks (<span data-pending-tasks>{{ $pendingTasks }} pending</span>)
                             </button>
                             <button type="button" class="btn-secondary" style="justify-content: flex-start; display: flex; align-items: center;">
                                 <i class="fas fa-download" style="margin-right: 10px;"></i>
@@ -2771,9 +2808,12 @@
             const timeInForm = document.getElementById('timeInForm');
             const timeOutForm = document.getElementById('timeOutForm');
 
+            console.log('Initializing attendance forms:', { timeInForm: !!timeInForm, timeOutForm: !!timeOutForm });
+
             if (timeInForm) {
                 timeInForm.addEventListener('submit', function(e) {
                     e.preventDefault();
+                    console.log('Time In form submitted');
                     handleAttendanceSubmit(this, 'in');
                 });
             }
@@ -2781,6 +2821,7 @@
             if (timeOutForm) {
                 timeOutForm.addEventListener('submit', function(e) {
                     e.preventDefault();
+                    console.log('Time Out form submitted');
                     handleAttendanceSubmit(this, 'out');
                 });
             }
@@ -2790,7 +2831,9 @@
         });
 
         function handleAttendanceSubmit(form, type) {
+            console.log('handleAttendanceSubmit called:', type);
             if (isSubmitting) {
+                console.log('Already submitting, skipping');
                 return false; // Prevent double submission
             }
 
@@ -2816,6 +2859,7 @@
             const formData = new FormData(form);
 
             // Submit via AJAX
+            console.log('Submitting attendance:', type, form.action);
             fetch(form.action, {
                 method: 'POST',
                 body: formData,
@@ -2826,8 +2870,12 @@
                 }
             })
             .then(response => {
+                console.log('Response status:', response.status);
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    return response.text().then(text => {
+                        console.error('Error response:', text);
+                        throw new Error('Network response was not ok: ' + response.status);
+                    });
                 }
                 return response.json();
             })
@@ -3586,6 +3634,282 @@
                 // Set a timeout fallback
                 setTimeout(submitHandler, 1000);
             });
+        });
+
+        // ==========================================
+        // REAL-TIME STATUS POLLING
+        // ==========================================
+        let realtimePollingInterval = null;
+        let lastTasksHash = '';
+        let lastAttendanceState = '';
+
+        function startRealtimePolling() {
+            // Poll every 10 seconds for real-time updates
+            realtimePollingInterval = setInterval(fetchRealtimeStatus, 10000);
+            // Also fetch immediately
+            fetchRealtimeStatus();
+        }
+
+        function stopRealtimePolling() {
+            if (realtimePollingInterval) {
+                clearInterval(realtimePollingInterval);
+                realtimePollingInterval = null;
+            }
+        }
+
+        async function fetchRealtimeStatus() {
+            try {
+                const response = await fetch('/intern/realtime-status', {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                    }
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        // Session expired, stop polling
+                        stopRealtimePolling();
+                        return;
+                    }
+                    throw new Error('Network response was not ok');
+                }
+
+                const data = await response.json();
+                if (data.success) {
+                    updateUIWithRealtimeData(data);
+                }
+            } catch (error) {
+                console.error('Real-time fetch error:', error);
+            }
+        }
+
+        function updateUIWithRealtimeData(data) {
+            // Update intern progress
+            if (data.intern) {
+                updateInternProgress(data.intern);
+            }
+
+            // Update attendance state
+            if (data.attendance) {
+                updateAttendanceUI(data.attendance);
+            }
+
+            // Update task stats
+            if (data.tasks) {
+                updateTaskStats(data.tasks);
+            }
+
+            // Check for task changes and notify
+            if (data.recent_tasks) {
+                checkForTaskUpdates(data.recent_tasks);
+            }
+        }
+
+        function updateInternProgress(intern) {
+            // Update completed hours display
+            const completedHoursEl = document.querySelector('[data-completed-hours]');
+            if (completedHoursEl) {
+                completedHoursEl.textContent = intern.completed_hours + ' hrs';
+            }
+
+            // Update progress bar
+            const progressBar = document.querySelector('.progress-fill, [data-progress-bar]');
+            if (progressBar) {
+                progressBar.style.width = intern.progress_percentage + '%';
+            }
+
+            // Update progress text
+            const progressText = document.querySelector('[data-progress-text]');
+            if (progressText) {
+                progressText.textContent = intern.progress_percentage + '%';
+            }
+        }
+
+        function updateAttendanceUI(attendance) {
+            const currentState = JSON.stringify(attendance);
+            if (currentState === lastAttendanceState) return;
+            lastAttendanceState = currentState;
+
+            const timeInForm = document.getElementById('timeInForm');
+            const timeOutForm = document.getElementById('timeOutForm');
+            const attendanceComplete = document.getElementById('attendanceComplete');
+            const summaryTimeIn = document.getElementById('summaryTimeIn');
+            const summaryTimeOut = document.getElementById('summaryTimeOut');
+            const summaryHours = document.getElementById('summaryHours');
+
+            if (attendance.has_timed_in && attendance.has_timed_out) {
+                // Attendance complete
+                if (timeInForm) timeInForm.style.display = 'none';
+                if (timeOutForm) timeOutForm.style.display = 'none';
+                if (attendanceComplete) attendanceComplete.style.display = 'block';
+            } else if (attendance.has_timed_in && !attendance.has_timed_out) {
+                // Timed in, waiting for time out
+                if (timeInForm) timeInForm.style.display = 'none';
+                if (timeOutForm) timeOutForm.style.display = 'block';
+                if (attendanceComplete) attendanceComplete.style.display = 'none';
+            } else {
+                // Not timed in yet
+                if (timeInForm) timeInForm.style.display = 'block';
+                if (timeOutForm) timeOutForm.style.display = 'none';
+                if (attendanceComplete) attendanceComplete.style.display = 'none';
+            }
+
+            // Update time displays
+            if (summaryTimeIn && attendance.time_in) {
+                summaryTimeIn.textContent = attendance.time_in;
+            }
+            if (summaryTimeOut && attendance.time_out) {
+                summaryTimeOut.textContent = attendance.time_out;
+            }
+            if (summaryHours) {
+                summaryHours.textContent = attendance.hours_today.toFixed(2);
+                summaryHours.dataset.isWorking = attendance.is_working ? 'true' : 'false';
+            }
+        }
+
+        function updateTaskStats(tasks) {
+            // Update pending tasks count in quick actions
+            const pendingBadge = document.querySelector('[data-pending-tasks]');
+            if (pendingBadge) {
+                pendingBadge.textContent = tasks.pending + ' pending';
+            }
+
+            // Update task overview cards if they exist
+            const totalTasksEl = document.querySelector('[data-total-tasks]');
+            const pendingTasksEl = document.querySelector('[data-pending-tasks-count]');
+            const completedTasksEl = document.querySelector('[data-completed-tasks]');
+            const overdueTasksEl = document.querySelector('[data-overdue-tasks]');
+
+            if (totalTasksEl) totalTasksEl.textContent = tasks.total;
+            if (pendingTasksEl) pendingTasksEl.textContent = tasks.pending;
+            if (completedTasksEl) completedTasksEl.textContent = tasks.completed;
+            if (overdueTasksEl) overdueTasksEl.textContent = tasks.overdue;
+        }
+
+        function checkForTaskUpdates(recentTasks) {
+            const currentHash = JSON.stringify(recentTasks);
+            if (lastTasksHash && lastTasksHash !== currentHash) {
+                // Tasks have changed, show notification
+                showRealtimeNotification('Tasks Updated', 'Your task list has been updated.', 'info');
+            }
+            lastTasksHash = currentHash;
+        }
+
+        function showRealtimeNotification(title, message, type = 'info') {
+            // Create toast notification for real-time updates
+            const toast = document.createElement('div');
+            toast.className = 'realtime-toast';
+            toast.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <i class="fas ${type === 'info' ? 'fa-info-circle' : type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}" 
+                       style="font-size: 20px; color: ${type === 'info' ? '#3B82F6' : type === 'success' ? '#10B981' : '#F59E0B'};"></i>
+                    <div>
+                        <div style="font-weight: 600; color: #1F2937;">${title}</div>
+                        <div style="font-size: 13px; color: #6B7280;">${message}</div>
+                    </div>
+                </div>
+            `;
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background: white;
+                padding: 16px 20px;
+                border-radius: 12px;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+                z-index: 10000;
+                animation: slideInRight 0.3s ease;
+                max-width: 350px;
+            `;
+
+            document.body.appendChild(toast);
+
+            // Remove after 4 seconds
+            setTimeout(() => {
+                toast.style.animation = 'slideOutRight 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        // Add animation keyframes for real-time notifications
+        const realtimeStyles = document.createElement('style');
+        realtimeStyles.textContent = `
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            @keyframes slideOutRight {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+            .realtime-indicator {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                font-size: 12px;
+                color: #10B981;
+                margin-left: 10px;
+            }
+            .realtime-indicator::before {
+                content: '';
+                width: 8px;
+                height: 8px;
+                background: #10B981;
+                border-radius: 50%;
+                animation: pulse 2s infinite;
+            }
+            @keyframes pulse {
+                0%, 100% { opacity: 1; transform: scale(1); }
+                50% { opacity: 0.5; transform: scale(0.8); }
+            }
+        `;
+        document.head.appendChild(realtimeStyles);
+
+        // Add real-time indicator to header
+        function addRealtimeIndicator() {
+            const header = document.querySelector('.content-card-header h3, .content-header h2');
+            if (header && !document.querySelector('.realtime-indicator')) {
+                const indicator = document.createElement('span');
+                indicator.className = 'realtime-indicator';
+                indicator.innerHTML = 'Live';
+                indicator.title = 'Real-time updates enabled';
+                header.appendChild(indicator);
+            }
+        }
+
+        // Start real-time polling when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            startRealtimePolling();
+            addRealtimeIndicator();
+        });
+
+        // Stop polling when page is hidden, resume when visible
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                stopRealtimePolling();
+            } else {
+                startRealtimePolling();
+            }
+        });
+
+        // Clean up on page unload
+        window.addEventListener('beforeunload', function() {
+            stopRealtimePolling();
         });
     </script>
     @endif

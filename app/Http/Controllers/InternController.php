@@ -94,6 +94,7 @@ class InternController extends Controller
             'school_id' => 'required|exists:schools,id',
             'course' => 'required|string|max:255',
             'year_level' => 'nullable|string|max:50',
+            'password' => 'required|string|min:6|confirmed',
         ]);
 
         // Get school and check capacity
@@ -111,6 +112,7 @@ class InternController extends Controller
         $validated['school'] = $school->name; // Keep school name for backward compatibility
         $validated['required_hours'] = $school->required_hours;
         $validated['approval_status'] = 'pending';
+        $validated['password'] = \Illuminate\Support\Facades\Hash::make($validated['password']);
         // Don't set start_date until approved
 
         // Create the intern
@@ -144,6 +146,26 @@ class InternController extends Controller
 
         if (!$intern) {
             return back()->withErrors(['reference_code' => 'Invalid reference code. Please check and try again.']);
+        }
+
+        // Check if password was provided (for interns with passwords)
+        if ($intern->password && !$request->password) {
+            // Return with a flag to show password field
+            return back()
+                ->withInput(['reference_code' => $referenceCode])
+                ->with('show_intern_password', true)
+                ->with('intern_name', $intern->name);
+        }
+
+        // Verify password if intern has one
+        if ($intern->password) {
+            if (!\Illuminate\Support\Facades\Hash::check($request->password, $intern->password)) {
+                return back()
+                    ->withInput(['reference_code' => $referenceCode])
+                    ->with('show_intern_password', true)
+                    ->with('intern_name', $intern->name)
+                    ->withErrors(['password' => 'Incorrect password.']);
+            }
         }
 
         // Store intern ID in session
@@ -292,7 +314,7 @@ class InternController extends Controller
 
         // Check if already has attendance for today using whereDate for reliable comparison
         $attendance = Attendance::where('intern_id', $intern->id)
-            ->where('date', $today)
+            ->whereDate('date', $today)
             ->first();
 
         if ($attendance) {
@@ -332,7 +354,7 @@ class InternController extends Controller
             } catch (\Illuminate\Database\UniqueConstraintViolationException $e) {
                 // Record already exists, fetch it and check
                 $attendance = Attendance::where('intern_id', $intern->id)
-                    ->where('date', $today)
+                    ->whereDate('date', $today)
                     ->first();
 
                 if ($attendance && $attendance->time_in) {
@@ -383,9 +405,9 @@ class InternController extends Controller
         $now = Carbon::now('Asia/Manila');
         $today = $now->toDateString();
 
-        // Check if has timed in today
+        // Check if has timed in today - use whereDate for reliable date comparison
         $attendance = Attendance::where('intern_id', $intern->id)
-            ->where('date', $today)
+            ->whereDate('date', $today)
             ->first();
 
         if (!$attendance || !$attendance->time_in) {
@@ -684,6 +706,144 @@ class InternController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Task submitted as completed and is pending admin approval'
+        ]);
+    }
+
+    /**
+     * Update intern details (Admin)
+     */
+    public function update(Request $request, $id)
+    {
+        try {
+            $intern = Intern::findOrFail($id);
+
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|unique:interns,email,' . $id,
+                'phone' => 'nullable|string|max:20',
+                'course' => 'nullable|string|max:255',
+                'year_level' => 'nullable|string|max:50',
+                'required_hours' => 'nullable|integer|min:0',
+                'start_date' => 'nullable|date',
+                'end_date' => 'nullable|date|after_or_equal:start_date',
+                'status' => 'nullable|in:Active,Inactive,Completed',
+            ]);
+
+            $intern->update($validated);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Intern details updated successfully',
+                'intern' => $intern
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update intern: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get real-time status for intern portal (AJAX polling)
+     */
+    public function getRealtimeStatus(Request $request)
+    {
+        $internId = $request->session()->get('intern_id');
+
+        if (!$internId) {
+            return response()->json(['success' => false, 'message' => 'Session expired'], 401);
+        }
+
+        $intern = Intern::with(['tasks' => function($query) {
+            $query->orderBy('due_date', 'asc');
+        }])->find($internId);
+
+        if (!$intern) {
+            return response()->json(['success' => false, 'message' => 'Intern not found'], 404);
+        }
+
+        $now = Carbon::now('Asia/Manila');
+        $today = $now->toDateString();
+
+        // Get today's attendance
+        $todayAttendance = Attendance::where('intern_id', $intern->id)
+            ->whereDate('date', $today)
+            ->first();
+
+        // Calculate today's hours
+        $todayHours = 0;
+        $isWorking = false;
+        if ($todayAttendance && $todayAttendance->time_in) {
+            $attendanceDate = $todayAttendance->date ? Carbon::parse($todayAttendance->date)->format('Y-m-d') : $today;
+            $timeIn = Carbon::parse($attendanceDate . ' ' . $todayAttendance->time_in, 'Asia/Manila');
+            
+            if ($todayAttendance->time_out) {
+                $timeOut = Carbon::parse($attendanceDate . ' ' . $todayAttendance->time_out, 'Asia/Manila');
+                $todayHours = round($timeOut->diffInSeconds($timeIn, true) / 3600, 2);
+            } else {
+                $todayHours = round($now->diffInSeconds($timeIn, true) / 3600, 2);
+                $isWorking = true;
+            }
+            $todayHours = max(0, $todayHours);
+        }
+
+        // Get tasks with status counts
+        $tasks = $intern->tasks;
+        $taskStats = [
+            'total' => $tasks->count(),
+            'pending' => $tasks->whereIn('status', ['Not Started', 'In Progress'])->count(),
+            'completed' => $tasks->where('status', 'Completed')->count(),
+            'overdue' => $tasks->filter(function($task) use ($now) {
+                return $task->due_date && Carbon::parse($task->due_date)->lt($now) && !in_array($task->status, ['Completed', 'Approved']);
+            })->count(),
+        ];
+
+        // Get recent tasks (limit 5)
+        $recentTasks = $tasks->take(5)->map(function($task) {
+            return [
+                'id' => $task->id,
+                'title' => $task->title,
+                'status' => $task->status,
+                'progress' => $task->progress,
+                'due_date' => $task->due_date ? Carbon::parse($task->due_date)->format('M d, Y') : null,
+                'priority' => $task->priority ?? 'Medium',
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'timestamp' => $now->toIso8601String(),
+            'intern' => [
+                'id' => $intern->id,
+                'name' => $intern->name,
+                'completed_hours' => $intern->completed_hours,
+                'required_hours' => $intern->required_hours,
+                'progress_percentage' => $intern->required_hours > 0 
+                    ? min(100, round(($intern->completed_hours / $intern->required_hours) * 100, 1)) 
+                    : 0,
+            ],
+            'attendance' => [
+                'has_timed_in' => $todayAttendance && $todayAttendance->time_in ? true : false,
+                'has_timed_out' => $todayAttendance && $todayAttendance->time_out ? true : false,
+                'time_in' => $todayAttendance && $todayAttendance->time_in 
+                    ? Carbon::parse($todayAttendance->time_in)->format('h:i A') 
+                    : null,
+                'time_out' => $todayAttendance && $todayAttendance->time_out 
+                    ? Carbon::parse($todayAttendance->time_out)->format('h:i A') 
+                    : null,
+                'hours_today' => $todayHours,
+                'is_working' => $isWorking,
+                'status' => $todayAttendance->status ?? null,
+            ],
+            'tasks' => $taskStats,
+            'recent_tasks' => $recentTasks,
         ]);
     }
 }
