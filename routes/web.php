@@ -41,6 +41,7 @@ Route::post('/intern/update-profile', [InternController::class, 'updateProfile']
 Route::post('/intern/update-profile-picture', [InternController::class, 'updateProfilePicture'])->name('intern.update.picture');
 Route::post('/intern/time-in', [InternController::class, 'timeIn'])->name('intern.timein');
 Route::post('/intern/time-out', [InternController::class, 'timeOut'])->name('intern.timeout');
+Route::get('/intern/realtime-status', [InternController::class, 'getRealtimeStatus'])->name('intern.realtime');
 
 // Intern Task Management Routes
 Route::get('/intern/tasks/{task}', [InternController::class, 'getTask'])->name('intern.task.show');
@@ -215,6 +216,7 @@ Route::middleware(['admin'])->group(function () {
     // Intern Approval Routes (Admin)
     Route::get('/admin/interns/pending', [SchoolController::class, 'getPendingInterns'])->name('admin.interns.pending');
     Route::get('/admin/interns/{intern}', [InternController::class, 'show'])->name('admin.interns.show');
+    Route::put('/admin/interns/{intern}', [InternController::class, 'update'])->name('admin.interns.update');
     Route::post('/admin/interns/{intern}/approve', [SchoolController::class, 'approveIntern'])->name('admin.interns.approve');
     Route::post('/admin/interns/{intern}/reject', [SchoolController::class, 'rejectIntern'])->name('admin.interns.reject');
     Route::post('/admin/interns/school/{school}/approve-all', [SchoolController::class, 'approveAllBySchool'])->name('admin.interns.approveAllBySchool');

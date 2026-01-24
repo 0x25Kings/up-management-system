@@ -319,7 +319,12 @@ class DocumentController extends Controller
                     $subfolderStoragePath = str_replace('\\', '/', (string) $subfolder->storage_path);
                     $subfolderItemCount = 0;
                     if ($subfolderStoragePath !== '' && Storage::disk('local')->exists($subfolderStoragePath)) {
-                        $subfolderItemCount = count(Storage::disk('local')->files($subfolderStoragePath));
+                        // Count both files and subdirectories
+                        $filesCount = count(Storage::disk('local')->files($subfolderStoragePath));
+                        $dirsCount = count(Storage::disk('local')->directories($subfolderStoragePath));
+                        // Also count subfolders from database
+                        $dbNestedSubfoldersCount = DocumentFolder::where('parent_folder_id', $subfolder->id)->count();
+                        $subfolderItemCount = $filesCount + max($dirsCount, $dbNestedSubfoldersCount);
                     }
 
                     $subfolders[] = [
@@ -765,13 +770,18 @@ class DocumentController extends Controller
                 ->whereJsonContains('allowed_users', 'intern')
                 ->get();
 
-            // Add upload counts for each shared folder (files directly inside the folder)
+            // Add upload counts for each shared folder (files + subdirectories inside the folder)
             $sharedFolders->transform(function (DocumentFolder $folder) {
                 $storagePath = str_replace('\\', '/', (string) $folder->storage_path);
 
                 $itemCount = 0;
                 if ($storagePath !== '' && Storage::disk('local')->exists($storagePath)) {
-                    $itemCount = count(Storage::disk('local')->files($storagePath));
+                    // Count both files and directories in the folder
+                    $filesCount = count(Storage::disk('local')->files($storagePath));
+                    $dirsCount = count(Storage::disk('local')->directories($storagePath));
+                    // Also count subfolders from database
+                    $dbSubfoldersCount = DocumentFolder::where('parent_folder_id', $folder->id)->count();
+                    $itemCount = $filesCount + max($dirsCount, $dbSubfoldersCount);
                 }
 
                 $folder->setAttribute('item_count', $itemCount);

@@ -904,7 +904,6 @@
             <div style="display: flex; align-items: center; gap: 20px;">
                 <!-- Auto-refresh indicator -->
                 <div id="refreshIndicator" style="display: flex; align-items: center; gap: 12px; padding: 8px 16px; background: rgba(34, 139, 34, 0.08); border-radius: 12px; font-size: 12px; border: 1px solid rgba(34, 139, 34, 0.15);">
-                    <span class="live-indicator">LIVE</span>
                     <i class="fas fa-sync-alt" id="refreshIcon" style="color: var(--forest-green);"></i>
                     <span style="color: #6B7280;">Updated: <strong id="lastUpdatedTime" style="color: var(--forest-green);">Just now</strong></span>
                     <button onclick="manualRefresh()" style="background: var(--forest-green); color: white; border: none; padding: 5px 12px; border-radius: 8px; font-size: 11px; cursor: pointer; font-weight: 600; transition: all 0.2s;" title="Refresh now" onmouseover="this.style.background='var(--forest-green-dark)'" onmouseout="this.style.background='var(--forest-green)'">
@@ -1184,9 +1183,14 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <button class="btn btn-sm btn-secondary" onclick="viewIntern({{ $intern->id }})" title="View Details">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
+                                    <div style="display: flex; gap: 6px;">
+                                        <button class="btn btn-sm btn-secondary" onclick="viewIntern({{ $intern->id }})" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-sm" style="background: #F59E0B; color: white;" onclick="editIntern({{ $intern->id }})" title="Edit Intern">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                             @endforeach
@@ -2682,6 +2686,73 @@
                     <p style="margin-top: 16px; color: #6B7280;">Loading intern details...</p>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Edit Intern Modal -->
+    <div id="editInternModal" class="modal-overlay">
+        <div class="modal modal-lg">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-edit"></i> Edit Intern</h3>
+                <button class="modal-close" onclick="closeModal('editInternModal')">&times;</button>
+            </div>
+            <form id="editInternForm" onsubmit="submitEditIntern(event)">
+                <input type="hidden" id="editInternId">
+                <div class="modal-body">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Full Name *</label>
+                            <input type="text" id="editInternName" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email *</label>
+                            <input type="email" id="editInternEmail" class="form-input" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Phone</label>
+                            <input type="text" id="editInternPhone" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Course</label>
+                            <input type="text" id="editInternCourse" class="form-input">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Year Level</label>
+                            <input type="text" id="editInternYearLevel" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Required Hours</label>
+                            <input type="number" id="editInternRequiredHours" class="form-input" min="0">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Start Date</label>
+                            <input type="date" id="editInternStartDate" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">End Date</label>
+                            <input type="date" id="editInternEndDate" class="form-input">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Status</label>
+                        <select id="editInternStatus" class="form-select">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('editInternModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Changes</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -4260,6 +4331,75 @@
                     </div>
                 ` : '<p style="color: #6B7280; text-align: center; padding: 20px;">No tasks assigned yet</p>'}
             `;
+        }
+
+        function editIntern(internId) {
+            const intern = internsData.find(i => i.id === internId);
+            if (!intern) {
+                showToast('error', 'Error', 'Intern not found');
+                return;
+            }
+
+            document.getElementById('editInternId').value = intern.id;
+            document.getElementById('editInternName').value = intern.name || '';
+            document.getElementById('editInternEmail').value = intern.email || '';
+            document.getElementById('editInternPhone').value = intern.phone || '';
+            document.getElementById('editInternCourse').value = intern.course || '';
+            document.getElementById('editInternYearLevel').value = intern.year_level || '';
+            document.getElementById('editInternRequiredHours').value = intern.required_hours || '';
+            document.getElementById('editInternStartDate').value = intern.start_date || '';
+            document.getElementById('editInternEndDate').value = intern.end_date || '';
+            document.getElementById('editInternStatus').value = intern.status || 'Active';
+
+            openModal('editInternModal');
+        }
+
+        async function submitEditIntern(event) {
+            event.preventDefault();
+            const internId = document.getElementById('editInternId').value;
+            const submitBtn = document.querySelector('#editInternForm button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+
+            try {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+                const response = await fetch(`/admin/interns/${internId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({
+                        name: document.getElementById('editInternName').value,
+                        email: document.getElementById('editInternEmail').value,
+                        phone: document.getElementById('editInternPhone').value,
+                        course: document.getElementById('editInternCourse').value,
+                        year_level: document.getElementById('editInternYearLevel').value,
+                        required_hours: document.getElementById('editInternRequiredHours').value || null,
+                        start_date: document.getElementById('editInternStartDate').value || null,
+                        end_date: document.getElementById('editInternEndDate').value || null,
+                        status: document.getElementById('editInternStatus').value
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showToast('success', 'Success', 'Intern details updated successfully');
+                    closeModal('editInternModal');
+                    location.reload();
+                } else {
+                    throw new Error(data.message || 'Failed to update intern');
+                }
+            } catch (error) {
+                console.error('Error updating intern:', error);
+                showToast('error', 'Error', error.message || 'Failed to update intern');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
         }
 
         // ========== REPORT FUNCTIONS ==========

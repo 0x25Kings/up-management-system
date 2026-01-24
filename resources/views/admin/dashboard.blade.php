@@ -3232,7 +3232,7 @@
                                         <td>
                                             <div class="action-buttons">
                                                 <button class="btn-action btn-view" onclick="viewInternDetails({{ $intern->id }})" title="View"><i class="fas fa-eye"></i></button>
-                                                <button class="btn-action btn-edit" title="Edit"><i class="fas fa-edit"></i></button>
+                                                <button class="btn-action btn-edit" onclick="editIntern({{ $intern->id }})" title="Edit"><i class="fas fa-edit"></i></button>
                                             </div>
                                         </td>
                                     </tr>
@@ -4564,12 +4564,12 @@
                                 </td>
                                 <td style="padding: 10px 12px; font-size: 12px;">{{ $issue->created_at->format('M d, Y') }}</td>
                                 <td style="padding: 10px 12px;">
-                                    <div class="action-buttons" style="gap: 4px;">
-                                        <button class="btn-action btn-view" style="width: 26px; height: 26px; font-size: 11px;" onclick="viewRoomIssueDetails('{{ $issue->id }}')"><i class="fas fa-eye"></i></button>
+                                    <div class="action-buttons" style="gap: 4px; justify-content: center;">
+                                        <button class="btn-action btn-view" style="width: 26px; height: 26px; font-size: 11px; display: flex; align-items: center; justify-content: center;" onclick="viewRoomIssueDetails('{{ $issue->id }}')"><i class="fas fa-eye"></i></button>
                                         @if($issue->photo_path)
-                                        <a href="{{ asset('storage/' . $issue->photo_path) }}" target="_blank" class="btn-action btn-edit" style="width: 26px; height: 26px; font-size: 11px;"><i class="fas fa-image"></i></a>
+                                        <a href="{{ asset('storage/' . $issue->photo_path) }}" target="_blank" class="btn-action btn-edit" style="width: 26px; height: 26px; font-size: 11px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-image"></i></a>
                                         @endif
-                                        <button class="btn-action" style="background: #10B981; color: white; width: 26px; height: 26px; font-size: 11px;" onclick="updateIssueStatus('{{ $issue->id }}')"><i class="fas fa-check"></i></button>
+                                        <button class="btn-action" style="background: #10B981; color: white; width: 26px; height: 26px; font-size: 11px; display: flex; align-items: center; justify-content: center;" onclick="updateIssueStatus('{{ $issue->id }}')"><i class="fas fa-check"></i></button>
                                     </div>
                                 </td>
                             </tr>
@@ -7252,7 +7252,7 @@
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+            <div class="modal-body">
                 <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 24px; padding: 20px; background: linear-gradient(135deg, #FEF3C7, #FDE68A); border-radius: 12px;">
                     <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #FFBF00, #FFA500); display: flex; align-items: center; justify-content: center; color: #7B1D3A; font-weight: 700; font-size: 32px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); overflow: hidden; cursor: pointer; position: relative;" id="internDetailAvatar" onclick="zoomProfilePicture()" title="Click to view full size">
                         A
@@ -7334,8 +7334,75 @@
                     </div>
                 </div>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer" style="border-top: none;">
                 <button class="btn-modal secondary" onclick="closeInternDetailsModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Intern Modal -->
+    <div id="editInternModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-user-edit" style="margin-right: 8px; color: #7B1D3A;"></i>Edit Intern</h3>
+                <button class="modal-close" onclick="closeEditInternModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="editInternForm">
+                    <input type="hidden" id="editInternId">
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label class="form-label required">Full Name</label>
+                            <input type="text" id="editInternName" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">Email</label>
+                            <input type="email" id="editInternEmail" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Phone</label>
+                            <input type="text" id="editInternPhone" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Course</label>
+                            <input type="text" id="editInternCourse" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Year Level</label>
+                            <input type="text" id="editInternYearLevel" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Required Hours</label>
+                            <input type="number" id="editInternRequiredHours" class="form-input" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Start Date</label>
+                            <input type="date" id="editInternStartDate" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">End Date</label>
+                            <input type="date" id="editInternEndDate" class="form-input">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Status</label>
+                        <select id="editInternStatus" class="form-select">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal secondary" onclick="closeEditInternModal()">Cancel</button>
+                <button class="btn-modal primary" onclick="saveInternChanges()">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
             </div>
         </div>
     </div>
@@ -13634,6 +13701,97 @@ University of the Philippines Cebu
         function closeInternDetailsModal() {
             document.getElementById('internDetailsModal').classList.remove('active');
             document.body.style.overflow = 'auto';
+        }
+
+        // Edit Intern Functions
+        async function editIntern(internId) {
+            try {
+                const response = await fetch(`/admin/interns/${internId}`, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch intern details');
+                }
+
+                const data = await response.json();
+                const intern = data.intern;
+
+                // Populate form
+                document.getElementById('editInternId').value = intern.id;
+                document.getElementById('editInternName').value = intern.name || '';
+                document.getElementById('editInternEmail').value = intern.email || '';
+                document.getElementById('editInternPhone').value = intern.phone || '';
+                document.getElementById('editInternCourse').value = intern.course || '';
+                document.getElementById('editInternYearLevel').value = intern.year_level || '';
+                document.getElementById('editInternRequiredHours').value = intern.required_hours || '';
+                document.getElementById('editInternStartDate').value = intern.start_date ? intern.start_date.split('T')[0] : '';
+                document.getElementById('editInternEndDate').value = intern.end_date ? intern.end_date.split('T')[0] : '';
+                document.getElementById('editInternStatus').value = intern.status || 'Active';
+
+                // Show modal
+                document.getElementById('editInternModal').classList.add('active');
+                document.body.style.overflow = 'hidden';
+
+            } catch (error) {
+                console.error('Error fetching intern details:', error);
+                showToast('error', 'Error', 'Failed to load intern details');
+            }
+        }
+
+        function closeEditInternModal() {
+            document.getElementById('editInternModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        async function saveInternChanges() {
+            const internId = document.getElementById('editInternId').value;
+            const submitBtn = document.querySelector('#editInternModal .btn-modal.primary');
+            const originalText = submitBtn.innerHTML;
+
+            try {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+                const response = await fetch(`/admin/interns/${internId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({
+                        name: document.getElementById('editInternName').value,
+                        email: document.getElementById('editInternEmail').value,
+                        phone: document.getElementById('editInternPhone').value,
+                        course: document.getElementById('editInternCourse').value,
+                        year_level: document.getElementById('editInternYearLevel').value,
+                        required_hours: document.getElementById('editInternRequiredHours').value || null,
+                        start_date: document.getElementById('editInternStartDate').value || null,
+                        end_date: document.getElementById('editInternEndDate').value || null,
+                        status: document.getElementById('editInternStatus').value
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showToast('success', 'Success', 'Intern details updated successfully');
+                    closeEditInternModal();
+                    location.reload();
+                } else {
+                    throw new Error(data.message || 'Failed to update intern');
+                }
+            } catch (error) {
+                console.error('Error updating intern:', error);
+                showToast('error', 'Error', error.message || 'Failed to update intern');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
         }
 
         // Events Management Functions

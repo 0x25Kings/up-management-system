@@ -18,6 +18,7 @@ class Intern extends Model
         'age',
         'gender',
         'email',
+        'password',
         'phone',
         'school',
         'school_id',
@@ -32,6 +33,10 @@ class Intern extends Model
         'rejection_reason',
         'approved_at',
         'approved_by',
+    ];
+
+    protected $hidden = [
+        'password',
     ];
 
     protected $casts = [
