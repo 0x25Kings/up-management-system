@@ -902,14 +902,6 @@
                 <p class="header-subtitle">{{ $school->name }}</p>
             </div>
             <div style="display: flex; align-items: center; gap: 20px;">
-                <!-- Auto-refresh indicator -->
-                <div id="refreshIndicator" style="display: flex; align-items: center; gap: 12px; padding: 8px 16px; background: rgba(34, 139, 34, 0.08); border-radius: 12px; font-size: 12px; border: 1px solid rgba(34, 139, 34, 0.15);">
-                    <i class="fas fa-sync-alt" id="refreshIcon" style="color: var(--forest-green);"></i>
-                    <span style="color: #6B7280;">Updated: <strong id="lastUpdatedTime" style="color: var(--forest-green);">Just now</strong></span>
-                    <button onclick="manualRefresh()" style="background: var(--forest-green); color: white; border: none; padding: 5px 12px; border-radius: 8px; font-size: 11px; cursor: pointer; font-weight: 600; transition: all 0.2s;" title="Refresh now" onmouseover="this.style.background='var(--forest-green-dark)'" onmouseout="this.style.background='var(--forest-green)'">
-                        <i class="fas fa-redo"></i> Refresh
-                    </button>
-                </div>
                 <div class="user-info">
                     <div class="user-avatar">{{ strtoupper(substr($user->name, 0, 1)) }}</div>
                     <div>

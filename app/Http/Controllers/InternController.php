@@ -237,6 +237,12 @@ class InternController extends Controller
         $internId = $request->session()->get('intern_id');
 
         if (!$internId) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Session expired'
+                ], 401);
+            }
             return redirect()->route('intern.portal');
         }
 
@@ -251,6 +257,13 @@ class InternController extends Controller
         ]);
 
         $intern->update($validated);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Profile updated successfully!'
+            ]);
+        }
 
         return back()->with('success', 'Profile updated successfully!');
     }
