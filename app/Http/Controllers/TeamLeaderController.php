@@ -743,6 +743,87 @@ class TeamLeaderController extends Controller
     }
 
     /**
+     * Get interns data for live updates (AJAX)
+     */
+    public function getInternsData()
+    {
+        $interns = $this->getSchoolInterns()
+            ->orderBy('name')
+            ->get()
+            ->map(function ($intern) {
+                $progress = $intern->required_hours > 0 
+                    ? round(($intern->completed_hours / $intern->required_hours) * 100, 1) 
+                    : 0;
+                return [
+                    'id' => $intern->id,
+                    'name' => $intern->name,
+                    'email' => $intern->email,
+                    'course' => $intern->course ?? 'N/A',
+                    'completed_hours' => number_format($intern->completed_hours, 1),
+                    'required_hours' => $intern->required_hours,
+                    'progress' => $progress,
+                    'status' => $intern->status,
+                    'initial' => strtoupper(substr($intern->name, 0, 1)),
+                ];
+            });
+
+        return response()->json([
+            'success' => true,
+            'interns' => $interns,
+            'updated_at' => Carbon::now('Asia/Manila')->format('h:i:s A'),
+        ]);
+    }
+
+    /**
+     * Get today's attendance data for live updates (AJAX)
+     */
+    public function getAttendanceData()
+    {
+        $internIds = $this->getSchoolInterns()->pluck('id');
+        $today = Carbon::today('Asia/Manila');
+
+        $attendances = Attendance::whereIn('intern_id', $internIds)
+            ->whereDate('date', $today)
+            ->with('intern:id,name,course')
+            ->get()
+            ->map(function ($attendance) {
+                $timeIn = $attendance->time_in ? Carbon::parse($attendance->time_in) : null;
+                $timeOut = $attendance->time_out ? Carbon::parse($attendance->time_out) : null;
+                $hoursWorked = $timeIn && $timeOut ? round($timeOut->diffInMinutes($timeIn) / 60, 2) : 0;
+                $isLate = $timeIn && $timeIn->format('H:i') > '08:00';
+
+                return [
+                    'id' => $attendance->id,
+                    'intern_id' => $attendance->intern_id,
+                    'intern_name' => $attendance->intern->name ?? 'N/A',
+                    'intern_course' => $attendance->intern->course ?? '',
+                    'intern_initial' => strtoupper(substr($attendance->intern->name ?? 'N', 0, 1)),
+                    'time_in' => $timeIn ? $timeIn->format('h:i A') : '--:--',
+                    'time_out' => $timeOut ? $timeOut->format('h:i A') : null,
+                    'is_still_working' => $timeIn && !$timeOut,
+                    'hours_worked' => $hoursWorked,
+                    'is_late' => $isLate,
+                    'status' => $attendance->status,
+                ];
+            });
+
+        $activeInterns = $this->getSchoolInterns()->where('status', 'Active')->count();
+        $presentCount = $attendances->where('status', 'Present')->count();
+        $lateCount = $attendances->filter(fn($a) => $a['is_late'])->count();
+
+        return response()->json([
+            'success' => true,
+            'attendances' => $attendances,
+            'stats' => [
+                'present' => $presentCount,
+                'absent' => $activeInterns - $presentCount,
+                'late' => $lateCount,
+            ],
+            'updated_at' => Carbon::now('Asia/Manila')->format('h:i:s A'),
+        ]);
+    }
+
+    /**
      * Update a startup submission status (for incubatee tracker)
      */
     public function updateSubmission(Request $request, StartupSubmission $submission)

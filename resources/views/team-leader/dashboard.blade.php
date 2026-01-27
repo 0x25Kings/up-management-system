@@ -55,31 +55,6 @@
             animation: pulse-green 0.6s ease-out;
         }
 
-        /* Live indicator */
-        .live-indicator {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 10px;
-            background: rgba(34, 139, 34, 0.15);
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--forest-green);
-        }
-        .live-indicator::before {
-            content: '';
-            width: 8px;
-            height: 8px;
-            background: var(--forest-green);
-            border-radius: 50%;
-            animation: pulse-dot 2s infinite;
-        }
-        @keyframes pulse-dot {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(0.8); }
-        }
-
         /* Sidebar */
         .sidebar {
             background: linear-gradient(180deg, var(--maroon) 0%, var(--maroon-dark) 100%);
@@ -881,6 +856,12 @@
             @endif
             @endif
 
+            <div class="menu-section">ACCOUNT</div>
+            <a class="menu-item" data-page="profile">
+                <i class="fas fa-user-circle"></i>
+                <span>My Profile</span>
+            </a>
+
             <div style="flex-grow: 1;"></div>
 
             <form action="{{ route('admin.logout') }}" method="POST" id="logoutForm">
@@ -1522,6 +1503,134 @@
                         <p>Create your first report to submit to admin</p>
                     </div>
                     @endif
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== PROFILE PAGE ==================== -->
+        <div id="profile" class="page-content">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-user-circle"></i> My Profile</h3>
+                </div>
+                <div class="card-body">
+                    <!-- Profile Picture Section -->
+                    <div style="text-align: center; padding: 30px 0; border-bottom: 1px solid #E5E7EB; margin-bottom: 30px;">
+                        <div style="width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, var(--maroon), var(--maroon-dark)); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; box-shadow: 0 8px 24px rgba(123, 29, 58, 0.3);">
+                            <span style="font-size: 48px; color: var(--gold); font-weight: 700;">{{ strtoupper(substr($user->name, 0, 1)) }}</span>
+                        </div>
+                        <h2 style="font-size: 24px; font-weight: 700; color: #1F2937; margin-bottom: 4px;">{{ $user->name }}</h2>
+                        <p style="color: var(--maroon); font-weight: 600;">Team Leader</p>
+                        <p style="color: #6B7280; font-size: 14px;">{{ $school->name }}</p>
+                    </div>
+
+                    <!-- Account Information -->
+                    <div style="margin-bottom: 30px;">
+                        <h4 style="font-size: 16px; font-weight: 700; color: #1F2937; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-id-card" style="color: var(--maroon);"></i> Account Information
+                        </h4>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                            <div>
+                                <label style="font-size: 12px; color: #6B7280; display: block; margin-bottom: 4px;">Full Name</label>
+                                <p style="font-weight: 600; color: #1F2937;">{{ $user->name }}</p>
+                            </div>
+                            <div>
+                                <label style="font-size: 12px; color: #6B7280; display: block; margin-bottom: 4px;">Email Address</label>
+                                <p style="font-weight: 600; color: #1F2937;">{{ $user->email }}</p>
+                            </div>
+                            <div>
+                                <label style="font-size: 12px; color: #6B7280; display: block; margin-bottom: 4px;">Reference Code</label>
+                                <p style="font-family: monospace; color: var(--maroon); font-weight: 600;">{{ $user->reference_code ?? 'N/A' }}</p>
+                            </div>
+                            <div>
+                                <label style="font-size: 12px; color: #6B7280; display: block; margin-bottom: 4px;">Account Status</label>
+                                <span class="badge badge-{{ $user->is_active ? 'success' : 'danger' }}">{{ $user->is_active ? 'Active' : 'Inactive' }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- School Information -->
+                    <div style="margin-bottom: 30px;">
+                        <h4 style="font-size: 16px; font-weight: 700; color: #1F2937; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-university" style="color: var(--maroon);"></i> School Assignment
+                        </h4>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                            <div>
+                                <label style="font-size: 12px; color: #6B7280; display: block; margin-bottom: 4px;">School Name</label>
+                                <p style="font-weight: 600; color: #1F2937;">{{ $school->name }}</p>
+                            </div>
+                            <div>
+                                <label style="font-size: 12px; color: #6B7280; display: block; margin-bottom: 4px;">Required Hours</label>
+                                <p style="font-weight: 600; color: #1F2937;">{{ $school->required_hours ?? '500' }} hours</p>
+                            </div>
+                            <div>
+                                <label style="font-size: 12px; color: #6B7280; display: block; margin-bottom: 4px;">Total Interns</label>
+                                <p style="font-weight: 600; color: #1F2937;">{{ $allInterns->count() }}</p>
+                            </div>
+                            <div>
+                                <label style="font-size: 12px; color: #6B7280; display: block; margin-bottom: 4px;">Active Interns</label>
+                                <p style="font-weight: 600; color: #1F2937;">{{ $allInterns->where('status', 'Active')->count() }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    @php
+                        // Check if team leader has an associated intern account (by email)
+                        $linkedIntern = \App\Models\Intern::where('email', $user->email)->where('approval_status', 'approved')->first();
+                    @endphp
+
+                    @if($linkedIntern)
+                    <!-- Linked Intern Profile -->
+                    <div style="background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%); border: 1px solid #86EFAC; border-radius: 12px; padding: 24px; margin-bottom: 30px;">
+                        <h4 style="font-size: 16px; font-weight: 700; color: #166534; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-link"></i> Linked Intern Account
+                        </h4>
+                        <p style="color: #166534; margin-bottom: 16px; font-size: 14px;">Your team leader account is linked to an intern profile.</p>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                            <div>
+                                <label style="font-size: 12px; color: #166534; display: block; margin-bottom: 4px;">Intern Reference</label>
+                                <p style="font-family: monospace; color: #166534; font-weight: 600;">{{ $linkedIntern->reference_code }}</p>
+                            </div>
+                            <div>
+                                <label style="font-size: 12px; color: #166534; display: block; margin-bottom: 4px;">Intern Status</label>
+                                <span class="badge badge-{{ $linkedIntern->status === 'Active' ? 'success' : 'info' }}">{{ $linkedIntern->status }}</span>
+                            </div>
+                            <div>
+                                <label style="font-size: 12px; color: #166534; display: block; margin-bottom: 4px;">Hours Completed</label>
+                                <p style="font-weight: 600; color: #166534;">{{ number_format($linkedIntern->completed_hours, 1) }} / {{ $linkedIntern->required_hours }} hrs</p>
+                            </div>
+                            <div>
+                                <label style="font-size: 12px; color: #166534; display: block; margin-bottom: 4px;">Progress</label>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <div style="flex: 1; background: #BBF7D0; border-radius: 10px; height: 8px;">
+                                        <div style="width: {{ $linkedIntern->progress_percentage }}%; background: #22C55E; border-radius: 10px; height: 100%;"></div>
+                                    </div>
+                                    <span style="font-weight: 600; color: #166534;">{{ $linkedIntern->progress_percentage }}%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 16px;">
+                            <a href="{{ route('intern.portal') }}" target="_blank" class="btn btn-success btn-sm" style="display: inline-flex; align-items: center; gap: 6px;">
+                                <i class="fas fa-external-link-alt"></i> Open Intern Portal
+                            </a>
+                        </div>
+                    </div>
+                    @endif
+
+                    <!-- Permissions Overview -->
+                    <div>
+                        <h4 style="font-size: 16px; font-weight: 700; color: #1F2937; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-key" style="color: var(--maroon);"></i> Access Permissions
+                        </h4>
+                        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                            @foreach($viewableModules as $module)
+                            <span class="badge" style="background: {{ in_array($module, $editableModules) ? '#D1FAE5' : '#DBEAFE' }}; color: {{ in_array($module, $editableModules) ? '#166534' : '#1D4ED8' }}; padding: 6px 12px; border-radius: 8px;">
+                                <i class="fas {{ in_array($module, $editableModules) ? 'fa-edit' : 'fa-eye' }}" style="margin-right: 4px;"></i>
+                                {{ ucwords(str_replace('_', ' ', $module)) }}
+                            </span>
+                            @endforeach
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -4633,6 +4742,36 @@
                     }
                 }
 
+                // Fetch updated interns
+                const internsResponse = await fetch('/team-leader/api/interns', {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                if (internsResponse.ok) {
+                    const internsData = await internsResponse.json();
+                    if (internsData.success) {
+                        updateInternsTable(internsData.interns);
+                    }
+                }
+
+                // Fetch updated attendance
+                const attendanceResponse = await fetch('/team-leader/api/attendance', {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                if (attendanceResponse.ok) {
+                    const attendanceData = await attendanceResponse.json();
+                    if (attendanceData.success) {
+                        updateAttendanceTable(attendanceData.attendances, attendanceData.stats);
+                    }
+                }
+
                 if (isManual) {
                     showToast('Data refreshed successfully!');
                 }
@@ -4742,6 +4881,145 @@
                 taskOverviewValues[1].textContent = stats.completed_tasks;
                 taskOverviewValues[2].textContent = stats.pending_tasks;
                 taskOverviewValues[3].textContent = stats.overdue_tasks;
+            }
+        }
+
+        function updateInternsTable(interns) {
+            const tbody = document.querySelector('#interns .data-table tbody');
+            if (!tbody) return;
+
+            if (interns.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 40px; color: #9CA3AF;">
+                            <i class="fas fa-users" style="font-size: 40px; margin-bottom: 12px; display: block;"></i>
+                            No interns assigned yet
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            let html = '';
+            interns.forEach(intern => {
+                const progressClass = intern.progress < 30 ? 'red' : (intern.progress < 70 ? 'gold' : 'green');
+                const statusClass = intern.status === 'Active' ? 'success' : (intern.status === 'Completed' ? 'info' : 'warning');
+
+                html += `
+                    <tr>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div class="list-item-avatar" style="width: 36px; height: 36px; font-size: 12px; margin: 0;">
+                                    ${intern.initial}
+                                </div>
+                                <div>
+                                    <div style="font-weight: 600;">${escapeHtml(intern.name)}</div>
+                                    <div style="font-size: 12px; color: #6B7280;">${escapeHtml(intern.email)}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${escapeHtml(intern.course)}</td>
+                        <td style="min-width: 140px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <div class="progress-container" style="flex: 1;">
+                                    <div class="progress-bar ${progressClass}" style="width: ${intern.progress}%"></div>
+                                </div>
+                                <span style="font-size: 12px; font-weight: 600;">${intern.progress}%</span>
+                            </div>
+                            <div style="font-size: 11px; color: #6B7280; margin-top: 4px;">
+                                ${intern.completed_hours} / ${intern.required_hours} hrs
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge badge-${statusClass}">
+                                ${intern.status}
+                            </span>
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 6px;">
+                                <button class="btn btn-sm btn-secondary" onclick="viewIntern(${intern.id})" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-sm" style="background: #F59E0B; color: white;" onclick="editIntern(${intern.id})" title="Edit Intern">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+
+            // Update interns page stats
+            const internStatCards = document.querySelectorAll('#interns .stat-value');
+            if (internStatCards.length >= 3) {
+                internStatCards[0].textContent = interns.length;
+                internStatCards[1].textContent = interns.filter(i => i.status === 'Active').length;
+                internStatCards[2].textContent = interns.filter(i => i.status === 'Completed').length;
+            }
+        }
+
+        function updateAttendanceTable(attendances, stats) {
+            const tbody = document.querySelector('#attendance .data-table tbody');
+            if (!tbody) return;
+
+            if (attendances.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 40px; color: #9CA3AF;">
+                            <i class="fas fa-calendar-check" style="font-size: 40px; margin-bottom: 12px; display: block;"></i>
+                            No attendance records for today
+                        </td>
+                    </tr>
+                `;
+            } else {
+                let html = '';
+                attendances.forEach(attendance => {
+                    html += `
+                        <tr>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <div class="list-item-avatar" style="width: 36px; height: 36px; font-size: 12px; margin: 0;">
+                                        ${attendance.intern_initial}
+                                    </div>
+                                    <div>
+                                        <div style="font-weight: 600;">${escapeHtml(attendance.intern_name)}</div>
+                                        <div style="font-size: 12px; color: #6B7280;">${escapeHtml(attendance.intern_course)}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span style="${attendance.is_late ? 'color: #F59E0B; font-weight: 600;' : ''}">
+                                    ${attendance.time_in}
+                                    ${attendance.is_late ? '<i class="fas fa-exclamation-circle"></i>' : ''}
+                                </span>
+                            </td>
+                            <td>
+                                ${attendance.time_out ? attendance.time_out : '<span style="color: var(--forest-green); font-weight: 500;">Still working</span>'}
+                            </td>
+                            <td>
+                                ${attendance.hours_worked > 0 
+                                    ? `<span style="font-weight: 600; color: var(--maroon);">${attendance.hours_worked.toFixed(1)} hrs</span>` 
+                                    : '<span style="color: #9CA3AF;">--</span>'}
+                            </td>
+                            <td>
+                                <span class="badge badge-${attendance.status === 'Present' ? 'success' : 'danger'}">
+                                    ${attendance.status}
+                                </span>
+                            </td>
+                        </tr>
+                    `;
+                });
+                tbody.innerHTML = html;
+            }
+
+            // Update attendance page stats
+            const attendanceStatCards = document.querySelectorAll('#attendance .stat-value');
+            if (attendanceStatCards.length >= 3 && stats) {
+                attendanceStatCards[0].textContent = stats.present;
+                attendanceStatCards[1].textContent = stats.absent;
+                attendanceStatCards[2].textContent = stats.late;
             }
         }
 

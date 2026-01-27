@@ -266,6 +266,8 @@ Route::middleware(['team.leader'])->prefix('team-leader')->name('team-leader.')-
     // API endpoints for live updates
     Route::get('/api/tasks', [TeamLeaderController::class, 'getTasksData'])->name('api.tasks');
     Route::get('/api/stats', [TeamLeaderController::class, 'getDashboardStats'])->name('api.stats');
+    Route::get('/api/interns', [TeamLeaderController::class, 'getInternsData'])->name('api.interns');
+    Route::get('/api/attendance', [TeamLeaderController::class, 'getAttendanceData'])->name('api.attendance');
 
     // Intern Management (View Only)
     Route::get('/interns', [TeamLeaderController::class, 'interns'])->name('interns');
