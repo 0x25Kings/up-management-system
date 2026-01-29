@@ -223,14 +223,6 @@
                         <label class="form-label">New Password (leave blank to keep current)</label>
                         <input type="password" name="password" class="form-input" minlength="8" placeholder="Leave blank to keep current">
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Assign to School *</label>
-                        <select name="school_id" id="editSchoolId" class="form-input" required>
-                            @foreach($schools as $school)
-                                <option value="{{ $school->id }}">{{ $school->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" onclick="closeModal('editModal')" class="btn btn-secondary">Cancel</button>
@@ -253,7 +245,6 @@
             document.getElementById('editForm').action = '/admin/team-leaders/' + leader.id;
             document.getElementById('editName').value = leader.name;
             document.getElementById('editEmail').value = leader.email;
-            document.getElementById('editSchoolId').value = leader.school_id || '';
             openModal('editModal');
         }
 

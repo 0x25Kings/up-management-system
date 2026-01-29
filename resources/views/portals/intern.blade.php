@@ -1364,6 +1364,67 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Edit Profile Modal -->
+            <div id="editProfileModal" class="modal-overlay" onclick="closeEditProfileModal(event)">
+                <div class="modal-content" onclick="event.stopPropagation()">
+                    <div class="modal-header">
+                        <div>
+                            <h2><i class="fas fa-user-edit" style="margin-right: 8px;"></i>Edit Profile</h2>
+                            <p style="font-size: 13px; opacity: 0.8; margin-top: 4px;">Update your personal information</p>
+                        </div>
+                        <button class="modal-close" onclick="closeEditProfileModal()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editProfileForm" action="{{ route('intern.update') }}" method="POST">
+                            @csrf
+                            <div class="form-group">
+                                <label><i class="fas fa-user" style="color: #7B1D3A; margin-right: 6px;"></i>Full Name</label>
+                                <input type="text" name="name" id="editName" value="{{ $intern->name }}" placeholder="Enter your full name" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label><i class="fas fa-phone" style="color: #7B1D3A; margin-right: 6px;"></i>Phone Number</label>
+                                <input type="text" name="phone" id="editPhone" value="{{ $intern->phone }}" placeholder="09XX XXX XXXX" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label><i class="fas fa-university" style="color: #7B1D3A; margin-right: 6px;"></i>School</label>
+                                <input type="text" name="school" id="editSchool" value="{{ $intern->school }}" placeholder="Enter your school" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label><i class="fas fa-graduation-cap" style="color: #7B1D3A; margin-right: 6px;"></i>Course</label>
+                                <input type="text" name="course" id="editCourse" value="{{ $intern->course }}" placeholder="Enter your course" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label><i class="fas fa-layer-group" style="color: #7B1D3A; margin-right: 6px;"></i>Year Level</label>
+                                <select name="year_level" id="editYearLevel">
+                                    <option value="">Select Year Level</option>
+                                    <option value="1st Year" {{ $intern->year_level == '1st Year' ? 'selected' : '' }}>1st Year</option>
+                                    <option value="2nd Year" {{ $intern->year_level == '2nd Year' ? 'selected' : '' }}>2nd Year</option>
+                                    <option value="3rd Year" {{ $intern->year_level == '3rd Year' ? 'selected' : '' }}>3rd Year</option>
+                                    <option value="4th Year" {{ $intern->year_level == '4th Year' ? 'selected' : '' }}>4th Year</option>
+                                    <option value="5th Year" {{ $intern->year_level == '5th Year' ? 'selected' : '' }}>5th Year</option>
+                                    <option value="Graduate" {{ $intern->year_level == 'Graduate' ? 'selected' : '' }}>Graduate</option>
+                                </select>
+                            </div>
+
+                            <div style="display: flex; gap: 12px; margin-top: 24px;">
+                                <button type="button" onclick="closeEditProfileModal()" style="flex: 1; padding: 14px; border: 2px solid #E5E7EB; background: white; border-radius: 10px; font-weight: 600; color: #6B7280; cursor: pointer; transition: all 0.3s ease;">
+                                    Cancel
+                                </button>
+                                <button type="submit" id="editProfileSubmitBtn" style="flex: 1; padding: 14px; background: linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%); border: none; border-radius: 10px; font-weight: 600; color: white; cursor: pointer; transition: all 0.3s ease;">
+                                    <i class="fas fa-save" style="margin-right: 6px;"></i>Save Changes
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Attendance Page -->
@@ -2797,8 +2858,59 @@
         }
 
         function toggleEditProfile() {
-            alert('Edit profile feature coming soon!');
+            document.getElementById('editProfileModal').classList.add('active');
         }
+
+        function closeEditProfileModal(event) {
+            if (event && event.target !== event.currentTarget) return;
+            document.getElementById('editProfileModal').classList.remove('active');
+        }
+
+        // Handle edit profile form submission
+        document.addEventListener('DOMContentLoaded', function() {
+            const editProfileForm = document.getElementById('editProfileForm');
+            if (editProfileForm) {
+                editProfileForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const submitBtn = document.getElementById('editProfileSubmitBtn');
+                    const originalContent = submitBtn.innerHTML;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right: 6px;"></i>Saving...';
+                    submitBtn.disabled = true;
+
+                    const formData = new FormData(this);
+
+                    fetch(this.action, {
+                        method: 'POST',
+                        body: formData,
+                        credentials: 'same-origin',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success !== false) {
+                            showNotification('Profile updated successfully!', 'success');
+                            closeEditProfileModal();
+                            // Reload to show updated data
+                            setTimeout(() => location.reload(), 1000);
+                        } else {
+                            showNotification(data.message || 'Failed to update profile', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showNotification('An error occurred while updating profile', 'error');
+                    })
+                    .finally(() => {
+                        submitBtn.innerHTML = originalContent;
+                        submitBtn.disabled = false;
+                    });
+                });
+            }
+        });
 
         // Prevent spam on attendance buttons
         let isSubmitting = false;
@@ -3857,45 +3969,12 @@
                     opacity: 0;
                 }
             }
-            .realtime-indicator {
-                display: inline-flex;
-                align-items: center;
-                gap: 6px;
-                font-size: 12px;
-                color: #10B981;
-                margin-left: 10px;
-            }
-            .realtime-indicator::before {
-                content: '';
-                width: 8px;
-                height: 8px;
-                background: #10B981;
-                border-radius: 50%;
-                animation: pulse 2s infinite;
-            }
-            @keyframes pulse {
-                0%, 100% { opacity: 1; transform: scale(1); }
-                50% { opacity: 0.5; transform: scale(0.8); }
-            }
         `;
         document.head.appendChild(realtimeStyles);
-
-        // Add real-time indicator to header
-        function addRealtimeIndicator() {
-            const header = document.querySelector('.content-card-header h3, .content-header h2');
-            if (header && !document.querySelector('.realtime-indicator')) {
-                const indicator = document.createElement('span');
-                indicator.className = 'realtime-indicator';
-                indicator.innerHTML = 'Live';
-                indicator.title = 'Real-time updates enabled';
-                header.appendChild(indicator);
-            }
-        }
 
         // Start real-time polling when page loads
         document.addEventListener('DOMContentLoaded', function() {
             startRealtimePolling();
-            addRealtimeIndicator();
         });
 
         // Stop polling when page is hidden, resume when visible

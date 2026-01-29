@@ -3661,9 +3661,9 @@
                 <div class="table-card">
                     <div class="table-header">
                         <h3 class="table-title">All Task Assignments</h3>
-                        <button style="padding: 8px 16px; background: #7B1D3A; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">
+                        <a href="{{ route('admin.export.tasks') }}" style="padding: 8px 16px; background: #7B1D3A; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block;">
                             <i class="fas fa-download"></i> Export Tasks
-                        </button>
+                        </a>
                     </div>
                     <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
                     <table style="min-width: 1400px;">
@@ -7322,14 +7322,10 @@
 
                 <div style="background: white; border: 1px solid #E5E7EB; border-radius: 8px; padding: 20px;">
                     <h5 style="margin: 0 0 12px 0; font-size: 14px; font-weight: 700; color: #1F2937;"><i class="fas fa-info-circle" style="margin-right: 8px; color: #7B1D3A;"></i>Additional Information</h5>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div style="display: grid; grid-template-columns: 1fr; gap: 12px;">
                         <div>
                             <div style="color: #6B7280; font-size: 12px; margin-bottom: 4px;">Year Level</div>
                             <div style="color: #1F2937; font-weight: 600;" id="internDetailYearLevel">-</div>
-                        </div>
-                        <div>
-                            <div style="color: #6B7280; font-size: 12px; margin-bottom: 4px;">Address</div>
-                            <div style="color: #1F2937; font-weight: 600;" id="internDetailAddress">-</div>
                         </div>
                     </div>
                 </div>
@@ -10280,7 +10276,7 @@
             }
 
             // Disable button and show loading
-            const submitBtn = document.querySelector('#reviewPaymentModal .btn-primary');
+            const submitBtn = document.querySelector('#reviewPaymentModal .btn-modal.primary');
             const originalText = submitBtn.innerHTML;
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
@@ -12942,9 +12938,149 @@ University of the Philippines Cebu
         }
 
         // Edit task
-        function editTask(taskId) {
-            alert('Edit task functionality - Task ID: ' + taskId);
-            // TODO: Implement full edit functionality
+        async function editTask(taskId) {
+            try {
+                const response = await fetch(`/admin/tasks/${taskId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const task = data.task;
+                    openEditTaskModal(task);
+                } else {
+                    alert('Failed to load task details');
+                }
+            } catch (error) {
+                console.error('Error loading task:', error);
+                alert('Error loading task details');
+            }
+        }
+
+        function openEditTaskModal(task) {
+            // Create edit modal if it doesn't exist
+            let modal = document.getElementById('editTaskModal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'editTaskModal';
+                modal.className = 'modal-overlay';
+                modal.innerHTML = `
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3 class="modal-title"><i class="fas fa-edit" style="margin-right: 8px;"></i>Edit Task</h3>
+                            <button class="modal-close" onclick="closeEditTaskModal()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="editTaskForm">
+                                <input type="hidden" id="editTaskId">
+                                <div class="form-group">
+                                    <label class="form-label required">Task Title</label>
+                                    <input type="text" class="form-input" id="editTaskTitle" placeholder="Enter task title" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Description</label>
+                                    <textarea class="form-input form-textarea" id="editTaskDescription" placeholder="Enter task description"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label required">Priority Level</label>
+                                    <select class="form-input" id="editTaskPriority" required>
+                                        <option value="High">High</option>
+                                        <option value="Medium">Medium</option>
+                                        <option value="Low">Low</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label required">Status</label>
+                                    <select class="form-input" id="editTaskStatus" required>
+                                        <option value="Not Started">Not Started</option>
+                                        <option value="In Progress">In Progress</option>
+                                        <option value="Completed">Completed</option>
+                                        <option value="On Hold">On Hold</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label required">Due Date</label>
+                                    <input type="date" class="form-input" id="editTaskDueDate" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Progress (%)</label>
+                                    <input type="number" class="form-input" id="editTaskProgress" min="0" max="100" placeholder="0-100">
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn-modal secondary" onclick="closeEditTaskModal()">Cancel</button>
+                            <button class="btn-modal primary" onclick="saveTaskChanges()"><i class="fas fa-save"></i> Save Changes</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            }
+
+            // Populate form with task data
+            document.getElementById('editTaskId').value = task.id;
+            document.getElementById('editTaskTitle').value = task.title || '';
+            document.getElementById('editTaskDescription').value = task.description || '';
+            document.getElementById('editTaskPriority').value = task.priority || 'Medium';
+            document.getElementById('editTaskStatus').value = task.status || 'Not Started';
+            document.getElementById('editTaskDueDate').value = task.due_date ? task.due_date.split('T')[0] : '';
+            document.getElementById('editTaskProgress').value = task.progress || 0;
+
+            modal.classList.add('active');
+        }
+
+        function closeEditTaskModal() {
+            const modal = document.getElementById('editTaskModal');
+            if (modal) {
+                modal.classList.remove('active');
+            }
+        }
+
+        async function saveTaskChanges() {
+            const taskId = document.getElementById('editTaskId').value;
+            const title = document.getElementById('editTaskTitle').value;
+            const description = document.getElementById('editTaskDescription').value;
+            const priority = document.getElementById('editTaskPriority').value;
+            const status = document.getElementById('editTaskStatus').value;
+            const dueDate = document.getElementById('editTaskDueDate').value;
+            const progress = document.getElementById('editTaskProgress').value;
+
+            if (!title || !dueDate) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/admin/tasks/${taskId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        title: title,
+                        description: description,
+                        priority: priority,
+                        status: status,
+                        due_date: dueDate,
+                        progress: parseInt(progress) || 0
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    closeEditTaskModal();
+                    showToast('success', 'Success', 'Task updated successfully!');
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    alert('Failed to update task: ' + (data.message || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error updating task:', error);
+                alert('Error updating task');
+            }
         }
 
         // ===== DAILY HOURS FILTER AND SEARCH =====
@@ -13650,7 +13786,6 @@ University of the Philippines Cebu
                 document.getElementById('internDetailSchool').textContent = intern.school || '-';
                 document.getElementById('internDetailCourse').textContent = intern.course || '-';
                 document.getElementById('internDetailYearLevel').textContent = intern.year_level || '-';
-                document.getElementById('internDetailAddress').textContent = intern.address || '-';
 
                 // Hours progress
                 const completedHours = intern.completed_hours || 0;
