@@ -1109,21 +1109,46 @@
     
     // Extract reference numbers from OCR text
     // Extract reference numbers - ONLY look for specific labels:
-    // "Reference Number", "Ref. No.", "Ref No.", "Transaction Ref. No."
+    // "Reference Number", "Ref. No.", "Ref No.", "Transaction Ref. No.", "Reference ID"
     function extractInvoiceNumbers(text) {
         const references = [];
         const lines = text.split(/[\r\n]+/);
         
         console.log('Searching for reference numbers in OCR text...');
+        console.log('Full OCR text:', text);
         
         // ONLY these specific patterns - look for labeled reference numbers
+        // Made more flexible to handle OCR artifacts and spacing issues
         const allowedPatterns = [
-            // "Reference Number", "Reference No.", "Reference No"
-            /reference\s*(?:number|no\.?)[\s:]*([A-Z0-9][A-Z0-9\-\_\s]{4,30})/gi,
-            // "Ref. No.", "Ref No.", "Ref. No", "Ref No"
-            /ref\.?\s*no\.?[\s:]*([A-Z0-9][A-Z0-9\-\_\s]{4,30})/gi,
-            // "Transaction Ref. No.", "Transaction Ref No.", "Transaction Reference No."
-            /transaction\s*ref(?:erence)?\.?\s*(?:no\.?)?[\s:]*([A-Z0-9][A-Z0-9\-\_\s]{4,30})/gi,
+            // "Reference Number", "Reference No.", "Reference No", "REFERENCE NO." (POS format)
+            /reference\s*(?:number|no\.?|#)?[\s:\.]*([A-Z0-9][A-Z0-9\-\_\s]{4,30})/gi,
+            /reference\s*(?:number|no\.?|#)?[\s:\.]*(\d{9,15})/gi, // Phone number format reference
+            // "Reference ID" (PayMaya mobile format)
+            /reference\s*id[\s:\.]*([A-Z0-9][A-Z0-9\-\_\s]{4,30})/gi,
+            // "Ref. No.", "Ref No.", "Ref. No", "Ref No", "REF NO." (POS format)
+            /ref\.?\s*no\.?[\s:\.]*([A-Z0-9][A-Z0-9\-\_\s]{4,30})/gi,
+            /ref\.?\s*no\.?[\s:\.]*(\d{9,15})/gi, // Phone number format reference
+            // "Ref. ID", "Ref ID"
+            /ref\.?\s*id[\s:\.]*([A-Z0-9][A-Z0-9\-\_\s]{4,30})/gi,
+            // "Transaction No.", "TRANSACTION NO." (Maya POS format)
+            /transaction\s*(?:no\.?|number|#)[\s:\.]*([A-Z0-9][A-Z0-9\-\_\s]{4,30})/gi,
+            // "Transaction Ref. No.", "Transaction Ref No.", "Trans. Ref. No."
+            /trans(?:action)?\.?\s*ref(?:erence)?\.?\s*(?:no\.?)?[\s:\.]*([A-Z0-9][A-Z0-9\-\_\s]{4,30})/gi,
+            // "Transaction ID"
+            /transaction\s*id[\s:\.]*([A-Z0-9][A-Z0-9\-\_\s]{4,30})/gi,
+            // "Trace No.", "TRACE NO." (POS terminal format)
+            /trace\s*(?:no\.?|number|#)?[\s:\.]*([0-9]{4,15})/gi,
+            // Bank Transfer specific patterns
+            // "Confirmation No.", "Confirmation Number", "Confirmation #"
+            /confirmation\s*(?:no\.?|number|#)?[\s:\.]*([A-Z0-9][A-Z0-9\-\_\s]{4,30})/gi,
+            // "Control No.", "Control Number"
+            /control\s*(?:no\.?|number|#)?[\s:\.]*([A-Z0-9][A-Z0-9\-\_\s]{4,30})/gi,
+            // "Approval Code", "Auth Code"
+            /(?:approval|auth(?:orization)?)\s*(?:code|no\.?)?[\s:\.]*([A-Z0-9]{4,15})/gi,
+            // "Sequence No.", "Seq. No."
+            /seq(?:uence)?\.?\s*(?:no\.?|number)?[\s:\.]*([A-Z0-9]{4,15})/gi,
+            // "InstaPay Ref", "PesoNet Ref"
+            /(?:instapay|pesonet)\s*(?:ref(?:erence)?|no\.?)?[\s:\.]*([A-Z0-9][A-Z0-9\-\_\s]{4,30})/gi,
         ];
         
         // Search line by line for better accuracy
@@ -1173,6 +1198,53 @@
             }
         }
         
+        // Fallback: Look for line after "Reference ID" label (PayMaya format where value is on next line)
+        if (references.length === 0) {
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].toLowerCase().trim();
+                if (line.includes('reference') && (line.includes('id') || line.includes('number') || line.includes('no'))) {
+                    // Check if the reference value might be on the next line
+                    if (i + 1 < lines.length) {
+                        const nextLine = lines[i + 1].trim().replace(/\s+/g, '').toUpperCase();
+                        // Alphanumeric code with at least one letter (PayMaya style like AE9A6FD26B91)
+                        if (nextLine.match(/^[A-Z0-9]{6,20}$/) && nextLine.match(/[A-Z]/) && nextLine.match(/[0-9]/)) {
+                            if (!references.some(r => r === nextLine)) {
+                                references.push(nextLine);
+                                console.log('Found reference on next line:', nextLine);
+                            }
+                        }
+                    }
+                    // Also check if reference is on same line but after some spaces
+                    const sameLine = lines[i].trim();
+                    const alphanumericMatch = sameLine.match(/[A-Z0-9]{8,20}$/i);
+                    if (alphanumericMatch) {
+                        const ref = alphanumericMatch[0].toUpperCase();
+                        if (ref.match(/[A-Z]/) && ref.match(/[0-9]/) && !references.some(r => r === ref)) {
+                            references.push(ref);
+                            console.log('Found reference at end of line:', ref);
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Last resort: Look for standalone alphanumeric codes that look like references (8-12 chars, mixed letters and numbers)
+        if (references.length === 0) {
+            const standalonePattern = /\b([A-Z][A-Z0-9]{7,14})\b/g;
+            let match;
+            while ((match = standalonePattern.exec(text.toUpperCase())) !== null) {
+                const ref = match[1];
+                // Must contain both letters and numbers (like AE9A6FD26B91)
+                if (ref.match(/[A-Z]/) && ref.match(/[0-9]/) && 
+                    !ref.match(/^\d{1,2}[\-\/]\d{1,2}[\-\/]\d{2,4}$/) &&
+                    !references.some(r => r === ref)) {
+                    references.push(ref);
+                    console.log('Found standalone alphanumeric reference:', ref);
+                    break; // Only take first one to avoid false positives
+                }
+            }
+        }
+        
         console.log('Extracted references:', references);
         return references;
     }
@@ -1182,8 +1254,8 @@
         const amounts = [];
         const lines = text.split(/[\r\n]+/);
         
-        // Look for amounts near keywords like "total", "amount", "paid"
-        const amountKeywords = ['total', 'amount', 'paid', 'payment', 'sum'];
+        // Look for amounts near keywords like "total", "amount", "paid", "sale"
+        const amountKeywords = ['total', 'amount', 'paid', 'payment', 'sum', 'sale amount', 'sale'];
         
         for (const line of lines) {
             const lowerLine = line.toLowerCase();
@@ -1191,14 +1263,18 @@
             // Check if line contains amount-related keywords
             for (const keyword of amountKeywords) {
                 if (lowerLine.includes(keyword)) {
-                    // Extract amounts from this line
+                    // Extract amounts from this line - handle both with and without decimals
                     const amountPatterns = [
-                        /[₱P]?\s*(\d{1,3}(?:,\d{3})*\.\d{2})/g,
-                        /(\d{1,3}(?:,\d{3})*\.\d{2})/g,
-                        /[₱P]?\s*(\d+\.\d{2})/g,
+                        /[₱P]\s*(\d{1,3}(?:,\d{3})*\.\d{2})/g,   // ₱270.00 or P270.00
+                        /[₱P](\d+\.\d{2})/g,                      // ₱270.00 without space
+                        /(\d{1,3}(?:,\d{3})*\.\d{2})/g,           // 270.00
+                        /[₱P]?\s*(\d+\.\d{2})/g,                  // Any decimal number
+                        /[₱P]\s*(\d{1,3}(?:,\d{3})+)/g,           // ₱50,000 (no decimals, with commas)
+                        /(\d{1,3}(?:,\d{3})+)/g,                  // 50,000 (no decimals, with commas)
                     ];
                     
                     for (const pattern of amountPatterns) {
+                        pattern.lastIndex = 0; // Reset regex
                         let match;
                         while ((match = pattern.exec(line)) !== null) {
                             const numStr = match[1].replace(/,/g, '');
@@ -1206,6 +1282,7 @@
                             if (!isNaN(num) && num > 0 && num < 10000000) {
                                 if (!amounts.some(a => Math.abs(a - num) < 0.01)) {
                                     amounts.push(num);
+                                    console.log('Found amount:', num, 'from line:', line);
                                 }
                             }
                         }
@@ -1256,12 +1333,13 @@
     // Detect payment method from OCR text
     function detectPaymentMethod(text) {
         const lowerText = text.toLowerCase();
+        const originalText = text; // Keep original for case-sensitive checks
         
         const methodPatterns = [
-            { value: 'gcash', label: 'GCash', keywords: ['gcash', 'g-cash', 'globe gcash'] },
-            { value: 'maya', label: 'Maya/PayMaya', keywords: ['maya', 'paymaya', 'pay maya'] },
-            { value: 'bank_transfer', label: 'Bank Transfer', keywords: ['bank transfer', 'online transfer', 'fund transfer', 'instapay', 'pesonet'] },
-            { value: 'bank_deposit', label: 'Bank Deposit', keywords: ['deposit slip', 'cash deposit', 'bank deposit', 'over the counter'] },
+            { value: 'gcash', label: 'GCash', keywords: ['gcash', 'g-cash', 'globe gcash', 'buy load transaction', 'send money', 'gcredit', 'gscore', 'gforest', 'glife', 'pay bills', 'cash in', 'cash out', 'transaction slip', 'gcash account', 'service fee', 'agent signature', 'customer\'s name'] },
+            { value: 'maya', label: 'Maya/PayMaya', keywords: ['maya', 'paymaya', 'pay maya', 'paymaya invest', 'purchased on crypto', 'smart padala', 'thank you for using', 'go to invest', 'payma', 'p ay m aya', 'pay m aya', 'mayal', 'mayat', 'crypto', 'eth', 'merchant', 'paydroid', 'aquarius', 'a920', 'sale amount', 'visa debit', 'customer copy', 'retain this copy'] },
+            { value: 'bank_transfer', label: 'Bank Transfer', keywords: ['bank transfer', 'online transfer', 'fund transfer', 'instapay', 'pesonet', 'transfer successful', 'transfer complete', 'money sent', 'funds transfer', 'confirmation number', 'successful transaction', 'online banking', 'mobile banking', 'interbank', 'dragonpay', 'bills payment'] },
+            { value: 'bank_deposit', label: 'Bank Deposit', keywords: ['deposit slip', 'cash deposit', 'bank deposit', 'over the counter', 'validated', 'teller', 'branch'] },
             { value: 'check', label: 'Check Payment', keywords: ['check', 'cheque'] },
             { value: 'cash', label: 'Cash', keywords: ['cash payment', 'paid cash'] },
         ];
@@ -1282,6 +1360,88 @@
             if (score > highestScore) {
                 highestScore = score;
                 detectedMethod = method;
+            }
+        }
+        
+        // Additional PayMaya-specific detection based on receipt format
+        // PayMaya receipts have unique elements that other apps don't have
+        if (!detectedMethod || detectedMethod.value !== 'maya') {
+            // Check for PayMaya-specific patterns
+            const mayaPatterns = [
+                /reference\s*id/i,           // PayMaya uses "Reference ID" not "Reference Number"
+                /purchased\s*on\s*crypto/i,  // PayMaya crypto purchase
+                /php\s*\d+\.\d{2}/i,         // PHP currency format common in PayMaya
+                /completed/i,                 // Status shown on PayMaya receipts
+                /0\.\d+\s*eth/i,             // ETH crypto amount
+                /share.*save/i,              // "Share/Save" button text
+                /back\s*to\s*home/i,         // "Back to Home" button
+            ];
+            
+            let mayaScore = 0;
+            for (const pattern of mayaPatterns) {
+                if (pattern.test(originalText)) {
+                    mayaScore += 10;
+                }
+            }
+            
+            // If we match at least 2 PayMaya-specific patterns, it's likely PayMaya
+            if (mayaScore >= 20) {
+                return { value: 'maya', label: 'Maya/PayMaya' };
+            }
+        }
+        
+        // Additional GCash-specific detection
+        if (!detectedMethod || detectedMethod.value !== 'gcash') {
+            const gcashPatterns = [
+                /transaction\s*details/i,    // GCash header
+                /date\s*&\s*time/i,          // GCash format
+                /get\s*help/i,               // GCash help button
+                /\d{11}/,                    // Phone number format
+            ];
+            
+            let gcashScore = 0;
+            for (const pattern of gcashPatterns) {
+                if (pattern.test(originalText)) {
+                    gcashScore += 10;
+                }
+            }
+            
+            // If we match at least 3 GCash-specific patterns AND no other method detected
+            if (gcashScore >= 30 && !detectedMethod) {
+                return { value: 'gcash', label: 'GCash' };
+            }
+        }
+        
+        // Additional Bank Transfer-specific detection
+        if (!detectedMethod || (detectedMethod.value !== 'bank_transfer' && detectedMethod.value !== 'bank_deposit')) {
+            const bankTransferPatterns = [
+                /instapay/i,                     // InstaPay transfer
+                /pesonet/i,                      // PesoNet transfer
+                /fund\s*transfer/i,              // Fund transfer
+                /transfer\s*(?:successful|complete)/i,  // Transfer success message
+                /confirmation\s*(?:no|number|#)/i,      // Confirmation number label
+                /online\s*(?:banking|transfer)/i,       // Online banking
+                /mobile\s*banking/i,                    // Mobile banking
+                /interbank/i,                           // Interbank transfer
+            ];
+            
+            let bankScore = 0;
+            for (const pattern of bankTransferPatterns) {
+                if (pattern.test(originalText)) {
+                    bankScore += 15;
+                }
+            }
+            
+            // Check for bank names
+            for (const bank of bankNames) {
+                if (lowerText.includes(bank)) {
+                    bankScore += 10;
+                }
+            }
+            
+            // If we match at least 2 bank transfer patterns or bank name + 1 pattern, it's bank transfer
+            if (bankScore >= 20) {
+                return { value: 'bank_transfer', label: 'Bank Transfer' };
             }
         }
         
