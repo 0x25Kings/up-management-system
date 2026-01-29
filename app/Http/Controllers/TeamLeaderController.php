@@ -15,6 +15,7 @@ use App\Models\Event;
 use App\Models\UserPermission;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 
 class TeamLeaderController extends Controller
@@ -892,6 +893,45 @@ class TeamLeaderController extends Controller
             'success' => true,
             'message' => 'Room issue updated successfully.',
             'issue' => $roomIssue
+        ]);
+    }
+
+    /**
+     * Upload profile picture for team leader
+     */
+    public function uploadProfilePicture(Request $request)
+    {
+        $request->validate([
+            'profile_picture' => 'required|image|mimes:jpeg,png,jpg,gif|max:5120', // 5MB max
+        ]);
+
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        // Delete old profile picture if exists
+        if ($user->profile_picture) {
+            Storage::disk('public')->delete($user->profile_picture);
+        }
+
+        // Store new profile picture
+        $path = $request->file('profile_picture')->store('profile-pictures', 'public');
+
+        $user->update(['profile_picture' => $path]);
+
+        // Sync profile picture to linked Intern account if exists
+        $linkedIntern = Intern::where('email', $user->email)->first();
+        if ($linkedIntern) {
+            // Delete old intern profile picture if different
+            if ($linkedIntern->profile_picture && $linkedIntern->profile_picture !== $path) {
+                Storage::disk('public')->delete($linkedIntern->profile_picture);
+            }
+            $linkedIntern->update(['profile_picture' => $path]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Profile picture updated successfully',
+            'image_url' => asset('storage/' . $path)
         ]);
     }
 }

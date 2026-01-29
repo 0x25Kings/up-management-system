@@ -3661,9 +3661,9 @@
                 <div class="table-card">
                     <div class="table-header">
                         <h3 class="table-title">All Task Assignments</h3>
-                        <a href="{{ route('admin.export.tasks') }}" style="padding: 8px 16px; background: #7B1D3A; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block;">
+                        <button style="padding: 8px 16px; background: #7B1D3A; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">
                             <i class="fas fa-download"></i> Export Tasks
-                        </a>
+                        </button>
                     </div>
                     <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
                     <table style="min-width: 1400px;">
@@ -6874,30 +6874,15 @@
 
     <!-- View Payment Details Modal -->
     <div id="paymentDetailsModal" class="modal-overlay">
-        <div class="modal-content" style="max-width: 950px;">
+        <div class="modal-content" style="max-width: 900px;">
             <div class="modal-header">
                 <h3 class="modal-title"><i class="fas fa-credit-card" style="margin-right: 8px;"></i>Payment Submission Details</h3>
                 <button class="modal-close" onclick="closePaymentDetailsModal()">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <div class="modal-body" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
-                <!-- Left side: Payment Details -->
-                <div id="paymentDetailsContent">
-                    <!-- Payment details will be loaded here -->
-                </div>
-                <!-- Right side: Payment Proof -->
-                <div id="paymentProofContainer" style="display: flex; flex-direction: column; gap: 12px;">
-                    <h4 style="font-size: 14px; font-weight: 600; color: #374151; margin: 0; display: flex; align-items: center; gap: 8px;">
-                        <i class="fas fa-receipt" style="color: #7B1D3A;"></i> Payment Proof
-                    </h4>
-                    <div id="paymentProofPreview" style="flex: 1; background: #F9FAFB; border: 2px dashed #E5E7EB; border-radius: 12px; display: flex; align-items: center; justify-content: center; min-height: 350px; overflow: hidden;">
-                        <!-- Proof preview will be loaded here -->
-                    </div>
-                    <a id="paymentProofBtn" href="#" target="_blank" class="btn-modal" style="background: #6366F1; color: white; text-decoration: none; text-align: center; width: 100%;">
-                        <i class="fas fa-external-link-alt"></i> Open Full Size
-                    </a>
-                </div>
+            <div class="modal-body" id="paymentDetailsContent">
+                <!-- Payment details will be loaded here -->
             </div>
             <div class="modal-footer">
                 <button class="btn-modal secondary" onclick="closePaymentDetailsModal()">Close</button>
@@ -7322,10 +7307,14 @@
 
                 <div style="background: white; border: 1px solid #E5E7EB; border-radius: 8px; padding: 20px;">
                     <h5 style="margin: 0 0 12px 0; font-size: 14px; font-weight: 700; color: #1F2937;"><i class="fas fa-info-circle" style="margin-right: 8px; color: #7B1D3A;"></i>Additional Information</h5>
-                    <div style="display: grid; grid-template-columns: 1fr; gap: 12px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                         <div>
                             <div style="color: #6B7280; font-size: 12px; margin-bottom: 4px;">Year Level</div>
                             <div style="color: #1F2937; font-weight: 600;" id="internDetailYearLevel">-</div>
+                        </div>
+                        <div>
+                            <div style="color: #6B7280; font-size: 12px; margin-bottom: 4px;">Address</div>
+                            <div style="color: #1F2937; font-weight: 600;" id="internDetailAddress">-</div>
                         </div>
                     </div>
                 </div>
@@ -10127,116 +10116,85 @@
             const methodLabel = paymentMethodLabels[payment.payment_method] || payment.payment_method || 'N/A';
 
             const content = `
-                <div style="display: grid; gap: 16px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid #E5E7EB;">
-                        <div>
-                            <div style="font-size: 12px; color: #6B7280;">Tracking Code</div>
-                            <div style="font-size: 18px; font-weight: 700; color: #7B1D3A;">${payment.tracking_code}</div>
+                <div style="display: flex; gap: 24px;">
+                    <!-- Left side: Payment Details -->
+                    <div style="flex: 1; display: grid; gap: 16px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid #E5E7EB;">
+                            <div>
+                                <div style="font-size: 12px; color: #6B7280;">Tracking Code</div>
+                                <div style="font-size: 18px; font-weight: 700; color: #7B1D3A;">${payment.tracking_code}</div>
+                            </div>
+                            <span style="background: ${color.bg}; color: ${color.text}; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                                ${payment.status === 'approved' ? 'VERIFIED' : payment.status.replace('_', ' ').toUpperCase()}
+                            </span>
                         </div>
-                        <span style="background: ${color.bg}; color: ${color.text}; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
-                            ${payment.status === 'approved' ? 'VERIFIED' : payment.status.replace('_', ' ').toUpperCase()}
-                        </span>
+
+                        <div style="background: linear-gradient(135deg, #10B981, #059669); color: white; padding: 16px; border-radius: 12px; text-align: center;">
+                            <div style="font-size: 12px; opacity: 0.9;">Payment Amount</div>
+                            <div style="font-size: 28px; font-weight: 700;">₱${parseFloat(payment.amount).toLocaleString('en-US', {minimumFractionDigits: 2})}</div>
+                            <div style="font-size: 13px; margin-top: 4px;">Invoice #${payment.invoice_number}</div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                            <div>
+                                <div style="font-size: 11px; color: #6B7280; margin-bottom: 2px;">Company Name</div>
+                                <div style="font-weight: 600; font-size: 13px;">${payment.company_name}</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 11px; color: #6B7280; margin-bottom: 2px;">Contact Person</div>
+                                <div style="font-weight: 600; font-size: 13px;">${payment.contact_person}</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 11px; color: #6B7280; margin-bottom: 2px;">Email</div>
+                                <div style="font-size: 13px;">${payment.email}</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 11px; color: #6B7280; margin-bottom: 2px;">Phone</div>
+                                <div style="font-size: 13px;">${payment.phone || 'N/A'}</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 11px; color: #6B7280; margin-bottom: 2px;">Payment Method</div>
+                                <div style="font-weight: 600; font-size: 13px;">${methodLabel}</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 11px; color: #6B7280; margin-bottom: 2px;">Payment Date</div>
+                                <div style="font-weight: 600; font-size: 13px;">${payment.payment_date || 'N/A'}</div>
+                            </div>
+                        </div>
+
+                        ${payment.notes ? `
+                        <div>
+                            <div style="font-size: 11px; color: #6B7280; margin-bottom: 4px;">Submitter Notes</div>
+                            <div style="background: #F3F4F6; padding: 10px; border-radius: 8px; font-size: 13px;">${payment.notes}</div>
+                        </div>
+                        ` : ''}
+
+                        ${payment.admin_notes ? `
+                        <div>
+                            <div style="font-size: 11px; color: #6B7280; margin-bottom: 4px;">Admin Notes</div>
+                            <div style="background: #FEF3C7; padding: 10px; border-radius: 8px; font-size: 13px;">${payment.admin_notes}</div>
+                        </div>
+                        ` : ''}
+
+                        <div style="display: flex; gap: 16px; font-size: 11px; color: #6B7280;">
+                            <div><i class="fas fa-calendar"></i> Submitted: ${payment.created_at}</div>
+                            ${payment.reviewed_at ? `<div><i class="fas fa-check-circle"></i> Verified: ${payment.reviewed_at}</div>` : ''}
+                        </div>
                     </div>
 
-                    <div style="background: linear-gradient(135deg, #10B981, #059669); color: white; padding: 16px; border-radius: 12px; text-align: center;">
-                        <div style="font-size: 12px; opacity: 0.9;">Payment Amount</div>
-                        <div style="font-size: 28px; font-weight: 700;">₱${parseFloat(payment.amount).toLocaleString('en-US', {minimumFractionDigits: 2})}</div>
-                        <div style="font-size: 13px; margin-top: 6px;">Invoice #${payment.invoice_number}</div>
-                    </div>
-
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                        <div>
-                            <div style="font-size: 11px; color: #6B7280; margin-bottom: 2px;">Company Name</div>
-                            <div style="font-weight: 600; font-size: 13px;">${payment.company_name}</div>
-                        </div>
-                        <div>
-                            <div style="font-size: 11px; color: #6B7280; margin-bottom: 2px;">Contact Person</div>
-                            <div style="font-weight: 600; font-size: 13px;">${payment.contact_person}</div>
-                        </div>
-                        <div>
-                            <div style="font-size: 11px; color: #6B7280; margin-bottom: 2px;">Email</div>
-                            <div style="font-size: 13px;">${payment.email}</div>
-                        </div>
-                        <div>
-                            <div style="font-size: 11px; color: #6B7280; margin-bottom: 2px;">Phone</div>
-                            <div style="font-size: 13px;">${payment.phone || 'N/A'}</div>
-                        </div>
-                        <div>
-                            <div style="font-size: 11px; color: #6B7280; margin-bottom: 2px;">Payment Method</div>
-                            <div style="font-weight: 600; font-size: 13px;">${methodLabel}</div>
-                        </div>
-                        <div>
-                            <div style="font-size: 11px; color: #6B7280; margin-bottom: 2px;">Payment Date</div>
-                            <div style="font-weight: 600; font-size: 13px;">${payment.payment_date || 'N/A'}</div>
-                        </div>
-                    </div>
-
-                    ${payment.notes ? `
-                    <div>
-                        <div style="font-size: 11px; color: #6B7280; margin-bottom: 4px;">Submitter Notes</div>
-                        <div style="background: #F3F4F6; padding: 10px; border-radius: 8px; font-size: 13px;">${payment.notes}</div>
+                    <!-- Right side: Payment Proof -->
+                    ${payment.payment_proof_path ? `
+                    <div style="width: 280px; flex-shrink: 0;">
+                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 8px; font-weight: 600;">Payment Proof</div>
+                        <a href="/storage/${payment.payment_proof_path}" target="_blank" style="display: block; border: 2px solid #E5E7EB; border-radius: 12px; overflow: hidden; transition: all 0.3s ease; height: calc(100% - 28px);" onmouseover="this.style.borderColor='#6366F1'" onmouseout="this.style.borderColor='#E5E7EB'">
+                            <img src="/storage/${payment.payment_proof_path}" alt="Payment Proof" style="width: 100%; height: 100%; object-fit: contain; background: #F9FAFB;" onerror="this.parentElement.innerHTML='<div style=\'padding: 40px 20px; text-align: center; color: #6366F1; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;\'><i class=\'fas fa-file-pdf\' style=\'font-size: 48px; margin-bottom: 8px;\'></i><span>Click to view document</span></div>'">
+                        </a>
                     </div>
                     ` : ''}
-
-                    ${payment.admin_notes ? `
-                    <div>
-                        <div style="font-size: 11px; color: #6B7280; margin-bottom: 4px;">Admin Notes</div>
-                        <div style="background: #FEF3C7; padding: 10px; border-radius: 8px; font-size: 13px;">${payment.admin_notes}</div>
-                    </div>
-                    ` : ''}
-
-                    <div style="display: flex; gap: 12px; font-size: 11px; color: #6B7280; flex-wrap: wrap;">
-                        <div><i class="fas fa-calendar"></i> Submitted: ${payment.created_at}</div>
-                        ${payment.reviewed_at ? `<div><i class="fas fa-check-circle"></i> Verified: ${payment.reviewed_at}</div>` : ''}
-                    </div>
                 </div>
             `;
 
             document.getElementById('paymentDetailsContent').innerHTML = content;
-            
-            // Set up payment proof preview
-            const proofPath = payment.payment_proof_path ? '/storage/' + payment.payment_proof_path : null;
-            const proofContainer = document.getElementById('paymentProofPreview');
-            const proofBtn = document.getElementById('paymentProofBtn');
-            
-            if (proofPath) {
-                const fileExtension = proofPath.split('.').pop().toLowerCase();
-                if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileExtension)) {
-                    proofContainer.innerHTML = `
-                        <img src="${proofPath}" alt="Payment Proof" 
-                            style="max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; cursor: pointer;" 
-                            onclick="window.open('${proofPath}', '_blank')"
-                            onerror="this.parentElement.innerHTML='<div style=\'text-align: center; color: #9CA3AF; padding: 20px;\'><i class=\'fas fa-image\' style=\'font-size: 48px; margin-bottom: 12px;\'></i><p>Unable to load image</p></div>'">
-                    `;
-                } else if (fileExtension === 'pdf') {
-                    proofContainer.innerHTML = `
-                        <div style="text-align: center; color: #6B7280; padding: 20px;">
-                            <i class="fas fa-file-pdf" style="font-size: 64px; color: #EF4444; margin-bottom: 16px;"></i>
-                            <p style="font-weight: 600; margin-bottom: 8px;">PDF Document</p>
-                            <p style="font-size: 12px;">Click "Open Full Size" to view</p>
-                        </div>
-                    `;
-                } else {
-                    proofContainer.innerHTML = `
-                        <div style="text-align: center; color: #6B7280; padding: 20px;">
-                            <i class="fas fa-file" style="font-size: 64px; margin-bottom: 16px;"></i>
-                            <p style="font-weight: 600; margin-bottom: 8px;">Document File</p>
-                            <p style="font-size: 12px;">Click "Open Full Size" to view</p>
-                        </div>
-                    `;
-                }
-                proofBtn.href = proofPath;
-                proofBtn.style.display = 'block';
-            } else {
-                proofContainer.innerHTML = `
-                    <div style="text-align: center; color: #9CA3AF; padding: 20px;">
-                        <i class="fas fa-image" style="font-size: 48px; margin-bottom: 12px;"></i>
-                        <p>No payment proof uploaded</p>
-                    </div>
-                `;
-                proofBtn.style.display = 'none';
-            }
-            
             document.getElementById('paymentDetailsModal').style.display = 'flex';
         }
 
@@ -10276,7 +10234,7 @@
             }
 
             // Disable button and show loading
-            const submitBtn = document.querySelector('#reviewPaymentModal .btn-modal.primary');
+            const submitBtn = document.querySelector('#reviewPaymentModal .btn-primary');
             const originalText = submitBtn.innerHTML;
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
@@ -12938,149 +12896,9 @@ University of the Philippines Cebu
         }
 
         // Edit task
-        async function editTask(taskId) {
-            try {
-                const response = await fetch(`/admin/tasks/${taskId}`);
-                const data = await response.json();
-                
-                if (data.success) {
-                    const task = data.task;
-                    openEditTaskModal(task);
-                } else {
-                    alert('Failed to load task details');
-                }
-            } catch (error) {
-                console.error('Error loading task:', error);
-                alert('Error loading task details');
-            }
-        }
-
-        function openEditTaskModal(task) {
-            // Create edit modal if it doesn't exist
-            let modal = document.getElementById('editTaskModal');
-            if (!modal) {
-                modal = document.createElement('div');
-                modal.id = 'editTaskModal';
-                modal.className = 'modal-overlay';
-                modal.innerHTML = `
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h3 class="modal-title"><i class="fas fa-edit" style="margin-right: 8px;"></i>Edit Task</h3>
-                            <button class="modal-close" onclick="closeEditTaskModal()">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <form id="editTaskForm">
-                                <input type="hidden" id="editTaskId">
-                                <div class="form-group">
-                                    <label class="form-label required">Task Title</label>
-                                    <input type="text" class="form-input" id="editTaskTitle" placeholder="Enter task title" required>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Description</label>
-                                    <textarea class="form-input form-textarea" id="editTaskDescription" placeholder="Enter task description"></textarea>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label required">Priority Level</label>
-                                    <select class="form-input" id="editTaskPriority" required>
-                                        <option value="High">High</option>
-                                        <option value="Medium">Medium</option>
-                                        <option value="Low">Low</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label required">Status</label>
-                                    <select class="form-input" id="editTaskStatus" required>
-                                        <option value="Not Started">Not Started</option>
-                                        <option value="In Progress">In Progress</option>
-                                        <option value="Completed">Completed</option>
-                                        <option value="On Hold">On Hold</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label required">Due Date</label>
-                                    <input type="date" class="form-input" id="editTaskDueDate" required>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Progress (%)</label>
-                                    <input type="number" class="form-input" id="editTaskProgress" min="0" max="100" placeholder="0-100">
-                                </div>
-                            </form>
-                        </div>
-                        <div class="modal-footer">
-                            <button class="btn-modal secondary" onclick="closeEditTaskModal()">Cancel</button>
-                            <button class="btn-modal primary" onclick="saveTaskChanges()"><i class="fas fa-save"></i> Save Changes</button>
-                        </div>
-                    </div>
-                `;
-                document.body.appendChild(modal);
-            }
-
-            // Populate form with task data
-            document.getElementById('editTaskId').value = task.id;
-            document.getElementById('editTaskTitle').value = task.title || '';
-            document.getElementById('editTaskDescription').value = task.description || '';
-            document.getElementById('editTaskPriority').value = task.priority || 'Medium';
-            document.getElementById('editTaskStatus').value = task.status || 'Not Started';
-            document.getElementById('editTaskDueDate').value = task.due_date ? task.due_date.split('T')[0] : '';
-            document.getElementById('editTaskProgress').value = task.progress || 0;
-
-            modal.classList.add('active');
-        }
-
-        function closeEditTaskModal() {
-            const modal = document.getElementById('editTaskModal');
-            if (modal) {
-                modal.classList.remove('active');
-            }
-        }
-
-        async function saveTaskChanges() {
-            const taskId = document.getElementById('editTaskId').value;
-            const title = document.getElementById('editTaskTitle').value;
-            const description = document.getElementById('editTaskDescription').value;
-            const priority = document.getElementById('editTaskPriority').value;
-            const status = document.getElementById('editTaskStatus').value;
-            const dueDate = document.getElementById('editTaskDueDate').value;
-            const progress = document.getElementById('editTaskProgress').value;
-
-            if (!title || !dueDate) {
-                alert('Please fill in all required fields');
-                return;
-            }
-
-            try {
-                const response = await fetch(`/admin/tasks/${taskId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        title: title,
-                        description: description,
-                        priority: priority,
-                        status: status,
-                        due_date: dueDate,
-                        progress: parseInt(progress) || 0
-                    })
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    closeEditTaskModal();
-                    showToast('success', 'Success', 'Task updated successfully!');
-                    setTimeout(() => location.reload(), 1000);
-                } else {
-                    alert('Failed to update task: ' + (data.message || 'Unknown error'));
-                }
-            } catch (error) {
-                console.error('Error updating task:', error);
-                alert('Error updating task');
-            }
+        function editTask(taskId) {
+            alert('Edit task functionality - Task ID: ' + taskId);
+            // TODO: Implement full edit functionality
         }
 
         // ===== DAILY HOURS FILTER AND SEARCH =====
@@ -13786,6 +13604,7 @@ University of the Philippines Cebu
                 document.getElementById('internDetailSchool').textContent = intern.school || '-';
                 document.getElementById('internDetailCourse').textContent = intern.course || '-';
                 document.getElementById('internDetailYearLevel').textContent = intern.year_level || '-';
+                document.getElementById('internDetailAddress').textContent = intern.address || '-';
 
                 // Hours progress
                 const completedHours = intern.completed_hours || 0;

@@ -701,32 +701,6 @@
                                 <i class="fas fa-arrow-left" style="margin-right: 4px;"></i> Use different code
                             </a>
                         </div>
-                        @elseif(session('show_intern_password'))
-                        <!-- Intern Password Entry -->
-                        <div style="background: #FEF3C7; border: 2px solid #FCD34D; border-radius: 12px; padding: 16px; margin-bottom: 16px;">
-                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-                                <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #FFBF00, #FFA500); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                                    <i class="fas fa-user-graduate" style="color: #7B1D3A;"></i>
-                                </div>
-                                <div>
-                                    <div style="font-weight: 600; color: #92400E;">Intern Login</div>
-                                    <div style="font-size: 13px; color: #B45309;">{{ session('intern_name') }}</div>
-                                </div>
-                            </div>
-                            <input type="hidden" name="reference_code" value="{{ old('reference_code') }}">
-                            <div style="display: flex; gap: 12px;">
-                                <input type="password" name="password" placeholder="Enter your password" style="flex: 1; padding: 14px 16px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px;" autofocus>
-                                <button type="submit" class="btn-primary" style="padding: 14px 24px; background: linear-gradient(135deg, #7B1D3A, #5a1428);">
-                                    <i class="fas fa-unlock" style="margin-right: 6px;"></i> Login
-                                </button>
-                            </div>
-                            @error('password')
-                                <div style="color: #DC2626; font-size: 13px; margin-top: 8px;">{{ $message }}</div>
-                            @enderror
-                            <a href="{{ route('intern.portal') }}" style="display: inline-block; margin-top: 12px; color: #6B7280; font-size: 13px; text-decoration: none;">
-                                <i class="fas fa-arrow-left" style="margin-right: 4px;"></i> Use different code
-                            </a>
-                        </div>
                         @else
                         <!-- Regular Reference Code Entry -->
                         <div style="display: flex; gap: 12px;">
@@ -816,15 +790,14 @@
                                 @if($school && is_object($school))
                                     @php
                                         $isFull = ($school->max_interns ?? null) && !$school->hasCapacity();
+                                        $remainingSlots = $school->getRemainingSlots();
                                         $capacityInfo = ($school->max_interns ?? null)
-                                            ? " - {$school->getRemainingSlots()} slots remaining"
+                                            ? ($isFull ? " - FULL" : " - {$remainingSlots} slots remaining")
                                             : '';
                                     @endphp
-                                    @if(!$isFull)
-                                    <option value="{{ $school->id }}" {{ old('school_id') == $school->id ? 'selected' : '' }}>
+                                    <option value="{{ $school->id }}" {{ old('school_id') == $school->id ? 'selected' : '' }} {{ $isFull ? 'disabled' : '' }}>
                                         {{ $school->name }} ({{ $school->required_hours }} hrs required{{ $capacityInfo }})
                                     </option>
-                                    @endif
                                 @endif
                             @endforeach
                         </select>
@@ -850,17 +823,6 @@
                                 <option value="4th Year" {{ old('year_level') == '4th Year' ? 'selected' : '' }}>4th Year</option>
                                 <option value="5th Year" {{ old('year_level') == '5th Year' ? 'selected' : '' }}>5th Year</option>
                             </select>
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label><i class="fas fa-lock" style="color: #7B1D3A; margin-right: 6px;"></i>Password</label>
-                            <input type="password" name="password" placeholder="Create a password" required minlength="6">
-                        </div>
-                        <div class="form-group">
-                            <label><i class="fas fa-lock" style="color: #7B1D3A; margin-right: 6px;"></i>Confirm Password</label>
-                            <input type="password" name="password_confirmation" placeholder="Confirm your password" required minlength="6">
                         </div>
                     </div>
 

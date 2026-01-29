@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Intern;
 use App\Models\Attendance;
 use App\Models\Task;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 
@@ -94,7 +95,6 @@ class InternController extends Controller
             'school_id' => 'required|exists:schools,id',
             'course' => 'required|string|max:255',
             'year_level' => 'nullable|string|max:50',
-            'password' => 'required|string|min:6|confirmed',
         ]);
 
         // Get school and check capacity
@@ -112,7 +112,7 @@ class InternController extends Controller
         $validated['school'] = $school->name; // Keep school name for backward compatibility
         $validated['required_hours'] = $school->required_hours;
         $validated['approval_status'] = 'pending';
-        $validated['password'] = \Illuminate\Support\Facades\Hash::make($validated['password']);
+        // No password required - interns access with reference code only
         // Don't set start_date until approved
 
         // Create the intern
@@ -141,34 +141,14 @@ class InternController extends Controller
             return $this->handleTeamLeaderAccess($request, $referenceCode);
         }
 
-        // Regular intern access
+        // Regular intern access - no password required
         $intern = Intern::where('reference_code', $referenceCode)->first();
 
         if (!$intern) {
             return back()->withErrors(['reference_code' => 'Invalid reference code. Please check and try again.']);
         }
 
-        // Check if password was provided (for interns with passwords)
-        if ($intern->password && !$request->password) {
-            // Return with a flag to show password field
-            return back()
-                ->withInput(['reference_code' => $referenceCode])
-                ->with('show_intern_password', true)
-                ->with('intern_name', $intern->name);
-        }
-
-        // Verify password if intern has one
-        if ($intern->password) {
-            if (!\Illuminate\Support\Facades\Hash::check($request->password, $intern->password)) {
-                return back()
-                    ->withInput(['reference_code' => $referenceCode])
-                    ->with('show_intern_password', true)
-                    ->with('intern_name', $intern->name)
-                    ->withErrors(['password' => 'Incorrect password.']);
-            }
-        }
-
-        // Store intern ID in session
+        // Store intern ID in session (no password verification needed)
         $request->session()->put('intern_id', $intern->id);
 
         return redirect()->route('intern.portal')
@@ -181,8 +161,8 @@ class InternController extends Controller
     private function handleTeamLeaderAccess(Request $request, string $referenceCode)
     {
         // Find the team leader by reference code
-        $teamLeader = \App\Models\User::where('reference_code', $referenceCode)
-            ->where('role', \App\Models\User::ROLE_TEAM_LEADER)
+        $teamLeader = User::where('reference_code', $referenceCode)
+            ->where('role', User::ROLE_TEAM_LEADER)
             ->first();
 
         if (!$teamLeader) {
@@ -297,6 +277,12 @@ class InternController extends Controller
         $path = $request->file('profile_picture')->store('profile-pictures', 'public');
 
         $intern->update(['profile_picture' => $path]);
+
+        // Sync profile picture to linked User account (team leader) if exists
+        $linkedUser = User::where('email', $intern->email)->first();
+        if ($linkedUser) {
+            $linkedUser->update(['profile_picture' => $path]);
+        }
 
         return response()->json([
             'success' => true,

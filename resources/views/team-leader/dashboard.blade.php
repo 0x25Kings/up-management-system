@@ -1514,14 +1514,35 @@
                     <h3 class="card-title"><i class="fas fa-user-circle"></i> My Profile</h3>
                 </div>
                 <div class="card-body">
+                    @php
+                        // Check if team leader has an associated intern account (by email)
+                        $linkedIntern = \App\Models\Intern::where('email', $user->email)->where('approval_status', 'approved')->first();
+                        // Get profile picture from user or linked intern
+                        $profilePicture = $user->profile_picture ?? ($linkedIntern ? $linkedIntern->profile_picture : null);
+                    @endphp
+                    
                     <!-- Profile Picture Section -->
                     <div style="text-align: center; padding: 30px 0; border-bottom: 1px solid #E5E7EB; margin-bottom: 30px;">
-                        <div style="width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, var(--maroon), var(--maroon-dark)); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; box-shadow: 0 8px 24px rgba(123, 29, 58, 0.3);">
-                            <span style="font-size: 48px; color: var(--gold); font-weight: 700;">{{ strtoupper(substr($user->name, 0, 1)) }}</span>
+                        <div id="profilePictureContainer" style="position: relative; width: 120px; height: 120px; margin: 0 auto 16px; cursor: pointer;" onclick="document.getElementById('profilePictureInput').click()">
+                            @if($profilePicture)
+                                <img id="profilePictureImg" src="{{ asset('storage/' . $profilePicture) }}" alt="Profile" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; box-shadow: 0 8px 24px rgba(123, 29, 58, 0.3);">
+                            @else
+                                <div id="profilePictureInitial" style="width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, var(--maroon), var(--maroon-dark)); display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(123, 29, 58, 0.3);">
+                                    <span style="font-size: 48px; color: var(--gold); font-weight: 700;">{{ strtoupper(substr($user->name, 0, 1)) }}</span>
+                                </div>
+                            @endif
+                            <div style="position: absolute; bottom: 0; right: 0; width: 36px; height: 36px; background: var(--maroon); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+                                <i class="fas fa-camera" style="color: white; font-size: 14px;"></i>
+                            </div>
                         </div>
+                        <input type="file" id="profilePictureInput" accept="image/jpeg,image/png,image/jpg,image/gif" style="display: none;" onchange="uploadProfilePicture(this)">
+                        <p style="font-size: 12px; color: #6B7280; margin-bottom: 12px;">Click to change profile picture</p>
                         <h2 style="font-size: 24px; font-weight: 700; color: #1F2937; margin-bottom: 4px;">{{ $user->name }}</h2>
                         <p style="color: var(--maroon); font-weight: 600;">Team Leader</p>
                         <p style="color: #6B7280; font-size: 14px;">{{ $school->name }}</p>
+                        @if($linkedIntern)
+                        <span class="badge badge-success" style="margin-top: 8px;"><i class="fas fa-link"></i> Linked to Intern Account</span>
+                        @endif
                     </div>
 
                     <!-- Account Information -->
@@ -1573,11 +1594,6 @@
                             </div>
                         </div>
                     </div>
-
-                    @php
-                        // Check if team leader has an associated intern account (by email)
-                        $linkedIntern = \App\Models\Intern::where('email', $user->email)->where('approval_status', 'approved')->first();
-                    @endphp
 
                     @if($linkedIntern)
                     <!-- Linked Intern Profile -->
@@ -2028,11 +2044,6 @@
                                         <button class="btn btn-sm btn-secondary" onclick="tlViewPaymentDetails('{{ $payment->id }}')" title="View Details">
                                             <i class="fas fa-eye"></i>
                                         </button>
-                                        @if($payment->payment_proof_path)
-                                        <a href="{{ asset('storage/' . $payment->payment_proof_path) }}" target="_blank" class="btn btn-sm" style="background: #6366F1; color: white;" title="View Proof">
-                                            <i class="fas fa-receipt"></i>
-                                        </a>
-                                        @endif
                                         @if(in_array('incubatee_tracker', $editableModules))
                                         <button class="btn btn-sm btn-primary" onclick="tlReviewSubmission('{{ $payment->id }}', 'finance')" title="Review">
                                             <i class="fas fa-clipboard-check"></i>
@@ -2236,11 +2247,6 @@
                                         <button onclick="tlViewIssueDetails('{{ $issue->id }}')" class="btn btn-sm btn-secondary" style="padding: 6px 8px;" title="View Details">
                                             <i class="fas fa-eye"></i>
                                         </button>
-                                        @if($issue->photo_path)
-                                        <a href="{{ asset('storage/' . $issue->photo_path) }}" target="_blank" class="btn btn-sm btn-secondary" style="padding: 6px 8px;" title="View Photo">
-                                            <i class="fas fa-image"></i>
-                                        </a>
-                                        @endif
                                         @if(in_array('issues_management', $editableModules))
                                         <button onclick="tlUpdateIssueStatus('{{ $issue->id }}')" class="btn btn-sm btn-primary" style="padding: 6px 8px; background: #10B981;" title="Update Status">
                                             <i class="fas fa-check"></i>
@@ -2466,7 +2472,7 @@
 
     <!-- Payment Details Modal -->
     <div id="tlPaymentDetailsModal" class="modal-overlay">
-        <div class="modal" style="max-width: 600px;">
+        <div class="modal" style="max-width: 900px;">
             <div class="modal-header">
                 <h3><i class="fas fa-credit-card"></i> Payment Submission Details</h3>
                 <button class="modal-close" onclick="tlClosePaymentDetailsModal()"><i class="fas fa-times"></i></button>
@@ -2476,9 +2482,6 @@
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="tlClosePaymentDetailsModal()">Close</button>
-                <a id="tlPaymentProofBtn" href="#" target="_blank" class="btn" style="background: #6366F1; color: white;">
-                    <i class="fas fa-receipt"></i> View Proof
-                </a>
                 @if(in_array('incubatee_tracker', $editableModules))
                 <button class="btn btn-primary" onclick="tlOpenReviewPaymentModal()">
                     <i class="fas fa-clipboard-check"></i> Review Payment
@@ -3447,74 +3450,85 @@
             const methodLabel = paymentMethodLabels[payment.payment_method] || payment.payment_method || 'N/A';
 
             const content = `
-                <div style="display: grid; gap: 16px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid #E5E7EB;">
-                        <div>
-                            <div style="font-size: 12px; color: #6B7280;">Tracking Code</div>
-                            <div style="font-size: 18px; font-weight: 700; color: #7B1D3A;">${payment.tracking_code}</div>
+                <div style="display: flex; gap: 24px;">
+                    <!-- Left side: Payment Details -->
+                    <div style="flex: 1; display: grid; gap: 16px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid #E5E7EB;">
+                            <div>
+                                <div style="font-size: 12px; color: #6B7280;">Tracking Code</div>
+                                <div style="font-size: 18px; font-weight: 700; color: #7B1D3A;">${payment.tracking_code}</div>
+                            </div>
+                            <span style="background: ${color.bg}; color: ${color.text}; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                                ${payment.status === 'approved' ? 'VERIFIED' : payment.status.replace('_', ' ').toUpperCase()}
+                            </span>
                         </div>
-                        <span style="background: ${color.bg}; color: ${color.text}; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
-                            ${payment.status === 'approved' ? 'VERIFIED' : payment.status.replace('_', ' ').toUpperCase()}
-                        </span>
+
+                        <div style="background: linear-gradient(135deg, #10B981, #059669); color: white; padding: 16px; border-radius: 12px; text-align: center;">
+                            <div style="font-size: 12px; opacity: 0.9;">Payment Amount</div>
+                            <div style="font-size: 28px; font-weight: 700;">₱${parseFloat(payment.amount).toLocaleString('en-US', {minimumFractionDigits: 2})}</div>
+                            <div style="font-size: 13px; margin-top: 4px;">Invoice #${payment.invoice_number}</div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                            <div>
+                                <div style="font-size: 11px; color: #6B7280; margin-bottom: 2px;">Company Name</div>
+                                <div style="font-weight: 600; font-size: 13px;">${payment.company_name}</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 11px; color: #6B7280; margin-bottom: 2px;">Contact Person</div>
+                                <div style="font-weight: 600; font-size: 13px;">${payment.contact_person}</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 11px; color: #6B7280; margin-bottom: 2px;">Email</div>
+                                <div style="font-size: 13px;">${payment.email}</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 11px; color: #6B7280; margin-bottom: 2px;">Phone</div>
+                                <div style="font-size: 13px;">${payment.phone || 'N/A'}</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 11px; color: #6B7280; margin-bottom: 2px;">Payment Method</div>
+                                <div style="font-weight: 600; font-size: 13px;">${methodLabel}</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 11px; color: #6B7280; margin-bottom: 2px;">Payment Date</div>
+                                <div style="font-weight: 600; font-size: 13px;">${payment.payment_date || 'N/A'}</div>
+                            </div>
+                        </div>
+
+                        ${payment.notes ? `
+                        <div>
+                            <div style="font-size: 11px; color: #6B7280; margin-bottom: 4px;">Submitter Notes</div>
+                            <div style="background: #F3F4F6; padding: 10px; border-radius: 8px; font-size: 13px;">${payment.notes}</div>
+                        </div>
+                        ` : ''}
+
+                        ${payment.admin_notes ? `
+                        <div>
+                            <div style="font-size: 11px; color: #6B7280; margin-bottom: 4px;">Admin Notes</div>
+                            <div style="background: #FEF3C7; padding: 10px; border-radius: 8px; font-size: 13px;">${payment.admin_notes}</div>
+                        </div>
+                        ` : ''}
+
+                        <div style="display: flex; gap: 16px; font-size: 11px; color: #6B7280;">
+                            <div><i class="fas fa-calendar"></i> Submitted: ${payment.created_at}</div>
+                            ${payment.reviewed_at ? `<div><i class="fas fa-check-circle"></i> Verified: ${payment.reviewed_at}</div>` : ''}
+                        </div>
                     </div>
 
-                    <div style="background: linear-gradient(135deg, #10B981, #059669); color: white; padding: 20px; border-radius: 12px; text-align: center;">
-                        <div style="font-size: 12px; opacity: 0.9;">Payment Amount</div>
-                        <div style="font-size: 32px; font-weight: 700;">₱${parseFloat(payment.amount).toLocaleString('en-US', {minimumFractionDigits: 2})}</div>
-                        <div style="font-size: 14px; margin-top: 8px;">Invoice #${payment.invoice_number}</div>
-                    </div>
-
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                        <div>
-                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Company Name</div>
-                            <div style="font-weight: 600;">${payment.company_name}</div>
-                        </div>
-                        <div>
-                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Contact Person</div>
-                            <div style="font-weight: 600;">${payment.contact_person}</div>
-                        </div>
-                        <div>
-                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Email</div>
-                            <div>${payment.email}</div>
-                        </div>
-                        <div>
-                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Phone</div>
-                            <div>${payment.phone || 'N/A'}</div>
-                        </div>
-                        <div>
-                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Payment Method</div>
-                            <div style="font-weight: 600;">${methodLabel}</div>
-                        </div>
-                        <div>
-                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Payment Date</div>
-                            <div style="font-weight: 600;">${payment.payment_date || 'N/A'}</div>
-                        </div>
-                    </div>
-
-                    ${payment.notes ? `
-                    <div>
-                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Submitter Notes</div>
-                        <div style="background: #F3F4F6; padding: 12px; border-radius: 8px;">${payment.notes}</div>
+                    <!-- Right side: Payment Proof -->
+                    ${payment.payment_proof_path ? `
+                    <div style="width: 280px; flex-shrink: 0;">
+                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 8px; font-weight: 600;">Payment Proof</div>
+                        <a href="/storage/${payment.payment_proof_path}" target="_blank" style="display: block; border: 2px solid #E5E7EB; border-radius: 12px; overflow: hidden; transition: all 0.3s ease; height: calc(100% - 28px);" onmouseover="this.style.borderColor='#6366F1'" onmouseout="this.style.borderColor='#E5E7EB'">
+                            <img src="/storage/${payment.payment_proof_path}" alt="Payment Proof" style="width: 100%; height: 100%; object-fit: contain; background: #F9FAFB;" onerror="this.parentElement.innerHTML='<div style=\'padding: 40px 20px; text-align: center; color: #6366F1; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;\'><i class=\'fas fa-file-pdf\' style=\'font-size: 48px; margin-bottom: 8px;\'></i><span>Click to view document</span></div>'">
+                        </a>
                     </div>
                     ` : ''}
-
-                    ${payment.admin_notes ? `
-                    <div>
-                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Admin Notes</div>
-                        <div style="background: #FEF3C7; padding: 12px; border-radius: 8px;">${payment.admin_notes}</div>
-                    </div>
-                    ` : ''}
-
-                    <div style="display: flex; gap: 16px; font-size: 12px; color: #6B7280;">
-                        <div><i class="fas fa-calendar"></i> Submitted: ${payment.created_at}</div>
-                        ${payment.reviewed_at ? `<div><i class="fas fa-check-circle"></i> Verified: ${payment.reviewed_at}</div>` : ''}
-                    </div>
                 </div>
             `;
 
             document.getElementById('tlPaymentDetailsContent').innerHTML = content;
-            document.getElementById('tlPaymentProofBtn').href = payment.payment_proof_path ? '/storage/' + payment.payment_proof_path : '#';
-            document.getElementById('tlPaymentProofBtn').style.display = payment.payment_proof_path ? '' : 'none';
             openModal('tlPaymentDetailsModal');
         }
 
@@ -4703,6 +4717,77 @@
             refreshData(true);
         }
 
+        // Profile picture upload function
+        async function uploadProfilePicture(input) {
+            if (!input.files || !input.files[0]) return;
+            
+            const file = input.files[0];
+            
+            // Validate file size (5MB max)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('File size must be less than 5MB');
+                return;
+            }
+            
+            // Validate file type
+            const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
+            if (!validTypes.includes(file.type)) {
+                alert('Please select a valid image file (JPEG, PNG, JPG, or GIF)');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('profile_picture', file);
+            formData.append('_token', '{{ csrf_token() }}');
+            
+            try {
+                const response = await fetch('{{ route("team-leader.profile.upload-picture") }}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Update the profile picture on the page
+                    const container = document.getElementById('profilePictureContainer');
+                    const existingImg = document.getElementById('profilePictureImg');
+                    const existingInitial = document.getElementById('profilePictureInitial');
+                    
+                    if (existingImg) {
+                        existingImg.src = data.image_url;
+                    } else if (existingInitial) {
+                        // Replace initial with image
+                        const img = document.createElement('img');
+                        img.id = 'profilePictureImg';
+                        img.src = data.image_url;
+                        img.alt = 'Profile';
+                        img.style.cssText = 'width: 120px; height: 120px; border-radius: 50%; object-fit: cover; box-shadow: 0 8px 24px rgba(123, 29, 58, 0.3);';
+                        existingInitial.replaceWith(img);
+                    }
+                    
+                    // Also update sidebar avatar if it exists
+                    const sidebarAvatar = document.querySelector('.sidebar-user-avatar img');
+                    if (sidebarAvatar) {
+                        sidebarAvatar.src = data.image_url;
+                    }
+                    
+                    alert('Profile picture updated successfully! This will also be synced with your intern account if you have one.');
+                } else {
+                    alert(data.message || 'Failed to upload profile picture');
+                }
+            } catch (error) {
+                console.error('Error uploading profile picture:', error);
+                alert('An error occurred while uploading the profile picture');
+            }
+            
+            // Clear the input
+            input.value = '';
+        }
+
         async function refreshData(isManual = false) {
             if (isRefreshing) return;
             isRefreshing = true;
@@ -5804,7 +5889,7 @@ University of the Philippines Cebu
                     const dateStr = currentDate.toISOString().split('T')[0];
 
                     requests.push(
-                        fetch('/admin/blocked-dates', {
+                        fetch('{{ route("team-leader.blocked-dates.store") }}', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -5812,7 +5897,7 @@ University of the Philippines Cebu
                                 'Accept': 'application/json'
                             },
                             body: JSON.stringify({
-                                date: dateStr,
+                                blocked_date: dateStr,
                                 reason: reason,
                                 description: description
                             })

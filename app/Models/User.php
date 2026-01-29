@@ -33,6 +33,7 @@ class User extends Authenticatable
         'school_id',
         'reference_code',
         'is_active',
+        'profile_picture',
     ];
 
     /**

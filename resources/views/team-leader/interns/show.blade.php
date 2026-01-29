@@ -18,9 +18,13 @@
         </div>
         <div class="card-body">
             <div style="text-align: center; margin-bottom: 24px;">
-                <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 32px; font-weight: 600; margin: 0 auto 16px;">
-                    {{ strtoupper(substr($intern->name, 0, 1)) }}
-                </div>
+                @if($intern->profile_picture && file_exists(public_path('storage/' . $intern->profile_picture)))
+                    <img src="{{ asset('storage/' . $intern->profile_picture) }}" alt="{{ $intern->name }}" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; margin: 0 auto 16px; display: block; border: 3px solid #E5E7EB;">
+                @else
+                    <div style="width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 48px; font-weight: 600; margin: 0 auto 16px;">
+                        {{ strtoupper(substr($intern->name, 0, 1)) }}
+                    </div>
+                @endif
                 <h4 style="font-size: 20px; font-weight: 700; color: #1F2937;">{{ $intern->name }}</h4>
                 <span class="badge badge-{{ $intern->status === 'Active' ? 'success' : ($intern->status === 'Completed' ? 'info' : 'warning') }}">
                     {{ $intern->status }}

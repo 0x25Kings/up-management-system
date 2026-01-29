@@ -298,4 +298,11 @@ Route::middleware(['team.leader'])->prefix('team-leader')->name('team-leader.')-
     // Incubatee Tracker (Submissions Management)
     Route::put('/submissions/{submission}', [TeamLeaderController::class, 'updateSubmission'])->name('submissions.update');
     Route::put('/room-issues/{roomIssue}', [TeamLeaderController::class, 'updateRoomIssue'])->name('room-issues.update');
+
+    // Profile Picture Upload
+    Route::post('/profile/upload-picture', [TeamLeaderController::class, 'uploadProfilePicture'])->name('profile.upload-picture');
+
+    // Blocked Dates Management
+    Route::post('/blocked-dates', [BlockedDateController::class, 'store'])->name('blocked-dates.store');
+    Route::delete('/blocked-dates/{blockedDate}', [BlockedDateController::class, 'destroy'])->name('blocked-dates.destroy');
 });

@@ -50,8 +50,19 @@
                     @endphp
                     <tr>
                         <td>
-                            <div style="font-weight: 600;">{{ $intern->name }}</div>
-                            <div style="font-size: 12px; color: #6B7280;">{{ $intern->email }}</div>
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                @if($intern->profile_picture && file_exists(public_path('storage/' . $intern->profile_picture)))
+                                    <img src="{{ asset('storage/' . $intern->profile_picture) }}" alt="{{ $intern->name }}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex-shrink: 0;">
+                                @else
+                                    <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; font-weight: 600; flex-shrink: 0;">
+                                        {{ strtoupper(substr($intern->name, 0, 1)) }}
+                                    </div>
+                                @endif
+                                <div>
+                                    <div style="font-weight: 600;">{{ $intern->name }}</div>
+                                    <div style="font-size: 12px; color: #6B7280;">{{ $intern->email }}</div>
+                                </div>
+                            </div>
                         </td>
                         <td>
                             <div>{{ $intern->course }}</div>
