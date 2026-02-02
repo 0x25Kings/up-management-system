@@ -24,37 +24,145 @@
         .registration-page {
             min-height: 100vh;
             background: linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
         }
 
         .registration-container {
-            max-width: 600px;
+            max-width: 420px;
+            width: 100%;
             margin: 0 auto;
-            padding: 40px 20px;
         }
 
         .registration-card {
             background: white;
-            border-radius: 20px;
-            padding: 40px;
+            border-radius: 16px;
+            padding: 32px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        @media (max-width: 640px) {
+            .registration-page {
+                padding: 16px;
+                align-items: flex-start;
+                padding-top: 40px;
+            }
+
+            .registration-card {
+                padding: 24px;
+                border-radius: 16px;
+            }
+
+            .form-header .logo {
+                width: 64px;
+                height: 64px;
+                font-size: 28px;
+            }
+
+            .form-header h1 {
+                font-size: 20px !important;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-submit {
+                padding: 12px;
+                font-size: 14px;
+            }
+
+            .access-code-section {
+                padding: 16px;
+            }
+
+            .access-code-section > form > div[style*="display: flex"] {
+                flex-direction: column;
+            }
+
+            .access-code-section input {
+                width: 100%;
+            }
+
+            .access-code-section button {
+                width: 100%;
+            }
+
+            /* Team Leader Password Field Mobile Fix */
+            .access-code-section input[type="password"] {
+                width: 100% !important;
+                height: 50px !important;
+                min-height: 50px !important;
+                padding: 14px 16px !important;
+                font-size: 16px !important;
+                box-sizing: border-box !important;
+                -webkit-appearance: none !important;
+                appearance: none !important;
+            }
+
+            .tl-password-row {
+                flex-direction: column !important;
+                flex-wrap: wrap !important;
+            }
+
+            .tl-password-row input,
+            .tl-password-row button {
+                width: 100% !important;
+            }
+
+            .tl-password-input {
+                height: 50px !important;
+                min-height: 50px !important;
+                font-size: 16px !important;
+            }
+
+            .tl-login-btn {
+                width: 100% !important;
+                justify-content: center !important;
+            }
+
+            /* Pending/Rejected pages responsive */
+            .registration-card[style*="padding: 60px 40px"] {
+                padding: 32px 20px !important;
+            }
+
+            .registration-card [style*="width: 100px"][style*="height: 100px"] {
+                width: 80px !important;
+                height: 80px !important;
+            }
+
+            .registration-card [style*="font-size: 48px"] {
+                font-size: 36px !important;
+            }
+
+            .registration-card h2[style*="font-size: 24px"] {
+                font-size: 20px !important;
+            }
+
+            .registration-card [style*="grid-template-columns: 1fr 1fr"] {
+                grid-template-columns: 1fr !important;
+            }
         }
 
         .form-header {
             text-align: center;
-            margin-bottom: 32px;
+            margin-bottom: 24px;
         }
 
         .form-header .logo {
-            width: 80px;
-            height: 80px;
+            width: 70px;
+            height: 70px;
             background: linear-gradient(135deg, #FFBF00 0%, #FFA500 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 16px;
-            font-size: 36px;
+            margin: 0 auto 12px;
+            font-size: 32px;
             color: #7B1D3A;
+            box-shadow: 0 4px 15px rgba(255, 191, 0, 0.4);
         }
 
         .form-group {
@@ -495,6 +603,77 @@
             color: #991B1B;
         }
 
+        /* Mobile Menu Button */
+        .mobile-menu-btn {
+            display: none;
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            z-index: 1100;
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 4px 15px rgba(123, 29, 58, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .mobile-menu-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .mobile-menu-btn.active {
+            background: linear-gradient(135deg, #FFBF00 0%, #FFA500 100%);
+            color: #7B1D3A;
+            display: none;
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+        }
+
+        .sidebar-close-btn {
+            display: none;
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 36px;
+            height: 36px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .sidebar-close-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
         @media (max-width: 1024px) {
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
@@ -504,23 +683,232 @@
                 align-items: flex-start;
                 gap: 16px;
             }
+
+            /* Quick actions and activity grid */
+            [style*="grid-template-columns: repeat(2, 1fr)"][style*="gap: 20px"] {
+                grid-template-columns: 1fr !important;
+            }
         }
 
         @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: flex;
+            }
+
+            .sidebar-overlay {
+                display: block;
+                pointer-events: none;
+            }
+
+            .sidebar-overlay.active {
+                pointer-events: auto;
+            }
+
+            .sidebar-close-btn {
+                display: flex;
+            }
+
             .sidebar {
                 transform: translateX(-100%);
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
             .main-content {
                 margin-left: 0;
+                padding: 16px;
+                padding-top: 80px;
             }
+
             .stats-grid {
                 grid-template-columns: 1fr;
+                gap: 12px;
             }
+
+            .stat-card {
+                padding: 16px;
+            }
+
+            .stat-card .stat-icon {
+                width: 44px;
+                height: 44px;
+                font-size: 18px;
+            }
+
+            .stat-card .stat-value {
+                font-size: 24px;
+            }
+
+            .stat-card .stat-label {
+                font-size: 13px;
+            }
+
             .form-row {
                 grid-template-columns: 1fr;
             }
+
             .profile-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .page-header {
+                padding: 16px;
+                margin-bottom: 16px;
+            }
+
+            .page-title {
+                font-size: 20px;
+            }
+
+            .content-card {
+                border-radius: 10px;
+            }
+
+            .content-card-header {
+                padding: 16px;
+                flex-direction: column;
+                gap: 12px;
+                align-items: flex-start;
+            }
+
+            .content-card-title {
+                font-size: 16px;
+            }
+
+            .content-card-body {
+                padding: 16px;
+            }
+
+            /* Modal responsive */
+            .modal-content {
+                width: 95%;
+                max-height: 90vh;
+                margin: 16px;
+            }
+
+            .modal-header {
+                padding: 20px;
+            }
+
+            .modal-header h2 {
+                font-size: 18px;
+            }
+
+            .modal-body {
+                padding: 20px;
+            }
+
+            /* Table responsive */
+            table {
+                display: block;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            th, td {
+                padding: 10px 12px;
+                font-size: 13px;
+                white-space: nowrap;
+            }
+
+            /* Buttons on mobile */
+            .btn-primary, .btn-secondary {
+                padding: 12px 16px;
+                font-size: 14px;
+            }
+
+            /* Quick action buttons in content card */
+            .content-card-body .btn-primary,
+            .content-card-body .btn-secondary {
+                padding: 14px 16px;
+                font-size: 14px;
+                border-radius: 10px;
+            }
+
+            .content-card-body .btn-primary i,
+            .content-card-body .btn-secondary i {
+                font-size: 16px;
+            }
+
+            /* Task and Activity cards */
+            .task-card, .activity-item {
+                padding: 14px;
+            }
+
+            /* Profile grid items */
+            .profile-item {
+                padding: 14px;
+            }
+
+            .profile-item label {
+                font-size: 11px;
+            }
+
+            .profile-item p {
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .mobile-menu-btn {
+                top: 12px;
+                left: 12px;
+                width: 44px;
+                height: 44px;
+                font-size: 18px;
+            }
+
+            .main-content {
+                padding: 12px;
+                padding-top: 72px;
+            }
+
+            .page-header {
+                padding: 14px;
+            }
+
+            .page-title {
+                font-size: 18px;
+            }
+
+            .page-subtitle {
+                font-size: 13px;
+            }
+
+            .stat-card {
+                padding: 14px;
+            }
+
+            .stat-card .stat-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+
+            .stat-card .stat-value {
+                font-size: 22px;
+            }
+
+            .content-card-header,
+            .content-card-body {
+                padding: 14px;
+            }
+
+            .intern-avatar {
+                width: 56px;
+                height: 56px;
+                font-size: 22px;
+            }
+
+            .intern-name {
+                font-size: 14px;
+            }
+
+            .intern-code {
+                font-size: 11px;
             }
         }
     </style>
@@ -688,9 +1076,9 @@
                                 </div>
                             </div>
                             <input type="hidden" name="reference_code" value="{{ old('reference_code') }}">
-                            <div style="display: flex; gap: 12px;">
-                                <input type="password" name="password" placeholder="Enter your password" style="flex: 1; padding: 14px 16px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px;" autofocus>
-                                <button type="submit" class="btn-primary" style="padding: 14px 24px; background: linear-gradient(135deg, #7B1D3A, #5a1428);">
+                            <div style="display: flex; gap: 12px; flex-wrap: wrap;" class="tl-password-row">
+                                <input type="password" name="password" placeholder="Enter your password" class="tl-password-input" style="flex: 1; min-width: 150px; padding: 12px 16px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px; box-sizing: border-box;" autofocus>
+                                <button type="submit" class="btn-primary tl-login-btn" style="padding: 12px 20px; background: linear-gradient(135deg, #7B1D3A, #5a1428); white-space: nowrap; flex-shrink: 0;">
                                     <i class="fas fa-unlock" style="margin-right: 6px;"></i> Login
                                 </button>
                             </div>
@@ -870,7 +1258,20 @@
 
 
     <!-- Dashboard -->
-    <aside class="sidebar">
+    <!-- Mobile Menu Toggle Button -->
+    <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleMobileSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+
+    <aside class="sidebar" id="sidebar">
+        <!-- Mobile Close Button -->
+        <button class="sidebar-close-btn" onclick="closeMobileSidebar()">
+            <i class="fas fa-times"></i>
+        </button>
+
         <div class="sidebar-logo">
             <img src="/images/UP logo.png" alt="UP Logo">
             <h3>University of the Philippines Cebu</h3>
@@ -2358,6 +2759,50 @@
     </main>
 
     <script>
+        // Mobile Sidebar Toggle Functions
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            const menuBtn = document.getElementById('mobileMenuBtn');
+
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+            menuBtn.classList.toggle('active');
+
+            if (sidebar.classList.contains('open')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = '';
+            }
+        }
+
+        function closeMobileSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            const menuBtn = document.getElementById('mobileMenuBtn');
+
+            sidebar.classList.remove('open');
+            overlay.classList.remove('active');
+            menuBtn.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Auto-close sidebar when clicking menu items on mobile
+        document.querySelectorAll('.sidebar .menu-item').forEach(item => {
+            item.addEventListener('click', function() {
+                if (window.innerWidth <= 768) {
+                    setTimeout(closeMobileSidebar, 150);
+                }
+            });
+        });
+
+        // Close sidebar on window resize to desktop
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                closeMobileSidebar();
+            }
+        });
+
         // Calendar variables
         let currentMonth = new Date().getMonth();
         let currentYear = new Date().getFullYear();
@@ -2834,7 +3279,7 @@
             if (editProfileForm) {
                 editProfileForm.addEventListener('submit', function(e) {
                     e.preventDefault();
-                    
+
                     const submitBtn = document.getElementById('editProfileSubmitBtn');
                     const originalContent = submitBtn.innerHTML;
                     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right: 6px;"></i>Saving...';
@@ -3878,7 +4323,7 @@
             toast.className = 'realtime-toast';
             toast.innerHTML = `
                 <div style="display: flex; align-items: center; gap: 12px;">
-                    <i class="fas ${type === 'info' ? 'fa-info-circle' : type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}" 
+                    <i class="fas ${type === 'info' ? 'fa-info-circle' : type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"
                        style="font-size: 20px; color: ${type === 'info' ? '#3B82F6' : type === 'success' ? '#10B981' : '#F59E0B'};"></i>
                     <div>
                         <div style="font-weight: 600; color: #1F2937;">${title}</div>

@@ -444,6 +444,7 @@
             align-items: center;
             padding: 16px 20px;
             border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            gap: 16px;
         }
         .list-item:last-child { border-bottom: none; }
         .list-item:hover { background: rgba(34, 139, 34, 0.02); }
@@ -451,6 +452,7 @@
         .list-item-avatar {
             width: 42px;
             height: 42px;
+            min-width: 42px;
             border-radius: 12px;
             background: linear-gradient(135deg, var(--maroon) 0%, var(--maroon-dark) 100%);
             display: flex;
@@ -458,12 +460,12 @@
             justify-content: center;
             color: var(--white);
             font-weight: 700;
-            margin-right: 16px;
             font-size: 13px;
+            flex-shrink: 0;
         }
 
-        .list-item-content { flex: 1; }
-        .list-item-title { font-weight: 600; color: #1F2937; margin-bottom: 4px; }
+        .list-item-content { flex: 1; min-width: 0; }
+        .list-item-title { font-weight: 600; color: #1F2937; margin-bottom: 4px; word-break: break-word; }
         .list-item-subtitle { font-size: 12px; color: #6B7280; }
 
         /* Alert */
@@ -761,11 +763,362 @@
         .toast.error { background: #DC2626; }
         .toast.active { display: flex; align-items: center; gap: 10px; }
         @keyframes toastSlide { from { transform: translateX(100%); } to { transform: translateX(0); } }
+
+        /* Mobile Menu Button */
+        .mobile-menu-btn {
+            display: none;
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            z-index: 1100;
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--maroon) 0%, var(--maroon-dark) 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 4px 15px rgba(123, 17, 19, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .mobile-menu-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .mobile-menu-btn.active {
+            display: none;
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+        }
+
+        .sidebar-close-btn {
+            display: none;
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 36px;
+            height: 36px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .sidebar-close-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 1024px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .top-header {
+                padding: 16px 24px;
+            }
+            .page-content {
+                padding: 24px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: flex;
+            }
+
+            .sidebar-overlay {
+                display: block;
+                pointer-events: none;
+            }
+
+            .sidebar-overlay.active {
+                pointer-events: auto;
+            }
+
+            .sidebar-close-btn {
+                display: flex;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .top-header {
+                padding: 16px;
+                padding-left: 76px;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .header-title {
+                font-size: 20px;
+            }
+
+            .user-info {
+                display: none;
+            }
+
+            .page-content {
+                padding: 16px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .stat-card {
+                padding: 16px;
+            }
+
+            .stat-icon {
+                width: 44px;
+                height: 44px;
+            }
+
+            .stat-value {
+                font-size: 24px;
+            }
+
+            .grid-2 {
+                grid-template-columns: 1fr !important;
+            }
+
+            .card {
+                border-radius: 12px;
+            }
+
+            .card-header {
+                padding: 16px;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .card-body {
+                padding: 16px;
+            }
+
+            .task-overview-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .task-overview-item {
+                padding: 16px;
+            }
+
+            .task-overview-value {
+                font-size: 28px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tl-file-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            /* Table responsive */
+            .table-container {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .data-table {
+                min-width: 600px;
+            }
+
+            .data-table th,
+            .data-table td {
+                padding: 12px 10px;
+                font-size: 13px;
+            }
+
+            /* Modal responsive */
+            .modal-content {
+                width: 95% !important;
+                max-width: none !important;
+                margin: 16px;
+                max-height: 90vh;
+            }
+
+            .modal-header {
+                padding: 16px;
+            }
+
+            .modal-body {
+                padding: 16px;
+            }
+
+            .modal-footer {
+                padding: 12px 16px;
+                flex-wrap: wrap;
+            }
+
+            .btn {
+                padding: 10px 16px;
+                font-size: 13px;
+            }
+
+            /* Toast responsive */
+            .toast {
+                left: 16px;
+                right: 16px;
+                bottom: 16px;
+            }
+
+            /* List item responsive */
+            .list-item {
+                padding: 12px 16px;
+                flex-wrap: wrap;
+            }
+
+            .list-item .badge {
+                margin-top: 8px;
+                width: 100%;
+                text-align: center;
+            }
+
+            /* Profile page responsive */
+            .profile-info-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .top-header {
+                padding-left: 70px;
+            }
+
+            .header-title {
+                font-size: 18px;
+            }
+
+            .header-subtitle {
+                font-size: 12px;
+            }
+
+            .stats-grid {
+                gap: 10px;
+            }
+
+            .stat-card {
+                padding: 14px;
+            }
+
+            .stat-value {
+                font-size: 22px;
+            }
+
+            .stat-label {
+                font-size: 12px;
+            }
+
+            .task-overview-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .task-overview-value {
+                font-size: 24px;
+            }
+
+            .task-overview-label {
+                font-size: 11px;
+            }
+
+            .tl-file-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .tl-file-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 22px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            /* Profile page on small screens */
+            .card-body {
+                padding: 16px;
+            }
+
+            #profile .card-body h2 {
+                font-size: 20px;
+            }
+
+            #profile .card-body h4 {
+                font-size: 14px;
+            }
+
+            /* Permissions badges wrap */
+            #profile .card-body > div:last-child > div {
+                gap: 6px;
+            }
+
+            #profile .card-body .badge {
+                font-size: 11px;
+                padding: 4px 8px;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- Mobile Menu Toggle Button -->
+    <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleMobileSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+
     <!-- Sidebar -->
-    <div class="sidebar">
+    <div class="sidebar" id="sidebar">
+        <!-- Mobile Close Button -->
+        <button class="sidebar-close-btn" onclick="closeMobileSidebar()">
+            <i class="fas fa-times"></i>
+        </button>
+
         <div class="sidebar-logo">
             <img src="{{ asset('images/UP logo.png') }}" alt="UP Cebu Logo">
             <h3>UP Cebu Incubator</h3>
@@ -1520,9 +1873,9 @@
                         // Get profile picture from user or linked intern
                         $profilePicture = $user->profile_picture ?? ($linkedIntern ? $linkedIntern->profile_picture : null);
                     @endphp
-                    
+
                     <!-- Profile Picture Section -->
-                    <div style="text-align: center; padding: 30px 0; border-bottom: 1px solid #E5E7EB; margin-bottom: 30px;">
+                    <div class="profile-header-section" style="text-align: center; padding: 30px 0; border-bottom: 1px solid #E5E7EB; margin-bottom: 30px;">
                         <div id="profilePictureContainer" style="position: relative; width: 120px; height: 120px; margin: 0 auto 16px; cursor: pointer;" onclick="document.getElementById('profilePictureInput').click()">
                             @if($profilePicture)
                                 <img id="profilePictureImg" src="{{ asset('storage/' . $profilePicture) }}" alt="Profile" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; box-shadow: 0 8px 24px rgba(123, 29, 58, 0.3);">
@@ -1537,7 +1890,7 @@
                         </div>
                         <input type="file" id="profilePictureInput" accept="image/jpeg,image/png,image/jpg,image/gif" style="display: none;" onchange="uploadProfilePicture(this)">
                         <p style="font-size: 12px; color: #6B7280; margin-bottom: 12px;">Click to change profile picture</p>
-                        <h2 style="font-size: 24px; font-weight: 700; color: #1F2937; margin-bottom: 4px;">{{ $user->name }}</h2>
+                        <h2 style="font-size: 22px; font-weight: 700; color: #1F2937; margin-bottom: 4px; word-break: break-word;">{{ $user->name }}</h2>
                         <p style="color: var(--maroon); font-weight: 600;">Team Leader</p>
                         <p style="color: #6B7280; font-size: 14px;">{{ $school->name }}</p>
                         @if($linkedIntern)
@@ -1550,14 +1903,14 @@
                         <h4 style="font-size: 16px; font-weight: 700; color: #1F2937; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
                             <i class="fas fa-id-card" style="color: var(--maroon);"></i> Account Information
                         </h4>
-                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                        <div class="profile-info-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
                             <div>
                                 <label style="font-size: 12px; color: #6B7280; display: block; margin-bottom: 4px;">Full Name</label>
                                 <p style="font-weight: 600; color: #1F2937;">{{ $user->name }}</p>
                             </div>
                             <div>
                                 <label style="font-size: 12px; color: #6B7280; display: block; margin-bottom: 4px;">Email Address</label>
-                                <p style="font-weight: 600; color: #1F2937;">{{ $user->email }}</p>
+                                <p style="font-weight: 600; color: #1F2937; word-break: break-all;">{{ $user->email }}</p>
                             </div>
                             <div>
                                 <label style="font-size: 12px; color: #6B7280; display: block; margin-bottom: 4px;">Reference Code</label>
@@ -1575,7 +1928,7 @@
                         <h4 style="font-size: 16px; font-weight: 700; color: #1F2937; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
                             <i class="fas fa-university" style="color: var(--maroon);"></i> School Assignment
                         </h4>
-                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                        <div class="profile-info-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
                             <div>
                                 <label style="font-size: 12px; color: #6B7280; display: block; margin-bottom: 4px;">School Name</label>
                                 <p style="font-weight: 600; color: #1F2937;">{{ $school->name }}</p>
@@ -1602,7 +1955,7 @@
                             <i class="fas fa-link"></i> Linked Intern Account
                         </h4>
                         <p style="color: #166534; margin-bottom: 16px; font-size: 14px;">Your team leader account is linked to an intern profile.</p>
-                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                        <div class="profile-info-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
                             <div>
                                 <label style="font-size: 12px; color: #166534; display: block; margin-bottom: 4px;">Intern Reference</label>
                                 <p style="font-family: monospace; color: #166534; font-weight: 600;">{{ $linkedIntern->reference_code }}</p>
@@ -1618,7 +1971,7 @@
                             <div>
                                 <label style="font-size: 12px; color: #166534; display: block; margin-bottom: 4px;">Progress</label>
                                 <div style="display: flex; align-items: center; gap: 8px;">
-                                    <div style="flex: 1; background: #BBF7D0; border-radius: 10px; height: 8px;">
+                                    <div style="flex: 1; background: #BBF7D0; border-radius: 10px; height: 8px; min-width: 60px;">
                                         <div style="width: {{ $linkedIntern->progress_percentage }}%; background: #22C55E; border-radius: 10px; height: 100%;"></div>
                                     </div>
                                     <span style="font-weight: 600; color: #166534;">{{ $linkedIntern->progress_percentage }}%</span>
@@ -2405,7 +2758,7 @@
 
     <!-- ===== INCUBATEE TRACKER MODALS ===== -->
     @if(in_array('incubatee_tracker', $viewableModules))
-    
+
     <!-- MOA Details Modal -->
     <div id="tlMoaDetailsModal" class="modal-overlay">
         <div class="modal" style="max-width: 650px;">
@@ -2537,7 +2890,7 @@
 
     <!-- ===== ISSUES MANAGEMENT MODALS ===== -->
     @if(in_array('issues_management', $viewableModules))
-    
+
     <!-- View Room Issue Details Modal -->
     <div id="tlIssueDetailsModal" class="modal-overlay">
         <div class="modal" style="max-width: 580px;">
@@ -3162,6 +3515,50 @@
 
     <!-- JavaScript -->
     <script>
+        // Mobile Sidebar Toggle Functions
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            const menuBtn = document.getElementById('mobileMenuBtn');
+
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+            menuBtn.classList.toggle('active');
+
+            if (sidebar.classList.contains('open')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = '';
+            }
+        }
+
+        function closeMobileSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            const menuBtn = document.getElementById('mobileMenuBtn');
+
+            sidebar.classList.remove('open');
+            overlay.classList.remove('active');
+            menuBtn.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Auto-close sidebar when clicking menu items on mobile
+        document.querySelectorAll('.sidebar .menu-item').forEach(item => {
+            item.addEventListener('click', function() {
+                if (window.innerWidth <= 768) {
+                    setTimeout(closeMobileSidebar, 150);
+                }
+            });
+        });
+
+        // Close sidebar on window resize to desktop
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                closeMobileSidebar();
+            }
+        });
+
         // Store data for modals
         const tasksData = @json($allTasks);
         const reportsData = @json($allReports);
@@ -3598,7 +3995,7 @@
 
         // ===== ISSUES MANAGEMENT FUNCTIONS =====
         @if(in_array('issues_management', $viewableModules))
-        
+
         // Store issues data for modal access
         const tlIssuesData = {
             @if(isset($issuesData['issues']))
@@ -4720,26 +5117,26 @@
         // Profile picture upload function
         async function uploadProfilePicture(input) {
             if (!input.files || !input.files[0]) return;
-            
+
             const file = input.files[0];
-            
+
             // Validate file size (5MB max)
             if (file.size > 5 * 1024 * 1024) {
                 alert('File size must be less than 5MB');
                 return;
             }
-            
+
             // Validate file type
             const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
             if (!validTypes.includes(file.type)) {
                 alert('Please select a valid image file (JPEG, PNG, JPG, or GIF)');
                 return;
             }
-            
+
             const formData = new FormData();
             formData.append('profile_picture', file);
             formData.append('_token', '{{ csrf_token() }}');
-            
+
             try {
                 const response = await fetch('{{ route("team-leader.profile.upload-picture") }}', {
                     method: 'POST',
@@ -4748,15 +5145,15 @@
                         'X-Requested-With': 'XMLHttpRequest'
                     }
                 });
-                
+
                 const data = await response.json();
-                
+
                 if (data.success) {
                     // Update the profile picture on the page
                     const container = document.getElementById('profilePictureContainer');
                     const existingImg = document.getElementById('profilePictureImg');
                     const existingInitial = document.getElementById('profilePictureInitial');
-                    
+
                     if (existingImg) {
                         existingImg.src = data.image_url;
                     } else if (existingInitial) {
@@ -4768,13 +5165,13 @@
                         img.style.cssText = 'width: 120px; height: 120px; border-radius: 50%; object-fit: cover; box-shadow: 0 8px 24px rgba(123, 29, 58, 0.3);';
                         existingInitial.replaceWith(img);
                     }
-                    
+
                     // Also update sidebar avatar if it exists
                     const sidebarAvatar = document.querySelector('.sidebar-user-avatar img');
                     if (sidebarAvatar) {
                         sidebarAvatar.src = data.image_url;
                     }
-                    
+
                     alert('Profile picture updated successfully! This will also be synced with your intern account if you have one.');
                 } else {
                     alert(data.message || 'Failed to upload profile picture');
@@ -4783,7 +5180,7 @@
                 console.error('Error uploading profile picture:', error);
                 alert('An error occurred while uploading the profile picture');
             }
-            
+
             // Clear the input
             input.value = '';
         }
@@ -5084,8 +5481,8 @@
                                 ${attendance.time_out ? attendance.time_out : '<span style="color: var(--forest-green); font-weight: 500;">Still working</span>'}
                             </td>
                             <td>
-                                ${attendance.hours_worked > 0 
-                                    ? `<span style="font-weight: 600; color: var(--maroon);">${attendance.hours_worked.toFixed(1)} hrs</span>` 
+                                ${attendance.hours_worked > 0
+                                    ? `<span style="font-weight: 600; color: var(--maroon);">${attendance.hours_worked.toFixed(1)} hrs</span>`
                                     : '<span style="color: #9CA3AF;">--</span>'}
                             </td>
                             <td>

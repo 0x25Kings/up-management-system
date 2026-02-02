@@ -46,15 +46,15 @@
         .section-header h2 { font-size: 36px; font-weight: 800; color: #1F2937; margin-bottom: 16px; }
         .section-header p { font-size: 18px; color: #6B7280; max-width: 600px; margin: 0 auto; }
         .portal-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
-        .portal-card { background: white; border-radius: 20px; padding: 40px 30px; text-align: center; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); transition: all 0.3s; border: 1px solid #E5E7EB; text-decoration: none; }
+        .portal-card { background: white; border-radius: 20px; padding: 40px 30px; text-align: center; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); transition: all 0.3s; border: 1px solid #E5E7EB; text-decoration: none; cursor: pointer; display: flex; flex-direction: column; }
         .portal-card:hover { transform: translateY(-10px); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15); }
         .portal-icon { width: 80px; height: 80px; border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; font-size: 36px; }
         .portal-card.intern .portal-icon { background: linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%); color: white; }
         .portal-card.startup .portal-icon { background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; }
         .portal-card.agency .portal-icon { background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%); color: white; }
         .portal-card h3 { font-size: 24px; font-weight: 700; color: #1F2937; margin-bottom: 12px; }
-        .portal-card p { color: #6B7280; font-size: 15px; line-height: 1.6; margin-bottom: 24px; }
-        .portal-btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 10px; font-weight: 600; font-size: 14px; transition: all 0.3s; }
+        .portal-card p { color: #6B7280; font-size: 15px; line-height: 1.6; margin-bottom: 24px; flex-grow: 1; }
+        .portal-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 24px; border-radius: 10px; font-weight: 600; font-size: 14px; transition: all 0.3s; margin-top: auto; }
         .portal-card.intern .portal-btn { background: #7B1D3A; color: white; }
         .portal-card.startup .portal-btn { background: #10B981; color: white; }
         .portal-card.agency .portal-btn { background: #3B82F6; color: white; }
@@ -136,8 +136,31 @@
         .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(123, 29, 58, 0.3); }
 
         /* Responsive */
-        @media (max-width: 1024px) { .calendar-container { grid-template-columns: 1fr; } .portal-cards { grid-template-columns: 1fr; } .footer-content { grid-template-columns: 1fr 1fr; } }
-        @media (max-width: 768px) { .nav-links { display: none; } .mobile-menu-btn { display: block; } .hero h1 { font-size: 32px; } .hero p { font-size: 16px; } .section-header h2 { font-size: 28px; } .footer-content { grid-template-columns: 1fr; } .form-row { grid-template-columns: 1fr; } }
+        @media (max-width: 1200px) { .portal-cards { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 1024px) { .calendar-container { grid-template-columns: 1fr; } .footer-content { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .mobile-menu-btn { display: block; }
+            .hero h1 { font-size: 32px; }
+            .hero p { font-size: 16px; }
+            .section-header h2 { font-size: 28px; }
+            .footer-content { grid-template-columns: 1fr; }
+            .form-row { grid-template-columns: 1fr; }
+            .portal-cards { grid-template-columns: 1fr; gap: 20px; }
+            .portal-card { padding: 30px 24px; }
+            .portal-icon { width: 70px; height: 70px; font-size: 30px; margin-bottom: 20px; }
+            .portal-card h3 { font-size: 20px; }
+            .portal-card p { font-size: 14px; margin-bottom: 20px; }
+            .tl-login-content { max-width: 100%; margin: 16px; }
+            .tl-login-header { padding: 24px; }
+            .tl-login-header .icon-circle { width: 60px; height: 60px; }
+            .tl-login-header .icon-circle i { font-size: 28px; }
+            .tl-login-header h3 { font-size: 20px; }
+            .tl-login-body { padding: 24px; }
+        }
+        @media (max-width: 480px) {
+            .portal-card { padding: 24px 20px; }
+        }
 
         /* Toast Notifications */
         .toast-container {
