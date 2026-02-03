@@ -9,38 +9,38 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; background: #F9FAFB; }
-        
-        .card { background: white; border-radius: 16px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); overflow: hidden; }
-        .card-header { padding: 20px 24px; border-bottom: 1px solid #E5E7EB; display: flex; justify-content: space-between; align-items: center; }
-        .card-title { font-size: 18px; font-weight: 700; color: #1F2937; }
-        .card-body { padding: 24px; }
 
-        .badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .card { background: white; border-radius: 16px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); overflow: hidden; }
+        .card-header { padding: 16px 20px; border-bottom: 1px solid #E5E7EB; display: flex; justify-content: space-between; align-items: center; }
+        .card-title { font-size: 17px; font-weight: 700; color: #1F2937; }
+        .card-body { padding: 20px; }
+
+        .badge { padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
         .badge-success { background: #ECFDF5; color: #059669; }
         .badge-warning { background: #FFFBEB; color: #D97706; }
         .badge-info { background: #EFF6FF; color: #2563EB; }
 
-        .btn { padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; transition: all 0.2s; }
+        .btn { padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; transition: all 0.2s; }
         .btn-primary { background: linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%); color: white; }
         .btn-success { background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; }
         .btn-secondary { background: #F3F4F6; color: #4B5563; }
 
-        .alert { padding: 16px 20px; border-radius: 12px; display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+        .alert { padding: 14px 18px; border-radius: 12px; display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
         .alert-success { background: #ECFDF5; border-left: 4px solid #10B981; color: #065F46; }
 
-        .form-group { margin-bottom: 20px; }
-        .form-label { display: block; font-weight: 600; color: #374151; margin-bottom: 8px; font-size: 14px; }
-        .form-input { width: 100%; padding: 12px 16px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 14px; }
+        .form-group { margin-bottom: 16px; }
+        .form-label { display: block; font-weight: 600; color: #374151; margin-bottom: 6px; font-size: 14px; }
+        .form-input { width: 100%; padding: 10px 14px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 14px; }
         .form-input:focus { outline: none; border-color: #7B1D3A; box-shadow: 0 0 0 3px rgba(123, 29, 58, 0.1); }
-        .form-textarea { min-height: 120px; resize: vertical; }
+        .form-textarea { min-height: 100px; resize: vertical; }
 
-        .section-title { font-weight: 600; color: #1F2937; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
-        .section-content { background: #F9FAFB; padding: 20px; border-radius: 12px; white-space: pre-wrap; }
+        .section-title { font-weight: 600; color: #1F2937; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+        .section-content { background: #F9FAFB; padding: 16px; border-radius: 12px; white-space: pre-wrap; }
     </style>
 </head>
 <body>
-    <div style="padding: 32px; max-width: 900px; margin: 0 auto;">
-        <div style="display: flex; gap: 12px; margin-bottom: 24px;">
+    <div style="padding: 24px; max-width: 900px; margin: 0 auto;">
+        <div style="display: flex; gap: 12px; margin-bottom: 20px;">
             <a href="{{ route('admin.team-reports.index') }}" class="btn btn-secondary">
                 <i class="fas fa-arrow-left"></i> Back to Reports
             </a>
@@ -76,7 +76,7 @@
             </div>
             <div class="card-body">
                 <!-- Report Meta -->
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 32px; padding: 20px; background: #F9FAFB; border-radius: 12px;">
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 24px; padding: 16px; background: #F9FAFB; border-radius: 12px;">
                     <div>
                         <div style="font-size: 12px; color: #6B7280; text-transform: uppercase; font-weight: 600;">School</div>
                         <div style="font-weight: 600; color: #1F2937;">{{ $report->school->name ?? 'N/A' }}</div>
@@ -99,7 +99,7 @@
 
                 <!-- Task Statistics -->
                 @if($report->task_statistics)
-                    <div style="margin-bottom: 32px;">
+                    <div style="margin-bottom: 24px;">
                         <h4 class="section-title">
                             <i class="fas fa-chart-pie" style="color: #7B1D3A;"></i> Task Statistics at Time of Report
                         </h4>
@@ -163,7 +163,7 @@
 
                 <!-- Previous Feedback -->
                 @if($report->admin_feedback && $report->status !== 'submitted')
-                    <hr style="margin: 32px 0; border: none; border-top: 1px solid #E5E7EB;">
+                    <hr style="margin: 24px 0; border: none; border-top: 1px solid #E5E7EB;">
                     <div>
                         <h4 class="section-title">
                             <i class="fas fa-comment" style="color: #7B1D3A;"></i> Your Feedback
@@ -181,7 +181,7 @@
 
                 <!-- Review Form -->
                 @if($report->status === 'submitted')
-                    <hr style="margin: 32px 0; border: none; border-top: 1px solid #E5E7EB;">
+                    <hr style="margin: 24px 0; border: none; border-top: 1px solid #E5E7EB;">
                     <form action="{{ route('admin.team-reports.review', $report) }}" method="POST">
                         @csrf
                         <h4 class="section-title">
