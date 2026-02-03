@@ -1140,8 +1140,8 @@
             <a class="menu-item" data-page="tasks">
                 <i class="fas fa-tasks"></i>
                 <span>Task Management</span>
-                @if($overdueTasks > 0)
-                    <span class="menu-badge" style="background: #DC2626; color: white;">{{ $overdueTasks }}</span>
+                @if(($pendingTasks + $inProgressTasks) > 0)
+                    <span class="menu-badge" style="background: #F59E0B; color: white;">{{ $pendingTasks + $inProgressTasks }}</span>
                 @endif
             </a>
             <a class="menu-item" data-page="attendance">
@@ -1184,9 +1184,7 @@
             <a class="menu-item" data-page="incubatee-tracker">
                 <i class="fas fa-rocket"></i>
                 <span>Incubatee Tracker</span>
-                @if(isset($incubateeData['pendingSubmissions']) && $incubateeData['pendingSubmissions'] > 0)
-                    <span class="menu-badge" style="background: var(--gold-dark); color: var(--maroon);">{{ $incubateeData['pendingSubmissions'] }}</span>
-                @endif
+                <span id="incubateeBadge" class="menu-badge" style="background: var(--gold-dark); color: var(--maroon); {{ isset($incubateeData['pendingSubmissions']) && $incubateeData['pendingSubmissions'] > 0 ? '' : 'display: none;' }}">{{ $incubateeData['pendingSubmissions'] ?? 0 }}</span>
             </a>
             @endif
 
@@ -1509,10 +1507,10 @@
                                 </td>
                                 <td>
                                     <div style="display: flex; gap: 6px;">
-                                        <button class="btn btn-sm btn-secondary" onclick="viewIntern({{ $intern->id }})" title="View Details">
+                                        <button class="btn btn-sm" style="background: #3B82F6; color: white;" onclick="viewIntern({{ $intern->id }})" title="View Details">
                                             <i class="fas fa-eye"></i>
                                         </button>
-                                        <button class="btn btn-sm" style="background: #F59E0B; color: white;" onclick="editIntern({{ $intern->id }})" title="Edit Intern">
+                                        <button class="btn btn-sm" style="background: #10B981; color: white;" onclick="editIntern({{ $intern->id }})" title="Edit Intern">
                                             <i class="fas fa-edit"></i>
                                         </button>
                                     </div>
@@ -1634,11 +1632,11 @@
                                 </td>
                                 <td>
                                     <div style="display: flex; gap: 6px;">
-                                        <button class="btn btn-sm btn-secondary" onclick="editTask({{ $task->id }})" title="Edit">
+                                        <button class="btn btn-sm" style="background: #10B981; color: white;" onclick="editTask({{ $task->id }})" title="Edit">
                                             <i class="fas fa-edit"></i>
                                         </button>
-                                        <button class="btn btn-sm btn-danger" onclick="deleteTask({{ $task->id }})" title="Delete">
-                                            <i class="fas fa-trash"></i>
+                                        <button class="btn btn-sm" style="background: #F59E0B; color: white;" onclick="archiveTask({{ $task->id }})" title="Archive">
+                                            <i class="fas fa-archive"></i>
                                         </button>
                                     </div>
                                 </td>
@@ -1831,15 +1829,15 @@
                                 </td>
                                 <td>
                                     <div style="display: flex; gap: 6px;">
-                                        <button class="btn btn-sm btn-secondary" onclick="viewReport({{ $report->id }})" title="View">
+                                        <button class="btn btn-sm" style="background: #3B82F6; color: white;" onclick="viewReport({{ $report->id }})" title="View">
                                             <i class="fas fa-eye"></i>
                                         </button>
                                         @if($report->status === 'draft')
-                                        <button class="btn btn-sm btn-primary" onclick="editReport({{ $report->id }})" title="Edit">
+                                        <button class="btn btn-sm" style="background: #10B981; color: white;" onclick="editReport({{ $report->id }})" title="Edit">
                                             <i class="fas fa-edit"></i>
                                         </button>
-                                        <button class="btn btn-sm btn-danger" onclick="deleteReport({{ $report->id }})" title="Delete">
-                                            <i class="fas fa-trash"></i>
+                                        <button class="btn btn-sm" style="background: #F59E0B; color: white;" onclick="archiveReport({{ $report->id }})" title="Archive">
+                                            <i class="fas fa-archive"></i>
                                         </button>
                                         @endif
                                     </div>
@@ -2310,11 +2308,11 @@
                                 </td>
                                 <td>
                                     <div style="display: flex; gap: 6px;">
-                                        <button class="btn btn-sm btn-secondary" onclick="tlViewMoaDetails('{{ $moa->id }}')" title="View Details">
+                                        <button class="btn btn-sm" style="background: #3B82F6; color: white;" onclick="tlViewMoaDetails('{{ $moa->id }}')" title="View Details">
                                             <i class="fas fa-eye"></i>
                                         </button>
                                         @if(in_array('incubatee_tracker', $editableModules))
-                                        <button class="btn btn-sm btn-primary" onclick="tlReviewSubmission('{{ $moa->id }}', 'moa')" title="Review">
+                                        <button class="btn btn-sm" style="background: #10B981; color: white;" onclick="tlReviewSubmission('{{ $moa->id }}', 'moa')" title="Review">
                                             <i class="fas fa-clipboard-check"></i>
                                         </button>
                                         @endif
@@ -2393,11 +2391,11 @@
                                 </td>
                                 <td>
                                     <div style="display: flex; gap: 6px;">
-                                        <button class="btn btn-sm btn-secondary" onclick="tlViewPaymentDetails('{{ $payment->id }}')" title="View Details">
+                                        <button class="btn btn-sm" style="background: #3B82F6; color: white;" onclick="tlViewPaymentDetails('{{ $payment->id }}')" title="View Details">
                                             <i class="fas fa-eye"></i>
                                         </button>
                                         @if(in_array('incubatee_tracker', $editableModules))
-                                        <button class="btn btn-sm btn-primary" onclick="tlReviewSubmission('{{ $payment->id }}', 'finance')" title="Review">
+                                        <button class="btn btn-sm" style="background: #10B981; color: white;" onclick="tlReviewSubmission('{{ $payment->id }}', 'finance')" title="Review">
                                             <i class="fas fa-clipboard-check"></i>
                                         </button>
                                         @endif
@@ -2596,11 +2594,11 @@
                                 <td style="font-size: 12px;">{{ $issue->created_at->format('M d, Y') }}</td>
                                 <td>
                                     <div style="display: flex; gap: 4px;">
-                                        <button onclick="tlViewIssueDetails('{{ $issue->id }}')" class="btn btn-sm btn-secondary" style="padding: 6px 8px;" title="View Details">
+                                        <button onclick="tlViewIssueDetails('{{ $issue->id }}')" class="btn btn-sm" style="padding: 6px 8px; background: #3B82F6; color: white;" title="View Details">
                                             <i class="fas fa-eye"></i>
                                         </button>
                                         @if(in_array('issues_management', $editableModules))
-                                        <button onclick="tlUpdateIssueStatus('{{ $issue->id }}')" class="btn btn-sm btn-primary" style="padding: 6px 8px; background: #10B981;" title="Update Status">
+                                        <button onclick="tlUpdateIssueStatus('{{ $issue->id }}')" class="btn btn-sm" style="padding: 6px 8px; background: #10B981; color: white;" title="Update Status">
                                             <i class="fas fa-check"></i>
                                         </button>
                                         @endif
@@ -3364,24 +3362,24 @@
         </div>
     </div>
 
-    <!-- Delete Confirmation Modal -->
-    <div id="deleteConfirmModal" class="modal-overlay">
+    <!-- Archive Confirmation Modal -->
+    <div id="archiveConfirmModal" class="modal-overlay">
         <div class="modal" style="max-width: 400px;">
-            <div class="modal-header" style="background: linear-gradient(135deg, #DC2626 0%, #991B1B 100%);">
-                <h3><i class="fas fa-exclamation-triangle"></i> Confirm Delete</h3>
-                <button class="modal-close" onclick="closeModal('deleteConfirmModal')">&times;</button>
+            <div class="modal-header" style="background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);">
+                <h3><i class="fas fa-archive"></i> Confirm Archive</h3>
+                <button class="modal-close" onclick="closeModal('archiveConfirmModal')">&times;</button>
             </div>
-            <form id="deleteForm" method="POST">
+            <form id="archiveForm" method="POST">
                 @csrf
                 @method('DELETE')
                 <div class="modal-body" style="text-align: center; padding: 32px;">
-                    <i class="fas fa-trash-alt" style="font-size: 48px; color: #DC2626; margin-bottom: 16px;"></i>
+                    <i class="fas fa-archive" style="font-size: 48px; color: #F59E0B; margin-bottom: 16px;"></i>
                     <h4 style="margin-bottom: 8px; color: #1F2937;">Are you sure?</h4>
-                    <p id="deleteConfirmMessage" style="color: #6B7280;">This action cannot be undone.</p>
+                    <p id="archiveConfirmMessage" style="color: #6B7280;">This item will be archived.</p>
                 </div>
                 <div class="modal-footer" style="justify-content: center;">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal('deleteConfirmModal')">Cancel</button>
-                    <button type="submit" class="btn btn-danger"><i class="fas fa-trash"></i> Delete</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('archiveConfirmModal')">Cancel</button>
+                    <button type="submit" class="btn" style="background: #F59E0B; color: white;"><i class="fas fa-archive"></i> Archive</button>
                 </div>
             </form>
         </div>
@@ -3770,6 +3768,20 @@
             closeModal('tlReviewMoaModal');
         }
 
+        function updateIncubateeBadge() {
+            const badge = document.getElementById('incubateeBadge');
+            if (badge) {
+                let count = parseInt(badge.textContent) || 0;
+                if (count > 0) {
+                    count--;
+                    badge.textContent = count;
+                    if (count === 0) {
+                        badge.style.display = 'none';
+                    }
+                }
+            }
+        }
+
         function tlSubmitMoaReview() {
             const moaId = document.getElementById('tlReviewMoaId').value;
             const action = document.getElementById('tlReviewMoaAction').value;
@@ -3797,6 +3809,8 @@
                 if (data.success) {
                     showToast(`MOA Request ${data.submission.tracking_code} has been ${action === 'approved' ? 'approved' : action === 'rejected' ? 'rejected' : 'updated'}!`);
                     tlCloseReviewMoaModal();
+                    // Update badge count
+                    updateIncubateeBadge();
                     location.reload();
                 } else {
                     showToast(data.message || 'Failed to update MOA request', true);
@@ -3980,6 +3994,8 @@
                 if (data.success) {
                     showToast(`Payment ${data.submission.tracking_code} has been ${action === 'approved' ? 'verified' : action === 'rejected' ? 'rejected' : 'updated'}!`);
                     tlCloseReviewPaymentModal();
+                    // Update badge count
+                    updateIncubateeBadge();
                     location.reload();
                 } else {
                     showToast(data.message || 'Failed to update payment submission', true);
@@ -4758,10 +4774,10 @@
             openModal('editTaskModal');
         }
 
-        function deleteTask(taskId) {
-            document.getElementById('deleteForm').action = `/team-leader/tasks/${taskId}`;
-            document.getElementById('deleteConfirmMessage').textContent = 'This task will be permanently deleted.';
-            openModal('deleteConfirmModal');
+        function archiveTask(taskId) {
+            document.getElementById('archiveForm').action = `/team-leader/tasks/${taskId}`;
+            document.getElementById('archiveConfirmMessage').textContent = 'This task will be archived.';
+            openModal('archiveConfirmModal');
         }
 
         // ========== INTERN FUNCTIONS ==========
@@ -5009,10 +5025,10 @@
             openModal('editReportModal');
         }
 
-        function deleteReport(reportId) {
-            document.getElementById('deleteForm').action = `/team-leader/reports/${reportId}`;
-            document.getElementById('deleteConfirmMessage').textContent = 'This report will be permanently deleted.';
-            openModal('deleteConfirmModal');
+        function archiveReport(reportId) {
+            document.getElementById('archiveForm').action = `/team-leader/reports/${reportId}`;
+            document.getElementById('archiveConfirmMessage').textContent = 'This report will be archived.';
+            openModal('archiveConfirmModal');
         }
 
         // ========== AJAX FORM SUBMISSIONS ==========
