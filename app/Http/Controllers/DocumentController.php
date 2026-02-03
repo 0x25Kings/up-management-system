@@ -129,13 +129,29 @@ class DocumentController extends Controller
     }
 
     /**
+     * Calculate total size of a folder in bytes
+     */
+    private function getFolderSize($folderPath)
+    {
+        $totalSize = 0;
+        $files = Storage::disk('local')->allFiles($folderPath);
+
+        foreach ($files as $file) {
+            $totalSize += Storage::disk('local')->size($file);
+        }
+
+        return $totalSize;
+    }
+
+    /**
      * Upload document
      */
     public function uploadDocument(Request $request)
     {
         try {
+            // Standard file validation (50MB max per file)
             $request->validate([
-                'file' => 'required|file|max:51200|mimes:pdf,doc,docx,xls,xlsx,txt,jpg,jpeg,png,gif,zip,rar,ppt,pptx,csv', // 50MB limit
+                'file' => 'required|file|max:51200|mimes:pdf,doc,docx,xls,xlsx,txt,jpg,jpeg,png,gif,zip,rar,ppt,pptx,csv',
                 'folder_id' => 'nullable|exists:document_folders,id',
                 'description' => 'nullable|string|max:500',
             ]);
@@ -151,7 +167,7 @@ class DocumentController extends Controller
                 return response()->json(['success' => false, 'message' => 'Intern not found'], 404);
             }
 
-// Interns can only upload to shared folders
+            // Interns can only upload to shared folders
             if (!$request->folder_id) {
                 return response()->json([
                     'success' => false,
@@ -159,7 +175,7 @@ class DocumentController extends Controller
                 ], 403);
             }
 
-            // Determine the storage directory
+            // Get the folder
             $folder = DocumentFolder::where('folder_type', 'shared')
                 ->find($request->folder_id);
 
@@ -178,6 +194,23 @@ class DocumentController extends Controller
                         'success' => false,
                         'message' => 'You do not have permission to upload to this folder'
                     ], 403);
+                }
+            }
+
+            // Check folder storage limit
+            if ($folder->size_limit_mb) {
+                $currentFolderSize = $this->getFolderSize($folder->storage_path);
+                $uploadFileSize = $request->file('file')->getSize();
+                $newTotalSize = $currentFolderSize + $uploadFileSize;
+                $limitInBytes = $folder->size_limit_mb * 1024 * 1024;
+
+                if ($newTotalSize > $limitInBytes) {
+                    $currentSizeMb = round($currentFolderSize / 1024 / 1024, 2);
+                    $fileSizeMb = round($uploadFileSize / 1024 / 1024, 2);
+                    return response()->json([
+                        'success' => false,
+                        'message' => "This folder has reached its storage limit of {$folder->size_limit_mb}MB. Current usage: {$currentSizeMb}MB. Your file: {$fileSizeMb}MB. Please contact the administrator."
+                    ], 400);
                 }
             }
 
@@ -716,6 +749,7 @@ class DocumentController extends Controller
                 'description' => 'nullable|string|max:500',
                 'allowed_users' => 'required|array',
                 'allowed_users.*' => 'in:intern,team_leader,startup',
+                'size_limit_mb' => 'nullable|integer|min:1|max:5000',
             ]);
 
             if (!Auth::check()) {
@@ -738,6 +772,7 @@ class DocumentController extends Controller
                 'folder_type' => 'shared',
                 'allowed_users' => $request->allowed_users,
                 'storage_path' => $storagePath,
+                'size_limit_mb' => $request->size_limit_mb ?? 100,
             ]);
 
             return response()->json([

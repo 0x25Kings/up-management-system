@@ -87,6 +87,31 @@ class AdminStartupController extends Controller
     }
 
     /**
+     * Update document status via drag-and-drop (Kanban)
+     */
+    public function updateDocumentStatus(Request $request, StartupSubmission $submission)
+    {
+        $request->validate([
+            'status' => 'required|in:pending,under_review,approved,rejected',
+        ]);
+
+        $submission->update([
+            'status' => $request->status,
+            'reviewed_at' => now(),
+            'reviewed_by' => Auth::id(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Document status updated successfully',
+            'submission' => [
+                'id' => $submission->id,
+                'status' => $submission->status,
+            ]
+        ]);
+    }
+
+    /**
      * Update a room issue status
      */
     public function updateRoomIssue(Request $request, RoomIssue $roomIssue)

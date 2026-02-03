@@ -19,6 +19,7 @@ class DocumentFolder extends Model
         'folder_type',
         'allowed_users',
         'storage_path',
+        'size_limit_mb',
     ];
 
     protected $casts = [

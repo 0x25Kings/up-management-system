@@ -910,6 +910,105 @@
             background: #E5E7EB;
         }
 
+        /* Responsive Modal Styles for Small Laptops */
+        @media (max-width: 1366px) {
+            .modal-content {
+                max-width: 600px;
+                max-height: 85vh;
+            }
+
+            .modal-body {
+                padding: 16px;
+            }
+
+            .form-group {
+                margin-bottom: 12px;
+            }
+
+            .form-label {
+                font-size: 13px;
+                margin-bottom: 6px;
+            }
+
+            .form-input {
+                padding: 8px 10px;
+                font-size: 13px;
+            }
+
+            .form-textarea {
+                min-height: 80px;
+            }
+
+            .intern-select-grid {
+                grid-template-columns: 1fr;
+                max-height: 150px;
+            }
+        }
+
+        /* Activity Log Responsive Styles */
+        @media (max-width: 1366px) {
+            #activity-log > div:nth-child(3) {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            #activity-log > div:nth-child(3) {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        /* Incubatee Tracker Responsive Styles */
+        @media (max-width: 1200px) {
+            #incubatee-tracker > div:nth-child(2) {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+            #issues-management > div:nth-child(2) {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            #incubatee-tracker > div:nth-child(2) {
+                grid-template-columns: 1fr !important;
+            }
+            #issues-management > div:nth-child(2) {
+                grid-template-columns: 1fr !important;
+            }
+            #incubatee-tracker > div:first-child {
+                flex-direction: column !important;
+                gap: 16px;
+            }
+            #incubatee-tracker > div:first-child button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .modal-content {
+                max-width: 90%;
+                max-height: 80vh;
+            }
+
+            .modal-header {
+                padding: 16px;
+            }
+
+            .modal-title {
+                font-size: 18px;
+            }
+
+            .modal-footer {
+                padding: 12px 16px;
+            }
+
+            .form-radio-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+
         .detail-section {
             margin-bottom: 24px;
         }
@@ -953,101 +1052,163 @@
         /* Kanban Board Styles */
         .kanban-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            padding: 20px 0;
-            overflow-x: auto;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            padding: 16px 0;
+            min-height: 600px;
         }
 
         .kanban-column {
             background: #F9FAFB;
             border-radius: 12px;
-            padding: 16px;
+            padding: 14px;
             min-height: 500px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .kanban-column.drag-over {
+            background: #EEF2FF;
+            border: 2px dashed #7B1D3A;
         }
 
         .kanban-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
-            padding-bottom: 12px;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
             border-bottom: 2px solid #E5E7EB;
+            flex-shrink: 0;
         }
 
         .kanban-header h4 {
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 700;
             color: #1F2937;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
 
         .kanban-count {
             background: #7B1D3A;
             color: white;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 11px;
             font-weight: 700;
         }
 
         .kanban-cards {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
+            flex: 1;
+            overflow-y: auto;
+            min-height: 100px;
         }
 
         .kanban-card {
             background: white;
-            border-radius: 10px;
-            padding: 16px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border-left: 4px solid #7B1D3A;
+            border-radius: 8px;
+            padding: 12px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+            cursor: grab;
+            transition: all 0.2s ease;
+            border-left: 3px solid #7B1D3A;
+            min-height: 140px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .kanban-card:active {
+            cursor: grabbing;
+        }
+
+        .kanban-card.dragging {
+            opacity: 0.5;
+            transform: rotate(3deg);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         }
 
         .kanban-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         .kanban-card.success {
             border-left-color: #10B981;
-            background: linear-gradient(135deg, #DCFCE7 0%, #ffffff 100%);
+            background: linear-gradient(135deg, #ECFDF5 0%, #ffffff 100%);
+        }
+
+        .kanban-card.rejected {
+            border-left-color: #EF4444;
+            background: linear-gradient(135deg, #FEF2F2 0%, #ffffff 100%);
+        }
+
+        .kanban-card.reviewing {
+            border-left-color: #3B82F6;
+            background: linear-gradient(135deg, #EFF6FF 0%, #ffffff 100%);
+        }
+
+        .kanban-card.pending {
+            border-left-color: #F59E0B;
+            background: linear-gradient(135deg, #FFFBEB 0%, #ffffff 100%);
+        }
+
+        /* Responsive Kanban */
+        @media (max-width: 1200px) {
+            .kanban-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .kanban-container {
+                grid-template-columns: 1fr;
+            }
         }
 
         .card-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 8px;
-            gap: 8px;
+            margin-bottom: 6px;
+            gap: 6px;
         }
 
         .card-header h5 {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 700;
             color: #1F2937;
             margin: 0;
             flex: 1;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
         .card-description {
-            font-size: 12px;
+            font-size: 11px;
             color: #6B7280;
-            margin-bottom: 12px;
-            line-height: 1.5;
+            margin-bottom: 8px;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
         .card-meta {
             display: flex;
-            gap: 12px;
-            font-size: 11px;
+            gap: 10px;
+            font-size: 10px;
             color: #6B7280;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
         }
 
         .card-meta span {
@@ -1198,6 +1359,29 @@
 
         .btn-edit:hover {
             background: #059669;
+        }
+
+        .btn-delete {
+            background: #DC2626;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #B91C1C;
+        }
+
+        .btn-action:disabled,
+        .btn-action.disabled {
+            background: #E5E7EB !important;
+            color: #9CA3AF !important;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .btn-action:disabled:hover,
+        .btn-action.disabled:hover {
+            background: #E5E7EB !important;
+            transform: none;
         }
 
         .main-content {
@@ -1563,6 +1747,17 @@
             border-radius: 12px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
             overflow: hidden;
+        }
+
+        .table-card > div:has(table),
+        .table-card > table {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .table-card table {
+            width: 100%;
+            min-width: max-content;
         }
 
         .table-header {
@@ -2642,6 +2837,23 @@
             }
         }
 
+        /* Responsive for Small Laptops (1024px - 1366px) */
+        @media (max-width: 1366px) {
+            .table-card {
+                overflow: visible;
+            }
+
+            .table-card > div,
+            .table-card > div:has(table) {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .table-card table {
+                min-width: 900px;
+            }
+        }
+
         /* Responsive Grid Classes for Inline Styles */
         @media (max-width: 968px) {
             /* 4-column grids become 2-column */
@@ -3531,7 +3743,7 @@
                             </div>
                         </div>
                         <div class="notification-footer">
-                            <a href="#" onclick="loadPage(event, 'scheduler')">View All Activity</a>
+                            <a href="#" onclick="loadPage(event, 'activity-log')">View All Activity</a>
                         </div>
                     </div>
                 </div>
@@ -4442,7 +4654,9 @@
                                     <div class="action-buttons" style="display: flex; gap: 6px; justify-content: center; flex-wrap: nowrap;">
                                         <button class="btn-action btn-view" title="View Details" onclick="viewTaskDetails({{ $task->id }})" style="padding: 8px 10px; background: #3B82F6; color: white; border: none; border-radius: 4px; cursor: pointer; flex-shrink: 0;"><i class="fas fa-eye"></i></button>
                                         <button class="btn-action btn-edit" title="Edit Task" onclick="editTask({{ $task->id }})" style="padding: 8px 10px; background: #F59E0B; color: white; border: none; border-radius: 4px; cursor: pointer; flex-shrink: 0;"><i class="fas fa-edit"></i></button>
-                                        @if($task->status !== 'Completed' || empty($task->completed_date))
+                                        @if($task->status === 'Completed' && !empty($task->completed_date))
+                                        <button class="btn-action" title="Already Completed" disabled style="padding: 8px 10px; border: none; border-radius: 4px; flex-shrink: 0;"><i class="fas fa-check"></i></button>
+                                        @else
                                         <button class="btn-action btn-check" title="Mark Complete" onclick="markTaskComplete({{ $task->id }})" style="padding: 8px 10px; background: #10B981; color: white; border: none; border-radius: 4px; cursor: pointer; flex-shrink: 0;"><i class="fas fa-check"></i></button>
                                         @endif
                                     </div>
@@ -4565,43 +4779,38 @@
                 <!-- Kanban Board View -->
                 <div id="kanban-view" class="kanban-container">
                     <!-- Pending Column -->
-                    <div class="kanban-column">
+                    <div class="kanban-column" data-status="pending" ondrop="dropCard(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
                         <div class="kanban-header">
                             <h4><i class="fas fa-inbox"></i> Pending</h4>
-                            <span class="kanban-count">{{ $startupDocuments->where('status', 'pending')->count() }}</span>
+                            <span class="kanban-count" id="pending-count">{{ $startupDocuments->where('status', 'pending')->count() }}</span>
                         </div>
-                        <div class="kanban-cards">
+                        <div class="kanban-cards" id="pending-cards">
                             @forelse($startupDocuments->where('status', 'pending') as $doc)
-                            <div class="kanban-card" onclick="viewDocumentDetails('{{ $doc->id }}')">
+                            <div class="kanban-card pending" draggable="true" data-id="{{ $doc->id }}" ondragstart="dragStart(event)" ondragend="dragEnd(event)" onclick="viewDocumentDetails('{{ $doc->id }}')">
                                 <div class="card-header">
                                     <h5>{{ $doc->company_name }}</h5>
-                                    <span class="status-badge" style="background: #FEF3C7; color: #92400E;">Pending</span>
+                                    <span class="status-badge" style="background: #FEF3C7; color: #92400E; font-size: 9px; padding: 2px 6px;">Pending</span>
                                 </div>
-                                <p class="card-description">{{ $doc->document_type }} - {{ $doc->original_filename }}</p>
+                                <p class="card-description">{{ $doc->document_type }}</p>
                                 <div class="card-meta">
-                                    <span><i class="fas fa-user"></i> {{ $doc->contact_person }}</span>
+                                    <span><i class="fas fa-user"></i> {{ Str::limit($doc->contact_person, 15) }}</span>
                                     <span><i class="fas fa-calendar"></i> {{ $doc->created_at->format('M d') }}</span>
                                 </div>
-                                <div style="margin-top: 8px; font-size: 12px; color: #6B7280;">
+                                <div style="font-size: 10px; color: #6B7280;">
                                     <i class="fas fa-hashtag"></i> {{ $doc->tracking_code }}
                                 </div>
-                                @if($doc->notes)
-                                <div style="margin-top: 8px; font-size: 11px; color: #6B7280; padding: 6px; background: #F3F4F6; border-radius: 4px;">
-                                    {{ Str::limit($doc->notes, 50) }}
-                                </div>
-                                @endif
-                                <div style="margin-top: 10px; display: flex; gap: 6px;">
-                                    <button onclick="event.stopPropagation(); openReviewDocumentModal('{{ $doc->id }}')" style="flex: 1; padding: 6px 10px; font-size: 11px; background: #10B981; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                <div style="margin-top: auto; padding-top: 8px; display: flex; gap: 4px;">
+                                    <button onclick="event.stopPropagation(); openReviewDocumentModal('{{ $doc->id }}')" style="flex: 1; padding: 5px 8px; font-size: 10px; background: #10B981; color: white; border: none; border-radius: 4px; cursor: pointer;">
                                         <i class="fas fa-check"></i> Review
                                     </button>
-                                    <a href="{{ asset('storage/' . $doc->file_path) }}" target="_blank" onclick="event.stopPropagation();" style="padding: 6px 10px; font-size: 11px; background: #3B82F6; color: white; border: none; border-radius: 4px; cursor: pointer; text-decoration: none;">
+                                    <a href="{{ asset('storage/' . $doc->file_path) }}" target="_blank" onclick="event.stopPropagation();" style="padding: 5px 8px; font-size: 10px; background: #3B82F6; color: white; border: none; border-radius: 4px; cursor: pointer; text-decoration: none;">
                                         <i class="fas fa-download"></i>
                                     </a>
                                 </div>
                             </div>
                             @empty
-                            <div style="padding: 20px; text-align: center; color: #9CA3AF; font-size: 13px;">
-                                <i class="fas fa-inbox" style="font-size: 24px; margin-bottom: 8px; display: block;"></i>
+                            <div class="kanban-empty" style="padding: 20px; text-align: center; color: #9CA3AF; font-size: 12px;">
+                                <i class="fas fa-inbox" style="font-size: 20px; margin-bottom: 6px; display: block;"></i>
                                 No pending documents
                             </div>
                             @endforelse
@@ -4609,38 +4818,38 @@
                     </div>
 
                     <!-- Under Review Column -->
-                    <div class="kanban-column">
+                    <div class="kanban-column" data-status="under_review" ondrop="dropCard(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
                         <div class="kanban-header">
                             <h4><i class="fas fa-search"></i> Under Review</h4>
-                            <span class="kanban-count">{{ $startupDocuments->where('status', 'under_review')->count() }}</span>
+                            <span class="kanban-count" id="under_review-count">{{ $startupDocuments->where('status', 'under_review')->count() }}</span>
                         </div>
-                        <div class="kanban-cards">
+                        <div class="kanban-cards" id="under_review-cards">
                             @forelse($startupDocuments->where('status', 'under_review') as $doc)
-                            <div class="kanban-card" onclick="viewDocumentDetails('{{ $doc->id }}')">
+                            <div class="kanban-card reviewing" draggable="true" data-id="{{ $doc->id }}" ondragstart="dragStart(event)" ondragend="dragEnd(event)" onclick="viewDocumentDetails('{{ $doc->id }}')">
                                 <div class="card-header">
                                     <h5>{{ $doc->company_name }}</h5>
-                                    <span class="status-badge" style="background: #DBEAFE; color: #1E40AF;">Reviewing</span>
+                                    <span class="status-badge" style="background: #DBEAFE; color: #1E40AF; font-size: 9px; padding: 2px 6px;">Reviewing</span>
                                 </div>
-                                <p class="card-description">{{ $doc->document_type }} - {{ $doc->original_filename }}</p>
+                                <p class="card-description">{{ $doc->document_type }}</p>
                                 <div class="card-meta">
-                                    <span><i class="fas fa-user"></i> {{ $doc->contact_person }}</span>
+                                    <span><i class="fas fa-user"></i> {{ Str::limit($doc->contact_person, 15) }}</span>
                                     <span><i class="fas fa-calendar"></i> {{ $doc->created_at->format('M d') }}</span>
                                 </div>
-                                <div style="margin-top: 8px; font-size: 12px; color: #6B7280;">
+                                <div style="font-size: 10px; color: #6B7280;">
                                     <i class="fas fa-hashtag"></i> {{ $doc->tracking_code }}
                                 </div>
-                                <div style="margin-top: 10px; display: flex; gap: 6px;">
-                                    <button onclick="event.stopPropagation(); openReviewDocumentModal('{{ $doc->id }}')" style="flex: 1; padding: 6px 10px; font-size: 11px; background: #10B981; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                <div style="margin-top: auto; padding-top: 8px; display: flex; gap: 4px;">
+                                    <button onclick="event.stopPropagation(); openReviewDocumentModal('{{ $doc->id }}')" style="flex: 1; padding: 5px 8px; font-size: 10px; background: #10B981; color: white; border: none; border-radius: 4px; cursor: pointer;">
                                         <i class="fas fa-check"></i> Approve/Reject
                                     </button>
-                                    <a href="{{ asset('storage/' . $doc->file_path) }}" target="_blank" onclick="event.stopPropagation();" style="padding: 6px 10px; font-size: 11px; background: #3B82F6; color: white; border: none; border-radius: 4px; cursor: pointer; text-decoration: none;">
+                                    <a href="{{ asset('storage/' . $doc->file_path) }}" target="_blank" onclick="event.stopPropagation();" style="padding: 5px 8px; font-size: 10px; background: #3B82F6; color: white; border: none; border-radius: 4px; cursor: pointer; text-decoration: none;">
                                         <i class="fas fa-download"></i>
                                     </a>
                                 </div>
                             </div>
                             @empty
-                            <div style="padding: 20px; text-align: center; color: #9CA3AF; font-size: 13px;">
-                                <i class="fas fa-search" style="font-size: 24px; margin-bottom: 8px; display: block;"></i>
+                            <div class="kanban-empty" style="padding: 20px; text-align: center; color: #9CA3AF; font-size: 12px;">
+                                <i class="fas fa-search" style="font-size: 20px; margin-bottom: 6px; display: block;"></i>
                                 No documents under review
                             </div>
                             @endforelse
@@ -4648,35 +4857,36 @@
                     </div>
 
                     <!-- Approved Column -->
-                    <div class="kanban-column">
+                    <!-- Approved Column -->
+                    <div class="kanban-column" data-status="approved" ondrop="dropCard(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
                         <div class="kanban-header">
                             <h4><i class="fas fa-check-circle"></i> Approved</h4>
-                            <span class="kanban-count">{{ $startupDocuments->where('status', 'approved')->count() }}</span>
+                            <span class="kanban-count" id="approved-count">{{ $startupDocuments->where('status', 'approved')->count() }}</span>
                         </div>
-                        <div class="kanban-cards">
+                        <div class="kanban-cards" id="approved-cards">
                             @forelse($startupDocuments->where('status', 'approved') as $doc)
-                            <div class="kanban-card success" onclick="viewDocumentDetails('{{ $doc->id }}')">
+                            <div class="kanban-card success" draggable="true" data-id="{{ $doc->id }}" ondragstart="dragStart(event)" ondragend="dragEnd(event)" onclick="viewDocumentDetails('{{ $doc->id }}')">
                                 <div class="card-header">
                                     <h5>{{ $doc->company_name }}</h5>
-                                    <span class="status-badge" style="background: #DCFCE7; color: #166534;">Approved</span>
+                                    <span class="status-badge" style="background: #DCFCE7; color: #166534; font-size: 9px; padding: 2px 6px;">Approved</span>
                                 </div>
-                                <p class="card-description">{{ $doc->document_type }} - {{ $doc->original_filename }}</p>
+                                <p class="card-description">{{ $doc->document_type }}</p>
                                 <div class="card-meta">
-                                    <span><i class="fas fa-user"></i> {{ $doc->contact_person }}</span>
+                                    <span><i class="fas fa-user"></i> {{ Str::limit($doc->contact_person, 15) }}</span>
                                     <span><i class="fas fa-calendar"></i> {{ $doc->reviewed_at ? $doc->reviewed_at->format('M d') : 'N/A' }}</span>
                                 </div>
-                                <div style="margin-top: 8px; font-size: 12px; color: #6B7280;">
+                                <div style="font-size: 10px; color: #6B7280;">
                                     <i class="fas fa-hashtag"></i> {{ $doc->tracking_code }}
                                 </div>
                                 @if($doc->reviewer)
-                                <div style="margin-top: 8px; font-size: 11px; color: #059669;">
-                                    <i class="fas fa-user-check"></i> Reviewed by {{ $doc->reviewer->name }}
+                                <div style="margin-top: auto; padding-top: 6px; font-size: 10px; color: #059669;">
+                                    <i class="fas fa-user-check"></i> {{ Str::limit($doc->reviewer->name, 15) }}
                                 </div>
                                 @endif
                             </div>
                             @empty
-                            <div style="padding: 20px; text-align: center; color: #9CA3AF; font-size: 13px;">
-                                <i class="fas fa-check-circle" style="font-size: 24px; margin-bottom: 8px; display: block;"></i>
+                            <div class="kanban-empty" style="padding: 20px; text-align: center; color: #9CA3AF; font-size: 12px;">
+                                <i class="fas fa-check-circle" style="font-size: 20px; margin-bottom: 6px; display: block;"></i>
                                 No approved documents
                             </div>
                             @endforelse
@@ -4684,35 +4894,35 @@
                     </div>
 
                     <!-- Rejected Column -->
-                    <div class="kanban-column">
+                    <div class="kanban-column" data-status="rejected" ondrop="dropCard(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
                         <div class="kanban-header">
                             <h4><i class="fas fa-times-circle"></i> Rejected</h4>
-                            <span class="kanban-count">{{ $startupDocuments->where('status', 'rejected')->count() }}</span>
+                            <span class="kanban-count" id="rejected-count">{{ $startupDocuments->where('status', 'rejected')->count() }}</span>
                         </div>
-                        <div class="kanban-cards">
+                        <div class="kanban-cards" id="rejected-cards">
                             @forelse($startupDocuments->where('status', 'rejected') as $doc)
-                            <div class="kanban-card" style="border-left: 3px solid #EF4444;" onclick="viewDocumentDetails('{{ $doc->id }}')">
+                            <div class="kanban-card rejected" draggable="true" data-id="{{ $doc->id }}" ondragstart="dragStart(event)" ondragend="dragEnd(event)" onclick="viewDocumentDetails('{{ $doc->id }}')">
                                 <div class="card-header">
                                     <h5>{{ $doc->company_name }}</h5>
-                                    <span class="status-badge" style="background: #FEE2E2; color: #991B1B;">Rejected</span>
+                                    <span class="status-badge" style="background: #FEE2E2; color: #991B1B; font-size: 9px; padding: 2px 6px;">Rejected</span>
                                 </div>
-                                <p class="card-description">{{ $doc->document_type }} - {{ $doc->original_filename }}</p>
+                                <p class="card-description">{{ $doc->document_type }}</p>
                                 <div class="card-meta">
-                                    <span><i class="fas fa-user"></i> {{ $doc->contact_person }}</span>
+                                    <span><i class="fas fa-user"></i> {{ Str::limit($doc->contact_person, 15) }}</span>
                                     <span><i class="fas fa-calendar"></i> {{ $doc->reviewed_at ? $doc->reviewed_at->format('M d') : 'N/A' }}</span>
                                 </div>
-                                <div style="margin-top: 8px; font-size: 12px; color: #6B7280;">
+                                <div style="font-size: 10px; color: #6B7280;">
                                     <i class="fas fa-hashtag"></i> {{ $doc->tracking_code }}
                                 </div>
                                 @if($doc->admin_notes)
-                                <div style="margin-top: 8px; font-size: 11px; color: #DC2626; padding: 6px; background: #FEF2F2; border-radius: 4px;">
-                                    <i class="fas fa-exclamation-circle"></i> {{ Str::limit($doc->admin_notes, 50) }}
+                                <div style="margin-top: auto; padding-top: 6px; font-size: 9px; color: #DC2626; padding: 4px; background: #FEF2F2; border-radius: 3px;">
+                                    <i class="fas fa-exclamation-circle"></i> {{ Str::limit($doc->admin_notes, 30) }}
                                 </div>
                                 @endif
                             </div>
                             @empty
-                            <div style="padding: 20px; text-align: center; color: #9CA3AF; font-size: 13px;">
-                                <i class="fas fa-times-circle" style="font-size: 24px; margin-bottom: 8px; display: block;"></i>
+                            <div class="kanban-empty" style="padding: 20px; text-align: center; color: #9CA3AF; font-size: 12px;">
+                                <i class="fas fa-times-circle" style="font-size: 20px; margin-bottom: 6px; display: block;"></i>
                                 No rejected documents
                             </div>
                             @endforelse
@@ -4890,7 +5100,8 @@
                             <i class="fas fa-download"></i> Export Report
                         </button>
                     </div>
-                    <table>
+                    <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+                    <table style="min-width: 950px;">
                         <thead>
                             <tr>
                                 <th>Tracking Code</th>
@@ -4963,6 +5174,7 @@
                             @endforelse
                         </tbody>
                     </table>
+                    </div>
                 </div>
 
                 <!-- Payment Submissions Table -->
@@ -4973,7 +5185,8 @@
                             <i class="fas fa-download"></i> Export Report
                         </button>
                     </div>
-                    <table>
+                    <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+                    <table style="min-width: 1000px;">
                         <thead>
                             <tr>
                                 <th>Tracking Code</th>
@@ -5040,6 +5253,7 @@
                             @endforelse
                         </tbody>
                     </table>
+                    </div>
                 </div>
             </div>
 
@@ -5342,7 +5556,8 @@
                             <i class="fas fa-download"></i> Export
                         </button>
                     </div>
-                    <table>
+                    <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+                    <table style="min-width: 1000px;">
                         <thead>
                             <tr>
                                 <th>Startup Code</th>
@@ -5364,6 +5579,7 @@
                             </tr>
                         </tbody>
                     </table>
+                    </div>
                 </div>
             </div>
 
@@ -5602,6 +5818,126 @@
                                     <td colspan="5" style="text-align: center; padding: 50px; color: #9CA3AF;">
                                         <i class="fas fa-spinner fa-spin" style="font-size: 30px; margin-bottom: 16px;"></i>
                                         <p>Loading documents...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Activity Log Page -->
+            <div id="activity-log" class="page-content">
+                <div style="margin-bottom: 24px;">
+                    <h2 style="font-size: 28px; font-weight: 700; color: #1F2937; margin-bottom: 8px;">Activity Log</h2>
+                    <p style="color: #6B7280; font-size: 14px;">View all system activities, notifications, and recent events</p>
+                </div>
+
+                <!-- Filter Bar -->
+                <div class="filter-bar" style="margin-bottom: 24px;">
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                        <div class="filter-group">
+                            <span class="filter-label">Type:</span>
+                            <select class="filter-select" id="activityTypeFilter" onchange="filterActivityLog()">
+                                <option value="all">All Activities</option>
+                                <option value="booking">Bookings</option>
+                                <option value="startup">Startups</option>
+                                <option value="issue">Issues</option>
+                                <option value="intern">Interns</option>
+                                <option value="document">Documents</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <span class="filter-label">Status:</span>
+                            <select class="filter-select" id="activityStatusFilter" onchange="filterActivityLog()">
+                                <option value="all">All Status</option>
+                                <option value="pending">Pending</option>
+                                <option value="approved">Approved</option>
+                                <option value="rejected">Rejected</option>
+                                <option value="completed">Completed</option>
+                            </select>
+                        </div>
+                        <div class="filter-search">
+                            <i class="fas fa-search"></i>
+                            <input type="text" placeholder="Search activities..." id="activitySearchInput" onkeyup="filterActivityLog()">
+                        </div>
+                    </div>
+                    <button class="filter-btn secondary" onclick="refreshActivityLog()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+
+                <!-- Activity Stats -->
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
+                    <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #DBEAFE, #93C5FD); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-list" style="color: #2563EB; font-size: 20px;"></i>
+                            </div>
+                            <div>
+                                <div id="totalActivitiesCount" style="font-size: 28px; font-weight: 700; color: #1F2937;">0</div>
+                                <div style="font-size: 13px; color: #6B7280;">Total Activities</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #FEF3C7, #FCD34D); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-clock" style="color: #D97706; font-size: 20px;"></i>
+                            </div>
+                            <div>
+                                <div id="pendingActivitiesCount" style="font-size: 28px; font-weight: 700; color: #D97706;">0</div>
+                                <div style="font-size: 13px; color: #6B7280;">Pending Actions</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #D1FAE5, #6EE7B7); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-check-circle" style="color: #059669; font-size: 20px;"></i>
+                            </div>
+                            <div>
+                                <div id="completedActivitiesCount" style="font-size: 28px; font-weight: 700; color: #059669;">0</div>
+                                <div style="font-size: 13px; color: #6B7280;">Completed Today</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #FEE2E2, #FCA5A5); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-exclamation-triangle" style="color: #DC2626; font-size: 20px;"></i>
+                            </div>
+                            <div>
+                                <div id="urgentActivitiesCount" style="font-size: 28px; font-weight: 700; color: #DC2626;">0</div>
+                                <div style="font-size: 13px; color: #6B7280;">Needs Attention</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activity Log Table -->
+                <div class="table-card">
+                    <div class="table-header">
+                        <h3 class="table-title">Recent Activities <span style="font-weight: 400; font-size: 13px; color: #6B7280;">(Last 7 days)</span></h3>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table style="min-width: 900px;">
+                            <thead>
+                                <tr>
+                                    <th style="width: 50px;"></th>
+                                    <th>Activity</th>
+                                    <th>Type</th>
+                                    <th>Details</th>
+                                    <th>Status</th>
+                                    <th>Date & Time</th>
+                                    <th style="width: 100px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="activityLogBody">
+                                <tr>
+                                    <td colspan="7" style="text-align: center; padding: 60px; color: #9CA3AF;">
+                                        <i class="fas fa-spinner fa-spin" style="font-size: 32px; margin-bottom: 12px; display: block;"></i>
+                                        Loading activities...
                                     </td>
                                 </tr>
                             </tbody>
@@ -5980,6 +6316,13 @@
                                             <i class="fas fa-check"></i>
                                         </button>
                                         <button class="btn-action btn-delete" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? asset('storage/' . $booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})" title="Reject">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                        @else
+                                        <button class="btn-action" disabled title="Already {{ ucfirst($booking->status) }}">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                        <button class="btn-action" disabled title="Already {{ ucfirst($booking->status) }}">
                                             <i class="fas fa-times"></i>
                                         </button>
                                         @endif
@@ -7277,7 +7620,6 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button class="btn-modal secondary" onclick="closeNewTaskModal()">Cancel</button>
                 <button class="btn-modal primary" onclick="createTask()">Create Task</button>
             </div>
         </div>
@@ -7296,7 +7638,6 @@
                 <!-- Task details will be loaded here dynamically -->
             </div>
             <div class="modal-footer">
-                <button class="btn-modal secondary" onclick="closeViewTaskModal()">Close</button>
                 <button class="btn-modal primary" onclick="editTaskFromView()"><i class="fas fa-edit"></i> Edit Task</button>
             </div>
         </div>
@@ -7317,7 +7658,6 @@
                 <!-- Document details will be loaded here -->
             </div>
             <div class="modal-footer">
-                <button class="btn-modal secondary" onclick="closeDocumentDetailsModal()">Close</button>
                 <a id="documentDownloadBtn" href="#" target="_blank" class="btn-modal primary" style="text-decoration: none;">
                     <i class="fas fa-download"></i> Download Document
                 </a>
@@ -7360,7 +7700,6 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button class="btn-modal secondary" onclick="closeReviewDocumentModal()">Cancel</button>
                 <button class="btn-modal primary" onclick="submitDocumentReview()">
                     <i class="fas fa-check"></i> Submit Review
                 </button>
@@ -8536,6 +8875,279 @@
         // Refresh notifications every 10 seconds for real-time updates
         setInterval(loadNotifications, 10000);
 
+        // ========== ACTIVITY LOG FUNCTIONS ==========
+        let allActivities = [];
+
+        async function loadActivityLog() {
+            const tbody = document.getElementById('activityLogBody');
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" style="text-align: center; padding: 60px; color: #9CA3AF;">
+                        <i class="fas fa-spinner fa-spin" style="font-size: 32px; margin-bottom: 12px; display: block;"></i>
+                        Loading activities...
+                    </td>
+                </tr>
+            `;
+
+            try {
+                allActivities = [];
+                let stats = { total: 0, pending: 0, completed: 0, urgent: 0 };
+
+                // Only show activities from the last 7 days
+                const sevenDaysAgo = new Date();
+                sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+                sevenDaysAgo.setHours(0, 0, 0, 0);
+
+                // Fetch all bookings
+                try {
+                    const response = await fetch('/admin/bookings');
+                    if (response.ok) {
+                        const data = await response.json();
+                        const bookings = data.bookings || data || [];
+                        bookings.forEach(b => {
+                            const createdDate = new Date(b.created_at);
+                            if (createdDate >= sevenDaysAgo) {
+                                allActivities.push({
+                                    type: 'booking',
+                                    icon: 'fa-calendar-check',
+                                    iconColor: '#2563EB',
+                                    iconBg: '#DBEAFE',
+                                    title: 'Booking Request',
+                                    description: `${b.agency_name} - ${b.event_name}`,
+                                    details: `${b.number_of_attendees || 0} attendees`,
+                                    status: b.status,
+                                    date: b.created_at,
+                                    rawData: b,
+                                    page: 'scheduler'
+                                });
+                                stats.total++;
+                                if (b.status === 'pending') stats.pending++;
+                                if (b.status === 'approved') stats.completed++;
+                            }
+                        });
+                    }
+                } catch (e) { console.warn('Error loading bookings:', e); }
+
+                // Fetch startup submissions
+                try {
+                    const response = await fetch('/admin/startup-submissions');
+                    if (response.ok) {
+                        const startups = await response.json();
+                        startups.forEach(s => {
+                            const createdDate = new Date(s.created_at);
+                            if (createdDate >= sevenDaysAgo) {
+                                allActivities.push({
+                                    type: 'startup',
+                                    icon: 'fa-rocket',
+                                    iconColor: '#7C3AED',
+                                    iconBg: '#EDE9FE',
+                                    title: 'Startup Application',
+                                    description: s.startup_name,
+                                    details: s.industry || 'N/A',
+                                    status: s.status,
+                                    date: s.created_at,
+                                    rawData: s,
+                                    page: 'incubatee-tracker'
+                                });
+                                stats.total++;
+                                if (s.status === 'pending') stats.pending++;
+                                if (s.status === 'approved') stats.completed++;
+                            }
+                        });
+                    }
+                } catch (e) { console.warn('Error loading startups:', e); }
+
+                // Fetch room issues
+                try {
+                    const response = await fetch('/admin/room-issues');
+                    if (response.ok) {
+                        const issues = await response.json();
+                        issues.forEach(i => {
+                            const createdDate = new Date(i.created_at);
+                            if (createdDate >= sevenDaysAgo) {
+                                const isUrgent = i.priority === 'high' || i.priority === 'urgent';
+                                allActivities.push({
+                                    type: 'issue',
+                                    icon: 'fa-exclamation-triangle',
+                                    iconColor: isUrgent ? '#DC2626' : '#D97706',
+                                    iconBg: isUrgent ? '#FEE2E2' : '#FEF3C7',
+                                    title: 'Issue Report',
+                                    description: `${i.room_location} - ${i.category}`,
+                                    details: i.description ? i.description.substring(0, 50) + (i.description.length > 50 ? '...' : '') : 'No details',
+                                    status: i.status,
+                                    date: i.created_at,
+                                    rawData: i,
+                                    page: 'issues-management'
+                                });
+                                stats.total++;
+                                if (i.status === 'pending' || i.status === 'in_progress') stats.pending++;
+                                if (i.status === 'resolved') stats.completed++;
+                                if (isUrgent && i.status !== 'resolved') stats.urgent++;
+                            }
+                        });
+                    }
+                } catch (e) { console.warn('Error loading issues:', e); }
+
+                // Fetch interns
+                try {
+                    const response = await fetch('/admin/interns');
+                    if (response.ok) {
+                        const data = await response.json();
+                        const interns = data.interns || data || [];
+                        interns.forEach(i => {
+                            const createdDate = new Date(i.created_at);
+                            if (createdDate >= sevenDaysAgo) {
+                                allActivities.push({
+                                    type: 'intern',
+                                    icon: 'fa-user-graduate',
+                                    iconColor: '#059669',
+                                    iconBg: '#D1FAE5',
+                                    title: 'New Intern Added',
+                                    description: `${i.first_name} ${i.last_name}`,
+                                    details: i.school_name || 'N/A',
+                                    status: i.status || 'active',
+                                    date: i.created_at,
+                                    rawData: i,
+                                    page: 'interns'
+                                });
+                                stats.total++;
+                                if (i.status === 'active') stats.completed++;
+                            }
+                        });
+                    }
+                } catch (e) { console.warn('Error loading interns:', e); }
+
+                // Sort by date (newest first)
+                allActivities.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+                // Update stats
+                document.getElementById('totalActivitiesCount').textContent = stats.total;
+                document.getElementById('pendingActivitiesCount').textContent = stats.pending;
+                document.getElementById('completedActivitiesCount').textContent = stats.completed;
+                document.getElementById('urgentActivitiesCount').textContent = stats.urgent;
+
+                // Render activities
+                renderActivityLog(allActivities);
+
+            } catch (error) {
+                console.error('Error loading activity log:', error);
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 60px; color: #EF4444;">
+                            <i class="fas fa-exclamation-circle" style="font-size: 32px; margin-bottom: 12px; display: block;"></i>
+                            Error loading activities
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        function renderActivityLog(activities) {
+            const tbody = document.getElementById('activityLogBody');
+
+            if (!activities || activities.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 60px; color: #9CA3AF;">
+                            <i class="fas fa-inbox" style="font-size: 32px; margin-bottom: 12px; display: block;"></i>
+                            No activities found
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = activities.map(activity => {
+                const statusColors = {
+                    'pending': { bg: '#FEF3C7', text: '#D97706' },
+                    'approved': { bg: '#D1FAE5', text: '#059669' },
+                    'rejected': { bg: '#FEE2E2', text: '#DC2626' },
+                    'in_progress': { bg: '#DBEAFE', text: '#2563EB' },
+                    'resolved': { bg: '#D1FAE5', text: '#059669' },
+                    'completed': { bg: '#D1FAE5', text: '#059669' },
+                    'active': { bg: '#D1FAE5', text: '#059669' },
+                    'cancelled': { bg: '#F3F4F6', text: '#6B7280' }
+                };
+                const statusStyle = statusColors[activity.status] || statusColors['pending'];
+                const formattedDate = new Date(activity.date).toLocaleString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                return `
+                    <tr data-type="${activity.type}" data-status="${activity.status}">
+                        <td style="text-align: center;">
+                            <div style="width: 36px; height: 36px; background: ${activity.iconBg}; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas ${activity.icon}" style="color: ${activity.iconColor}; font-size: 14px;"></i>
+                            </div>
+                        </td>
+                        <td>
+                            <div style="font-weight: 600; color: #1F2937;">${activity.title}</div>
+                            <div style="font-size: 12px; color: #6B7280;">${activity.description}</div>
+                        </td>
+                        <td>
+                            <span style="padding: 4px 10px; background: ${activity.iconBg}; color: ${activity.iconColor}; border-radius: 20px; font-size: 12px; font-weight: 500; text-transform: capitalize;">
+                                ${activity.type}
+                            </span>
+                        </td>
+                        <td style="color: #6B7280; font-size: 13px;">${activity.details}</td>
+                        <td>
+                            <span style="padding: 4px 10px; background: ${statusStyle.bg}; color: ${statusStyle.text}; border-radius: 20px; font-size: 12px; font-weight: 500; text-transform: capitalize;">
+                                ${activity.status.replace('_', ' ')}
+                            </span>
+                        </td>
+                        <td style="color: #6B7280; font-size: 13px;">${formattedDate}</td>
+                        <td>
+                            <button onclick="viewActivityDetails('${activity.page}')" style="padding: 6px 12px; background: #2563EB; color: white; border: none; border-radius: 6px; font-size: 12px; cursor: pointer;">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function filterActivityLog() {
+            const typeFilter = document.getElementById('activityTypeFilter').value;
+            const statusFilter = document.getElementById('activityStatusFilter').value;
+            const searchQuery = document.getElementById('activitySearchInput').value.toLowerCase();
+
+            let filtered = allActivities;
+
+            if (typeFilter !== 'all') {
+                filtered = filtered.filter(a => a.type === typeFilter);
+            }
+
+            if (statusFilter !== 'all') {
+                filtered = filtered.filter(a => a.status === statusFilter);
+            }
+
+            if (searchQuery) {
+                filtered = filtered.filter(a =>
+                    a.title.toLowerCase().includes(searchQuery) ||
+                    a.description.toLowerCase().includes(searchQuery) ||
+                    a.details.toLowerCase().includes(searchQuery)
+                );
+            }
+
+            renderActivityLog(filtered);
+        }
+
+        function refreshActivityLog() {
+            loadActivityLog();
+            showToast('success', 'Refreshed', 'Activity log has been updated.');
+        }
+
+        function viewActivityDetails(page) {
+            const fakeEvent = { preventDefault: () => {} };
+            loadPage(fakeEvent, page);
+        }
+
+        // ========== END ACTIVITY LOG FUNCTIONS ==========
+
         // Mobile Sidebar Toggle Functions
         function toggleMobileSidebar() {
             const sidebar = document.getElementById('sidebar');
@@ -8680,6 +9292,9 @@
                 breadcrumb.innerHTML = 'Dashboard > <span>Digital Records</span>';
             } else if (pageId === 'scheduler') {
                 breadcrumb.innerHTML = 'Dashboard > <span>Scheduler & Events</span>';
+            } else if (pageId === 'activity-log') {
+                breadcrumb.innerHTML = 'Dashboard > <span>Activity Log</span>';
+                loadActivityLog();
             } else if (pageId === 'admin-settings') {
                 breadcrumb.innerHTML = 'Dashboard > <span>Settings</span>';
                 loadSettingsFromStorage();
@@ -10283,6 +10898,182 @@
         let currentMoaId = null;
         let currentPaymentId = null;
         let currentIssueId = null;
+
+        // ========== KANBAN DRAG AND DROP FUNCTIONS ==========
+
+        let draggedCard = null;
+
+        function dragStart(event) {
+            draggedCard = event.target;
+            event.target.classList.add('dragging');
+            event.dataTransfer.effectAllowed = 'move';
+            event.dataTransfer.setData('text/plain', event.target.dataset.id);
+        }
+
+        function dragEnd(event) {
+            event.target.classList.remove('dragging');
+            // Remove drag-over class from all columns
+            document.querySelectorAll('.kanban-column').forEach(col => {
+                col.classList.remove('drag-over');
+            });
+            draggedCard = null;
+        }
+
+        function allowDrop(event) {
+            event.preventDefault();
+            event.currentTarget.classList.add('drag-over');
+        }
+
+        function dragLeave(event) {
+            event.currentTarget.classList.remove('drag-over');
+        }
+
+        function dropCard(event) {
+            event.preventDefault();
+            const column = event.currentTarget;
+            column.classList.remove('drag-over');
+
+            const docId = event.dataTransfer.getData('text/plain');
+            const newStatus = column.dataset.status;
+
+            if (draggedCard && docId) {
+                // Move card to new column
+                const cardsContainer = column.querySelector('.kanban-cards');
+
+                // Remove empty message if exists
+                const emptyMsg = cardsContainer.querySelector('.kanban-empty');
+                if (emptyMsg) {
+                    emptyMsg.remove();
+                }
+
+                // Update card class based on new status
+                draggedCard.classList.remove('pending', 'reviewing', 'success', 'rejected');
+
+                // Update the status badge label and style
+                const statusBadge = draggedCard.querySelector('.status-badge');
+
+                // Get the button container
+                const buttonContainer = draggedCard.querySelector('div[style*="margin-top: auto"]');
+                const filePath = draggedCard.querySelector('a[href*="storage"]')?.getAttribute('href') || '#';
+
+                switch(newStatus) {
+                    case 'pending':
+                        draggedCard.classList.add('pending');
+                        if (statusBadge) {
+                            statusBadge.textContent = 'Pending';
+                            statusBadge.style.background = '#FEF3C7';
+                            statusBadge.style.color = '#92400E';
+                        }
+                        if (buttonContainer) {
+                            buttonContainer.innerHTML = `
+                                <button onclick="event.stopPropagation(); openReviewDocumentModal('${docId}')" style="flex: 1; padding: 5px 8px; font-size: 10px; background: #10B981; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                    <i class="fas fa-check"></i> Review
+                                </button>
+                                <a href="${filePath}" target="_blank" onclick="event.stopPropagation();" style="padding: 5px 8px; font-size: 10px; background: #3B82F6; color: white; border: none; border-radius: 4px; cursor: pointer; text-decoration: none;">
+                                    <i class="fas fa-download"></i>
+                                </a>
+                            `;
+                        }
+                        break;
+                    case 'under_review':
+                        draggedCard.classList.add('reviewing');
+                        if (statusBadge) {
+                            statusBadge.textContent = 'Reviewing';
+                            statusBadge.style.background = '#DBEAFE';
+                            statusBadge.style.color = '#1E40AF';
+                        }
+                        if (buttonContainer) {
+                            buttonContainer.innerHTML = `
+                                <button onclick="event.stopPropagation(); openReviewDocumentModal('${docId}')" style="flex: 1; padding: 5px 8px; font-size: 10px; background: #10B981; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                    <i class="fas fa-check"></i> Approve/Reject
+                                </button>
+                                <a href="${filePath}" target="_blank" onclick="event.stopPropagation();" style="padding: 5px 8px; font-size: 10px; background: #3B82F6; color: white; border: none; border-radius: 4px; cursor: pointer; text-decoration: none;">
+                                    <i class="fas fa-download"></i>
+                                </a>
+                            `;
+                        }
+                        break;
+                    case 'approved':
+                        draggedCard.classList.add('success');
+                        if (statusBadge) {
+                            statusBadge.textContent = 'Approved';
+                            statusBadge.style.background = '#DCFCE7';
+                            statusBadge.style.color = '#166534';
+                        }
+                        if (buttonContainer) {
+                            buttonContainer.innerHTML = `
+                                <a href="${filePath}" target="_blank" onclick="event.stopPropagation();" style="flex: 1; padding: 5px 8px; font-size: 10px; background: #3B82F6; color: white; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; text-align: center;">
+                                    <i class="fas fa-download"></i> Download
+                                </a>
+                            `;
+                        }
+                        break;
+                    case 'rejected':
+                        draggedCard.classList.add('rejected');
+                        if (statusBadge) {
+                            statusBadge.textContent = 'Rejected';
+                            statusBadge.style.background = '#FEE2E2';
+                            statusBadge.style.color = '#991B1B';
+                        }
+                        if (buttonContainer) {
+                            buttonContainer.innerHTML = `
+                                <button onclick="event.stopPropagation(); openReviewDocumentModal('${docId}')" style="flex: 1; padding: 5px 8px; font-size: 10px; background: #6B7280; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                    <i class="fas fa-redo"></i> Re-review
+                                </button>
+                                <a href="${filePath}" target="_blank" onclick="event.stopPropagation();" style="padding: 5px 8px; font-size: 10px; background: #3B82F6; color: white; border: none; border-radius: 4px; cursor: pointer; text-decoration: none;">
+                                    <i class="fas fa-download"></i>
+                                </a>
+                            `;
+                        }
+                        break;
+                }
+
+                cardsContainer.appendChild(draggedCard);
+
+                // Update status via AJAX
+                updateDocumentStatus(docId, newStatus);
+
+                // Update counts
+                updateKanbanCounts();
+            }
+        }
+
+        function updateDocumentStatus(docId, newStatus) {
+            fetch(`/admin/startup-documents/${docId}/update-status`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({ status: newStatus })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('Document status updated successfully', 'success');
+                } else {
+                    showNotification('Failed to update status', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Error updating status', 'error');
+            });
+        }
+
+        function updateKanbanCounts() {
+            const statuses = ['pending', 'under_review', 'approved', 'rejected'];
+            statuses.forEach(status => {
+                const column = document.querySelector(`.kanban-column[data-status="${status}"]`);
+                if (column) {
+                    const count = column.querySelectorAll('.kanban-card').length;
+                    const countBadge = document.getElementById(`${status}-count`);
+                    if (countBadge) {
+                        countBadge.textContent = count;
+                    }
+                }
+            });
+        }
 
         // ========== DOCUMENT DETAILS MODAL FUNCTIONS ==========
 
@@ -12924,6 +13715,7 @@ University of the Philippines Cebu
             document.getElementById('createFolderModal').style.display = 'flex';
             document.getElementById('folderName').value = '';
             document.getElementById('folderDescription').value = '';
+            document.getElementById('folderSizeLimit').value = '100';
             document.querySelectorAll('input[name="allowed_users"]').forEach(cb => cb.checked = false);
         }
 
@@ -12944,6 +13736,7 @@ University of the Philippines Cebu
             const color = document.getElementById('selectedColor').value;
             const description = document.getElementById('folderDescription').value;
             const allowedUsers = Array.from(document.querySelectorAll('input[name="allowed_users"]:checked')).map(cb => cb.value);
+            const sizeLimit = document.getElementById('folderSizeLimit').value || 10;
 
             if (allowedUsers.length === 0) {
                 showToast('error', 'Error', 'Please select at least one user type who can upload');
@@ -12961,7 +13754,8 @@ University of the Philippines Cebu
                     name: folderName,
                     color: color,
                     description: description,
-                    allowed_users: allowedUsers
+                    allowed_users: allowedUsers,
+                    size_limit_mb: parseInt(sizeLimit)
                 })
             })
             .then(response => response.json())
@@ -13799,176 +14593,190 @@ University of the Philippines Cebu
             console.log(`Loading task page ${currentTaskPage}`);
         }
 
-        // Bar Chart - Intern Progress (Smooth Modern Style)
-        const barCtx = document.getElementById('barChart').getContext('2d');
+        // ============================================
+        // Chart Initialization (wrapped in IIFE for safety)
+        // ============================================
+        let barChart = null;
+        let pieChart = null;
 
-        // Create gradients for bars
-        const maroonGradient = barCtx.createLinearGradient(0, 0, 0, 400);
-        maroonGradient.addColorStop(0, 'rgba(123, 29, 58, 0.9)');
-        maroonGradient.addColorStop(1, 'rgba(123, 29, 58, 0.4)');
+        (function initCharts() {
+            // Bar Chart - Intern Progress (Smooth Modern Style)
+            const barChartEl = document.getElementById('barChart');
+            if (barChartEl) {
+                const barCtx = barChartEl.getContext('2d');
 
-        const goldGradient = barCtx.createLinearGradient(0, 0, 0, 400);
-        goldGradient.addColorStop(0, 'rgba(255, 191, 0, 0.9)');
-        goldGradient.addColorStop(1, 'rgba(255, 191, 0, 0.4)');
+                // Create gradients for bars
+                const maroonGradient = barCtx.createLinearGradient(0, 0, 0, 400);
+                maroonGradient.addColorStop(0, 'rgba(123, 29, 58, 0.9)');
+                maroonGradient.addColorStop(1, 'rgba(123, 29, 58, 0.4)');
 
-        // Initialize charts with empty data first
-        const barChart = new Chart(barCtx, {
-            type: 'bar',
-            data: {
-                labels: [],
-                datasets: [{
-                    label: 'Active Interns',
-                    data: [],
-                    backgroundColor: maroonGradient,
-                    borderColor: '#7B1D3A',
-                    borderWidth: 0,
-                    borderRadius: 8,
-                    borderSkipped: false,
-                    barPercentage: 0.6,
-                    categoryPercentage: 0.7
-                }, {
-                    label: 'Completed Tasks',
-                    data: [],
-                    backgroundColor: goldGradient,
-                    borderColor: '#FFBF00',
-                    borderWidth: 0,
-                    borderRadius: 8,
-                    borderSkipped: false,
-                    barPercentage: 0.6,
-                    categoryPercentage: 0.7
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                animation: {
-                    duration: 1000,
-                    easing: 'easeOutQuart'
-                },
-                interaction: {
-                    intersect: false,
-                    mode: 'index'
-                },
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'bottom',
-                        labels: {
-                            padding: 20,
-                            usePointStyle: true,
-                            pointStyle: 'circle',
-                            font: {
-                                size: 12,
-                                weight: '500'
-                            }
-                        }
+                const goldGradient = barCtx.createLinearGradient(0, 0, 0, 400);
+                goldGradient.addColorStop(0, 'rgba(255, 191, 0, 0.9)');
+                goldGradient.addColorStop(1, 'rgba(255, 191, 0, 0.4)');
+
+                // Initialize charts with empty data first
+                barChart = new Chart(barCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: 'Active Interns',
+                            data: [],
+                            backgroundColor: maroonGradient,
+                            borderColor: '#7B1D3A',
+                            borderWidth: 0,
+                            borderRadius: 8,
+                            borderSkipped: false,
+                            barPercentage: 0.6,
+                            categoryPercentage: 0.7
+                        }, {
+                            label: 'Completed Tasks',
+                            data: [],
+                            backgroundColor: goldGradient,
+                            borderColor: '#FFBF00',
+                            borderWidth: 0,
+                            borderRadius: 8,
+                            borderSkipped: false,
+                            barPercentage: 0.6,
+                            categoryPercentage: 0.7
+                        }]
                     },
-                    tooltip: {
-                        backgroundColor: 'rgba(31, 41, 55, 0.95)',
-                        titleFont: { size: 13, weight: '600' },
-                        bodyFont: { size: 12 },
-                        padding: 12,
-                        cornerRadius: 10,
-                        displayColors: true,
-                        boxPadding: 6
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: 'rgba(0, 0, 0, 0.05)',
-                            drawBorder: false
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        animation: {
+                            duration: 1000,
+                            easing: 'easeOutQuart'
                         },
-                        ticks: {
-                            font: { size: 11, weight: '500' },
-                            color: '#6B7280',
-                            padding: 8
-                        }
-                    },
-                    x: {
-                        grid: {
-                            display: false,
-                            drawBorder: false
+                        interaction: {
+                            intersect: false,
+                            mode: 'index'
                         },
-                        ticks: {
-                            font: { size: 11, weight: '500' },
-                            color: '#6B7280',
-                            padding: 8
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'bottom',
+                                labels: {
+                                    padding: 20,
+                                    usePointStyle: true,
+                                    pointStyle: 'circle',
+                                    font: {
+                                        size: 12,
+                                        weight: '500'
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(31, 41, 55, 0.95)',
+                                titleFont: { size: 13, weight: '600' },
+                                bodyFont: { size: 12 },
+                                padding: 12,
+                                cornerRadius: 10,
+                                displayColors: true,
+                                boxPadding: 6
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)',
+                                    drawBorder: false
+                                },
+                                ticks: {
+                                    font: { size: 11, weight: '500' },
+                                    color: '#6B7280',
+                                    padding: 8
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false,
+                                    drawBorder: false
+                                },
+                                ticks: {
+                                    font: { size: 11, weight: '500' },
+                                    color: '#6B7280',
+                                    padding: 8
+                                }
+                            }
                         }
                     }
-                }
+                });
             }
-        });
 
-        // Pie Chart - System Usage (Smooth Doughnut Style)
-        const pieCtx = document.getElementById('pieChart').getContext('2d');
-        const pieChart = new Chart(pieCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Intern Management', 'Task Management', 'Digital Records', 'Incubatee Tracker', 'Scheduler'],
-                datasets: [{
-                    data: [20, 20, 20, 20, 20],
-                    backgroundColor: [
-                        '#7B1D3A',
-                        '#FFBF00',
-                        '#F97316',
-                        '#10B981',
-                        '#3B82F6'
-                    ],
-                    hoverBackgroundColor: [
-                        '#5a1428',
-                        '#E5A800',
-                        '#EA580C',
-                        '#059669',
-                        '#2563EB'
-                    ],
-                    borderWidth: 0,
-                    spacing: 4,
-                    borderRadius: 6
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                cutout: '65%',
-                animation: {
-                    animateRotate: true,
-                    animateScale: true,
-                    duration: 1000,
-                    easing: 'easeOutQuart'
-                },
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'bottom',
-                        labels: {
-                            padding: 16,
-                            usePointStyle: true,
-                            pointStyle: 'circle',
-                            font: {
-                                size: 11,
-                                weight: '500'
-                            }
-                        }
+            // Pie Chart - System Usage (Smooth Doughnut Style)
+            const pieChartEl = document.getElementById('pieChart');
+            if (pieChartEl) {
+                const pieCtx = pieChartEl.getContext('2d');
+                pieChart = new Chart(pieCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Intern Management', 'Task Management', 'Digital Records', 'Incubatee Tracker', 'Scheduler'],
+                        datasets: [{
+                            data: [20, 20, 20, 20, 20],
+                            backgroundColor: [
+                                '#7B1D3A',
+                                '#FFBF00',
+                                '#F97316',
+                                '#10B981',
+                                '#3B82F6'
+                            ],
+                            hoverBackgroundColor: [
+                                '#5a1428',
+                                '#E5A800',
+                                '#EA580C',
+                                '#059669',
+                                '#2563EB'
+                            ],
+                            borderWidth: 0,
+                            spacing: 4,
+                            borderRadius: 6
+                        }]
                     },
-                    tooltip: {
-                        backgroundColor: 'rgba(31, 41, 55, 0.95)',
-                        titleFont: { size: 13, weight: '600' },
-                        bodyFont: { size: 12 },
-                        padding: 12,
-                        cornerRadius: 10,
-                        displayColors: true,
-                        boxPadding: 6,
-                        callbacks: {
-                            label: function(context) {
-                                return ' ' + context.label + ': ' + context.parsed + '%';
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        cutout: '65%',
+                        animation: {
+                            animateRotate: true,
+                            animateScale: true,
+                            duration: 1000,
+                            easing: 'easeOutQuart'
+                        },
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'bottom',
+                                labels: {
+                                    padding: 16,
+                                    usePointStyle: true,
+                                    pointStyle: 'circle',
+                                    font: {
+                                        size: 11,
+                                        weight: '500'
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(31, 41, 55, 0.95)',
+                                titleFont: { size: 13, weight: '600' },
+                                bodyFont: { size: 12 },
+                                padding: 12,
+                                cornerRadius: 10,
+                                displayColors: true,
+                                boxPadding: 6,
+                                callbacks: {
+                                    label: function(context) {
+                                        return ' ' + context.label + ': ' + context.parsed + '%';
+                                    }
+                                }
                             }
                         }
                     }
-                }
+                });
             }
-        });
+        })();
 
         // ============================================
         // Real-time Chart Data Functions
@@ -13982,7 +14790,7 @@ University of the Philippines Cebu
                 const data = await response.json();
 
                 // Update Bar Chart with monthly data
-                if (data.monthlyData && data.monthlyData.length > 0) {
+                if (barChart && data.monthlyData && data.monthlyData.length > 0) {
                     barChart.data.labels = data.monthlyData.map(item => item.month);
                     barChart.data.datasets[0].data = data.monthlyData.map(item => item.activeInterns);
                     barChart.data.datasets[1].data = data.monthlyData.map(item => item.completedTasks);
@@ -13990,7 +14798,7 @@ University of the Philippines Cebu
                 }
 
                 // Update Pie Chart with system usage
-                if (data.systemUsage) {
+                if (pieChart && data.systemUsage) {
                     pieChart.data.datasets[0].data = [
                         data.systemUsage.internManagement,
                         data.systemUsage.taskManagement,
@@ -14876,6 +15684,22 @@ University of the Philippines Cebu
                             </div>
                         </label>
                     </div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 8px;">Folder Storage Limit (MB)</label>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <input type="number" id="folderSizeLimit" min="1" max="5000" value="100" style="width: 120px; padding: 12px; border: 2px solid #E5E7EB; border-radius: 8px; font-size: 14px; transition: border 0.3s;" onfocus="this.style.borderColor='#7B1D3A'" onblur="this.style.borderColor='#E5E7EB'">
+                        <span style="font-size: 14px; color: #6B7280;">MB total</span>
+                    </div>
+                    <div style="margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button type="button" onclick="document.getElementById('folderSizeLimit').value=50" style="padding: 6px 12px; background: #F3F4F6; border: 1px solid #E5E7EB; border-radius: 6px; font-size: 12px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#E5E7EB'" onmouseout="this.style.background='#F3F4F6'">50 MB</button>
+                        <button type="button" onclick="document.getElementById('folderSizeLimit').value=100" style="padding: 6px 12px; background: #F3F4F6; border: 1px solid #E5E7EB; border-radius: 6px; font-size: 12px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#E5E7EB'" onmouseout="this.style.background='#F3F4F6'">100 MB</button>
+                        <button type="button" onclick="document.getElementById('folderSizeLimit').value=250" style="padding: 6px 12px; background: #F3F4F6; border: 1px solid #E5E7EB; border-radius: 6px; font-size: 12px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#E5E7EB'" onmouseout="this.style.background='#F3F4F6'">250 MB</button>
+                        <button type="button" onclick="document.getElementById('folderSizeLimit').value=500" style="padding: 6px 12px; background: #F3F4F6; border: 1px solid #E5E7EB; border-radius: 6px; font-size: 12px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#E5E7EB'" onmouseout="this.style.background='#F3F4F6'">500 MB</button>
+                        <button type="button" onclick="document.getElementById('folderSizeLimit').value=1000" style="padding: 6px 12px; background: #F3F4F6; border: 1px solid #E5E7EB; border-radius: 6px; font-size: 12px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#E5E7EB'" onmouseout="this.style.background='#F3F4F6'">1 GB</button>
+                    </div>
+                    <p style="font-size: 12px; color: #9CA3AF; margin-top: 6px;"><i class="fas fa-info-circle"></i> Total storage limit for this folder. Uploads will be blocked when limit is reached.</p>
                 </div>
 
                 <div style="margin-bottom: 24px;">

@@ -188,6 +188,7 @@ Route::middleware(['admin'])->group(function () {
     Route::get('/admin/startup-submissions', [AdminStartupController::class, 'getSubmissions'])->name('admin.startup-submissions.index');
     Route::get('/admin/submissions/{submission}', [AdminStartupController::class, 'getSubmission'])->name('admin.submissions.show');
     Route::put('/admin/submissions/{submission}', [AdminStartupController::class, 'updateSubmission'])->name('admin.submissions.update');
+    Route::post('/admin/startup-documents/{submission}/update-status', [AdminStartupController::class, 'updateDocumentStatus'])->name('admin.startup-documents.update-status');
     Route::delete('/admin/submissions/{submission}', [AdminStartupController::class, 'deleteSubmission'])->name('admin.submissions.destroy');
 
     // Room Issues Management (Admin)
