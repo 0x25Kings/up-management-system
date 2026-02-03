@@ -9,41 +9,41 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; background: #F9FAFB; }
-        
+
         .card { background: white; border-radius: 16px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); overflow: hidden; }
-        .card-header { padding: 20px 24px; border-bottom: 1px solid #E5E7EB; display: flex; justify-content: space-between; align-items: center; }
-        .card-title { font-size: 18px; font-weight: 700; color: #1F2937; }
-        .card-body { padding: 24px; }
+        .card-header { padding: 16px 20px; border-bottom: 1px solid #E5E7EB; display: flex; justify-content: space-between; align-items: center; }
+        .card-title { font-size: 17px; font-weight: 700; color: #1F2937; }
+        .card-body { padding: 20px; }
 
         .data-table { width: 100%; border-collapse: collapse; }
-        .data-table th { text-align: left; padding: 12px 16px; background: #F9FAFB; color: #6B7280; font-weight: 600; font-size: 12px; text-transform: uppercase; }
-        .data-table td { padding: 16px; border-bottom: 1px solid #E5E7EB; }
+        .data-table th { text-align: left; padding: 10px 14px; background: #F9FAFB; color: #6B7280; font-weight: 600; font-size: 12px; text-transform: uppercase; }
+        .data-table td { padding: 14px; border-bottom: 1px solid #E5E7EB; }
         .data-table tr:hover { background: #F9FAFB; }
 
-        .badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge { padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
         .badge-success { background: #ECFDF5; color: #059669; }
         .badge-warning { background: #FFFBEB; color: #D97706; }
         .badge-info { background: #EFF6FF; color: #2563EB; }
 
-        .btn { padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; transition: all 0.2s; }
+        .btn { padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; transition: all 0.2s; }
         .btn-primary { background: linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%); color: white; }
         .btn-secondary { background: #F3F4F6; color: #4B5563; }
-        .btn-sm { padding: 6px 12px; font-size: 12px; }
+        .btn-sm { padding: 5px 10px; font-size: 12px; }
 
-        .alert { padding: 16px 20px; border-radius: 12px; display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+        .alert { padding: 14px 18px; border-radius: 12px; display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
         .alert-success { background: #ECFDF5; border-left: 4px solid #10B981; color: #065F46; }
         .alert-warning { background: #FFFBEB; border-left: 4px solid #F59E0B; color: #92400E; }
 
-        .stat-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); border-left: 4px solid; }
+        .stat-card { background: white; padding: 16px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); border-left: 4px solid; }
         .stat-card.warning { border-left-color: #F59E0B; }
 
-        .pagination { display: flex; justify-content: center; gap: 8px; margin-top: 24px; }
-        .pagination a, .pagination span { padding: 8px 16px; border-radius: 8px; background: white; border: 1px solid #E5E7EB; }
+        .pagination { display: flex; justify-content: center; gap: 6px; margin-top: 20px; }
+        .pagination a, .pagination span { padding: 6px 14px; border-radius: 8px; background: white; border: 1px solid #E5E7EB; }
     </style>
 </head>
 <body>
-    <div style="padding: 32px; max-width: 1200px; margin: 0 auto;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+    <div style="padding: 24px; max-width: 1200px; margin: 0 auto;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <div>
                 <h1 style="font-size: 28px; font-weight: 700; color: #1F2937;">Team Leader Reports</h1>
                 <p style="color: #6B7280;">Review and respond to team leader reports</p>
@@ -130,7 +130,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" style="text-align: center; padding: 48px; color: #6B7280;">
+                                <td colspan="7" style="text-align: center; padding: 32px; color: #6B7280;">
                                     <i class="fas fa-file-alt" style="font-size: 48px; margin-bottom: 16px; display: block; color: #D1D5DB;"></i>
                                     <h4 style="font-size: 18px; color: #4B5563; margin-bottom: 8px;">No Reports Yet</h4>
                                     <p>Team leaders haven't submitted any reports yet.</p>

@@ -85,7 +85,7 @@
         }
 
         .sidebar-logo {
-            padding: 28px 24px;
+            padding: 20px 20px;
             text-align: center;
             border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             display: flex;
@@ -96,9 +96,9 @@
         }
 
         .sidebar-logo img {
-            height: 52px;
+            height: 48px;
             width: auto;
-            margin: 0 auto 14px auto;
+            margin: 0 auto 10px auto;
             display: block;
             filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
         }
@@ -123,13 +123,13 @@
         }
 
         .sidebar-menu {
-            padding: 16px 0;
+            padding: 12px 0;
         }
 
         .menu-item {
             display: flex;
             align-items: center;
-            padding: 13px 24px;
+            padding: 11px 20px;
             color: rgba(255, 255, 255, 0.85);
             text-decoration: none;
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -137,7 +137,7 @@
             font-weight: 500;
             white-space: nowrap;
             position: relative;
-            margin: 2px 12px;
+            margin: 2px 10px;
             border-radius: 10px;
         }
 
@@ -240,7 +240,7 @@
 
         .page-content {
             display: none;
-            padding: 32px 48px;
+            padding: 24px 32px;
         }
 
         .page-content.active {
@@ -249,8 +249,8 @@
 
         .filter-tabs {
             display: flex;
-            gap: 12px;
-            margin-bottom: 24px;
+            gap: 10px;
+            margin-bottom: 20px;
             flex-wrap: wrap;
         }
 
@@ -282,7 +282,7 @@
         }
 
         .school-group {
-            margin-bottom: 32px;
+            margin-bottom: 24px;
         }
 
         .school-header {
@@ -677,7 +677,7 @@
         }
 
         .modal-header {
-            padding: 24px;
+            padding: 20px;
             border-bottom: 1px solid #E5E7EB;
             display: flex;
             justify-content: space-between;
@@ -685,7 +685,7 @@
         }
 
         .modal-title {
-            font-size: 24px;
+            font-size: 20px;
             font-weight: 700;
             color: #1F2937;
         }
@@ -708,11 +708,11 @@
         }
 
         .modal-body {
-            padding: 24px;
+            padding: 20px;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
 
         .form-label {
@@ -824,11 +824,11 @@
         }
 
         .modal-footer {
-            padding: 20px 24px;
+            padding: 16px 20px;
             border-top: 1px solid #E5E7EB;
             display: flex;
             justify-content: flex-end;
-            gap: 12px;
+            gap: 10px;
         }
 
         .close-modal {
@@ -1207,7 +1207,7 @@
 
         .top-header {
             background: white;
-            padding: 16px 32px;
+            padding: 12px 24px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
             display: flex;
             justify-content: space-between;
@@ -1473,21 +1473,21 @@
         }
 
         .dashboard-content {
-            padding: 32px;
-            padding-left: 48px;
-            padding-right: 48px;
+            padding: 24px;
+            padding-left: 32px;
+            padding-right: 32px;
         }
 
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 24px;
-            margin-bottom: 32px;
+            gap: 20px;
+            margin-bottom: 24px;
         }
 
         .stat-card {
             background: white;
-            padding: 24px;
+            padding: 20px;
             border-radius: 12px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
             transition: all 0.3s ease;
