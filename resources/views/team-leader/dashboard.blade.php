@@ -783,7 +783,6 @@
             <a class="menu-item" data-page="interns">
                 <i class="fas fa-users"></i>
                 <span>My Interns</span>
-                <span class="menu-badge">{{ $totalInterns }}</span>
             </a>
             <a class="menu-item" data-page="tasks">
                 <i class="fas fa-tasks"></i>
