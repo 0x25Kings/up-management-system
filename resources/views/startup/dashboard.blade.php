@@ -858,7 +858,7 @@
                     <h4><i class="fas fa-exclamation-circle" style="color: #EF4444; margin-right: 8px;"></i>MOA Status: Expired</h4>
                     <p>Your MOA has expired. Please submit a renewal request to continue using the facilities.</p>
                 @else
-                    <h4><i class="fas fa-info-circle" style="color: #6B7280; margin-right: 8px;"></i>MOA Status: Not Submitted</h4>
+                    <h4><i class="fas fa-info-circle" style="color: #6b7280; margin-right: 8px;"></i>MOA Status: Not Submitted</h4>
                     <p>You haven't submitted a Memorandum of Agreement yet. Submit one to formalize your incubation.</p>
                 @endif
             </div>

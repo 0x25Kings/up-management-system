@@ -204,6 +204,177 @@
             color: #FCA5A5;
         }
 
+        /* Top Header Bar */
+        .top-header {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 0;
+            position: relative;
+            z-index: 100;
+        }
+
+        .profile-dropdown {
+            position: relative;
+            z-index: 101;
+        }
+
+        .profile-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            background: white;
+            border: 1px solid #E5E7EB;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            outline: none;
+        }
+
+        .profile-btn:hover {
+            border-color: var(--maroon);
+            box-shadow: 0 4px 12px rgba(123, 29, 58, 0.15);
+        }
+
+        .profile-btn .avatar {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--maroon) 0%, var(--maroon-light) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .profile-btn .info {
+            text-align: left;
+        }
+
+        .profile-btn .info .name {
+            font-weight: 600;
+            color: #1F2937;
+            font-size: 14px;
+        }
+
+        .profile-btn .info .role {
+            font-size: 11px;
+            color: #6B7280;
+        }
+
+        .profile-btn i.fa-chevron-down {
+            color: #9CA3AF;
+            font-size: 12px;
+            transition: transform 0.3s;
+        }
+
+        .profile-dropdown.active .profile-btn i.fa-chevron-down {
+            transform: rotate(180deg);
+        }
+
+        .profile-menu {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: white;
+            border: 1px solid #E5E7EB;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+            min-width: 220px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .profile-dropdown.active .profile-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .profile-menu-header {
+            padding: 16px;
+            border-bottom: 1px solid #E5E7EB;
+            text-align: center;
+        }
+
+        .profile-menu-header .avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--maroon) 0%, var(--maroon-light) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 18px;
+            margin: 0 auto 10px;
+        }
+
+        .profile-menu-header .name {
+            font-weight: 600;
+            color: #1F2937;
+            font-size: 15px;
+        }
+
+        .profile-menu-header .email {
+            font-size: 12px;
+            color: #6B7280;
+            margin-top: 2px;
+        }
+
+        .profile-menu-items {
+            padding: 8px;
+        }
+
+        .profile-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            color: #374151;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .profile-menu-item:hover {
+            background: #F3F4F6;
+            color: var(--maroon);
+        }
+
+        .profile-menu-item i {
+            width: 18px;
+            text-align: center;
+            color: #6B7280;
+        }
+
+        .profile-menu-item:hover i {
+            color: var(--maroon);
+        }
+
+        .profile-menu-item.danger {
+            color: #DC2626;
+        }
+
+        .profile-menu-item.danger:hover {
+            background: #FEE2E2;
+            color: #DC2626;
+        }
+
+        .profile-menu-item.danger i {
+            color: #DC2626;
+        }
+
         /* Main Content */
         .main-content {
             margin-left: 280px;
@@ -717,12 +888,6 @@
                 <i class="fas fa-tools"></i>
                 Room Issues
             </a>
-
-            <div class="nav-section">Account</div>
-            <a href="{{ route('startup.profile') }}" class="nav-item {{ request()->routeIs('startup.profile') ? 'active' : '' }}">
-                <i class="fas fa-user-circle"></i>
-                Company Profile
-            </a>
         </nav>
 
         <div class="sidebar-footer">
@@ -738,6 +903,68 @@
 
     <!-- Main Content -->
     <main class="main-content">
+        <!-- Top Header with Profile -->
+        <div class="top-header">
+            <div class="profile-dropdown" id="profileDropdown">
+                <button type="button" class="profile-btn" id="profileBtn">
+                    <div class="avatar">
+                        @php
+                            $words = explode(' ', $startup->company_name);
+                            $initials = '';
+                            foreach ($words as $word) {
+                                if (!empty($word)) {
+                                    $initials .= strtoupper(substr($word, 0, 1));
+                                }
+                                if (strlen($initials) >= 2) break;
+                            }
+                            echo $initials ?: strtoupper(substr($startup->company_name, 0, 2));
+                        @endphp
+                    </div>
+                    <div class="info">
+                        <div class="name">{{ Str::limit(ucwords(strtolower($startup->company_name)), 20) }}</div>
+                        <div class="role">{{ $startup->startup_code }}</div>
+                    </div>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="profile-menu">
+                    <div class="profile-menu-header">
+                        <div class="avatar">
+                            @php
+                                $words = explode(' ', $startup->company_name);
+                                $initials = '';
+                                foreach ($words as $word) {
+                                    if (!empty($word)) {
+                                        $initials .= strtoupper(substr($word, 0, 1));
+                                    }
+                                    if (strlen($initials) >= 2) break;
+                                }
+                                echo $initials ?: strtoupper(substr($startup->company_name, 0, 2));
+                            @endphp
+                        </div>
+                        <div class="name">{{ ucwords(strtolower($startup->company_name)) }}</div>
+                        <div class="email">{{ $startup->email }}</div>
+                    </div>
+                    <div class="profile-menu-items">
+                        <a href="{{ route('startup.profile') }}" class="profile-menu-item">
+                            <i class="fas fa-user-circle"></i>
+                            Company Profile
+                        </a>
+                        <a href="{{ route('startup.profile') }}" class="profile-menu-item">
+                            <i class="fas fa-cog"></i>
+                            Settings
+                        </a>
+                        <form action="{{ route('startup.logout') }}" method="POST" style="margin: 0;">
+                            @csrf
+                            <button type="submit" class="profile-menu-item danger" style="width: 100%; border: none; background: none; cursor: pointer;">
+                                <i class="fas fa-sign-out-alt"></i>
+                                Sign Out
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         @if(session('success'))
             <div class="alert alert-success">
                 <i class="fas fa-check-circle"></i>
@@ -754,6 +981,29 @@
 
         @yield('content')
     </main>
+
+    <script>
+        // Profile dropdown toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const profileBtn = document.getElementById('profileBtn');
+            const profileDropdown = document.getElementById('profileDropdown');
+            
+            if (profileBtn) {
+                profileBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    profileDropdown.classList.toggle('active');
+                });
+            }
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(event) {
+                if (profileDropdown && !profileDropdown.contains(event.target)) {
+                    profileDropdown.classList.remove('active');
+                }
+            });
+        });
+    </script>
 
     @stack('scripts')
 </body>

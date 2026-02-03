@@ -218,6 +218,11 @@
             padding: 8px 16px;
             background: var(--off-white);
             border-radius: 16px;
+            transition: all 0.3s;
+        }
+
+        .user-info:hover {
+            background: #E5E7EB;
         }
 
         .user-avatar {
@@ -232,8 +237,142 @@
             font-weight: 700;
         }
 
+        .user-avatar-img {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            object-fit: cover;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .tl-profile-avatar-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
         .user-name { font-weight: 700; color: #1F2937; font-size: 14px; }
         .user-role { font-size: 12px; color: var(--forest-green); font-weight: 600; }
+
+        /* Profile Dropdown Styles */
+        .tl-profile-dropdown {
+            position: relative;
+            z-index: 1001;
+        }
+
+        .tl-profile-menu {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: white;
+            border: 1px solid #E5E7EB;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            min-width: 240px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s;
+            z-index: 1002;
+        }
+
+        .tl-profile-dropdown.active .tl-profile-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .tl-profile-menu-header {
+            padding: 16px;
+            border-bottom: 1px solid #E5E7EB;
+            text-align: center;
+        }
+
+        .tl-profile-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--maroon) 0%, var(--maroon-dark) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 18px;
+            margin: 0 auto 10px;
+        }
+
+        .tl-profile-name {
+            font-weight: 600;
+            color: #1F2937;
+            font-size: 15px;
+        }
+
+        .tl-profile-email {
+            font-size: 12px;
+            color: #6B7280;
+            margin-top: 2px;
+        }
+
+        .tl-profile-menu-items {
+            padding: 8px;
+        }
+
+        .tl-profile-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            color: #374151;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.2s;
+            font-size: 14px;
+            width: 100%;
+            border: none;
+            background: none;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .tl-profile-menu-item:hover {
+            background: #F3F4F6;
+            color: var(--maroon);
+        }
+
+        .tl-profile-menu-item i {
+            width: 18px;
+            text-align: center;
+            color: #6B7280;
+        }
+
+        .tl-profile-menu-item:hover i {
+            color: var(--maroon);
+        }
+
+        .tl-profile-menu-item.danger {
+            color: #DC2626;
+        }
+
+        .tl-profile-menu-item.danger:hover {
+            background: #FEE2E2;
+            color: #DC2626;
+        }
+
+        .tl-profile-menu-item.danger i {
+            color: #DC2626;
+        }
+
+        .tl-profile-dropdown.active .user-info i.fa-chevron-down {
+            transform: rotate(180deg);
+        }
+
+        .user-info i.fa-chevron-down {
+            transition: transform 0.3s;
+        }
 
         .page-content {
             display: none;
@@ -369,12 +508,14 @@
             font-size: 11px;
             font-weight: 700;
             text-transform: uppercase;
+            white-space: nowrap;
+            display: inline-block;
         }
 
         .badge-success { background: rgba(34, 139, 34, 0.1); color: var(--forest-green); }
         .badge-warning { background: rgba(255, 215, 0, 0.3); color: #92400E; }
         .badge-danger { background: rgba(220, 38, 38, 0.1); color: #DC2626; }
-        .badge-info { background: rgba(123, 17, 19, 0.1); color: var(--maroon); }
+        .badge-info { background: rgba(59, 130, 246, 0.1); color: #2563EB; }
 
         /* Buttons */
         .btn {
@@ -1206,12 +1347,6 @@
             @endif
             @endif
 
-            <div class="menu-section">ACCOUNT</div>
-            <a class="menu-item" data-page="profile">
-                <i class="fas fa-user-circle"></i>
-                <span>My Profile</span>
-            </a>
-
             <div style="flex-grow: 1;"></div>
 
             <form action="{{ route('admin.logout') }}" method="POST" id="logoutForm">
@@ -1233,11 +1368,39 @@
                 <p class="header-subtitle">{{ $school->name }}</p>
             </div>
             <div style="display: flex; align-items: center; gap: 20px;">
-                <div class="user-info">
-                    <div class="user-avatar">{{ strtoupper(substr($user->name, 0, 1)) }}</div>
-                    <div>
-                        <div class="user-name">{{ $user->name }}</div>
-                        <div class="user-role">Team Leader</div>
+                <div class="tl-profile-dropdown" id="tlProfileDropdown">
+                    @php
+                        $linkedIntern = \App\Models\Intern::where('email', $user->email)->where('approval_status', 'approved')->first();
+                        $profilePicture = $user->profile_picture ?? ($linkedIntern ? $linkedIntern->profile_picture : null);
+                    @endphp
+                    <button type="button" class="user-info" id="tlProfileBtn" style="cursor: pointer; border: none; background: transparent; padding: 0;">
+                        @if($profilePicture)
+                            <img src="{{ asset('storage/' . $profilePicture) }}" alt="Profile" class="user-avatar-img">
+                        @else
+                            <div class="user-avatar">{{ strtoupper(substr($user->name, 0, 1)) }}</div>
+                        @endif
+                        <div>
+                            <div class="user-name">{{ $user->name }}</div>
+                            <div class="user-role">Team Leader</div>
+                        </div>
+                        <i class="fas fa-chevron-down" style="color: #9CA3AF; font-size: 12px; margin-left: 8px;"></i>
+                    </button>
+                    <div class="tl-profile-menu">
+                        <div class="tl-profile-menu-header">
+                            @if($profilePicture)
+                                <img src="{{ asset('storage/' . $profilePicture) }}" alt="Profile" class="tl-profile-avatar-img">
+                            @else
+                                <div class="tl-profile-avatar">{{ strtoupper(substr($user->name, 0, 1)) }}</div>
+                            @endif
+                            <div class="tl-profile-name">{{ $user->name }}</div>
+                            <div class="tl-profile-email">{{ $user->email }}</div>
+                        </div>
+                        <div class="tl-profile-menu-items">
+                            <a href="#" class="tl-profile-menu-item" onclick="navigateToProfile(event)">
+                                <i class="fas fa-user-circle"></i>
+                                My Profile
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -2159,18 +2322,6 @@
         {{-- INCUBATEE TRACKER PAGE --}}
         @if(in_array('incubatee_tracker', $viewableModules))
         <div id="incubatee-tracker" class="page-content">
-            <div style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
-                <div>
-                    <h2 style="font-size: 28px; font-weight: 700; color: #1F2937; margin-bottom: 8px;">Incubatee Management & Tracking</h2>
-                    <p style="color: #6B7280; font-size: 14px;">Monitor MOA requests, payment submissions, and incubatee activities from the startup portal</p>
-                </div>
-                @if(in_array('incubatee_tracker', $editableModules))
-                <span class="badge badge-success" style="padding: 8px 16px; font-size: 13px;"><i class="fas fa-edit"></i> Edit Access</span>
-                @else
-                <span class="badge badge-info" style="padding: 8px 16px; font-size: 13px;"><i class="fas fa-eye"></i> View Only</span>
-                @endif
-            </div>
-
             <!-- Stats Overview -->
             <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 24px;">
                 <div class="stat-card">
@@ -2420,20 +2571,6 @@
         {{-- ISSUES MANAGEMENT PAGE --}}
         @if(in_array('issues_management', $viewableModules))
         <div id="issues-management" class="page-content">
-            <div style="margin-bottom: 24px;">
-                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
-                    <div>
-                        <h2 style="font-size: 28px; font-weight: 700; color: #1F2937; margin-bottom: 8px;">Issues & Complaints</h2>
-                        <p style="color: #6B7280; font-size: 14px;">Manage and track room issues and maintenance requests from startups</p>
-                    </div>
-                    @if(in_array('issues_management', $editableModules))
-                    <span class="badge badge-success" style="padding: 8px 16px; font-size: 13px;"><i class="fas fa-edit"></i> Edit Access</span>
-                    @else
-                    <span class="badge badge-info" style="padding: 8px 16px; font-size: 13px;"><i class="fas fa-eye"></i> View Only</span>
-                    @endif
-                </div>
-            </div>
-
             <!-- Stats Overview -->
             <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); margin-bottom: 24px;">
                 <div class="stat-card">
@@ -2527,7 +2664,6 @@
                     <table class="data-table" style="min-width: 900px;">
                         <thead>
                             <tr>
-                                <th style="width: 90px;">Code</th>
                                 <th>Room/Description</th>
                                 <th style="width: 100px;">Type</th>
                                 <th>Reported By</th>
@@ -2540,7 +2676,6 @@
                         <tbody id="tlIssuesTableBody">
                             @foreach($issuesData['issues'] as $issue)
                             <tr class="tl-issue-row" data-status="{{ $issue->status }}" data-type="{{ $issue->issue_type }}" data-priority="{{ $issue->priority ?? 'medium' }}">
-                                <td><strong style="color: #7B1D3A;">{{ $issue->tracking_code }}</strong></td>
                                 <td>
                                     <div style="font-weight: 600; margin-bottom: 2px;">Room {{ $issue->room_number }}</div>
                                     <div style="font-size: 12px; color: #6B7280;">{{ Str::limit($issue->description, 40) }}</div>
@@ -2601,6 +2736,9 @@
                                         <button onclick="tlUpdateIssueStatus('{{ $issue->id }}')" class="btn btn-sm" style="padding: 6px 8px; background: #10B981; color: white;" title="Update Status">
                                             <i class="fas fa-check"></i>
                                         </button>
+                                        <button onclick="tlArchiveIssue('{{ $issue->id }}')" class="btn btn-sm" style="background: #F59E0B; color: white;" title="Archive">
+                                            <i class="fas fa-archive"></i>
+                                        </button>
                                         @endif
                                     </div>
                                 </td>
@@ -2608,6 +2746,20 @@
                             @endforeach
                         </tbody>
                     </table>
+                    <!-- Pagination -->
+                    <div id="tlIssuesPagination" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-top: 1px solid #E5E7EB;">
+                        <div style="font-size: 13px; color: #6B7280;">
+                            Showing <span id="tlIssuesShowing">1-8</span> of <span id="tlIssuesTotalCount">{{ $issuesData['issues']->count() }}</span> issues
+                        </div>
+                        <div style="display: flex; gap: 4px;">
+                            <button onclick="tlIssuesPrevPage()" id="tlIssuesPrevBtn" class="btn btn-sm" style="padding: 6px 12px; background: #F3F4F6; color: #374151; border: 1px solid #E5E7EB;" disabled>
+                                <i class="fas fa-chevron-left"></i> Prev
+                            </button>
+                            <button onclick="tlIssuesNextPage()" id="tlIssuesNextBtn" class="btn btn-sm" style="padding: 6px 12px; background: #F3F4F6; color: #374151; border: 1px solid #E5E7EB;">
+                                Next <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
                     @else
                     <div class="empty-state">
                         <i class="fas fa-check-circle"></i>
@@ -4259,8 +4411,10 @@
                 const matchType = typeFilter === 'all' || type === typeFilter;
                 const matchPriority = priorityFilter === 'all' || priority === priorityFilter;
 
-                row.style.display = (matchStatus && matchType && matchPriority) ? '' : 'none';
+                row.setAttribute('data-filtered', (matchStatus && matchType && matchPriority) ? 'true' : 'false');
             });
+            tlIssuesCurrentPage = 1;
+            tlApplyIssuesPagination();
         }
 
         function tlSearchIssues() {
@@ -4271,7 +4425,90 @@
                 const text = row.textContent.toLowerCase();
                 row.style.display = text.includes(searchTerm) ? '' : 'none';
             });
+            tlIssuesCurrentPage = 1;
+            tlApplyIssuesPagination();
         }
+
+        // Issues Pagination
+        let tlIssuesCurrentPage = 1;
+        const tlIssuesPerPage = 8;
+
+        function tlApplyIssuesPagination() {
+            const rows = document.querySelectorAll('.tl-issue-row');
+            const visibleRows = Array.from(rows).filter(row => row.getAttribute('data-filtered') !== 'false');
+            const totalVisible = visibleRows.length;
+            const totalPages = Math.ceil(totalVisible / tlIssuesPerPage);
+            
+            // Hide all rows first
+            rows.forEach(row => row.style.display = 'none');
+            
+            // Show only rows for current page
+            const start = (tlIssuesCurrentPage - 1) * tlIssuesPerPage;
+            const end = start + tlIssuesPerPage;
+            
+            visibleRows.slice(start, end).forEach(row => row.style.display = '');
+            
+            // Update pagination info
+            const showingStart = totalVisible > 0 ? start + 1 : 0;
+            const showingEnd = Math.min(end, totalVisible);
+            document.getElementById('tlIssuesShowing').textContent = `${showingStart}-${showingEnd}`;
+            document.getElementById('tlIssuesTotalCount').textContent = totalVisible;
+            
+            // Update buttons
+            document.getElementById('tlIssuesPrevBtn').disabled = tlIssuesCurrentPage <= 1;
+            document.getElementById('tlIssuesNextBtn').disabled = tlIssuesCurrentPage >= totalPages;
+        }
+
+        function tlIssuesPrevPage() {
+            if (tlIssuesCurrentPage > 1) {
+                tlIssuesCurrentPage--;
+                tlApplyIssuesPagination();
+            }
+        }
+
+        function tlIssuesNextPage() {
+            const rows = document.querySelectorAll('.tl-issue-row');
+            const totalPages = Math.ceil(rows.length / tlIssuesPerPage);
+            if (tlIssuesCurrentPage < totalPages) {
+                tlIssuesCurrentPage++;
+                tlApplyIssuesPagination();
+            }
+        }
+
+        function tlArchiveIssue(issueId) {
+            if (!confirm('Are you sure you want to archive this issue?')) {
+                return;
+            }
+            
+            fetch(`/team-leader/issues/${issueId}/archive`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('Issue archived successfully!');
+                    location.reload();
+                } else {
+                    showToast(data.message || 'Failed to archive issue', true);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('An error occurred while archiving the issue', true);
+            });
+        }
+
+        // Initialize pagination on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            if (document.getElementById('tlIssuesTableBody')) {
+                tlApplyIssuesPagination();
+            }
+        });
         @endif
 
         // Page navigation
@@ -4288,8 +4525,38 @@
             'research-tracking': 'Research Tracking',
             'incubatee-tracker': 'Incubatee Tracker',
             'issues-management': 'Issues & Complaints',
-            'digital-records': 'Digital Records'
+            'digital-records': 'Digital Records',
+            'profile': 'My Profile'
         };
+
+        // Profile dropdown toggle
+        const tlProfileBtn = document.getElementById('tlProfileBtn');
+        const tlProfileDropdown = document.getElementById('tlProfileDropdown');
+        
+        if (tlProfileBtn && tlProfileDropdown) {
+            tlProfileBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                tlProfileDropdown.classList.toggle('active');
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!tlProfileDropdown.contains(event.target)) {
+                    tlProfileDropdown.classList.remove('active');
+                }
+            });
+        }
+
+        // Navigate to profile page
+        function navigateToProfile(e) {
+            e.preventDefault();
+            tlProfileDropdown.classList.remove('active');
+            menuItems.forEach(mi => mi.classList.remove('active'));
+            pageContents.forEach(pc => pc.classList.remove('active'));
+            document.getElementById('profile').classList.add('active');
+            pageTitle.textContent = 'My Profile';
+        }
 
         menuItems.forEach(item => {
             item.addEventListener('click', function(e) {
