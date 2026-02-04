@@ -1132,9 +1132,6 @@
                     <h2><i class="fas fa-user-plus" style="margin-right: 8px;"></i>New Intern Registration</h2>
                     <p style="font-size: 13px; opacity: 0.8; margin-top: 4px;">University of the Philippines Cebu</p>
                 </div>
-                <button class="modal-close" onclick="closeRegistrationModal()">
-                    <i class="fas fa-times"></i>
-                </button>
             </div>
             <div class="modal-body">
                 <form action="{{ route('intern.register') }}" method="POST">
@@ -1736,9 +1733,6 @@
                             <h2><i class="fas fa-user-edit" style="margin-right: 8px;"></i>Edit Profile</h2>
                             <p style="font-size: 13px; opacity: 0.8; margin-top: 4px;">Update your personal information</p>
                         </div>
-                        <button class="modal-close" onclick="closeEditProfileModal()">
-                            <i class="fas fa-times"></i>
-                        </button>
                     </div>
                     <div class="modal-body">
                         <form id="editProfileForm" action="{{ route('intern.update') }}" method="POST">
@@ -1842,22 +1836,15 @@
                     <!-- Today's Summary -->
                     @if($todayAttendance)
                     @php
-                        // Calculate hours for today dynamically from time_in and time_out
-                        $todayHours = 0;
-                        if ($todayAttendance->time_in) {
+                        // Calculate hours for today only if time_out exists
+                        $todayHours = null;
+                        if ($todayAttendance->time_in && $todayAttendance->time_out) {
                             $attendanceDate = $todayAttendance->date ? $todayAttendance->date->toDateString() : \Carbon\Carbon::now('Asia/Manila')->toDateString();
                             $timeIn = \Carbon\Carbon::parse($attendanceDate . ' ' . $todayAttendance->time_in, 'Asia/Manila');
-                            if ($todayAttendance->time_out) {
-                                $timeOut = \Carbon\Carbon::parse($attendanceDate . ' ' . $todayAttendance->time_out, 'Asia/Manila');
-                                $todayHours = round($timeOut->diffInSeconds($timeIn, true) / 3600, 2);
-                            } else {
-                                // If no time out, calculate from current time
-                                $now = \Carbon\Carbon::now('Asia/Manila');
-                                $todayHours = round($now->diffInSeconds($timeIn, true) / 3600, 2);
-                            }
+                            $timeOut = \Carbon\Carbon::parse($attendanceDate . ' ' . $todayAttendance->time_out, 'Asia/Manila');
+                            $todayHours = round($timeOut->diffInSeconds($timeIn, true) / 3600, 2);
+                            $todayHours = max(0, $todayHours);
                         }
-
-                        $todayHours = max(0, $todayHours);
                     @endphp
                     <div id="todaySummary" style="margin-top: 32px; display: flex; justify-content: center; gap: 40px;">
                         <div>
@@ -1874,8 +1861,8 @@
                                data-time-in="{{ $todayAttendance->time_in }}"
                                          data-raw-time-in="{{ $todayAttendance->raw_time_in }}"
                                data-time-out="{{ $todayAttendance->time_out }}"
-                               data-is-working="{{ ($todayAttendance->time_in && !$todayAttendance->time_out) ? 'true' : 'false' }}">
-                                {{ number_format($todayHours, 2) }}
+                               data-is-working="false">
+                                {{ $todayHours !== null ? number_format($todayHours, 2) : '--' }}
                             </p>
                         </div>
                     </div>
@@ -1905,7 +1892,7 @@
                             @foreach($attendanceHistory as $record)
                             @php
                                 // Calculate hours from time_in and time_out
-                                $hoursWorked = 0;
+                                $hoursWorked = null;
                                 $displayStatus = 'Absent';
 
                                 if ($record->time_in) {
@@ -1914,29 +1901,24 @@
                                     $timeOut = $record->time_out ? \Carbon\Carbon::parse($attendanceDate . ' ' . $record->time_out, 'Asia/Manila') : null;
 
                                     if ($timeOut) {
+                                        // Only calculate hours if there's a time_out
                                         $hoursWorked = round($timeOut->diffInSeconds($timeIn, true) / 3600, 2);
-                                    } else {
-                                        // If no time out, calculate from current time
-                                        $now = \Carbon\Carbon::now('Asia/Manila');
-                                        $hoursWorked = round($now->diffInSeconds($timeIn, true) / 3600, 2);
-                                    }
+                                        $hoursWorked = max(0, $hoursWorked);
 
-                                    $hoursWorked = max(0, $hoursWorked);
-
-                                    // Determine status based on hours and time in
-                                    if ($timeOut) {
+                                        // Determine status based on hours and time in
                                         if ($hoursWorked >= 8) {
                                             $displayStatus = 'Present';
                                         } elseif ($hoursWorked > 0) {
                                             $displayStatus = 'Undertime';
                                         }
-                                    } else {
-                                        $displayStatus = 'Present'; // Still working
-                                    }
 
-                                    // Check if late (after 9 AM)
-                                    if ($timeIn->hour >= 9 && $timeOut) {
-                                        $displayStatus = 'Late';
+                                        // Check if late (after 9 AM)
+                                        if ($timeIn->hour >= 9) {
+                                            $displayStatus = 'Late';
+                                        }
+                                    } else {
+                                        // No time_out yet - show as In Progress
+                                        $displayStatus = 'In Progress';
                                     }
                                 }
                             @endphp
@@ -1947,7 +1929,7 @@
                                 </td>
                                 <td style="padding: 16px; color: #059669; font-weight: 500;">{{ $record->formatted_time_in }}</td>
                                 <td style="padding: 16px; color: #DC2626; font-weight: 500;">{{ $record->formatted_time_out }}</td>
-                                <td style="padding: 16px; font-weight: 600;">{{ number_format($hoursWorked, 2) }} hrs</td>
+                                <td style="padding: 16px; font-weight: 600;">{{ $hoursWorked !== null ? number_format($hoursWorked, 2) . ' hrs' : '--' }}</td>
                                 <td style="padding: 16px;">
                                     @if($record->time_out)
                                         @if($record->hasUndertime())
@@ -1978,6 +1960,7 @@
                                         @if($displayStatus === 'Present') background: #D1FAE5; color: #065F46;
                                         @elseif($displayStatus === 'Late') background: #FEF3C7; color: #92400E;
                                         @elseif($displayStatus === 'Undertime') background: #FEE2E2; color: #991B1B;
+                                        @elseif($displayStatus === 'In Progress') background: #DBEAFE; color: #1E40AF;
                                         @else background: #F3F4F6; color: #6B7280; @endif">
                                         {{ $displayStatus }}
                                     </span>
@@ -2210,7 +2193,6 @@
             <div class="modal-content" style="width: 90%; max-width: 500px; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
                 <div class="modal-header" style="padding: 20px; border-bottom: 1px solid #E5E7EB; display: flex; justify-content: space-between; align-items: center;">
                     <h2 style="margin: 0; font-size: 18px; font-weight: 600;">Create New Folder</h2>
-                    <button onclick="closeCreateFolderModal()" style="background: none; border: none; cursor: pointer; font-size: 24px; color: #6B7280;">&times;</button>
                 </div>
                 <div class="modal-body" style="padding: 20px;">
                     <div class="form-group">
@@ -3020,9 +3002,8 @@
             const modalHtml = `
                 <div id="eventDetailsModal" onclick="closeEventModal()" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px;">
                     <div onclick="event.stopPropagation()" style="background: white; border-radius: 16px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
-                        <div style="background: linear-gradient(135deg, ${event.color}, ${event.color}dd); padding: 24px; color: white; border-radius: 16px 16px 0 0; display: flex; justify-content: space-between; align-items: start;">
-                            <h2 style="margin: 0; font-size: 24px; font-weight: 700; flex: 1;">${escapeHtml(event.title)}</h2>
-                            <button onclick="closeEventModal()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-left: 12px;">&times;</button>
+                        <div style="background: linear-gradient(135deg, ${event.color}, ${event.color}dd); padding: 24px; color: white; border-radius: 16px 16px 0 0;">
+                            <h2 style="margin: 0; font-size: 24px; font-weight: 700;">${escapeHtml(event.title)}</h2>
                         </div>
                         <div style="padding: 24px;">
                             ${event.description ? `<p style="color: #6B7280; font-size: 15px; margin-bottom: 20px; line-height: 1.6;">${escapeHtml(event.description)}</p>` : ''}
@@ -3130,12 +3111,11 @@
             const modalHtml = `
                 <div id="eventDetailsModal" onclick="closeEventModal()" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px;">
                     <div onclick="event.stopPropagation()" style="background: white; border-radius: 16px; max-width: 700px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
-                        <div style="background: linear-gradient(135deg, #7B1D3A, #5a1428); padding: 24px; color: white; border-radius: 16px 16px 0 0; display: flex; justify-content: space-between; align-items: start;">
+                        <div style="background: linear-gradient(135deg, #7B1D3A, #5a1428); padding: 24px; color: white; border-radius: 16px 16px 0 0;">
                             <div>
                                 <h2 style="margin: 0; font-size: 24px; font-weight: 700;">${dateInfo}</h2>
                                 <p style="margin: 8px 0 0 0; opacity: 0.9; font-size: 14px;">${dayEvents.length + dayBookings.length} item(s)</p>
                             </div>
-                            <button onclick="closeEventModal()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-left: 12px;">&times;</button>
                         </div>
                         <div style="padding: 24px;">
                             ${itemsHtml}
@@ -3157,14 +3137,13 @@
             const modalHtml = `
                 <div id="eventDetailsModal" onclick="closeEventModal()" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px;">
                     <div onclick="event.stopPropagation()" style="background: white; border-radius: 16px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
-                        <div style="background: linear-gradient(135deg, #3B82F6, #2563EB); padding: 24px; color: white; border-radius: 16px 16px 0 0; display: flex; justify-content: space-between; align-items: start;">
+                        <div style="background: linear-gradient(135deg, #3B82F6, #2563EB); padding: 24px; color: white; border-radius: 16px 16px 0 0;">
                             <div>
                                 <div style="display: inline-block; padding: 4px 10px; background: rgba(255,255,255,0.2); border-radius: 6px; font-size: 11px; font-weight: 600; margin-bottom: 8px;">
                                     <i class="fas fa-calendar-check" style="margin-right: 4px;"></i>BOOKING
                                 </div>
                                 <h2 style="margin: 0; font-size: 24px; font-weight: 700;">${escapeHtml(booking.agency)}</h2>
                             </div>
-                            <button onclick="closeEventModal()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-left: 12px;">&times;</button>
                         </div>
                         <div style="padding: 24px;">
                             <div style="background: #F0F9FF; border-left: 4px solid #3B82F6; padding: 12px 16px; border-radius: 8px; margin-bottom: 20px;">
@@ -3808,7 +3787,6 @@
                     <div class="modal-content" style="max-width: 600px;">
                         <div class="modal-header" style="background: linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%); color: white;">
                             <h2 style="margin: 0;"><i class="fas fa-play" style="margin-right: 8px;"></i>Start Task</h2>
-                            <button class="modal-close" onclick="closeTaskStartModal()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 36px; height: 36px; border-radius: 50%; cursor: pointer;"><i class="fas fa-times"></i></button>
                         </div>
                         <div class="modal-body">
                             <form id="startTaskForm" onsubmit="submitTaskStart(event)">
@@ -4284,8 +4262,13 @@
                 summaryTimeOut.textContent = attendance.time_out;
             }
             if (summaryHours) {
-                summaryHours.textContent = attendance.hours_today.toFixed(2);
-                summaryHours.dataset.isWorking = attendance.is_working ? 'true' : 'false';
+                // Only show hours if time_out exists (hours_today is not null)
+                if (attendance.hours_today !== null) {
+                    summaryHours.textContent = attendance.hours_today.toFixed(2);
+                } else {
+                    summaryHours.textContent = '--';
+                }
+                summaryHours.dataset.isWorking = 'false'; // Don't do live tracking
             }
         }
 

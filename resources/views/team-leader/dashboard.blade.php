@@ -2913,7 +2913,6 @@
         <div class="modal" style="max-width: 650px;">
             <div class="modal-header">
                 <h3><i class="fas fa-file-contract"></i> MOA Request Details</h3>
-                <button class="modal-close" onclick="tlCloseMoaDetailsModal()"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body" id="tlMoaDetailsContent">
                 <!-- MOA details will be loaded here -->
@@ -2935,7 +2934,6 @@
         <div class="modal" style="max-width: 500px;">
             <div class="modal-header">
                 <h3><i class="fas fa-clipboard-check"></i> Review MOA Request</h3>
-                <button class="modal-close" onclick="tlCloseReviewMoaModal()"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body">
                 <form id="tlReviewMoaForm">
@@ -2977,7 +2975,6 @@
         <div class="modal" style="max-width: 900px;">
             <div class="modal-header">
                 <h3><i class="fas fa-credit-card"></i> Payment Submission Details</h3>
-                <button class="modal-close" onclick="tlClosePaymentDetailsModal()"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body" id="tlPaymentDetailsContent">
                 <!-- Payment details will be loaded here -->
@@ -2999,7 +2996,6 @@
         <div class="modal" style="max-width: 500px;">
             <div class="modal-header">
                 <h3><i class="fas fa-clipboard-check"></i> Review Payment</h3>
-                <button class="modal-close" onclick="tlCloseReviewPaymentModal()"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body">
                 <form id="tlReviewPaymentForm">
@@ -3045,7 +3041,6 @@
         <div class="modal" style="max-width: 580px;">
             <div class="modal-header">
                 <h3><i class="fas fa-exclamation-circle"></i> Room Issue Details</h3>
-                <button class="modal-close" onclick="tlCloseIssueDetailsModal()"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body" id="tlIssueDetailsContent" style="max-height: 60vh; overflow-y: auto;">
                 <!-- Issue details will be loaded here -->
@@ -3067,7 +3062,6 @@
         <div class="modal" style="max-width: 450px;">
             <div class="modal-header">
                 <h3><i class="fas fa-edit"></i> Update Issue Status</h3>
-                <button class="modal-close" onclick="tlCloseUpdateIssueStatusModal()"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body">
                 <form id="tlUpdateIssueStatusForm">
@@ -3111,7 +3105,6 @@
         <div class="modal">
             <div class="modal-header">
                 <h3><i class="fas fa-folder-plus"></i> Create Shared Folder</h3>
-                <button class="modal-close" onclick="closeModal('tlCreateFolderModal')">&times;</button>
             </div>
             <form onsubmit="tlSubmitCreateFolder(event)">
                 <div class="modal-body">
@@ -3157,7 +3150,6 @@
         <div class="modal">
             <div class="modal-header">
                 <h3><i class="fas fa-plus-circle"></i> Create New Task</h3>
-                <button class="modal-close" onclick="closeModal('createTaskModal')">&times;</button>
             </div>
             <form id="createTaskForm" action="{{ route('team-leader.tasks.store') }}" method="POST">
                 @csrf
@@ -3211,7 +3203,6 @@
         <div class="modal">
             <div class="modal-header">
                 <h3><i class="fas fa-edit"></i> Edit Task</h3>
-                <button class="modal-close" onclick="closeModal('editTaskModal')">&times;</button>
             </div>
             <form id="editTaskForm" method="POST">
                 @csrf
@@ -3284,7 +3275,6 @@
         <div class="modal modal-lg">
             <div class="modal-header">
                 <h3><i class="fas fa-user"></i> Intern Details</h3>
-                <button class="modal-close" onclick="closeModal('viewInternModal')">&times;</button>
             </div>
             <div class="modal-body" id="viewInternContent">
                 <div style="text-align: center; padding: 40px;">
@@ -3300,7 +3290,6 @@
         <div class="modal modal-lg">
             <div class="modal-header">
                 <h3><i class="fas fa-user-edit"></i> Edit Intern</h3>
-                <button class="modal-close" onclick="closeModal('editInternModal')">&times;</button>
             </div>
             <form id="editInternForm" onsubmit="submitEditIntern(event)">
                 <input type="hidden" id="editInternId">
@@ -3367,7 +3356,6 @@
         <div class="modal modal-lg">
             <div class="modal-header">
                 <h3><i class="fas fa-file-alt"></i> Create New Report</h3>
-                <button class="modal-close" onclick="closeModal('createReportModal')">&times;</button>
             </div>
             <form id="createReportForm" onsubmit="submitCreateReport(event)">
                 @csrf
@@ -3435,7 +3423,6 @@
         <div class="modal modal-lg">
             <div class="modal-header">
                 <h3><i class="fas fa-file-alt"></i> Report Details</h3>
-                <button class="modal-close" onclick="closeModal('viewReportModal')">&times;</button>
             </div>
             <div class="modal-body" id="viewReportContent">
                 <div style="text-align: center; padding: 40px;">
@@ -3451,7 +3438,6 @@
         <div class="modal modal-lg">
             <div class="modal-header">
                 <h3><i class="fas fa-edit"></i> Edit Report</h3>
-                <button class="modal-close" onclick="closeModal('editReportModal')">&times;</button>
             </div>
             <form id="editReportForm" onsubmit="submitEditReport(event)">
                 <input type="hidden" id="editReportId" name="report_id" value="">
@@ -3519,7 +3505,6 @@
         <div class="modal" style="max-width: 400px;">
             <div class="modal-header" style="background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);">
                 <h3><i class="fas fa-archive"></i> Confirm Archive</h3>
-                <button class="modal-close" onclick="closeModal('archiveConfirmModal')">&times;</button>
             </div>
             <form id="archiveForm" method="POST">
                 @csrf
@@ -3548,7 +3533,6 @@
         <div style="background: white; border-radius: 16px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
             <div style="background: linear-gradient(135deg, var(--maroon), var(--maroon-dark)); padding: 24px; color: white; border-radius: 16px 16px 0 0; display: flex; justify-content: space-between; align-items: center;">
                 <h2 id="tlEventModalTitle" style="margin: 0; font-size: 20px; font-weight: 700;">Create Event</h2>
-                <button onclick="tlCloseEventModal()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-size: 18px; transition: all 0.3s ease;">&times;</button>
             </div>
             <div style="padding: 24px;">
                 <input type="hidden" id="tlEventId">
@@ -3620,7 +3604,6 @@
         <div style="background: white; border-radius: 16px; width: 90%; max-width: 450px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
             <div style="background: linear-gradient(135deg, var(--maroon), var(--maroon-dark)); padding: 24px; color: white; border-radius: 16px 16px 0 0; display: flex; justify-content: space-between; align-items: center;">
                 <h2 style="margin: 0; font-size: 20px; font-weight: 700;"><i class="fas fa-calendar-times" style="margin-right: 8px;"></i>Block Date</h2>
-                <button onclick="tlCloseBlockDateModal()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-size: 18px; transition: all 0.3s ease;">&times;</button>
             </div>
             <div style="padding: 24px;">
                 <div style="margin-bottom: 20px;">

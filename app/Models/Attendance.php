@@ -47,43 +47,33 @@ class Attendance extends Model
 
     /**
      * Calculate hours worked between time_in and time_out
+     * Returns 0 if time_out is not set
      */
     public function calculateHoursWorked(): float
     {
-        if (!$this->time_in) {
+        if (!$this->time_in || !$this->time_out) {
             return 0;
         }
 
         $attendanceDate = $this->date ? Carbon::parse($this->date)->format('Y-m-d') : Carbon::now('Asia/Manila')->format('Y-m-d');
         $timeIn = Carbon::parse($attendanceDate . ' ' . $this->time_in, 'Asia/Manila');
-        $timeOut = $this->time_out
-            ? Carbon::parse($attendanceDate . ' ' . $this->time_out, 'Asia/Manila')
-            : Carbon::now('Asia/Manila');
+        $timeOut = Carbon::parse($attendanceDate . ' ' . $this->time_out, 'Asia/Manila');
 
         return round($timeOut->diffInSeconds($timeIn, true) / 3600, 2);
     }
 
     /**
-     * Get current hours worked (live calculation for display)
-     * Uses time_out if available, otherwise uses current time
+     * Get current hours worked
+     * Returns 0 if time_out is not set (intern hasn't timed out yet)
      */
     public function getCurrentHoursWorkedAttribute(): float
     {
-        if (!$this->time_in) {
+        if (!$this->time_in || !$this->time_out) {
             return 0;
         }
 
-        $attendanceDate = $this->date ? Carbon::parse($this->date)->format('Y-m-d') : Carbon::now('Asia/Manila')->format('Y-m-d');
-        $timeIn = Carbon::parse($attendanceDate . ' ' . $this->time_in, 'Asia/Manila');
-
-        if ($this->time_out) {
-            // Use stored hours_worked if already timed out
-            return (float) $this->hours_worked;
-        }
-
-        // Calculate live hours if still working
-        $now = Carbon::now('Asia/Manila');
-        return round($now->diffInSeconds($timeIn, true) / 3600, 2);
+        // Use stored hours_worked if already timed out
+        return (float) $this->hours_worked;
     }
 
     /**

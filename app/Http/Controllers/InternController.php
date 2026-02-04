@@ -776,21 +776,19 @@ class InternController extends Controller
             ->whereDate('date', $today)
             ->first();
 
-        // Calculate today's hours
-        $todayHours = 0;
+        // Calculate today's hours only if time_out exists
+        $todayHours = null;
         $isWorking = false;
         if ($todayAttendance && $todayAttendance->time_in) {
-            $attendanceDate = $todayAttendance->date ? Carbon::parse($todayAttendance->date)->format('Y-m-d') : $today;
-            $timeIn = Carbon::parse($attendanceDate . ' ' . $todayAttendance->time_in, 'Asia/Manila');
-            
             if ($todayAttendance->time_out) {
+                $attendanceDate = $todayAttendance->date ? Carbon::parse($todayAttendance->date)->format('Y-m-d') : $today;
+                $timeIn = Carbon::parse($attendanceDate . ' ' . $todayAttendance->time_in, 'Asia/Manila');
                 $timeOut = Carbon::parse($attendanceDate . ' ' . $todayAttendance->time_out, 'Asia/Manila');
                 $todayHours = round($timeOut->diffInSeconds($timeIn, true) / 3600, 2);
+                $todayHours = max(0, $todayHours);
             } else {
-                $todayHours = round($now->diffInSeconds($timeIn, true) / 3600, 2);
                 $isWorking = true;
             }
-            $todayHours = max(0, $todayHours);
         }
 
         // Get tasks with status counts
