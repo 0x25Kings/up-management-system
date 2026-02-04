@@ -2005,13 +2005,6 @@
 
         <!-- Attendance Page -->
         <div id="attendance" class="page-content">
-            <div class="page-header">
-                <div>
-                    <h1 class="page-title">Time & Attendance</h1>
-                    <p class="page-subtitle">Log your daily attendance</p>
-                </div>
-            </div>
-
             <!-- Current Time Display -->
             <div class="content-card" style="background: linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%); color: white;">
                 <div class="content-card-body" style="text-align: center; padding: 40px;">
@@ -2201,13 +2194,6 @@
 
         <!-- Tasks Page -->
         <div id="tasks" class="page-content">
-            <div class="page-header">
-                <div>
-                    <h1 class="page-title">My Tasks</h1>
-                    <p class="page-subtitle">View and manage your assigned tasks</p>
-                </div>
-            </div>
-
             <div class="content-card">
                 <div class="content-card-body">
                     @if(($tasks ?? collect())->count() > 0)
@@ -2326,13 +2312,6 @@
 
         <!-- Schedule Page -->
         <div id="schedule" class="page-content">
-            <div class="page-header">
-                <div>
-                    <h1 class="page-title">Schedule</h1>
-                    <p class="page-subtitle">View your internship schedule and events</p>
-                </div>
-            </div>
-
             <div class="content-card">
                 <div class="content-card-body">
                     <!-- Calendar Header -->
@@ -2378,22 +2357,16 @@
 
         <!-- Documents Page -->
         <div id="documents" class="page-content">
-            <div class="page-header">
-                <div>
-                    <h1 class="page-title">Documents</h1>
-                    <p class="page-subtitle">Organize and manage your documents with folders</p>
-                </div>
-                <div style="display: flex; gap: 10px;">
-                    <button class="btn-primary" onclick="showCreateFolderModal()">
-                        <i class="fas fa-folder-plus" style="margin-right: 6px;"></i>
-                        New Folder
-                    </button>
-                    <button class="btn-primary" onclick="document.getElementById('fileUpload').click()">
-                        <i class="fas fa-upload" style="margin-right: 6px;"></i>
-                        Upload Document
-                    </button>
-                    <input type="file" id="fileUpload" style="display: none;" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.jpg,.jpeg,.png,.gif,.zip,.rar,.ppt,.pptx,.csv" onchange="handleFileUpload(event)">
-                </div>
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 20px;">
+                <button class="btn-primary" onclick="showCreateFolderModal()">
+                    <i class="fas fa-folder-plus" style="margin-right: 6px;"></i>
+                    New Folder
+                </button>
+                <button class="btn-primary" onclick="document.getElementById('fileUpload').click()">
+                    <i class="fas fa-upload" style="margin-right: 6px;"></i>
+                    Upload Document
+                </button>
+                <input type="file" id="fileUpload" style="display: none;" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.jpg,.jpeg,.png,.gif,.zip,.rar,.ppt,.pptx,.csv" onchange="handleFileUpload(event)">
             </div>
 
             <div id="documentContainer" class="content-card">
@@ -2686,8 +2659,25 @@
                 const files = event.target.files;
                 if (files.length === 0) return;
 
-                let uploaded = 0;
+                const maxSizeMB = 50; // 50MB limit
+                const maxSizeBytes = maxSizeMB * 1024 * 1024;
+                const allowedExtensions = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt', 'jpg', 'jpeg', 'png', 'gif', 'zip', 'rar', 'ppt', 'pptx', 'csv'];
+
                 for (let file of files) {
+                    // Check file size on client side
+                    if (file.size > maxSizeBytes) {
+                        const fileSizeMB = (file.size / 1024 / 1024).toFixed(2);
+                        showNotification(`File "${file.name}" is too large (${fileSizeMB} MB). Maximum allowed size is ${maxSizeMB} MB.`, 'error');
+                        continue;
+                    }
+
+                    // Check file extension
+                    const extension = file.name.split('.').pop().toLowerCase();
+                    if (!allowedExtensions.includes(extension)) {
+                        showNotification(`File "${file.name}" has an unsupported format. Allowed formats: ${allowedExtensions.join(', ')}`, 'error');
+                        continue;
+                    }
+
                     uploadDocument(file);
                 }
 
@@ -2710,12 +2700,40 @@
                     body: formData
                 })
                 .then(response => {
-                    if (!response.ok) {
-                        return response.text().then(text => {
-                            throw new Error(`HTTP error! status: ${response.status}, body: ${text}`);
-                        });
-                    }
-                    return response.json();
+                    // Try to parse as JSON first
+                    return response.text().then(text => {
+                        let data;
+                        try {
+                            data = JSON.parse(text);
+                        } catch (e) {
+                            // Not JSON - might be PHP/server error
+                            if (response.status === 413) {
+                                throw new Error(`File "${file.name}" is too large. Maximum allowed size is 50 MB.`);
+                            } else if (response.status === 422) {
+                                throw new Error(`File "${file.name}" could not be uploaded. Please check the file size (max 50 MB) and format.`);
+                            } else if (text.includes('upload_max_filesize') || text.includes('post_max_size')) {
+                                throw new Error(`File "${file.name}" is too large. Maximum allowed size is 50 MB.`);
+                            }
+                            throw new Error(`Upload failed for "${file.name}". Please try again.`);
+                        }
+                        
+                        if (!response.ok) {
+                            // Handle validation errors from Laravel
+                            if (data.errors) {
+                                const errorMessages = Object.values(data.errors).flat();
+                                // Make file size errors user-friendly
+                                const friendlyMessages = errorMessages.map(msg => {
+                                    if (msg.includes('may not be greater than')) {
+                                        return `File "${file.name}" is too large. Maximum allowed size is 50 MB.`;
+                                    }
+                                    return msg;
+                                });
+                                throw new Error(friendlyMessages.join(', '));
+                            }
+                            throw new Error(data.message || `Upload failed for "${file.name}"`);
+                        }
+                        return data;
+                    });
                 })
                 .then(data => {
                     if (data.success) {
@@ -2727,7 +2745,7 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    showNotification('Error uploading document: ' + error.message, 'error');
+                    showNotification(error.message, 'error');
                 });
             }
 

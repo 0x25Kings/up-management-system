@@ -14078,7 +14078,168 @@ University of the Philippines Cebu
         }
 
         function openUploadFileModal() {
-            showToast('info', 'Info', 'File upload feature coming soon');
+            // Check if we're in a folder
+            if (!currentPath || currentPath === '') {
+                showToast('warning', 'Select a Folder', 'Please navigate to a folder before uploading files.');
+                return;
+            }
+            document.getElementById('uploadFileModal').style.display = 'flex';
+            document.getElementById('adminFileUpload').value = '';
+            document.getElementById('uploadFileList').innerHTML = '<p style="color: #9CA3AF; text-align: center;">No files selected</p>';
+        }
+
+        function closeUploadFileModal() {
+            document.getElementById('uploadFileModal').style.display = 'none';
+        }
+
+        function handleAdminFileSelect(input) {
+            const files = input.files;
+            const listContainer = document.getElementById('uploadFileList');
+            
+            if (files.length === 0) {
+                listContainer.innerHTML = '<p style="color: #9CA3AF; text-align: center;">No files selected</p>';
+                return;
+            }
+
+            const maxSizeMB = 50;
+            const maxSizeBytes = maxSizeMB * 1024 * 1024;
+            const allowedExtensions = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt', 'jpg', 'jpeg', 'png', 'gif', 'zip', 'rar', 'ppt', 'pptx', 'csv'];
+            
+            let html = '';
+            for (let file of files) {
+                const fileSizeMB = (file.size / 1024 / 1024).toFixed(2);
+                const extension = file.name.split('.').pop().toLowerCase();
+                let status = 'valid';
+                let statusIcon = '<i class="fas fa-check-circle" style="color: #10B981;"></i>';
+                let statusText = '';
+                
+                if (file.size > maxSizeBytes) {
+                    status = 'error';
+                    statusIcon = '<i class="fas fa-exclamation-circle" style="color: #EF4444;"></i>';
+                    statusText = `<span style="color: #EF4444; font-size: 12px;">Too large (max ${maxSizeMB} MB)</span>`;
+                } else if (!allowedExtensions.includes(extension)) {
+                    status = 'error';
+                    statusIcon = '<i class="fas fa-exclamation-circle" style="color: #EF4444;"></i>';
+                    statusText = '<span style="color: #EF4444; font-size: 12px;">Unsupported format</span>';
+                }
+                
+                html += `
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px; border: 1px solid ${status === 'error' ? '#FCA5A5' : '#E5E7EB'}; border-radius: 8px; margin-bottom: 8px; background: ${status === 'error' ? '#FEF2F2' : '#F9FAFB'};">
+                        <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0;">
+                            ${statusIcon}
+                            <div style="min-width: 0; flex: 1;">
+                                <div style="font-weight: 500; color: #1F2937; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(file.name)}</div>
+                                <div style="font-size: 12px; color: #6B7280;">${fileSizeMB} MB</div>
+                                ${statusText}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            listContainer.innerHTML = html;
+        }
+
+        function submitUploadFiles() {
+            const input = document.getElementById('adminFileUpload');
+            const files = input.files;
+            
+            if (files.length === 0) {
+                showToast('warning', 'No Files', 'Please select files to upload.');
+                return;
+            }
+
+            const maxSizeMB = 50;
+            const maxSizeBytes = maxSizeMB * 1024 * 1024;
+            const allowedExtensions = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt', 'jpg', 'jpeg', 'png', 'gif', 'zip', 'rar', 'ppt', 'pptx', 'csv'];
+            
+            let validFiles = [];
+            let errorMessages = [];
+            
+            for (let file of files) {
+                const extension = file.name.split('.').pop().toLowerCase();
+                
+                if (file.size > maxSizeBytes) {
+                    const fileSizeMB = (file.size / 1024 / 1024).toFixed(2);
+                    errorMessages.push(`"${file.name}" is too large (${fileSizeMB} MB). Maximum: ${maxSizeMB} MB.`);
+                    continue;
+                }
+                
+                if (!allowedExtensions.includes(extension)) {
+                    errorMessages.push(`"${file.name}" has unsupported format.`);
+                    continue;
+                }
+                
+                validFiles.push(file);
+            }
+            
+            if (errorMessages.length > 0) {
+                errorMessages.forEach(msg => showToast('error', 'Upload Error', msg));
+            }
+            
+            if (validFiles.length === 0) {
+                return;
+            }
+            
+            // Upload valid files
+            let uploadCount = 0;
+            let successCount = 0;
+            
+            validFiles.forEach(file => {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('path', currentPath);
+                
+                fetch('/admin/documents/upload', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: formData
+                })
+                .then(response => {
+                    return response.text().then(text => {
+                        let data;
+                        try {
+                            data = JSON.parse(text);
+                        } catch (e) {
+                            if (response.status === 413 || text.includes('upload_max_filesize') || text.includes('post_max_size')) {
+                                throw new Error(`File "${file.name}" is too large. Maximum allowed size is 50 MB.`);
+                            }
+                            throw new Error(`Upload failed for "${file.name}". Please try again.`);
+                        }
+                        
+                        if (!response.ok) {
+                            if (data.errors) {
+                                const errorMessages = Object.values(data.errors).flat();
+                                throw new Error(errorMessages.map(msg => msg.includes('may not be greater than') ? `File "${file.name}" is too large. Maximum: 50 MB.` : msg).join(', '));
+                            }
+                            throw new Error(data.message || `Upload failed for "${file.name}"`);
+                        }
+                        return data;
+                    });
+                })
+                .then(data => {
+                    if (data.success) {
+                        successCount++;
+                    } else {
+                        showToast('error', 'Upload Failed', data.message || `Failed to upload "${file.name}"`);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('error', 'Upload Error', error.message);
+                })
+                .finally(() => {
+                    uploadCount++;
+                    if (uploadCount === validFiles.length) {
+                        if (successCount > 0) {
+                            showToast('success', 'Upload Complete', `${successCount} file(s) uploaded successfully.`);
+                            closeUploadFileModal();
+                            loadFolderContents(currentPath);
+                        }
+                    }
+                });
+            });
         }
 
         function viewFileDetails(filePath, fileName) {
@@ -15934,6 +16095,45 @@ University of the Philippines Cebu
     <div id="toastContainer" class="toast-container"></div>
 
     <!-- Create Folder Modal -->
+    <!-- Upload File Modal -->
+    <div id="uploadFileModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center; overflow-y: auto; padding: 20px;">
+        <div style="background: white; border-radius: 16px; width: 90%; max-width: 500px; padding: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); margin: auto; max-height: 90vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h3 style="font-size: 22px; font-weight: 700; color: #1F2937; margin: 0;">Upload Files</h3>
+                <button onclick="closeUploadFileModal()" style="background: none; border: none; font-size: 24px; color: #6B7280; cursor: pointer; padding: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 8px;">Select Files</label>
+                <div style="border: 2px dashed #E5E7EB; border-radius: 12px; padding: 30px; text-align: center; cursor: pointer; transition: all 0.3s;" onclick="document.getElementById('adminFileUpload').click()" onmouseover="this.style.borderColor='#7B1D3A'; this.style.background='#FDF2F4'" onmouseout="this.style.borderColor='#E5E7EB'; this.style.background='transparent'">
+                    <i class="fas fa-cloud-upload-alt" style="font-size: 40px; color: #7B1D3A; margin-bottom: 12px;"></i>
+                    <p style="font-weight: 600; color: #1F2937; margin-bottom: 4px;">Click to select files</p>
+                    <p style="font-size: 12px; color: #6B7280;">or drag and drop files here</p>
+                    <p style="font-size: 11px; color: #9CA3AF; margin-top: 8px;">Max 50 MB per file • PDF, DOC, XLS, PPT, Images, ZIP</p>
+                </div>
+                <input type="file" id="adminFileUpload" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.jpg,.jpeg,.png,.gif,.zip,.rar,.ppt,.pptx,.csv" style="display: none;" onchange="handleAdminFileSelect(this)">
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 8px;">Selected Files</label>
+                <div id="uploadFileList" style="max-height: 200px; overflow-y: auto; padding: 4px;">
+                    <p style="color: #9CA3AF; text-align: center;">No files selected</p>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                <button type="button" onclick="closeUploadFileModal()" style="padding: 12px 24px; border: 2px solid #E5E7EB; background: white; color: #6B7280; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s;">
+                    Cancel
+                </button>
+                <button type="button" onclick="submitUploadFiles()" style="padding: 12px 24px; background: linear-gradient(135deg, #7B1D3A, #5a1428); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 12px rgba(123, 29, 58, 0.3);">
+                    <i class="fas fa-upload"></i> Upload Files
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div id="createFolderModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center; overflow-y: auto; padding: 20px;">
         <div style="background: white; border-radius: 16px; width: 90%; max-width: 500px; padding: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); margin: auto; max-height: 90vh; overflow-y: auto;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">

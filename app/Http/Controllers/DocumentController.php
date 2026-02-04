@@ -789,6 +789,89 @@ class DocumentController extends Controller
     }
 
     /**
+     * Admin: Upload file to a folder
+     */
+    public function adminUploadFile(Request $request)
+    {
+        try {
+            if (!$this->authorizeDigitalRecords(true)) {
+                return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+            }
+
+            $request->validate([
+                'file' => 'required|file|max:51200|mimes:pdf,doc,docx,xls,xlsx,txt,jpg,jpeg,png,gif,zip,rar,ppt,pptx,csv',
+                'path' => 'required|string',
+            ]);
+
+            $file = $request->file('file');
+            $path = $request->input('path');
+
+            // Sanitize and validate path
+            $path = str_replace('\\', '/', $path);
+            $path = trim($path, '/');
+
+            // Ensure path is within allowed directories
+            if (!str_starts_with($path, 'Shared/')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid upload path'
+                ], 400);
+            }
+
+            // Ensure directory exists
+            if (!Storage::disk('local')->exists($path)) {
+                Storage::disk('local')->makeDirectory($path);
+            }
+
+            // Sanitize filename
+            $originalName = $file->getClientOriginalName();
+            $extension = $file->getClientOriginalExtension();
+            $nameWithoutExt = pathinfo($originalName, PATHINFO_FILENAME);
+            $sanitizedName = preg_replace('/[^A-Za-z0-9_\-]/', '_', $nameWithoutExt);
+            $filename = time() . '_' . $sanitizedName . '.' . $extension;
+
+            // Store file
+            $storedPath = Storage::disk('local')->putFileAs($path, $file, $filename);
+
+            if (!$storedPath) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to store file'
+                ], 500);
+            }
+
+            Log::info('Admin uploaded file', [
+                'path' => $storedPath,
+                'original_name' => $originalName,
+                'admin_id' => Auth::id()
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'File uploaded successfully',
+                'file' => [
+                    'name' => $filename,
+                    'original_name' => $originalName,
+                    'path' => $storedPath,
+                    'size' => $file->getSize()
+                ]
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Admin file upload error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error uploading file: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Get folders accessible by current user (intern/team leader)
      */
     public function getAccessibleFolders(Request $request)
