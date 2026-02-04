@@ -144,10 +144,10 @@
         font-weight: 600;
     }
 
-    .priority-low { background: #D1FAE5; color: #059669; }
-    .priority-medium { background: #FEF3C7; color: #D97706; }
-    .priority-high { background: #FED7AA; color: #C2410C; }
-    .priority-urgent { background: #FEE2E2; color: #DC2626; }
+    .priority-low { background: #228B22; color: white; }
+    .priority-medium { background: #F59E0B; color: white; }
+    .priority-high { background: #DC2626; color: white; }
+    .priority-urgent { background: #991B1B; color: white; }
 
     .issue-footer {
         padding: 14px 20px;
@@ -563,7 +563,6 @@
     <div class="issue-modal">
         <div class="issue-modal-header">
             <h3><i class="fas fa-clipboard-list" style="margin-right: 10px;"></i>Issue Details</h3>
-            <button class="issue-modal-close" onclick="closeIssueModal()">&times;</button>
         </div>
         <div class="issue-modal-body" id="issueModalContent">
             <!-- Content loaded dynamically -->

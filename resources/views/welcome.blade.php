@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/upLogo.png') }}">
     <title>UP Cebu Innovation & Technology Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -482,7 +483,6 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3><i class="fas fa-calendar-plus"></i> Book Appointment</h3>
-                <button class="modal-close" onclick="closeBookingModal()"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body">
                 <div class="selected-date">

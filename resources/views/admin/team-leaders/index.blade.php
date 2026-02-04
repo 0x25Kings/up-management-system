@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/upLogo.png') }}">
     <title>Team Leaders - Admin Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -161,9 +162,6 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3 style="font-weight: 700; color: #1F2937;">Add Team Leader</h3>
-                <button onclick="closeModal('createModal')" style="background: none; border: none; font-size: 20px; cursor: pointer; color: #6B7280;">
-                    <i class="fas fa-times"></i>
-                </button>
             </div>
             <form action="{{ route('admin.team-leaders.store') }}" method="POST">
                 @csrf
@@ -203,9 +201,6 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3 style="font-weight: 700; color: #1F2937;">Edit Team Leader</h3>
-                <button onclick="closeModal('editModal')" style="background: none; border: none; font-size: 20px; cursor: pointer; color: #6B7280;">
-                    <i class="fas fa-times"></i>
-                </button>
             </div>
             <form id="editForm" method="POST">
                 @csrf

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/upLogo.png') }}">
     <title>Startup Portal - UP Cebu Management System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -546,7 +547,6 @@
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-header">
                 <h2><i class="fas fa-file-upload mr-2"></i>Upload Document</h2>
-                <button class="modal-close" onclick="closeModal('documentModal')"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body">
                 <form action="{{ route('startup.document') }}" method="POST" enctype="multipart/form-data">
@@ -610,7 +610,6 @@
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-header" style="background: linear-gradient(135deg, #228B22 0%, #1B6B1B 100%);">
                 <h2><i class="fas fa-tools mr-2"></i>Report Room Issue</h2>
-                <button class="modal-close" onclick="closeModal('roomIssueModal')"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body">
                 <form action="{{ route('startup.room-issue') }}" method="POST" enctype="multipart/form-data">
@@ -701,7 +700,6 @@
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-header" style="background: linear-gradient(135deg, #FFBF00 0%, #D4A500 100%); color: #7B1D3A;">
                 <h2><i class="fas fa-file-contract mr-2"></i>Request MOA</h2>
-                <button class="modal-close" onclick="closeModal('moaModal')"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body">
                 <form action="{{ route('startup.moa') }}" method="POST">
@@ -758,7 +756,6 @@
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-header" style="background: linear-gradient(135deg, #228B22 0%, #1B6B1B 100%);">
                 <h2><i class="fas fa-receipt mr-2"></i>Submit Payment Proof</h2>
-                <button class="modal-close" onclick="closeModal('financeModal')"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body">
                 <form action="{{ route('startup.payment') }}" method="POST" enctype="multipart/form-data">

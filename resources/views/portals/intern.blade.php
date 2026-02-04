@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/upLogo.png') }}">
     <title>Intern Portal - UP Cebu Management System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -408,6 +409,181 @@
             font-weight: 600;
         }
 
+        /* Top Header Styles */
+        .top-header {
+            background: white;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            margin-bottom: 24px;
+            border-radius: 12px;
+        }
+
+        .header-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1F2937;
+        }
+
+        .header-subtitle {
+            color: #6B7280;
+            font-size: 14px;
+        }
+
+        /* Profile Dropdown Styles */
+        .intern-profile-dropdown {
+            position: relative;
+            z-index: 1001;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #FFBF00 0%, #FFA500 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #7B1D3A;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .user-avatar-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .user-name {
+            font-weight: 700;
+            color: #1F2937;
+            font-size: 14px;
+        }
+
+        .user-role {
+            font-size: 12px;
+            color: #7B1D3A;
+            font-weight: 600;
+        }
+
+        .intern-profile-menu {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: white;
+            border: 1px solid #E5E7EB;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            min-width: 240px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s;
+            z-index: 1002;
+        }
+
+        .intern-profile-dropdown.active .intern-profile-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .intern-profile-menu-header {
+            padding: 16px;
+            border-bottom: 1px solid #E5E7EB;
+            text-align: center;
+        }
+
+        .intern-profile-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFBF00;
+            font-weight: 700;
+            font-size: 18px;
+            margin: 0 auto 10px;
+        }
+
+        .intern-profile-avatar-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .intern-profile-name {
+            font-weight: 600;
+            color: #1F2937;
+            font-size: 15px;
+        }
+
+        .intern-profile-email {
+            font-size: 12px;
+            color: #6B7280;
+            margin-top: 2px;
+        }
+
+        .intern-profile-menu-items {
+            padding: 8px;
+        }
+
+        .intern-profile-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            color: #374151;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.2s;
+            font-size: 14px;
+            width: 100%;
+            border: none;
+            background: none;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .intern-profile-menu-item:hover {
+            background: #F3F4F6;
+            color: #7B1D3A;
+        }
+
+        .intern-profile-menu-item i {
+            width: 18px;
+            text-align: center;
+            color: #6B7280;
+        }
+
+        .intern-profile-menu-item:hover i {
+            color: #7B1D3A;
+        }
+
+        .intern-profile-dropdown.active .user-info i.fa-chevron-down {
+            transform: rotate(180deg);
+        }
+
+        .user-info i.fa-chevron-down {
+            transition: transform 0.3s;
+        }
+
         .main-content {
             margin-left: 260px;
             padding: 24px;
@@ -720,7 +896,32 @@
             .main-content {
                 margin-left: 0;
                 padding: 16px;
-                padding-top: 80px;
+                padding-top: 16px;
+            }
+
+            .top-header {
+                padding: 12px 16px;
+                margin-bottom: 16px;
+            }
+
+            .header-title {
+                font-size: 18px;
+            }
+
+            .header-subtitle {
+                font-size: 12px;
+            }
+
+            .user-info > div {
+                display: none;
+            }
+
+            .user-info i.fa-chevron-down {
+                display: none;
+            }
+
+            .intern-profile-menu {
+                right: -8px;
             }
 
             .stats-grid {
@@ -1275,26 +1476,10 @@
             <p>Intern Portal</p>
         </div>
 
-        <div class="intern-info">
-            <div class="intern-avatar" style="overflow: hidden;">
-                @if($intern->profile_picture)
-                    <img src="{{ asset('storage/' . $intern->profile_picture) }}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
-                @else
-                    {{ strtoupper(substr($intern->name, 0, 1)) }}
-                @endif
-            </div>
-            <div class="intern-name">{{ $intern->name }}</div>
-            <div class="intern-code">{{ $intern->reference_code }}</div>
-        </div>
-
         <nav class="sidebar-menu">
             <a class="menu-item active" data-page="dashboard" onclick="showPage('dashboard'); setActiveMenu(this);">
                 <i class="fas fa-home"></i>
                 <span>Dashboard</span>
-            </a>
-            <a class="menu-item" data-page="profile" onclick="showPage('profile'); setActiveMenu(this);">
-                <i class="fas fa-user"></i>
-                <span>My Profile</span>
             </a>
             <a class="menu-item" data-page="attendance" onclick="showPage('attendance'); setActiveMenu(this);">
                 <i class="fas fa-clock"></i>
@@ -1326,6 +1511,47 @@
     </aside>
 
     <main class="main-content">
+        <!-- Top Header with Profile Dropdown -->
+        <div class="top-header">
+            <div>
+                <h1 class="header-title" id="pageTitle">Dashboard</h1>
+                <p class="header-subtitle">{{ $intern->school }}</p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 20px;">
+                <div class="intern-profile-dropdown" id="internProfileDropdown">
+                    <button type="button" class="user-info" id="internProfileBtn" style="cursor: pointer; border: none; background: transparent; padding: 0;">
+                        @if($intern->profile_picture)
+                            <img src="{{ asset('storage/' . $intern->profile_picture) }}" alt="Profile" class="user-avatar-img">
+                        @else
+                            <div class="user-avatar">{{ strtoupper(substr($intern->name, 0, 1)) }}</div>
+                        @endif
+                        <div>
+                            <div class="user-name">{{ $intern->name }}</div>
+                            <div class="user-role">Intern</div>
+                        </div>
+                        <i class="fas fa-chevron-down" style="color: #9CA3AF; font-size: 12px; margin-left: 8px;"></i>
+                    </button>
+                    <div class="intern-profile-menu">
+                        <div class="intern-profile-menu-header">
+                            @if($intern->profile_picture)
+                                <img src="{{ asset('storage/' . $intern->profile_picture) }}" alt="Profile" class="intern-profile-avatar-img">
+                            @else
+                                <div class="intern-profile-avatar">{{ strtoupper(substr($intern->name, 0, 1)) }}</div>
+                            @endif
+                            <div class="intern-profile-name">{{ $intern->name }}</div>
+                            <div class="intern-profile-email">{{ $intern->email }}</div>
+                        </div>
+                        <div class="intern-profile-menu-items">
+                            <a href="#" class="intern-profile-menu-item" onclick="navigateToProfile(event)">
+                                <i class="fas fa-user-circle"></i>
+                                My Profile
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         @if(session('success'))
             <div class="alert alert-success">
                 <i class="fas fa-check-circle"></i>
@@ -1643,13 +1869,6 @@
 
         <!-- Profile Page -->
         <div id="profile" class="page-content">
-            <div class="page-header">
-                <div>
-                    <h1 class="page-title">My Profile</h1>
-                    <p class="page-subtitle">View and manage your information</p>
-                </div>
-            </div>
-
             <!-- Profile Picture Section -->
             <div class="content-card" style="margin-bottom: 20px;">
                 <div class="content-card-body" style="text-align: center; padding: 40px;">
@@ -2018,9 +2237,9 @@
                                     </td>
                                     <td style="padding: 14px 16px; text-align: center;">
                                         <span style="display: inline-block; background:
-                                            @if($task->priority === 'High') #FEE2E2; color: #991B1B;
-                                            @elseif($task->priority === 'Medium') #FEF3C7; color: #92400E;
-                                            @else #D1FAE5; color: #065F46;
+                                            @if($task->priority === 'High') #DC2626; color: white;
+                                            @elseif($task->priority === 'Medium') #F59E0B; color: white;
+                                            @else #228B22; color: white;
                                             @endif
                                             padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 700;">
                                             {{ $task->priority }}
@@ -2814,6 +3033,20 @@
                 });
             }
 
+            // Update page title in header
+            const pageTitles = {
+                'dashboard': 'Dashboard',
+                'profile': 'My Profile',
+                'attendance': 'Time & Attendance',
+                'tasks': 'My Tasks',
+                'schedule': 'Schedule',
+                'documents': 'Documents'
+            };
+            const pageTitle = document.getElementById('pageTitle');
+            if (pageTitle && pageTitles[pageId]) {
+                pageTitle.textContent = pageTitles[pageId];
+            }
+
             // Load page-specific data
             if (pageId === 'schedule') {
                 loadEvents();
@@ -3241,6 +3474,33 @@
                 item.classList.remove('active');
             });
             element.classList.add('active');
+        }
+
+        // Profile dropdown toggle
+        const internProfileBtn = document.getElementById('internProfileBtn');
+        const internProfileDropdown = document.getElementById('internProfileDropdown');
+
+        if (internProfileBtn && internProfileDropdown) {
+            internProfileBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                internProfileDropdown.classList.toggle('active');
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!internProfileDropdown.contains(e.target)) {
+                    internProfileDropdown.classList.remove('active');
+                }
+            });
+        }
+
+        // Navigate to profile page from dropdown
+        function navigateToProfile(event) {
+            event.preventDefault();
+            internProfileDropdown.classList.remove('active');
+            showPage('profile');
+            // Update page title
+            document.getElementById('pageTitle').textContent = 'My Profile';
         }
 
         function toggleEditProfile() {

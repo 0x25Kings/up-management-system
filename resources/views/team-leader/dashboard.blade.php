@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/upLogo.png') }}">
     <title>Team Leader Dashboard - {{ $school->name }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -1768,7 +1769,7 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <span class="badge" style="background: {{ $task->priority === 'Urgent' ? '#DC2626' : ($task->priority === 'High' ? '#F59E0B' : ($task->priority === 'Medium' ? 'var(--gold)' : 'var(--forest-green)')) }}; color: {{ $task->priority === 'Medium' ? 'var(--maroon)' : 'white' }};">
+                                    <span class="badge" style="background: {{ $task->priority === 'Urgent' ? '#991B1B' : ($task->priority === 'High' ? '#DC2626' : ($task->priority === 'Medium' ? '#F59E0B' : '#228B22')) }}; color: white;">
                                         {{ $task->priority }}
                                     </span>
                                 </td>
@@ -2508,8 +2509,8 @@
                                 $methodLabels = [
                                     'bank_transfer' => '🏦 Bank Transfer',
                                     'bank_deposit' => '💵 Bank Deposit',
-                                    'gcash' => '<img src="' . asset('images/gcashicon.png') . '" alt="GCash" style="height: 16px; width: auto; vertical-align: middle; margin-right: 4px;">GCash',
-                                    'maya' => '<img src="' . asset('images/mayaIcon.avif') . '" alt="Maya" style="height: 16px; width: auto; vertical-align: middle; margin-right: 4px;">Maya',
+                                    'gcash' => '<img src="' . asset('images/gcash.jpg') . '" alt="GCash" style="height: 16px; width: auto; vertical-align: middle; margin-right: 4px;">GCash',
+                                    'maya' => '📱 Maya',
                                     'check' => '📄 Check',
                                     'cash' => '💰 Cash'
                                 ];
@@ -2704,10 +2705,10 @@
                                 <td>
                                     @php
                                         $priorityColors = [
-                                            'urgent' => ['bg' => '#FEE2E2', 'text' => '#DC2626'],
-                                            'high' => ['bg' => '#FEF3C7', 'text' => '#D97706'],
-                                            'medium' => ['bg' => '#DBEAFE', 'text' => '#2563EB'],
-                                            'low' => ['bg' => '#D1FAE5', 'text' => '#059669'],
+                                            'urgent' => ['bg' => '#991B1B', 'text' => 'white'],
+                                            'high' => ['bg' => '#DC2626', 'text' => 'white'],
+                                            'medium' => ['bg' => '#F59E0B', 'text' => 'white'],
+                                            'low' => ['bg' => '#228B22', 'text' => 'white'],
                                         ];
                                         $priorityColor = $priorityColors[$issue->priority ?? 'medium'] ?? $priorityColors['medium'];
                                     @endphp
@@ -3987,8 +3988,8 @@
             const paymentMethodLabels = {
                 'bank_transfer': '🏦 Bank Transfer',
                 'bank_deposit': '💵 Bank Deposit',
-                'gcash': '<img src="/images/gcashicon.png" alt="GCash" style="height: 16px; width: auto; vertical-align: middle; margin-right: 4px;">GCash',
-                'maya': '<img src="/images/mayaIcon.avif" alt="Maya" style="height: 16px; width: auto; vertical-align: middle; margin-right: 4px;">Maya',
+                'gcash': '<img src="/images/gcash.jpg" alt="GCash" style="height: 16px; width: auto; vertical-align: middle; margin-right: 4px;">GCash',
+                'maya': '📱 Maya',
                 'check': '📄 Check Payment',
                 'cash': '💰 Cash'
             };
@@ -4193,10 +4194,10 @@
             const color = statusColors[issue.status] || { bg: '#E5E7EB', text: '#374151' };
 
             const priorityColors = {
-                'urgent': '#DC2626',
-                'high': '#F59E0B',
-                'medium': '#3B82F6',
-                'low': '#10B981'
+                'urgent': '#991B1B',
+                'high': '#DC2626',
+                'medium': '#F59E0B',
+                'low': '#228B22'
             };
 
             const content = `
@@ -5541,9 +5542,9 @@
             // Update existing rows or rebuild table
             let html = '';
             tasks.forEach(task => {
-                const priorityBg = task.priority === 'High' ? '#F59E0B' :
-                                   (task.priority === 'Medium' ? 'var(--gold)' : 'var(--forest-green)');
-                const priorityColor = task.priority === 'Medium' ? 'var(--maroon)' : 'white';
+                const priorityBg = task.priority === 'High' ? '#DC2626' :
+                                   (task.priority === 'Medium' ? '#F59E0B' : '#228B22');
+                const priorityColor = 'white';
 
                 const statusClass = task.status === 'Completed' ? 'success' :
                                     (task.status === 'In Progress' ? 'info' :
@@ -6285,9 +6286,8 @@ University of the Philippines Cebu
             modal.style.cssText = 'background: white; border-radius: 20px; max-width: 500px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.3);';
 
             modal.innerHTML = `
-                <div style="background: linear-gradient(135deg, var(--maroon) 0%, var(--maroon-dark) 100%); padding: 24px; color: white; border-radius: 20px 20px 0 0; display: flex; justify-content: space-between; align-items: center;">
+                <div style="background: linear-gradient(135deg, var(--maroon) 0%, var(--maroon-dark) 100%); padding: 24px; color: white; border-radius: 20px 20px 0 0;">
                     <h2 style="font-size: 18px; font-weight: 700; margin: 0;">${title}</h2>
-                    <button onclick="this.closest('.custom-alert-overlay').remove()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 18px;">&times;</button>
                 </div>
                 <div style="padding: 24px;">
                     ${htmlContent}

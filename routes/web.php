@@ -150,6 +150,9 @@ Route::middleware(['admin'])->group(function () {
     Route::post('/admin/settings/reset', [AdminDashboardController::class, 'resetSettings'])->name('admin.settings.reset');
     Route::post('/admin/settings/clear-data', [AdminDashboardController::class, 'clearOldData'])->name('admin.settings.clear-data');
 
+    // Admin Profile routes
+    Route::post('/admin/profile/upload-picture', [AdminDashboardController::class, 'uploadProfilePicture'])->name('admin.profile.upload-picture');
+
     Route::post('/admin/attendance/{attendance}/approve-overtime', [AdminDashboardController::class, 'approveOvertime'])->name('admin.attendance.approve-overtime');
 
     // Task routes

@@ -149,11 +149,11 @@
                                 <span class="option-text">Bank Deposit (Over-the-counter)</span>
                             </div>
                             <div class="custom-select-option" data-value="gcash" onclick="selectPaymentMethod('gcash', 'gcash', 'GCash')">
-                                <img src="{{ asset('images/gcashicon.png') }}" alt="GCash" class="option-icon-img">
+                                <img src="{{ asset('images/gcash.jpg') }}" alt="GCash" class="option-icon-img">
                                 <span class="option-text">GCash</span>
                             </div>
-                            <div class="custom-select-option" data-value="maya" onclick="selectPaymentMethod('maya', 'maya', 'Maya (PayMaya)')">
-                                <img src="{{ asset('images/mayaIcon.avif') }}" alt="Maya" class="option-icon-img">
+                            <div class="custom-select-option" data-value="maya" onclick="selectPaymentMethod('maya', '📱', 'Maya (PayMaya)')">
+                                <span class="option-icon">📱</span>
                                 <span class="option-text">Maya (PayMaya)</span>
                             </div>
                             <div class="custom-select-option" data-value="check" onclick="selectPaymentMethod('check', '📄', 'Check Payment')">
@@ -616,12 +616,7 @@
         // Update display based on icon type
         if (icon === 'gcash') {
             paymentMethodDisplay.innerHTML = `
-                <img src="/images/gcashicon.png" alt="GCash" class="selected-icon-img">
-                <span>${text}</span>
-            `;
-        } else if (icon === 'maya') {
-            paymentMethodDisplay.innerHTML = `
-                <img src="/images/mayaIcon.avif" alt="Maya" class="selected-icon-img">
+                <img src="/images/gcash.jpg" alt="GCash" class="selected-icon-img">
                 <span>${text}</span>
             `;
         } else {

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/upLogo.png') }}">
     <title>Dashboard - {{ ucwords(strtolower($startup->company_name)) }} - UP Cebu Startup Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -799,12 +800,6 @@
             <a href="{{ route('startup.room-issues') }}" class="menu-item">
                 <i class="fas fa-tools"></i>
                 <span>Room Issues</span>
-            </a>
-
-            <div class="menu-section">Account</div>
-            <a href="{{ route('startup.profile') }}" class="menu-item">
-                <i class="fas fa-user-circle"></i>
-                <span>Company Profile</span>
             </a>
         </nav>
 

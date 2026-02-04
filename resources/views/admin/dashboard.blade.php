@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/upLogo.png') }}">
     <title>Admin Dashboard - UP Cebu Management System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -1314,23 +1315,23 @@
         }
 
         .priority-badge.priority-critical {
-            background: #FEE2E2;
-            color: #991B1B;
+            background: #991B1B;
+            color: white;
         }
 
         .priority-badge.priority-high {
-            background: #FED7AA;
-            color: #9A3412;
+            background: #DC2626;
+            color: white;
         }
 
         .priority-badge.priority-medium {
-            background: #FEF3C7;
-            color: #92400E;
+            background: #F59E0B;
+            color: white;
         }
 
         .priority-badge.priority-low {
-            background: #DBEAFE;
-            color: #1E40AF;
+            background: #228B22;
+            color: white;
         }
 
         .btn-action {
@@ -1654,6 +1655,145 @@
             justify-content: center;
             color: #7B1D3A;
             font-weight: 700;
+        }
+
+        /* Admin Profile Dropdown Styles */
+        .admin-profile-dropdown {
+            position: relative;
+            z-index: 1001;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+        }
+
+        .user-avatar-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .user-name {
+            font-weight: 700;
+            color: #1F2937;
+            font-size: 14px;
+        }
+
+        .user-role {
+            font-size: 12px;
+            color: #7B1D3A;
+            font-weight: 600;
+        }
+
+        .admin-profile-menu {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: white;
+            border: 1px solid #E5E7EB;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            min-width: 240px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s;
+            z-index: 1002;
+        }
+
+        .admin-profile-dropdown.active .admin-profile-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .admin-profile-menu-header {
+            padding: 16px;
+            border-bottom: 1px solid #E5E7EB;
+            text-align: center;
+        }
+
+        .admin-profile-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFBF00;
+            font-weight: 700;
+            font-size: 18px;
+            margin: 0 auto 10px;
+        }
+
+        .admin-profile-avatar-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .admin-profile-name {
+            font-weight: 600;
+            color: #1F2937;
+            font-size: 15px;
+        }
+
+        .admin-profile-email {
+            font-size: 12px;
+            color: #6B7280;
+            margin-top: 2px;
+        }
+
+        .admin-profile-menu-items {
+            padding: 8px;
+        }
+
+        .admin-profile-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            color: #374151;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.2s;
+            font-size: 14px;
+            width: 100%;
+            border: none;
+            background: none;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .admin-profile-menu-item:hover {
+            background: #F3F4F6;
+            color: #7B1D3A;
+        }
+
+        .admin-profile-menu-item i {
+            width: 18px;
+            text-align: center;
+            color: #6B7280;
+        }
+
+        .admin-profile-menu-item:hover i {
+            color: #7B1D3A;
+        }
+
+        .admin-profile-dropdown.active .user-info i.fa-chevron-down {
+            transform: rotate(180deg);
+        }
+
+        .user-info i.fa-chevron-down {
+            transition: transform 0.3s;
         }
 
         .dashboard-content {
@@ -2589,6 +2729,18 @@
 
             .user-profile > div:last-child {
                 display: none;
+            }
+
+            .user-info > div {
+                display: none;
+            }
+
+            .user-info i.fa-chevron-down {
+                display: none;
+            }
+
+            .admin-profile-menu {
+                right: -8px;
             }
 
             .stats-grid {
@@ -3704,10 +3856,6 @@
                 <i class="fas fa-cog"></i>
                 <span>Settings</span>
             </a>
-            <a href="#" class="menu-item">
-                <i class="fas fa-user"></i>
-                <span>Profile</span>
-            </a>
             <form method="POST" action="{{ route('admin.logout') }}" id="logoutForm" style="margin: 0;">
                 @csrf
                 <a href="#" class="menu-item" style="margin-top: 40px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;" onclick="event.preventDefault(); document.getElementById('logoutForm').submit();">
@@ -3747,11 +3895,35 @@
                         </div>
                     </div>
                 </div>
-                <div class="user-profile">
-                    <div class="user-avatar" id="userAvatar">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</div>
-                    <div>
-                        <div style="font-size: 14px; font-weight: 600; color: #1F2937;" id="userName">{{ Auth::user()->name }}</div>
-                        <div style="font-size: 12px; color: #6B7280;" id="userRole">Administrator</div>
+                <div class="admin-profile-dropdown" id="adminProfileDropdown">
+                    <button type="button" class="user-info" id="adminProfileBtn" style="cursor: pointer; border: none; background: transparent; padding: 0;">
+                        @if(Auth::user()->profile_picture)
+                            <img src="{{ asset('storage/' . Auth::user()->profile_picture) }}" alt="Profile" class="user-avatar-img" id="userAvatar">
+                        @else
+                            <div class="user-avatar" id="userAvatar">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</div>
+                        @endif
+                        <div>
+                            <div class="user-name" id="userName">{{ Auth::user()->name }}</div>
+                            <div class="user-role" id="userRole">Administrator</div>
+                        </div>
+                        <i class="fas fa-chevron-down" style="color: #9CA3AF; font-size: 12px; margin-left: 8px;"></i>
+                    </button>
+                    <div class="admin-profile-menu">
+                        <div class="admin-profile-menu-header">
+                            @if(Auth::user()->profile_picture)
+                                <img src="{{ asset('storage/' . Auth::user()->profile_picture) }}" alt="Profile" class="admin-profile-avatar-img">
+                            @else
+                                <div class="admin-profile-avatar">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</div>
+                            @endif
+                            <div class="admin-profile-name">{{ Auth::user()->name }}</div>
+                            <div class="admin-profile-email">{{ Auth::user()->email }}</div>
+                        </div>
+                        <div class="admin-profile-menu-items">
+                            <a href="#" class="admin-profile-menu-item" onclick="navigateToAdminProfile(event)">
+                                <i class="fas fa-user-circle"></i>
+                                My Profile
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -4616,10 +4788,10 @@
                                 <td>
                                     @php
                                         $priorityStyle = $task->priority === 'High'
-                                            ? 'background: #FEE2E2; color: #991B1B;'
+                                            ? 'background: #DC2626; color: white;'
                                             : ($task->priority === 'Medium'
-                                                ? 'background: #FEF3C7; color: #92400E;'
-                                                : 'background: #D1FAE5; color: #065F46;');
+                                                ? 'background: #F59E0B; color: white;'
+                                                : 'background: #228B22; color: white;');
                                     @endphp
                                     <span class="status-badge" style="{{ $priorityStyle }}">
                                         {{ $task->priority }}
@@ -5205,8 +5377,8 @@
                                 $methodLabels = [
                                     'bank_transfer' => '🏦 Bank Transfer',
                                     'bank_deposit' => '💵 Bank Deposit',
-                                    'gcash' => '<img src="' . asset('images/gcashicon.png') . '" alt="GCash" style="height: 16px; width: auto; vertical-align: middle; margin-right: 4px;">GCash',
-                                    'maya' => '<img src="' . asset('images/mayaIcon.avif') . '" alt="Maya" style="height: 16px; width: auto; vertical-align: middle; margin-right: 4px;">Maya',
+                                    'gcash' => '<img src="' . asset('images/gcash.jpg') . '" alt="GCash" style="height: 16px; width: auto; vertical-align: middle; margin-right: 4px;">GCash',
+                                    'maya' => '📱 Maya',
                                     'check' => '📄 Check',
                                     'cash' => '💰 Cash'
                                 ];
@@ -5616,13 +5788,6 @@
                                         <div style="position: relative;">
                                             <i class="fas fa-building" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9CA3AF; font-size: 13px;"></i>
                                             <input type="text" id="companyName" name="company_name" required placeholder="Enter company name" style="width: 100%; padding: 10px 10px 10px 36px; border: 2px solid #E5E7EB; border-radius: 8px; font-size: 13px; transition: all 0.3s; box-sizing: border-box;">
-                                        </div>
-                                    </div>
-                                    <div class="form-group" style="margin-bottom: 0;">
-                                        <label style="display: block; font-size: 12px; font-weight: 600; color: #374151; margin-bottom: 4px;">Room Number</label>
-                                        <div style="position: relative;">
-                                            <i class="fas fa-door-open" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9CA3AF; font-size: 13px;"></i>
-                                            <input type="text" id="roomNumber" name="room_number" placeholder="e.g., 101" style="width: 100%; padding: 10px 10px 10px 36px; border: 2px solid #E5E7EB; border-radius: 8px; font-size: 13px; transition: all 0.3s; box-sizing: border-box;">
                                         </div>
                                     </div>
                                 </div>
@@ -6493,6 +6658,111 @@
                 </div>
             </div>
 
+            <!-- ========== ADMIN PROFILE SECTION ========== -->
+            <div id="admin-profile" class="page-content">
+                <div style="background: white; border-radius: 16px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); overflow: hidden;">
+                    <!-- Profile Header -->
+                    <div style="text-align: center; padding: 40px 24px; background: linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%); color: white;">
+                        <div id="adminProfilePictureContainer" style="position: relative; width: 120px; height: 120px; margin: 0 auto 16px; cursor: pointer;" onclick="document.getElementById('adminProfilePictureInput').click()">
+                            @if(Auth::user()->profile_picture)
+                                <img id="adminProfilePictureImg" src="{{ asset('storage/' . Auth::user()->profile_picture) }}" alt="Profile" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3); border: 4px solid rgba(255, 255, 255, 0.3);">
+                            @else
+                                <div id="adminProfilePictureInitial" style="width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #FFBF00 0%, #FFA500 100%); display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3); border: 4px solid rgba(255, 255, 255, 0.3);">
+                                    <span style="font-size: 48px; color: #7B1D3A; font-weight: 700;">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
+                                </div>
+                            @endif
+                            <div style="position: absolute; bottom: 0; right: 0; width: 36px; height: 36px; background: #FFBF00; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+                                <i class="fas fa-camera" style="color: #7B1D3A; font-size: 14px;"></i>
+                            </div>
+                        </div>
+                        <input type="file" id="adminProfilePictureInput" accept="image/jpeg,image/png,image/jpg,image/gif" style="display: none;" onchange="uploadAdminProfilePicture(this)">
+                        <p style="font-size: 12px; opacity: 0.8; margin-bottom: 12px;">Click to change profile picture</p>
+                        <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 4px;">{{ Auth::user()->name }}</h2>
+                        <p style="color: #FFBF00; font-weight: 600; font-size: 14px;">System Administrator</p>
+                    </div>
+
+                    <!-- Profile Content -->
+                    <div style="padding: 32px;">
+                        <!-- Account Information -->
+                        <div style="margin-bottom: 32px;">
+                            <h4 style="font-size: 16px; font-weight: 700; color: #1F2937; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                                <i class="fas fa-id-card" style="color: #7B1D3A;"></i> Account Information
+                            </h4>
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                                <div style="background: #F9FAFB; padding: 16px; border-radius: 10px;">
+                                    <label style="font-size: 12px; color: #6B7280; display: block; margin-bottom: 6px; text-transform: uppercase; font-weight: 600;">Full Name</label>
+                                    <p style="font-weight: 600; color: #1F2937; font-size: 15px;">{{ Auth::user()->name }}</p>
+                                </div>
+                                <div style="background: #F9FAFB; padding: 16px; border-radius: 10px;">
+                                    <label style="font-size: 12px; color: #6B7280; display: block; margin-bottom: 6px; text-transform: uppercase; font-weight: 600;">Email Address</label>
+                                    <p style="font-weight: 600; color: #1F2937; font-size: 15px; word-break: break-all;">{{ Auth::user()->email }}</p>
+                                </div>
+                                <div style="background: #F9FAFB; padding: 16px; border-radius: 10px;">
+                                    <label style="font-size: 12px; color: #6B7280; display: block; margin-bottom: 6px; text-transform: uppercase; font-weight: 600;">Role</label>
+                                    <span style="display: inline-block; background: linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%); color: white; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 600;">Administrator</span>
+                                </div>
+                                <div style="background: #F9FAFB; padding: 16px; border-radius: 10px;">
+                                    <label style="font-size: 12px; color: #6B7280; display: block; margin-bottom: 6px; text-transform: uppercase; font-weight: 600;">Account Status</label>
+                                    <span style="display: inline-block; background: #D1FAE5; color: #065F46; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 600;"><i class="fas fa-check-circle" style="margin-right: 4px;"></i>Active</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- System Statistics -->
+                        <div style="margin-bottom: 32px;">
+                            <h4 style="font-size: 16px; font-weight: 700; color: #1F2937; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                                <i class="fas fa-chart-bar" style="color: #7B1D3A;"></i> System Overview
+                            </h4>
+                            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+                                <div style="background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%); padding: 20px; border-radius: 12px; text-align: center;">
+                                    <div style="font-size: 28px; font-weight: 700; color: #4F46E5;">{{ $activeInterns ?? 0 }}</div>
+                                    <div style="font-size: 12px; color: #6366F1; font-weight: 600; margin-top: 4px;">Active Interns</div>
+                                </div>
+                                <div style="background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%); padding: 20px; border-radius: 12px; text-align: center;">
+                                    <div style="font-size: 28px; font-weight: 700; color: #D97706;">{{ $totalDocuments ?? 0 }}</div>
+                                    <div style="font-size: 12px; color: #B45309; font-weight: 600; margin-top: 4px;">Documents</div>
+                                </div>
+                                <div style="background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%); padding: 20px; border-radius: 12px; text-align: center;">
+                                    <div style="font-size: 28px; font-weight: 700; color: #059669;">{{ isset($startups) ? $startups->count() : 0 }}</div>
+                                    <div style="font-size: 12px; color: #047857; font-weight: 600; margin-top: 4px;">Startups</div>
+                                </div>
+                                <div style="background: linear-gradient(135deg, #FCE7F3 0%, #FBCFE8 100%); padding: 20px; border-radius: 12px; text-align: center;">
+                                    <div style="font-size: 28px; font-weight: 700; color: #DB2777;">{{ isset($schools) ? $schools->count() : 0 }}</div>
+                                    <div style="font-size: 12px; color: #BE185D; font-weight: 600; margin-top: 4px;">Schools</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Admin Permissions -->
+                        <div>
+                            <h4 style="font-size: 16px; font-weight: 700; color: #1F2937; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                                <i class="fas fa-shield-alt" style="color: #7B1D3A;"></i> Administrator Permissions
+                            </h4>
+                            <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                                <span style="background: #D1FAE5; color: #065F46; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 500;">
+                                    <i class="fas fa-check" style="margin-right: 6px;"></i>Full System Access
+                                </span>
+                                <span style="background: #DBEAFE; color: #1E40AF; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 500;">
+                                    <i class="fas fa-users-cog" style="margin-right: 6px;"></i>User Management
+                                </span>
+                                <span style="background: #FEF3C7; color: #92400E; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 500;">
+                                    <i class="fas fa-cog" style="margin-right: 6px;"></i>System Settings
+                                </span>
+                                <span style="background: #FCE7F3; color: #9D174D; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 500;">
+                                    <i class="fas fa-file-alt" style="margin-right: 6px;"></i>Document Management
+                                </span>
+                                <span style="background: #E0E7FF; color: #3730A3; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 500;">
+                                    <i class="fas fa-calendar-alt" style="margin-right: 6px;"></i>Scheduler Control
+                                </span>
+                                <span style="background: #CCFBF1; color: #0F766E; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 500;">
+                                    <i class="fas fa-database" style="margin-right: 6px;"></i>Data Management
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- ========== SETTINGS SECTION ========== -->
             <div id="admin-settings" class="page-content">
                 <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
@@ -7014,9 +7284,6 @@
         <div class="modal-content" style="max-width: 600px;">
             <div class="modal-header">
                 <h3 class="modal-title" id="assignTLModalTitle"><i class="fas fa-user-tie" style="margin-right: 8px;"></i>Assign Team Leader</h3>
-                <button class="modal-close" onclick="closeAssignTeamLeaderModal()">
-                    <i class="fas fa-times"></i>
-                </button>
             </div>
             <div class="modal-body">
                 <input type="hidden" id="assignTLSchoolId">
@@ -7093,9 +7360,6 @@
         <div class="modal-content" style="max-width: 600px;">
             <div class="modal-header">
                 <h3 class="modal-title" id="teamLeaderModalTitle"><i class="fas fa-user-tie" style="margin-right: 8px;"></i>Add Team Leader</h3>
-                <button class="modal-close" onclick="closeTeamLeaderModal()">
-                    <i class="fas fa-times"></i>
-                </button>
             </div>
             <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
                 <form id="teamLeaderForm">
@@ -7292,9 +7556,6 @@
         <div class="modal-content" style="max-width: 700px;">
             <div class="modal-header">
                 <h3 class="modal-title" id="viewReportTitle"><i class="fas fa-file-alt" style="margin-right: 8px;"></i>Report Details</h3>
-                <button class="modal-close" onclick="closeViewReportModal()">
-                    <i class="fas fa-times"></i>
-                </button>
             </div>
             <div class="modal-body" id="viewReportContent" style="max-height: 70vh; overflow-y: auto;">
                 <!-- Report content loaded here -->
@@ -7310,9 +7571,6 @@
         <div class="modal-content" style="max-width: 450px;">
             <div class="modal-header">
                 <h3 class="modal-title"><i class="fas fa-calendar-times" style="margin-right: 8px;"></i>Block Date</h3>
-                <button class="modal-close" onclick="closeBlockDateModal()">
-                    <i class="fas fa-times"></i>
-                </button>
             </div>
             <div class="modal-body">
                 <form id="blockDateForm">
@@ -7390,9 +7648,6 @@
         <div class="modal-content" style="max-width: 550px;">
             <div class="modal-header">
                 <h3 class="modal-title"><i class="fas fa-calendar-check" style="margin-right: 8px;"></i>Booking Details</h3>
-                <button class="modal-close" onclick="closeBookingActionModal()">
-                    <i class="fas fa-times"></i>
-                </button>
             </div>
             <div class="modal-body">
                 <!-- Booking Info Card -->
@@ -7520,9 +7775,6 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title">Create New Task</h3>
-                <button class="modal-close" onclick="closeNewTaskModal()">
-                    <i class="fas fa-times"></i>
-                </button>
             </div>
             <div class="modal-body">
                 <form id="newTaskForm">
@@ -7620,6 +7872,7 @@
                 </form>
             </div>
             <div class="modal-footer">
+                <button class="btn-modal secondary" onclick="closeNewTaskModal()">Cancel</button>
                 <button class="btn-modal primary" onclick="createTask()">Create Task</button>
             </div>
         </div>
@@ -7630,14 +7883,12 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title">Task Details</h3>
-                <button class="modal-close" onclick="closeViewTaskModal()">
-                    <i class="fas fa-times"></i>
-                </button>
             </div>
             <div class="modal-body" id="taskDetailsContent">
                 <!-- Task details will be loaded here dynamically -->
             </div>
             <div class="modal-footer">
+                <button class="btn-modal secondary" onclick="closeViewTaskModal()">Close</button>
                 <button class="btn-modal primary" onclick="editTaskFromView()"><i class="fas fa-edit"></i> Edit Task</button>
             </div>
         </div>
@@ -7650,16 +7901,17 @@
         <div class="modal-content" style="max-width: 600px;">
             <div class="modal-header">
                 <h3 class="modal-title"><i class="fas fa-file-alt" style="margin-right: 8px;"></i>Document Details</h3>
-                <button class="modal-close" onclick="closeDocumentDetailsModal()">
-                    <i class="fas fa-times"></i>
-                </button>
             </div>
             <div class="modal-body" id="documentDetailsContent">
                 <!-- Document details will be loaded here -->
             </div>
             <div class="modal-footer">
-                <a id="documentDownloadBtn" href="#" target="_blank" class="btn-modal primary" style="text-decoration: none;">
-                    <i class="fas fa-download"></i> Download Document
+                <button class="btn-modal secondary" onclick="closeDocumentDetailsModal()">Close</button>
+                <button class="btn-modal primary" onclick="openReviewDocumentModal()">
+                    <i class="fas fa-clipboard-check"></i> Review Document
+                </button>
+                <a id="documentDownloadBtn" href="#" target="_blank" class="btn-modal" style="text-decoration: none; background: #10B981; color: white;">
+                    <i class="fas fa-download"></i> Download
                 </a>
             </div>
         </div>
@@ -7670,9 +7922,6 @@
         <div class="modal-content" style="max-width: 500px;">
             <div class="modal-header">
                 <h3 class="modal-title"><i class="fas fa-clipboard-check" style="margin-right: 8px;"></i>Review Document</h3>
-                <button class="modal-close" onclick="closeReviewDocumentModal()">
-                    <i class="fas fa-times"></i>
-                </button>
             </div>
             <div class="modal-body">
                 <form id="reviewDocumentForm">
@@ -7700,6 +7949,7 @@
                 </form>
             </div>
             <div class="modal-footer">
+                <button class="btn-modal secondary" onclick="closeReviewDocumentModal()">Cancel</button>
                 <button class="btn-modal primary" onclick="submitDocumentReview()">
                     <i class="fas fa-check"></i> Submit Review
                 </button>
@@ -7714,9 +7964,6 @@
         <div class="modal-content" style="max-width: 650px;">
             <div class="modal-header">
                 <h3 class="modal-title"><i class="fas fa-file-contract" style="margin-right: 8px;"></i>MOA Request Details</h3>
-                <button class="modal-close" onclick="closeMoaDetailsModal()">
-                    <i class="fas fa-times"></i>
-                </button>
             </div>
             <div class="modal-body" id="moaDetailsContent">
                 <!-- MOA details will be loaded here -->
@@ -7738,9 +7985,6 @@
         <div class="modal-content" style="max-width: 500px;">
             <div class="modal-header">
                 <h3 class="modal-title"><i class="fas fa-clipboard-check" style="margin-right: 8px;"></i>Review MOA Request</h3>
-                <button class="modal-close" onclick="closeReviewMoaModal()">
-                    <i class="fas fa-times"></i>
-                </button>
             </div>
             <div class="modal-body">
                 <form id="reviewMoaForm">
@@ -7781,9 +8025,6 @@
         <div class="modal-content" style="max-width: 900px; max-height: 90vh;">
             <div class="modal-header">
                 <h3 class="modal-title"><i class="fas fa-file-word" style="margin-right: 8px;"></i>MOA Template Generator</h3>
-                <button class="modal-close" onclick="closeMoaTemplateModal()">
-                    <i class="fas fa-times"></i>
-                </button>
             </div>
             <div class="modal-body" style="max-height: 65vh; overflow-y: auto;">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
@@ -7878,9 +8119,6 @@
         <div class="modal-content" style="max-width: 900px;">
             <div class="modal-header">
                 <h3 class="modal-title"><i class="fas fa-credit-card" style="margin-right: 8px;"></i>Payment Submission Details</h3>
-                <button class="modal-close" onclick="closePaymentDetailsModal()">
-                    <i class="fas fa-times"></i>
-                </button>
             </div>
             <div class="modal-body" id="paymentDetailsContent">
                 <!-- Payment details will be loaded here -->
@@ -7899,9 +8137,6 @@
         <div class="modal-content" style="max-width: 500px;">
             <div class="modal-header">
                 <h3 class="modal-title"><i class="fas fa-clipboard-check" style="margin-right: 8px;"></i>Review Payment</h3>
-                <button class="modal-close" onclick="closeReviewPaymentModal()">
-                    <i class="fas fa-times"></i>
-                </button>
             </div>
             <div class="modal-body">
                 <form id="reviewPaymentForm">
@@ -7944,9 +8179,6 @@
         <div class="modal-content" style="max-width: 520px; width: 95%;">
             <div class="modal-header" style="padding: 16px 20px;">
                 <h3 class="modal-title" style="font-size: 16px;"><i class="fas fa-exclamation-circle" style="margin-right: 8px;"></i>Room Issue Details</h3>
-                <button class="modal-close" onclick="closeRoomIssueDetailsModal()">
-                    <i class="fas fa-times"></i>
-                </button>
             </div>
             <div class="modal-body" id="roomIssueDetailsContent" style="padding: 16px 20px; max-height: 60vh; overflow-y: auto;">
                 <!-- Issue details will be loaded here -->
@@ -7965,9 +8197,6 @@
         <div class="modal-content" style="max-width: 420px; width: 95%;">
             <div class="modal-header" style="padding: 16px 20px;">
                 <h3 class="modal-title" style="font-size: 16px;"><i class="fas fa-edit" style="margin-right: 8px;"></i>Update Issue Status</h3>
-                <button class="modal-close" onclick="closeUpdateIssueStatusModal()">
-                    <i class="fas fa-times"></i>
-                </button>
             </div>
             <div class="modal-body" style="padding: 16px 20px; max-height: 60vh; overflow-y: auto;">
                 <form id="updateIssueStatusForm">
@@ -8016,9 +8245,6 @@
         <div class="modal-content" style="max-width: 900px; max-height: 90vh;">
             <div class="modal-header">
                 <h3 class="modal-title"><i class="fas fa-university" style="margin-right: 8px;"></i>School Management</h3>
-                <button class="modal-close" onclick="closeSchoolManagementModal()">
-                    <i class="fas fa-times"></i>
-                </button>
             </div>
             <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
                 <!-- Add New School Button -->
@@ -8203,9 +8429,6 @@
         <div class="modal-content" style="max-width: 450px;">
             <div class="modal-header">
                 <h3 class="modal-title"><i class="fas fa-user-times" style="margin-right: 8px; color: #DC2626;"></i>Reject Intern</h3>
-                <button class="modal-close" onclick="closeRejectInternModal()">
-                    <i class="fas fa-times"></i>
-                </button>
             </div>
             <div class="modal-body">
                 <input type="hidden" id="rejectInternId">
@@ -8234,9 +8457,6 @@
         <div class="modal-content" style="max-width: 700px;">
             <div class="modal-header">
                 <h3 class="modal-title"><i class="fas fa-user-graduate" style="margin-right: 8px; color: #7B1D3A;"></i>Intern Details</h3>
-                <button class="modal-close" onclick="closeInternDetailsModal()">
-                    <i class="fas fa-times"></i>
-                </button>
             </div>
             <div class="modal-body">
                 <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 24px; padding: 20px; background: linear-gradient(135deg, #FEF3C7, #FDE68A); border-radius: 12px;">
@@ -8331,9 +8551,6 @@
         <div class="modal-content" style="max-width: 600px;">
             <div class="modal-header">
                 <h3 class="modal-title"><i class="fas fa-user-edit" style="margin-right: 8px; color: #7B1D3A;"></i>Edit Intern</h3>
-                <button class="modal-close" onclick="closeEditInternModal()">
-                    <i class="fas fa-times"></i>
-                </button>
             </div>
             <div class="modal-body">
                 <form id="editInternForm">
@@ -8396,9 +8613,8 @@
     <!-- Create/Edit Event Modal -->
     <div id="eventModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; align-items: center; justify-content: center;">
         <div style="background: white; border-radius: 16px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
-            <div style="background: linear-gradient(135deg, #7B1D3A, #5a1428); padding: 24px; color: white; border-radius: 16px 16px 0 0; display: flex; justify-content: space-between; align-items: center;">
+            <div style="background: linear-gradient(135deg, #7B1D3A, #5a1428); padding: 24px; color: white; border-radius: 16px 16px 0 0;">
                 <h2 id="eventModalTitle" style="margin: 0; font-size: 20px; font-weight: 700;">Create Event</h2>
-                <button onclick="closeEventModal()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-size: 18px; transition: all 0.3s ease;">&times;</button>
             </div>
             <div style="padding: 24px;">
                 <input type="hidden" id="eventId">
@@ -8608,12 +8824,106 @@
             dropdown.classList.toggle('active');
         }
 
-        // Close dropdown when clicking outside
+        // Admin Profile dropdown toggle
+        const adminProfileBtn = document.getElementById('adminProfileBtn');
+        const adminProfileDropdown = document.getElementById('adminProfileDropdown');
+
+        if (adminProfileBtn && adminProfileDropdown) {
+            adminProfileBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                adminProfileDropdown.classList.toggle('active');
+            });
+        }
+
+        // Navigate to admin profile page
+        function navigateToAdminProfile(event) {
+            event.preventDefault();
+            adminProfileDropdown.classList.remove('active');
+            loadPage(event, 'admin-profile');
+        }
+
+        // Admin profile picture upload function
+        async function uploadAdminProfilePicture(input) {
+            if (!input.files || !input.files[0]) return;
+
+            const file = input.files[0];
+
+            // Validate file size (5MB max)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('File size must be less than 5MB');
+                return;
+            }
+
+            // Validate file type
+            const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
+            if (!validTypes.includes(file.type)) {
+                alert('Please select a valid image file (JPEG, PNG, JPG, or GIF)');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('profile_picture', file);
+
+            try {
+                const response = await fetch('{{ route("admin.profile.upload-picture") }}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Update the profile picture on the page
+                    const container = document.getElementById('adminProfilePictureContainer');
+                    const existingImg = document.getElementById('adminProfilePictureImg');
+                    const existingInitial = document.getElementById('adminProfilePictureInitial');
+
+                    if (existingImg) {
+                        existingImg.src = data.image_url;
+                    } else if (existingInitial) {
+                        // Replace initial with image
+                        const img = document.createElement('img');
+                        img.id = 'adminProfilePictureImg';
+                        img.src = data.image_url;
+                        img.alt = 'Profile';
+                        img.style.cssText = 'width: 120px; height: 120px; border-radius: 50%; object-fit: cover; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3); border: 4px solid rgba(255, 255, 255, 0.3);';
+                        existingInitial.replaceWith(img);
+                    }
+
+                    // Also update header avatar if needed
+                    const headerAvatar = document.getElementById('userAvatar');
+                    if (headerAvatar) {
+                        headerAvatar.innerHTML = `<img src="${data.image_url}" alt="Profile" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+                    }
+
+                    alert('Profile picture updated successfully!');
+                } else {
+                    alert(data.message || 'Failed to upload profile picture');
+                }
+            } catch (error) {
+                console.error('Error uploading profile picture:', error);
+                alert('An error occurred while uploading the profile picture');
+            }
+
+            // Clear the input
+            input.value = '';
+        }
+
+        // Close dropdowns when clicking outside
         document.addEventListener('click', function(event) {
             const wrapper = document.querySelector('.notification-wrapper');
             const dropdown = document.getElementById('notificationDropdown');
             if (wrapper && dropdown && !wrapper.contains(event.target)) {
                 dropdown.classList.remove('active');
+            }
+            
+            // Close admin profile dropdown when clicking outside
+            if (adminProfileDropdown && !adminProfileDropdown.contains(event.target)) {
+                adminProfileDropdown.classList.remove('active');
             }
         });
 
@@ -9295,6 +9605,8 @@
             } else if (pageId === 'activity-log') {
                 breadcrumb.innerHTML = 'Dashboard > <span>Activity Log</span>';
                 loadActivityLog();
+            } else if (pageId === 'admin-profile') {
+                breadcrumb.innerHTML = 'Dashboard > <span>My Profile</span>';
             } else if (pageId === 'admin-settings') {
                 breadcrumb.innerHTML = 'Dashboard > <span>Settings</span>';
                 loadSettingsFromStorage();
@@ -11615,8 +11927,8 @@
             const paymentMethodLabels = {
                 'bank_transfer': '🏦 Bank Transfer',
                 'bank_deposit': '💵 Bank Deposit',
-                'gcash': '<img src="/images/gcashicon.png" alt="GCash" style="height: 16px; width: auto; vertical-align: middle; margin-right: 4px;">GCash',
-                'maya': '<img src="/images/mayaIcon.avif" alt="Maya" style="height: 16px; width: auto; vertical-align: middle; margin-right: 4px;">Maya',
+                'gcash': '<img src="/images/gcash.jpg" alt="GCash" style="height: 16px; width: auto; vertical-align: middle; margin-right: 4px;">GCash',
+                'maya': '📱 Maya',
                 'check': '📄 Check Payment',
                 'cash': '💰 Cash'
             };
@@ -11799,10 +12111,10 @@
             const color = statusColors[issue.status] || { bg: '#E5E7EB', text: '#374151' };
 
             const priorityColors = {
-                'urgent': '#DC2626',
-                'high': '#F59E0B',
-                'medium': '#3B82F6',
-                'low': '#10B981'
+                'urgent': '#991B1B',
+                'high': '#DC2626',
+                'medium': '#F59E0B',
+                'low': '#228B22'
             };
 
             const content = `
@@ -12106,13 +12418,11 @@
                     <td><strong style="font-family: monospace; background: #F3F4F6; padding: 4px 8px; border-radius: 4px;">${startup.startup_code}</strong></td>
                     <td>
                         <div style="font-weight: 600; color: #1F2937;">${startup.company_name}</div>
-                        ${startup.room_number ? `<div style="font-size: 12px; color: #6B7280;">Room ${startup.room_number}</div>` : ''}
                     </td>
                     <td>${startup.contact_person || '-'}</td>
                     <td>
                         ${startup.email ? `<a href="mailto:${startup.email}" style="color: #7B1D3A;">${startup.email}</a>` : '-'}
                     </td>
-                    <td>${startup.room_number || '-'}</td>
                     <td>
                         <span style="padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
                             ${startup.moa_status === 'active' ? 'background: #D1FAE5; color: #065F46;' : ''}
@@ -12194,7 +12504,6 @@
             document.getElementById('startupSubmitBtn').innerHTML = '<i class="fas fa-save"></i> Update Account';
             document.getElementById('startupId').value = id;
             document.getElementById('companyName').value = startup.company_name;
-            document.getElementById('roomNumber').value = startup.room_number || '';
             document.getElementById('contactPerson').value = startup.contact_person || '';
             document.getElementById('startupEmail').value = startup.email || '';
             document.getElementById('startupPhone').value = startup.phone || '';
@@ -12213,7 +12522,6 @@
 
             const formData = {
                 company_name: document.getElementById('companyName').value,
-                room_number: document.getElementById('roomNumber').value,
                 contact_person: document.getElementById('contactPerson').value,
                 email: document.getElementById('startupEmail').value,
                 phone: document.getElementById('startupPhone').value
@@ -12295,10 +12603,6 @@
                         <div style="background: #F9FAFB; padding: 16px; border-radius: 8px;">
                             <label style="font-size: 12px; color: #6B7280; text-transform: uppercase;">Contact Person</label>
                             <div style="font-weight: 600; color: #1F2937; margin-top: 4px;">${startup.contact_person || '-'}</div>
-                        </div>
-                        <div style="background: #F9FAFB; padding: 16px; border-radius: 8px;">
-                            <label style="font-size: 12px; color: #6B7280; text-transform: uppercase;">Room Number</label>
-                            <div style="font-weight: 600; color: #1F2937; margin-top: 4px;">${startup.room_number || '-'}</div>
                         </div>
                         <div style="background: #F9FAFB; padding: 16px; border-radius: 8px;">
                             <label style="font-size: 12px; color: #6B7280; text-transform: uppercase;">Email</label>
@@ -12437,14 +12741,13 @@
 
         function exportStartups() {
             // Simple CSV export
-            const headers = ['Startup Code', 'Company Name', 'Contact Person', 'Email', 'Phone', 'Room', 'MOA Status', 'Status'];
+            const headers = ['Startup Code', 'Company Name', 'Contact Person', 'Email', 'Phone', 'MOA Status', 'Status'];
             const rows = startupsData.map(s => [
                 s.startup_code,
                 s.company_name,
                 s.contact_person || '',
                 s.email || '',
                 s.phone || '',
-                s.room_number || '',
                 s.moa_status,
                 s.status
             ]);
@@ -14328,9 +14631,9 @@ University of the Philippines Cebu
                         <div class="detail-label">Priority</div>
                         <div class="detail-value">
                             <span class="status-badge" style="background:
-                                ${task.priority === 'High' ? '#FEE2E2; color: #991B1B' :
-                                  task.priority === 'Medium' ? '#FEF3C7; color: #92400E' :
-                                  '#D1FAE5; color: #065F46'};\">${task.priority}</span>
+                                ${task.priority === 'High' ? '#DC2626; color: white' :
+                                  task.priority === 'Medium' ? '#F59E0B; color: white' :
+                                  '#228B22; color: white'};\">${task.priority}</span>
                         </div>
                     </div>
                     <div class="detail-section">
