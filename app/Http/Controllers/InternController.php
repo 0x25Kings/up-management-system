@@ -7,6 +7,7 @@ use App\Models\Intern;
 use App\Models\Attendance;
 use App\Models\Task;
 use App\Models\User;
+use App\Models\Setting;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 
@@ -110,16 +111,35 @@ class InternController extends Controller
         // Generate reference code
         $validated['reference_code'] = Intern::generateReferenceCode();
         $validated['school'] = $school->name; // Keep school name for backward compatibility
-        $validated['required_hours'] = $school->required_hours;
-        $validated['approval_status'] = 'pending';
+        $validated['required_hours'] = $school->required_hours ?? Setting::get('default_hours', 480);
+        
+        // Check if auto-approve is enabled
+        $autoApprove = Setting::get('auto_approve_intern', false);
+        
+        if ($autoApprove) {
+            // Auto-approve the intern
+            $validated['approval_status'] = 'approved';
+            $validated['status'] = 'Active';
+            $validated['start_date'] = Carbon::now()->toDateString();
+            $validated['approved_at'] = Carbon::now();
+            // Note: approved_by will be null for auto-approved interns
+        } else {
+            $validated['approval_status'] = 'pending';
+        }
+        
         // No password required - interns access with reference code only
-        // Don't set start_date until approved
 
         // Create the intern
         $intern = Intern::create($validated);
 
         // Store intern ID in session
         $request->session()->put('intern_id', $intern->id);
+
+        // Return different message based on auto-approve status
+        if ($autoApprove) {
+            return redirect()->route('intern.portal')
+                ->with('success', 'Registration successful! Your reference code is: ' . $intern->reference_code . '. You can now start using the portal.');
+        }
 
         return redirect()->route('intern.portal')
             ->with('success', 'Registration submitted successfully! Your reference code is: ' . $intern->reference_code . '. Please wait for admin approval.');
@@ -436,6 +456,17 @@ class InternController extends Controller
 
         // Calculate overtime/undertime
         $attendance->calculateOvertimeUndertime();
+        
+        // Check if overtime approval is required
+        $requireOvertimeApproval = Setting::get('require_overtime_approval', true);
+        
+        // If overtime approval is NOT required and there's overtime, auto-approve it
+        if (!$requireOvertimeApproval && $attendance->hasOvertime()) {
+            $attendance->overtime_approved = true;
+            $attendance->approved_at = Carbon::now();
+            // approved_by remains null for auto-approved overtime
+        }
+        
         $attendance->save();
 
         // Update intern's completed hours (only count effective hours)
@@ -446,7 +477,11 @@ class InternController extends Controller
         if ($attendance->hasUndertime()) {
             $message .= ' (Undertime: ' . $attendance->undertime_hours . ' hrs)';
         } elseif ($attendance->hasOvertime()) {
-            $message .= ' (Overtime: ' . $attendance->overtime_hours . ' hrs - Pending Approval)';
+            if ($attendance->overtime_approved) {
+                $message .= ' (Overtime: ' . $attendance->overtime_hours . ' hrs - Auto-Approved)';
+            } else {
+                $message .= ' (Overtime: ' . $attendance->overtime_hours . ' hrs - Pending Approval)';
+            }
         }
 
         // Return JSON for AJAX requests with reload flag

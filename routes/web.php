@@ -32,8 +32,9 @@ Route::get('/blocked-dates', [BlockedDateController::class, 'index'])->name('blo
 // Public route to get active schools for intern registration dropdown
 Route::get('/schools/active', [SchoolController::class, 'getActiveSchools'])->name('schools.active');
 
-// Intern Portal Routes (No Login Required)
-Route::get('/intern', [InternController::class, 'index'])->name('intern.portal');
+// Intern Portal Routes (No Login Required) - Protected by maintenance mode
+Route::middleware(['maintenance'])->group(function () {
+    Route::get('/intern', [InternController::class, 'index'])->name('intern.portal');
 Route::post('/intern/register', [InternController::class, 'register'])->name('intern.register');
 Route::post('/intern/access', [InternController::class, 'accessWithCode'])->name('intern.access');
 Route::post('/intern/clear-session', [InternController::class, 'clearSession'])->name('intern.clear');
@@ -58,29 +59,32 @@ Route::delete('/intern/documents/folder/{folderId}', [DocumentController::class,
 Route::delete('/intern/documents/{documentId}', [DocumentController::class, 'deleteDocument'])->name('documents.delete');
 Route::get('/intern/documents/{documentId}/download', [DocumentController::class, 'downloadDocument'])->name('documents.download');
 
-// Event Routes (Intern - Read Only)
-Route::get('/intern/events', [EventController::class, 'index'])->name('events.index');
+    // Event Routes (Intern - Read Only)
+    Route::get('/intern/events', [EventController::class, 'index'])->name('events.index');
+}); // End maintenance middleware group for intern/public routes
 
-// Startup Portal Routes (No Login Required - Legacy/Public)
-Route::get('/startup', [StartupController::class, 'index'])->name('startup.portal');
-Route::post('/startup/document', [StartupController::class, 'submitDocument'])->name('startup.document');
-Route::post('/startup/room-issue', [StartupController::class, 'submitRoomIssue'])->name('startup.room-issue');
-Route::post('/startup/moa', [StartupController::class, 'submitMoa'])->name('startup.moa');
-Route::post('/startup/payment', [StartupController::class, 'submitPayment'])->name('startup.payment');
-Route::post('/startup/track', [StartupController::class, 'track'])->name('startup.track');
-Route::get('/startup/moa-template', [StartupController::class, 'downloadMoaTemplate'])->name('startup.moa-template');
+// Startup Portal Routes (No Login Required - Legacy/Public) - Protected by maintenance mode
+Route::middleware(['maintenance'])->group(function () {
+    Route::get('/startup', [StartupController::class, 'index'])->name('startup.portal');
+    Route::post('/startup/document', [StartupController::class, 'submitDocument'])->name('startup.document');
+    Route::post('/startup/room-issue', [StartupController::class, 'submitRoomIssue'])->name('startup.room-issue');
+    Route::post('/startup/moa', [StartupController::class, 'submitMoa'])->name('startup.moa');
+    Route::post('/startup/payment', [StartupController::class, 'submitPayment'])->name('startup.payment');
+    Route::post('/startup/track', [StartupController::class, 'track'])->name('startup.track');
+    Route::get('/startup/moa-template', [StartupController::class, 'downloadMoaTemplate'])->name('startup.moa-template');
 
-// Startup Portal Authentication Routes
-Route::get('/startup/login', [StartupAuthController::class, 'showLoginForm'])->name('startup.login');
-Route::post('/startup/verify-code', [StartupAuthController::class, 'verifyCode'])->name('startup.verify-code');
-Route::get('/startup/login-password', [StartupAuthController::class, 'showLoginPasswordForm'])->name('startup.login-password');
-Route::get('/startup/set-password', [StartupAuthController::class, 'showSetPasswordForm'])->name('startup.set-password');
-Route::post('/startup/set-password', [StartupAuthController::class, 'setPassword'])->name('startup.set-password.submit');
-Route::post('/startup/login', [StartupAuthController::class, 'login'])->name('startup.login.submit');
-Route::post('/startup/logout', [StartupAuthController::class, 'logout'])->name('startup.logout');
+    // Startup Portal Authentication Routes
+    Route::get('/startup/login', [StartupAuthController::class, 'showLoginForm'])->name('startup.login');
+    Route::post('/startup/verify-code', [StartupAuthController::class, 'verifyCode'])->name('startup.verify-code');
+    Route::get('/startup/login-password', [StartupAuthController::class, 'showLoginPasswordForm'])->name('startup.login-password');
+    Route::get('/startup/set-password', [StartupAuthController::class, 'showSetPasswordForm'])->name('startup.set-password');
+    Route::post('/startup/set-password', [StartupAuthController::class, 'setPassword'])->name('startup.set-password.submit');
+    Route::post('/startup/login', [StartupAuthController::class, 'login'])->name('startup.login.submit');
+    Route::post('/startup/logout', [StartupAuthController::class, 'logout'])->name('startup.logout');
+}); // End maintenance middleware group for startup public routes
 
 // Protected Startup Portal Routes
-Route::middleware(['startup.auth'])->prefix('startup')->name('startup.')->group(function () {
+Route::middleware(['maintenance', 'startup.auth'])->prefix('startup')->name('startup.')->group(function () {
     // Dashboard
     Route::get('/dashboard', [StartupDashboardController::class, 'index'])->name('dashboard');
 
@@ -263,7 +267,7 @@ Route::middleware(['admin'])->group(function () {
 });
 
 // Team Leader Routes
-Route::middleware(['team.leader'])->prefix('team-leader')->name('team-leader.')->group(function () {
+Route::middleware(['maintenance', 'team.leader'])->prefix('team-leader')->name('team-leader.')->group(function () {
     // Dashboard
     Route::get('/', [TeamLeaderController::class, 'dashboard'])->name('dashboard');
     Route::get('/dashboard', [TeamLeaderController::class, 'dashboard'])->name('dashboard.home');

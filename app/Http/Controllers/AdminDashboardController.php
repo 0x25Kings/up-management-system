@@ -1200,18 +1200,22 @@ class AdminDashboardController extends Controller
      */
     public function saveSettings(Request $request)
     {
-        $validated = $request->validate([
-            'settings' => 'required|array',
-        ]);
+        try {
+            $validated = $request->validate([
+                'settings' => 'required|array',
+            ]);
 
-        $defaults = Setting::getDefaults();
-        
-        foreach ($validated['settings'] as $key => $value) {
-            $type = isset($defaults[$key]) ? $defaults[$key]['type'] : 'string';
-            Setting::set($key, $value, $type);
+            $defaults = Setting::getDefaults();
+            
+            foreach ($validated['settings'] as $key => $value) {
+                $type = isset($defaults[$key]) ? $defaults[$key]['type'] : 'string';
+                Setting::set($key, $value, $type);
+            }
+
+            return response()->json(['success' => true, 'message' => 'Settings saved successfully!']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Error saving settings: ' . $e->getMessage()], 500);
         }
-
-        return response()->json(['success' => true, 'message' => 'Settings saved successfully!']);
     }
 
     /**

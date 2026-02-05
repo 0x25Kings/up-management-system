@@ -9874,10 +9874,19 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Accept': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                     },
                     body: JSON.stringify({ settings: settings })
                 });
+
+                // Check if response is OK first
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Server error:', response.status, errorText);
+                    showToast('error', 'Error', `Server error: ${response.status}. Check console for details.`);
+                    return;
+                }
 
                 const data = await response.json();
 
@@ -9885,11 +9894,11 @@
                     applySettings(settings);
                     showToast('success', 'Settings Saved', data.message);
                 } else {
-                    showToast('error', 'Error', 'Failed to save settings');
+                    showToast('error', 'Error', data.message || 'Failed to save settings');
                 }
             } catch (error) {
                 console.error('Error saving settings:', error);
-                showToast('error', 'Error', 'Failed to save settings');
+                showToast('error', 'Error', 'Failed to save settings: ' + error.message);
             }
         }
 
@@ -9899,7 +9908,9 @@
                 clearInterval(window.notificationInterval);
             }
             const interval = parseInt(settings.notification_interval || 30) * 1000;
-            window.notificationInterval = setInterval(loadAdminNotifications, interval);
+            if (typeof loadNotifications === 'function') {
+                window.notificationInterval = setInterval(loadNotifications, interval);
+            }
 
             // Apply compact mode
             if (settings.compact_mode) {
