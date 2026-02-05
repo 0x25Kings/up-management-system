@@ -5729,22 +5729,20 @@
                         </button>
                     </div>
                     <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
-                    <table style="min-width: 1000px;">
+                    <table style="width: 100%; border-collapse: collapse; min-width: 900px;">
                         <thead>
                             <tr>
-                                <th>Startup Code</th>
-                                <th>Company Name</th>
-                                <th>Contact Person</th>
-                                <th>Email</th>
-                                <th>Room</th>
-                                <th>MOA Status</th>
-                                <th>Status</th>
-                                <th>Actions</th>
+                                <th style="width: 140px; min-width: 140px; text-align: left; padding: 14px 16px; white-space: nowrap;">Startup Code</th>
+                                <th style="min-width: 220px; text-align: left; padding: 14px 16px;">Company Info</th>
+                                <th style="min-width: 150px; text-align: left; padding: 14px 16px;">Contact Person</th>
+                                <th style="width: 110px; min-width: 110px; text-align: center; padding: 14px 16px; white-space: nowrap;">MOA Status</th>
+                                <th style="width: 100px; min-width: 100px; text-align: center; padding: 14px 16px; white-space: nowrap;">Status</th>
+                                <th style="width: 180px; min-width: 180px; text-align: center; padding: 14px 16px; white-space: nowrap;">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="startupsTableBody">
                             <tr>
-                                <td colspan="8" style="text-align: center; padding: 40px; color: #6B7280;">
+                                <td colspan="6" style="text-align: center; padding: 40px; color: #6B7280;">
                                     <i class="fas fa-spinner fa-spin" style="font-size: 24px; margin-bottom: 12px; display: block;"></i>
                                     Loading startups...
                                 </td>
@@ -5873,6 +5871,71 @@
                     </div>
                     <div class="modal-body" id="startupDetailsContent" style="padding: 28px;">
                         <!-- Content loaded dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reset Startup Password Modal -->
+            <div id="changeStartupPasswordModal" class="modal" style="display: none;">
+                <div class="modal-content" style="max-width: 450px; border-radius: 16px; overflow: hidden;">
+                    <div style="background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%); padding: 20px 24px; display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 42px; height: 42px; background: rgba(255,255,255,0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-key" style="font-size: 18px; color: white;"></i>
+                            </div>
+                            <div>
+                                <h3 style="font-size: 18px; font-weight: 700; color: white; margin: 0;">Reset Password</h3>
+                                <p id="changePasswordStartupName" style="font-size: 12px; color: rgba(255,255,255,0.8); margin: 0;"></p>
+                            </div>
+                        </div>
+                        <button type="button" onclick="closeChangePasswordModal()" style="width: 32px; height: 32px; background: rgba(255,255,255,0.2); border: none; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                            <i class="fas fa-times" style="color: white; font-size: 14px;"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body" style="padding: 24px;">
+                        <input type="hidden" id="changePasswordStartupId">
+                        <input type="hidden" id="changePasswordStartupEmail">
+
+                        <div style="background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 10px; padding: 14px 16px; margin-bottom: 20px;">
+                            <div style="display: flex; align-items: flex-start; gap: 10px;">
+                                <i class="fas fa-info-circle" style="color: #2563EB; margin-top: 2px;"></i>
+                                <div style="font-size: 13px; color: #1E40AF;">
+                                    This will generate a temporary password. The startup will be required to set their own new password upon next login.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Error Message -->
+                        <div id="passwordResetError" style="display: none; background: #FEE2E2; border: 1px solid #FECACA; border-radius: 10px; padding: 12px 14px; margin-bottom: 20px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <i class="fas fa-times-circle" style="color: #DC2626;"></i>
+                                <span style="font-size: 13px; color: #991B1B;">Error message here</span>
+                            </div>
+                        </div>
+
+                        <!-- Success Message with Temp Password -->
+                        <div id="passwordResetSuccess" style="display: none; background: #D1FAE5; border: 1px solid #A7F3D0; border-radius: 10px; padding: 16px; margin-bottom: 20px;">
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                                <i class="fas fa-check-circle" style="color: #059669; font-size: 18px;"></i>
+                                <span style="font-size: 14px; font-weight: 600; color: #065F46;">Password Reset Successful!</span>
+                            </div>
+                            <div style="background: white; border: 2px dashed #A7F3D0; border-radius: 8px; padding: 12px; text-align: center;">
+                                <div style="font-size: 11px; color: #6B7280; margin-bottom: 6px;">Temporary Password</div>
+                                <div id="tempPasswordDisplay" style="font-size: 18px; font-weight: 700; font-family: monospace; color: #059669; letter-spacing: 1px;"></div>
+                            </div>
+                            <button type="button" onclick="copyTempPassword()" style="width: 100%; margin-top: 12px; padding: 10px; background: #059669; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;" onmouseover="this.style.background='#047857'" onmouseout="this.style.background='#059669'">
+                                <i class="fas fa-copy"></i> Copy to Clipboard
+                            </button>
+                            <div style="font-size: 11px; color: #6B7280; margin-top: 10px; text-align: center;">
+                                Share this password securely with the startup. They will be prompted to change it on their next login.
+                            </div>
+                        </div>
+                    </div>
+                    <div id="resetPasswordFooter" class="modal-footer" style="padding: 16px 24px; background: #F9FAFB; border-top: 1px solid #E5E7EB; display: flex; justify-content: flex-end; gap: 10px;">
+                        <button type="button" onclick="closeChangePasswordModal()" style="padding: 10px 20px; background: #F3F4F6; color: #374151; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#E5E7EB'" onmouseout="this.style.background='#F3F4F6'">Cancel</button>
+                        <button type="button" id="confirmResetBtn" onclick="confirmPasswordReset()" style="padding: 10px 20px; background: linear-gradient(135deg, #4F46E5, #7C3AED); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+                            <i class="fas fa-sync-alt"></i> Reset Password
+                        </button>
                     </div>
                 </div>
             </div>
@@ -7553,14 +7616,26 @@
 
     <!-- View Report Modal -->
     <div id="viewReportModal" class="modal-overlay">
-        <div class="modal-content" style="max-width: 700px;">
-            <div class="modal-header">
-                <h3 class="modal-title" id="viewReportTitle"><i class="fas fa-file-alt" style="margin-right: 8px;"></i>Report Details</h3>
+        <div class="modal-content" style="max-width: 750px; width: 95%; border-radius: 16px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
+            <!-- Modal Header with Gradient -->
+            <div id="viewReportHeader" style="background: linear-gradient(135deg, #7B1D3A 0%, #A62450 100%); padding: 20px 24px; position: relative;">
+                <div style="display: flex; align-items: center; gap: 14px;">
+                    <div style="width: 48px; height: 48px; background: rgba(255,255,255,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-file-alt" style="font-size: 20px; color: white;"></i>
+                    </div>
+                    <div style="flex: 1;">
+                        <h3 id="viewReportTitle" style="font-size: 18px; font-weight: 700; color: white; margin: 0;">Report Details</h3>
+                        <p id="viewReportSubtitle" style="color: rgba(255,255,255,0.8); font-size: 12px; margin-top: 2px;">Team Leader Report</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeViewReportModal()" style="position: absolute; top: 16px; right: 16px; width: 36px; height: 36px; background: rgba(255,255,255,0.2); border: none; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                    <i class="fas fa-times" style="color: white; font-size: 16px;"></i>
+                </button>
             </div>
-            <div class="modal-body" id="viewReportContent" style="max-height: 70vh; overflow-y: auto;">
+            <div class="modal-body" id="viewReportContent" style="max-height: 65vh; overflow-y: auto; padding: 24px;">
                 <!-- Report content loaded here -->
             </div>
-            <div class="modal-footer" id="viewReportFooter">
+            <div class="modal-footer" id="viewReportFooter" style="padding: 16px 24px; background: #F9FAFB; border-top: 1px solid #E5E7EB;">
                 <button class="btn-modal secondary" onclick="closeViewReportModal()">Close</button>
             </div>
         </div>
@@ -8920,7 +8995,7 @@
             if (wrapper && dropdown && !wrapper.contains(event.target)) {
                 dropdown.classList.remove('active');
             }
-            
+
             // Close admin profile dropdown when clicking outside
             if (adminProfileDropdown && !adminProfileDropdown.contains(event.target)) {
                 adminProfileDropdown.classList.remove('active');
@@ -10847,94 +10922,145 @@
 
             const modal = document.getElementById('viewReportModal');
             const title = document.getElementById('viewReportTitle');
+            const subtitle = document.getElementById('viewReportSubtitle');
             const content = document.getElementById('viewReportContent');
             const footer = document.getElementById('viewReportFooter');
 
-            title.innerHTML = `<i class="fas fa-file-alt" style="margin-right: 8px;"></i>${report.title}`;
+            // Update header
+            title.textContent = report.title;
+            subtitle.innerHTML = `<span style="display: inline-flex; align-items: center; gap: 6px;"><i class="fas fa-user"></i> ${report.team_leader_name}</span> <span style="margin: 0 8px;">•</span> <span>${report.report_type.charAt(0).toUpperCase() + report.report_type.slice(1)} Report</span>`;
+
+            // Get status badge
+            const getStatusBadge = (status) => {
+                const badges = {
+                    'submitted': '<span style="display: inline-flex; align-items: center; gap: 4px; background: #FEF3C7; color: #92400E; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;"><i class="fas fa-clock"></i> Pending Review</span>',
+                    'reviewed': '<span style="display: inline-flex; align-items: center; gap: 4px; background: #DBEAFE; color: #1E40AF; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;"><i class="fas fa-check"></i> Reviewed</span>',
+                    'acknowledged': '<span style="display: inline-flex; align-items: center; gap: 4px; background: #D1FAE5; color: #065F46; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;"><i class="fas fa-check-double"></i> Acknowledged</span>'
+                };
+                return badges[status] || badges['submitted'];
+            };
 
             content.innerHTML = `
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; background: #F9FAFB; padding: 16px; border-radius: 12px;">
-                    <div>
-                        <div style="font-size: 11px; color: #6B7280; text-transform: uppercase; font-weight: 600;">Team Leader</div>
-                        <div style="font-weight: 600; color: #1F2937;">${report.team_leader_name}</div>
-                        <div style="font-size: 12px; color: #6B7280;">${report.team_leader_code}</div>
+                <!-- Status and Info Bar -->
+                <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #E5E7EB;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        ${getStatusBadge(report.status)}
+                        <span style="font-size: 12px; color: #6B7280;"><i class="fas fa-calendar-alt" style="margin-right: 4px;"></i> ${report.created_at}</span>
                     </div>
-                    <div>
-                        <div style="font-size: 11px; color: #6B7280; text-transform: uppercase; font-weight: 600;">School</div>
-                        <div style="font-weight: 600; color: #1F2937;">${report.school_name}</div>
+                </div>
+
+                <!-- Info Cards -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 24px;">
+                    <div style="background: linear-gradient(135deg, #F9FAFB 0%, #F3F4F6 100%); padding: 16px; border-radius: 12px; border: 1px solid #E5E7EB;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                            <div style="width: 32px; height: 32px; background: #7B1D3A; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-user-tie" style="color: white; font-size: 12px;"></i>
+                            </div>
+                            <span style="font-size: 11px; color: #6B7280; text-transform: uppercase; font-weight: 600;">Team Leader</span>
+                        </div>
+                        <div style="font-weight: 600; color: #1F2937; font-size: 14px;">${report.team_leader_name}</div>
+                        <div style="font-size: 12px; color: #6B7280; font-family: monospace;">${report.team_leader_code}</div>
                     </div>
-                    <div>
-                        <div style="font-size: 11px; color: #6B7280; text-transform: uppercase; font-weight: 600;">Submitted</div>
-                        <div style="font-weight: 600; color: #1F2937;">${report.created_at}</div>
+                    <div style="background: linear-gradient(135deg, #F9FAFB 0%, #F3F4F6 100%); padding: 16px; border-radius: 12px; border: 1px solid #E5E7EB;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                            <div style="width: 32px; height: 32px; background: #2563EB; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-school" style="color: white; font-size: 12px;"></i>
+                            </div>
+                            <span style="font-size: 11px; color: #6B7280; text-transform: uppercase; font-weight: 600;">School</span>
+                        </div>
+                        <div style="font-weight: 600; color: #1F2937; font-size: 14px;">${report.school_name}</div>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #F9FAFB 0%, #F3F4F6 100%); padding: 16px; border-radius: 12px; border: 1px solid #E5E7EB;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                            <div style="width: 32px; height: 32px; background: #059669; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-tag" style="color: white; font-size: 12px;"></i>
+                            </div>
+                            <span style="font-size: 11px; color: #6B7280; text-transform: uppercase; font-weight: 600;">Report Type</span>
+                        </div>
+                        <div style="font-weight: 600; color: #1F2937; font-size: 14px;">${report.report_type.charAt(0).toUpperCase() + report.report_type.slice(1)}</div>
                     </div>
                 </div>
 
                 ${report.task_statistics ? `
                     <div style="margin-bottom: 24px;">
-                        <h4 style="font-weight: 600; color: #1F2937; margin-bottom: 12px;"><i class="fas fa-chart-pie" style="color: #7B1D3A; margin-right: 8px;"></i>Task Statistics</h4>
-                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
-                            <div style="text-align: center; padding: 16px; background: #F9FAFB; border-radius: 10px;">
-                                <div style="font-size: 24px; font-weight: 700; color: #1F2937;">${report.task_statistics.total || 0}</div>
-                                <div style="font-size: 11px; color: #6B7280;">Total</div>
+                        <h4 style="font-weight: 600; color: #1F2937; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-chart-pie" style="color: #7B1D3A;"></i>Task Statistics
+                        </h4>
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
+                            <div style="text-align: center; padding: 14px 8px; background: linear-gradient(135deg, #F9FAFB 0%, #F3F4F6 100%); border-radius: 10px; border: 1px solid #E5E7EB;">
+                                <div style="font-size: 22px; font-weight: 700; color: #1F2937;">${report.task_statistics.total || 0}</div>
+                                <div style="font-size: 10px; color: #6B7280; text-transform: uppercase; font-weight: 600;">Total</div>
                             </div>
-                            <div style="text-align: center; padding: 16px; background: #ECFDF5; border-radius: 10px;">
-                                <div style="font-size: 24px; font-weight: 700; color: #059669;">${report.task_statistics.completed || 0}</div>
-                                <div style="font-size: 11px; color: #065F46;">Completed</div>
+                            <div style="text-align: center; padding: 14px 8px; background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%); border-radius: 10px; border: 1px solid #A7F3D0;">
+                                <div style="font-size: 22px; font-weight: 700; color: #059669;">${report.task_statistics.completed || 0}</div>
+                                <div style="font-size: 10px; color: #065F46; text-transform: uppercase; font-weight: 600;">Completed</div>
                             </div>
-                            <div style="text-align: center; padding: 16px; background: #EFF6FF; border-radius: 10px;">
-                                <div style="font-size: 24px; font-weight: 700; color: #2563EB;">${report.task_statistics.in_progress || 0}</div>
-                                <div style="font-size: 11px; color: #1E40AF;">In Progress</div>
+                            <div style="text-align: center; padding: 14px 8px; background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%); border-radius: 10px; border: 1px solid #BFDBFE;">
+                                <div style="font-size: 22px; font-weight: 700; color: #2563EB;">${report.task_statistics.in_progress || 0}</div>
+                                <div style="font-size: 10px; color: #1E40AF; text-transform: uppercase; font-weight: 600;">In Progress</div>
                             </div>
-                            <div style="text-align: center; padding: 16px; background: #FFFBEB; border-radius: 10px;">
-                                <div style="font-size: 24px; font-weight: 700; color: #D97706;">${report.task_statistics.pending || 0}</div>
-                                <div style="font-size: 11px; color: #92400E;">Pending</div>
+                            <div style="text-align: center; padding: 14px 8px; background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%); border-radius: 10px; border: 1px solid #FDE68A;">
+                                <div style="font-size: 22px; font-weight: 700; color: #D97706;">${report.task_statistics.pending || 0}</div>
+                                <div style="font-size: 10px; color: #92400E; text-transform: uppercase; font-weight: 600;">Pending</div>
                             </div>
                         </div>
                     </div>
                 ` : ''}
 
                 <div style="margin-bottom: 20px;">
-                    <h4 style="font-weight: 600; color: #1F2937; margin-bottom: 8px;"><i class="fas fa-file-alt" style="color: #7B1D3A; margin-right: 8px;"></i>Summary</h4>
-                    <div style="background: #F9FAFB; padding: 16px; border-radius: 10px; white-space: pre-wrap;">${report.summary}</div>
+                    <h4 style="font-weight: 600; color: #1F2937; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-align-left" style="color: #7B1D3A;"></i>Summary
+                    </h4>
+                    <div style="background: #F9FAFB; padding: 16px; border-radius: 10px; white-space: pre-wrap; line-height: 1.6; color: #374151; border: 1px solid #E5E7EB;">${report.summary || 'No summary provided.'}</div>
                 </div>
 
                 ${report.accomplishments ? `
                     <div style="margin-bottom: 20px;">
-                        <h4 style="font-weight: 600; color: #1F2937; margin-bottom: 8px;"><i class="fas fa-trophy" style="color: #10B981; margin-right: 8px;"></i>Accomplishments</h4>
-                        <div style="background: #ECFDF5; padding: 16px; border-radius: 10px; white-space: pre-wrap;">${report.accomplishments}</div>
+                        <h4 style="font-weight: 600; color: #1F2937; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-trophy" style="color: #10B981;"></i>Accomplishments
+                        </h4>
+                        <div style="background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%); padding: 16px; border-radius: 10px; white-space: pre-wrap; line-height: 1.6; color: #065F46; border: 1px solid #A7F3D0;">${report.accomplishments}</div>
                     </div>
                 ` : ''}
 
                 ${report.challenges ? `
                     <div style="margin-bottom: 20px;">
-                        <h4 style="font-weight: 600; color: #1F2937; margin-bottom: 8px;"><i class="fas fa-exclamation-triangle" style="color: #F59E0B; margin-right: 8px;"></i>Challenges</h4>
-                        <div style="background: #FFFBEB; padding: 16px; border-radius: 10px; white-space: pre-wrap;">${report.challenges}</div>
+                        <h4 style="font-weight: 600; color: #1F2937; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-exclamation-triangle" style="color: #F59E0B;"></i>Challenges
+                        </h4>
+                        <div style="background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%); padding: 16px; border-radius: 10px; white-space: pre-wrap; line-height: 1.6; color: #92400E; border: 1px solid #FDE68A;">${report.challenges}</div>
                     </div>
                 ` : ''}
 
                 ${report.recommendations ? `
                     <div style="margin-bottom: 20px;">
-                        <h4 style="font-weight: 600; color: #1F2937; margin-bottom: 8px;"><i class="fas fa-lightbulb" style="color: #8B5CF6; margin-right: 8px;"></i>Recommendations</h4>
-                        <div style="background: #F5F3FF; padding: 16px; border-radius: 10px; white-space: pre-wrap;">${report.recommendations}</div>
+                        <h4 style="font-weight: 600; color: #1F2937; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-lightbulb" style="color: #8B5CF6;"></i>Recommendations
+                        </h4>
+                        <div style="background: linear-gradient(135deg, #F5F3FF 0%, #EDE9FE 100%); padding: 16px; border-radius: 10px; white-space: pre-wrap; line-height: 1.6; color: #5B21B6; border: 1px solid #DDD6FE;">${report.recommendations}</div>
                     </div>
                 ` : ''}
 
                 ${report.admin_feedback ? `
                     <div style="margin-bottom: 20px;">
-                        <h4 style="font-weight: 600; color: #1F2937; margin-bottom: 8px;"><i class="fas fa-comment" style="color: #7B1D3A; margin-right: 8px;"></i>Admin Feedback</h4>
-                        <div style="background: #FEF2F2; border-left: 4px solid #7B1D3A; padding: 16px; border-radius: 10px; white-space: pre-wrap;">
+                        <h4 style="font-weight: 600; color: #1F2937; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-comment-dots" style="color: #7B1D3A;"></i>Admin Feedback
+                        </h4>
+                        <div style="background: linear-gradient(135deg, #FEF2F2 0%, #FEE2E2 100%); border-left: 4px solid #7B1D3A; padding: 16px; border-radius: 0 10px 10px 0; white-space: pre-wrap; line-height: 1.6; color: #7B1D3A;">
                             ${report.admin_feedback}
-                            ${report.reviewed_at ? `<div style="margin-top: 8px; font-size: 12px; color: #6B7280;">Reviewed on ${report.reviewed_at}</div>` : ''}
+                            ${report.reviewed_at ? `<div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(123, 29, 58, 0.2); font-size: 12px; color: #9B2C2C; display: flex; align-items: center; gap: 6px;"><i class="fas fa-clock"></i> Reviewed on ${report.reviewed_at}</div>` : ''}
                         </div>
                     </div>
                 ` : ''}
             `;
 
             footer.innerHTML = `
-                <button class="btn-modal secondary" onclick="closeViewReportModal()">Close</button>
+                <button class="btn-modal secondary" onclick="closeViewReportModal()" style="display: inline-flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-times"></i> Close
+                </button>
                 ${report.status === 'submitted' ? `
-                    <button class="btn-modal primary" onclick="closeViewReportModal(); reviewReport(${report.id});">
-                        <i class="fas fa-check-circle"></i> Review This Report
+                    <button class="btn-modal primary" onclick="closeViewReportModal(); reviewReport(${report.id});" style="display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg, #7B1D3A 0%, #A62450 100%);">
+                        <i class="fas fa-clipboard-check"></i> Review This Report
                     </button>
                 ` : ''}
             `;
@@ -10952,50 +11078,72 @@
 
             const modal = document.getElementById('viewReportModal');
             const title = document.getElementById('viewReportTitle');
+            const subtitle = document.getElementById('viewReportSubtitle');
             const content = document.getElementById('viewReportContent');
             const footer = document.getElementById('viewReportFooter');
 
-            title.innerHTML = `<i class="fas fa-clipboard-check" style="margin-right: 8px;"></i>Review: ${report.title}`;
+            // Update header for review mode
+            title.textContent = 'Review Report';
+            subtitle.innerHTML = `<span style="display: inline-flex; align-items: center; gap: 6px;"><i class="fas fa-file-alt"></i> ${report.title}</span>`;
 
             content.innerHTML = `
-                <div style="background: #FEF3C7; border: 1px solid #F59E0B; border-radius: 12px; padding: 16px; margin-bottom: 24px;">
+                <!-- Review Alert Banner -->
+                <div style="background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%); border: 1px solid #F59E0B; border-radius: 12px; padding: 16px; margin-bottom: 24px;">
                     <div style="display: flex; align-items: center; gap: 12px;">
-                        <i class="fas fa-info-circle" style="color: #D97706; font-size: 20px;"></i>
+                        <div style="width: 40px; height: 40px; background: #D97706; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <i class="fas fa-hourglass-half" style="color: white; font-size: 16px;"></i>
+                        </div>
                         <div>
-                            <div style="font-weight: 600; color: #92400E;">Pending Review</div>
-                            <div style="font-size: 13px; color: #78350F;">This report from ${report.team_leader_name} is awaiting your review.</div>
+                            <div style="font-weight: 600; color: #92400E; font-size: 14px;">Pending Review</div>
+                            <div style="font-size: 13px; color: #78350F;">This report from <strong>${report.team_leader_name}</strong> is awaiting your review.</div>
                         </div>
                     </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px; background: #F9FAFB; padding: 16px; border-radius: 12px;">
-                    <div>
-                        <div style="font-size: 11px; color: #6B7280; text-transform: uppercase; font-weight: 600;">Report Type</div>
-                        <div style="font-weight: 600; color: #1F2937;">${report.report_type.charAt(0).toUpperCase() + report.report_type.slice(1)}</div>
+                <!-- Report Info Cards -->
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 24px;">
+                    <div style="background: linear-gradient(135deg, #F9FAFB 0%, #F3F4F6 100%); padding: 14px 16px; border-radius: 10px; border: 1px solid #E5E7EB;">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                            <i class="fas fa-tag" style="color: #7B1D3A; font-size: 12px;"></i>
+                            <span style="font-size: 11px; color: #6B7280; text-transform: uppercase; font-weight: 600;">Report Type</span>
+                        </div>
+                        <div style="font-weight: 600; color: #1F2937; font-size: 14px;">${report.report_type.charAt(0).toUpperCase() + report.report_type.slice(1)} Report</div>
                     </div>
-                    <div>
-                        <div style="font-size: 11px; color: #6B7280; text-transform: uppercase; font-weight: 600;">School</div>
-                        <div style="font-weight: 600; color: #1F2937;">${report.school_name}</div>
+                    <div style="background: linear-gradient(135deg, #F9FAFB 0%, #F3F4F6 100%); padding: 14px 16px; border-radius: 10px; border: 1px solid #E5E7EB;">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                            <i class="fas fa-school" style="color: #2563EB; font-size: 12px;"></i>
+                            <span style="font-size: 11px; color: #6B7280; text-transform: uppercase; font-weight: 600;">School</span>
+                        </div>
+                        <div style="font-weight: 600; color: #1F2937; font-size: 14px;">${report.school_name}</div>
                     </div>
                 </div>
 
+                <!-- Summary Section -->
                 <div style="margin-bottom: 20px;">
-                    <h4 style="font-weight: 600; color: #1F2937; margin-bottom: 8px;">Summary</h4>
-                    <div style="background: #F9FAFB; padding: 16px; border-radius: 10px; white-space: pre-wrap; max-height: 150px; overflow-y: auto;">${report.summary}</div>
+                    <h4 style="font-weight: 600; color: #1F2937; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-align-left" style="color: #7B1D3A;"></i>Report Summary
+                    </h4>
+                    <div style="background: #F9FAFB; padding: 16px; border-radius: 10px; white-space: pre-wrap; max-height: 150px; overflow-y: auto; line-height: 1.6; color: #374151; border: 1px solid #E5E7EB;">${report.summary || 'No summary provided.'}</div>
                 </div>
 
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 8px;">Your Feedback (Optional)</label>
-                    <textarea id="reviewFeedback" style="width: 100%; padding: 12px 16px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 14px; min-height: 100px; resize: vertical;" placeholder="Provide feedback or comments to the team leader..."></textarea>
+                <!-- Feedback Section -->
+                <div style="margin-bottom: 10px;">
+                    <h4 style="font-weight: 600; color: #1F2937; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-comment-dots" style="color: #7B1D3A;"></i>Your Feedback
+                        <span style="font-size: 11px; color: #9CA3AF; font-weight: 400;">(Optional)</span>
+                    </h4>
+                    <textarea id="reviewFeedback" style="width: 100%; padding: 14px 16px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px; min-height: 100px; resize: vertical; transition: all 0.3s; box-sizing: border-box;" placeholder="Provide feedback or comments to the team leader..." onfocus="this.style.borderColor='#7B1D3A'; this.style.boxShadow='0 0 0 3px rgba(123, 29, 58, 0.1)';" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none';"></textarea>
                 </div>
             `;
 
             footer.innerHTML = `
-                <button class="btn-modal secondary" onclick="closeViewReportModal()">Cancel</button>
-                <button class="btn-modal" onclick="submitReview(${report.id}, 'reviewed')" style="background: #3B82F6; color: white;">
+                <button class="btn-modal secondary" onclick="closeViewReportModal()" style="display: inline-flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-arrow-left"></i> Cancel
+                </button>
+                <button class="btn-modal" onclick="submitReview(${report.id}, 'reviewed')" style="background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); color: white; display: inline-flex; align-items: center; gap: 6px;">
                     <i class="fas fa-check"></i> Mark as Reviewed
                 </button>
-                <button class="btn-modal primary" onclick="submitReview(${report.id}, 'acknowledged')" style="background: #10B981;">
+                <button class="btn-modal primary" onclick="submitReview(${report.id}, 'acknowledged')" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); display: inline-flex; align-items: center; gap: 6px;">
                     <i class="fas fa-check-double"></i> Acknowledge
                 </button>
             `;
@@ -12404,9 +12552,12 @@
             if (startupsData.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="8" style="text-align: center; padding: 40px; color: #6B7280;">
-                            <i class="fas fa-building" style="font-size: 32px; margin-bottom: 12px; display: block;"></i>
-                            No startup accounts created yet. Click "Create Startup Account" to add one.
+                        <td colspan="6" style="text-align: center; padding: 60px 40px;">
+                            <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #F3E8FF, #DDD6FE); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                                <i class="fas fa-building" style="font-size: 28px; color: #7B1D3A;"></i>
+                            </div>
+                            <div style="font-size: 16px; font-weight: 600; color: #374151; margin-bottom: 4px;">No Startup Accounts Yet</div>
+                            <div style="font-size: 13px; color: #9CA3AF;">Click "Create Startup Account" to add your first startup.</div>
                         </td>
                     </tr>
                 `;
@@ -12414,44 +12565,54 @@
             }
 
             tbody.innerHTML = startupsData.map(startup => `
-                <tr class="startup-row" data-status="${startup.status}" data-moa="${startup.moa_status}">
-                    <td><strong style="font-family: monospace; background: #F3F4F6; padding: 4px 8px; border-radius: 4px;">${startup.startup_code}</strong></td>
-                    <td>
-                        <div style="font-weight: 600; color: #1F2937;">${startup.company_name}</div>
+                <tr class="startup-row" data-status="${startup.status}" data-moa="${startup.moa_status}" style="border-bottom: 1px solid #F3F4F6;">
+                    <td style="padding: 16px; white-space: nowrap;">
+                        <span style="font-family: 'Courier New', monospace; background: linear-gradient(135deg, #F9FAFB, #F3F4F6); padding: 6px 10px; border-radius: 6px; font-weight: 600; font-size: 12px; color: #374151; border: 1px solid #E5E7EB; white-space: nowrap; display: inline-block;">${startup.startup_code}</span>
                     </td>
-                    <td>${startup.contact_person || '-'}</td>
-                    <td>
-                        ${startup.email ? `<a href="mailto:${startup.email}" style="color: #7B1D3A;">${startup.email}</a>` : '-'}
+                    <td style="padding: 16px;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #7B1D3A, #A62450); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                <span style="color: white; font-weight: 700; font-size: 14px;">${startup.company_name.charAt(0).toUpperCase()}</span>
+                            </div>
+                            <div style="min-width: 0;">
+                                <div style="font-weight: 600; color: #1F2937; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${startup.company_name}</div>
+                                ${startup.email ? `<div style="font-size: 12px; color: #6B7280; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><i class="fas fa-envelope" style="margin-right: 4px; font-size: 10px;"></i>${startup.email}</div>` : ''}
+                            </div>
+                        </div>
                     </td>
-                    <td>
-                        <span style="padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
+                    <td style="padding: 16px;">
+                        <div style="font-size: 13px; color: #374151;">${startup.contact_person || '<span style="color: #9CA3AF;">—</span>'}</div>
+                        ${startup.phone ? `<div style="font-size: 11px; color: #9CA3AF; margin-top: 2px;"><i class="fas fa-phone" style="margin-right: 4px;"></i>${startup.phone}</div>` : ''}
+                    </td>
+                    <td style="padding: 16px; text-align: center;">
+                        <span style="padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; display: inline-block;
                             ${startup.moa_status === 'active' ? 'background: #D1FAE5; color: #065F46;' : ''}
                             ${startup.moa_status === 'pending' ? 'background: #FEF3C7; color: #92400E;' : ''}
                             ${startup.moa_status === 'expired' ? 'background: #FEE2E2; color: #991B1B;' : ''}
                             ${startup.moa_status === 'none' ? 'background: #F3F4F6; color: #6B7280;' : ''}
                         ">${startup.moa_status.charAt(0).toUpperCase() + startup.moa_status.slice(1)}</span>
                     </td>
-                    <td>
-                        <span style="padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
+                    <td style="padding: 16px; text-align: center;">
+                        <span style="padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px;
                             ${startup.status === 'active' ? 'background: #D1FAE5; color: #065F46;' : 'background: #FEE2E2; color: #991B1B;'}
-                        ">${startup.status.charAt(0).toUpperCase() + startup.status.slice(1)}</span>
+                        "><span style="width: 6px; height: 6px; border-radius: 50%; background: ${startup.status === 'active' ? '#059669' : '#DC2626'};"></span>${startup.status.charAt(0).toUpperCase() + startup.status.slice(1)}</span>
                     </td>
-                    <td>
-                        <div style="display: flex; gap: 6px;">
-                            <button onclick="viewStartupDetails(${startup.id})" style="padding: 6px 10px; background: #EFF6FF; color: #2563EB; border: none; border-radius: 6px; cursor: pointer;" title="View Details">
-                                <i class="fas fa-eye"></i>
+                    <td style="padding: 16px; text-align: center;">
+                        <div style="display: inline-flex; align-items: center; gap: 6px;">
+                            <button onclick="viewStartupDetails(${startup.id})" style="width: 32px; height: 32px; background: #EFF6FF; color: #2563EB; border: none; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s;" title="View Details" onmouseover="this.style.background='#DBEAFE'" onmouseout="this.style.background='#EFF6FF'">
+                                <i class="fas fa-eye" style="font-size: 13px;"></i>
                             </button>
-                            <button onclick="editStartup(${startup.id})" style="padding: 6px 10px; background: #FEF3C7; color: #D97706; border: none; border-radius: 6px; cursor: pointer;" title="Edit">
-                                <i class="fas fa-edit"></i>
+                            <button onclick="editStartup(${startup.id})" style="width: 32px; height: 32px; background: #FEF3C7; color: #D97706; border: none; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s;" title="Edit" onmouseover="this.style.background='#FDE68A'" onmouseout="this.style.background='#FEF3C7'">
+                                <i class="fas fa-edit" style="font-size: 13px;"></i>
                             </button>
-                            <button onclick="resetStartupPassword(${startup.id})" style="padding: 6px 10px; background: #E0E7FF; color: #4F46E5; border: none; border-radius: 6px; cursor: pointer;" title="Reset Password">
-                                <i class="fas fa-key"></i>
+                            <button onclick="resetStartupPassword(${startup.id})" style="width: 32px; height: 32px; background: #E0E7FF; color: #4F46E5; border: none; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s;" title="Reset Password" onmouseover="this.style.background='#C7D2FE'" onmouseout="this.style.background='#E0E7FF'">
+                                <i class="fas fa-key" style="font-size: 13px;"></i>
                             </button>
-                            <button onclick="toggleStartupStatus(${startup.id}, '${startup.status}')" style="padding: 6px 10px; background: ${startup.status === 'active' ? '#FEE2E2' : '#D1FAE5'}; color: ${startup.status === 'active' ? '#991B1B' : '#065F46'}; border: none; border-radius: 6px; cursor: pointer;" title="${startup.status === 'active' ? 'Deactivate' : 'Activate'}">
-                                <i class="fas fa-${startup.status === 'active' ? 'ban' : 'check'}"></i>
+                            <button onclick="toggleStartupStatus(${startup.id}, '${startup.status}')" style="width: 32px; height: 32px; background: ${startup.status === 'active' ? '#FEE2E2' : '#D1FAE5'}; color: ${startup.status === 'active' ? '#991B1B' : '#065F46'}; border: none; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s;" title="${startup.status === 'active' ? 'Deactivate' : 'Activate'}">
+                                <i class="fas fa-${startup.status === 'active' ? 'ban' : 'check'}" style="font-size: 13px;"></i>
                             </button>
-                            <button onclick="deleteStartup(${startup.id}, '${startup.company_name}')" style="padding: 6px 10px; background: #FEE2E2; color: #991B1B; border: none; border-radius: 6px; cursor: pointer;" title="Delete">
-                                <i class="fas fa-trash"></i>
+                            <button onclick="deleteStartup(${startup.id}, '${startup.company_name.replace(/'/g, "\\'")}')" style="width: 32px; height: 32px; background: #FEE2E2; color: #991B1B; border: none; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s;" title="Delete" onmouseover="this.style.background='#FECACA'" onmouseout="this.style.background='#FEE2E2'">
+                                <i class="fas fa-trash" style="font-size: 13px;"></i>
                             </button>
                         </div>
                     </td>
@@ -12661,9 +12822,35 @@
             const startup = startupsData.find(s => s.id === id);
             if (!startup) return;
 
-            if (!confirm(`Are you sure you want to reset the password for "${startup.company_name}"?\n\nA new password will be generated.`)) {
-                return;
-            }
+            document.getElementById('changePasswordStartupId').value = id;
+            document.getElementById('changePasswordStartupEmail').value = startup.email || '';
+            document.getElementById('changePasswordStartupName').textContent = startup.company_name;
+            document.getElementById('passwordResetError').style.display = 'none';
+            document.getElementById('passwordResetSuccess').style.display = 'none';
+            document.getElementById('confirmResetBtn').style.display = 'inline-flex';
+            document.getElementById('resetPasswordFooter').querySelector('button:first-child').textContent = 'Cancel';
+            document.getElementById('changeStartupPasswordModal').style.display = 'flex';
+        }
+
+        function closeChangePasswordModal() {
+            document.getElementById('changeStartupPasswordModal').style.display = 'none';
+        }
+
+        function copyTempPassword() {
+            const password = document.getElementById('tempPasswordDisplay').textContent;
+            navigator.clipboard.writeText(password).then(() => {
+                showToast('success', 'Copied!', 'Temporary password copied to clipboard.');
+            });
+        }
+
+        function confirmPasswordReset() {
+            const id = document.getElementById('changePasswordStartupId').value;
+            const errorDiv = document.getElementById('passwordResetError');
+            const successDiv = document.getElementById('passwordResetSuccess');
+            const confirmBtn = document.getElementById('confirmResetBtn');
+
+            confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Resetting...';
+            confirmBtn.disabled = true;
 
             fetch(`/admin/startup-accounts/${id}/reset-password`, {
                 method: 'POST',
@@ -12678,10 +12865,18 @@
                     throw new Error(data.error);
                 }
 
-                alert(`Password has been reset!\n\nNew Password: ${data.password}\n\nPlease save this password - it cannot be retrieved later.`);
+                // Show success with temporary password
+                document.getElementById('tempPasswordDisplay').textContent = data.temp_password;
+                successDiv.style.display = 'block';
+                errorDiv.style.display = 'none';
+                confirmBtn.style.display = 'none';
+                document.getElementById('resetPasswordFooter').querySelector('button:first-child').textContent = 'Close';
             })
             .catch(error => {
-                alert('Error resetting password: ' + error.message);
+                errorDiv.querySelector('span').textContent = error.message;
+                errorDiv.style.display = 'block';
+                confirmBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Reset Password';
+                confirmBtn.disabled = false;
             });
         }
 
@@ -14095,7 +14290,7 @@ University of the Philippines Cebu
         function handleAdminFileSelect(input) {
             const files = input.files;
             const listContainer = document.getElementById('uploadFileList');
-            
+
             if (files.length === 0) {
                 listContainer.innerHTML = '<p style="color: #9CA3AF; text-align: center;">No files selected</p>';
                 return;
@@ -14104,7 +14299,7 @@ University of the Philippines Cebu
             const maxSizeMB = 50;
             const maxSizeBytes = maxSizeMB * 1024 * 1024;
             const allowedExtensions = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt', 'jpg', 'jpeg', 'png', 'gif', 'zip', 'rar', 'ppt', 'pptx', 'csv'];
-            
+
             let html = '';
             for (let file of files) {
                 const fileSizeMB = (file.size / 1024 / 1024).toFixed(2);
@@ -14112,7 +14307,7 @@ University of the Philippines Cebu
                 let status = 'valid';
                 let statusIcon = '<i class="fas fa-check-circle" style="color: #10B981;"></i>';
                 let statusText = '';
-                
+
                 if (file.size > maxSizeBytes) {
                     status = 'error';
                     statusIcon = '<i class="fas fa-exclamation-circle" style="color: #EF4444;"></i>';
@@ -14122,7 +14317,7 @@ University of the Philippines Cebu
                     statusIcon = '<i class="fas fa-exclamation-circle" style="color: #EF4444;"></i>';
                     statusText = '<span style="color: #EF4444; font-size: 12px;">Unsupported format</span>';
                 }
-                
+
                 html += `
                     <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px; border: 1px solid ${status === 'error' ? '#FCA5A5' : '#E5E7EB'}; border-radius: 8px; margin-bottom: 8px; background: ${status === 'error' ? '#FEF2F2' : '#F9FAFB'};">
                         <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0;">
@@ -14142,7 +14337,7 @@ University of the Philippines Cebu
         function submitUploadFiles() {
             const input = document.getElementById('adminFileUpload');
             const files = input.files;
-            
+
             if (files.length === 0) {
                 showToast('warning', 'No Files', 'Please select files to upload.');
                 return;
@@ -14151,44 +14346,44 @@ University of the Philippines Cebu
             const maxSizeMB = 50;
             const maxSizeBytes = maxSizeMB * 1024 * 1024;
             const allowedExtensions = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt', 'jpg', 'jpeg', 'png', 'gif', 'zip', 'rar', 'ppt', 'pptx', 'csv'];
-            
+
             let validFiles = [];
             let errorMessages = [];
-            
+
             for (let file of files) {
                 const extension = file.name.split('.').pop().toLowerCase();
-                
+
                 if (file.size > maxSizeBytes) {
                     const fileSizeMB = (file.size / 1024 / 1024).toFixed(2);
                     errorMessages.push(`"${file.name}" is too large (${fileSizeMB} MB). Maximum: ${maxSizeMB} MB.`);
                     continue;
                 }
-                
+
                 if (!allowedExtensions.includes(extension)) {
                     errorMessages.push(`"${file.name}" has unsupported format.`);
                     continue;
                 }
-                
+
                 validFiles.push(file);
             }
-            
+
             if (errorMessages.length > 0) {
                 errorMessages.forEach(msg => showToast('error', 'Upload Error', msg));
             }
-            
+
             if (validFiles.length === 0) {
                 return;
             }
-            
+
             // Upload valid files
             let uploadCount = 0;
             let successCount = 0;
-            
+
             validFiles.forEach(file => {
                 const formData = new FormData();
                 formData.append('file', file);
                 formData.append('path', currentPath);
-                
+
                 fetch('/admin/documents/upload', {
                     method: 'POST',
                     headers: {
@@ -14207,7 +14402,7 @@ University of the Philippines Cebu
                             }
                             throw new Error(`Upload failed for "${file.name}". Please try again.`);
                         }
-                        
+
                         if (!response.ok) {
                             if (data.errors) {
                                 const errorMessages = Object.values(data.errors).flat();

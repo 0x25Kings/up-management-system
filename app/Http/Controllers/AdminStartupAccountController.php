@@ -144,21 +144,22 @@ class AdminStartupAccountController extends Controller
     }
 
     /**
-     * Reset startup password
+     * Reset startup password - generates a temporary password that startup must change on next login
      */
     public function resetPassword(Startup $startup)
     {
-        $plainPassword = Startup::generatePassword();
-        
+        // Generate a temporary password
+        $tempPassword = Startup::generatePassword();
+
         $startup->update([
-            'password' => $plainPassword, // Will be hashed by model mutator
+            'password' => $tempPassword, // Will be hashed by model mutator
+            'password_set' => false, // Force startup to set new password on next login
         ]);
 
         return response()->json([
             'success' => true,
-            'message' => 'Password reset successfully!',
-            'startup_code' => $startup->startup_code,
-            'password' => $plainPassword,
+            'message' => 'Password reset successfully! The startup will need to set a new password on their next login.',
+            'temp_password' => $tempPassword,
         ]);
     }
 

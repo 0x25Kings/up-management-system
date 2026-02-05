@@ -2107,13 +2107,14 @@
                                 $hoursWorked = null;
                                 $displayStatus = 'Absent';
 
+                                // Check if the record has time_in
                                 if ($record->time_in) {
                                     $attendanceDate = $record->date ? $record->date->toDateString() : \Carbon\Carbon::now('Asia/Manila')->toDateString();
                                     $timeIn = \Carbon\Carbon::parse($attendanceDate . ' ' . $record->time_in, 'Asia/Manila');
                                     $timeOut = $record->time_out ? \Carbon\Carbon::parse($attendanceDate . ' ' . $record->time_out, 'Asia/Manila') : null;
 
                                     if ($timeOut) {
-                                        // Only calculate hours if there's a time_out
+                                        // Calculate hours if there's both time_in and time_out
                                         $hoursWorked = round($timeOut->diffInSeconds($timeIn, true) / 3600, 2);
                                         $hoursWorked = max(0, $hoursWorked);
 
@@ -2129,9 +2130,14 @@
                                             $displayStatus = 'Late';
                                         }
                                     } else {
-                                        // No time_out yet - show as In Progress
-                                        $displayStatus = 'In Progress';
+                                        // Has time_in but no time_out
+                                        // Check if it's today - show In Progress, otherwise Absent (forgot to time out)
+                                        $isToday = $record->date && $record->date->isToday();
+                                        $displayStatus = $isToday ? 'In Progress' : 'Absent';
                                     }
+                                } else {
+                                    // No time_in at all = Absent
+                                    $displayStatus = 'Absent';
                                 }
                             @endphp
                             <tr style="border-bottom: 1px solid #E5E7EB;">
@@ -2200,85 +2206,90 @@
                     <div style="overflow-x: auto;">
                         <table style="width: 100%; border-collapse: collapse;">
                             <thead>
-                                <tr style="border-bottom: 2px solid #E5E7EB; background: #F9FAFB;">
-                                    <th style="text-align: left; padding: 14px 16px; font-weight: 700; color: #1F2937; font-size: 13px;">Task Title</th>
-                                    <th style="text-align: left; padding: 14px 16px; font-weight: 700; color: #1F2937; font-size: 13px;">Description</th>
-                                    <th style="text-align: center; padding: 14px 16px; font-weight: 700; color: #1F2937; font-size: 13px;">Priority</th>
-                                    <th style="text-align: center; padding: 14px 16px; font-weight: 700; color: #1F2937; font-size: 13px;">Due Date</th>
-                                    <th style="text-align: center; padding: 14px 16px; font-weight: 700; color: #1F2937; font-size: 13px;">Status</th>
-                                    <th style="text-align: center; padding: 14px 16px; font-weight: 700; color: #1F2937; font-size: 13px;">Action</th>
+                                <tr style="background: linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%);">
+                                    <th style="text-align: left; padding: 16px 20px; font-weight: 600; color: white; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Task</th>
+                                    <th style="text-align: center; padding: 16px 20px; font-weight: 600; color: white; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Priority</th>
+                                    <th style="text-align: center; padding: 16px 20px; font-weight: 600; color: white; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Due Date</th>
+                                    <th style="text-align: center; padding: 16px 20px; font-weight: 600; color: white; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Status</th>
+                                    <th style="text-align: center; padding: 16px 20px; font-weight: 600; color: white; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach($tasks as $task)
                                 @php
                                     $isPendingAdminApproval = $task->status === 'Completed' && empty($task->completed_date);
+                                    $daysLeft = now('Asia/Manila')->startOfDay()->diffInDays(\Carbon\Carbon::parse($task->due_date)->startOfDay(), false);
+                                    $isOverdue = $daysLeft < 0;
                                 @endphp
-                                <tr style="border-bottom: 1px solid #E5E7EB; transition: background 0.2s;" onmouseover="this.style.background='#F9FAFB'" onmouseout="this.style.background='white'">
-                                    <td style="padding: 14px 16px; font-weight: 600; color: #1F2937;">
-                                        {{ $task->title }}
+                                <tr style="border-bottom: 1px solid #E5E7EB; transition: all 0.2s;" onmouseover="this.style.background='#FDF2F4'" onmouseout="this.style.background='white'">
+                                    <td style="padding: 18px 20px;">
+                                        <div style="font-weight: 600; color: #1F2937; font-size: 14px; margin-bottom: 4px;">{{ $task->title }}</div>
+                                        @if($task->description)
+                                            <div style="color: #6B7280; font-size: 12px; line-height: 1.4;">{{ strlen($task->description) > 60 ? substr($task->description, 0, 60) . '...' : $task->description }}</div>
+                                        @endif
                                     </td>
-                                    <td style="padding: 14px 16px; color: #6B7280; font-size: 13px;">
-                                        {{ strlen($task->description ?? '') > 40 ? substr($task->description, 0, 40) . '...' : $task->description }}
-                                    </td>
-                                    <td style="padding: 14px 16px; text-align: center;">
-                                        <span style="display: inline-block; background:
-                                            @if($task->priority === 'High') #DC2626; color: white;
-                                            @elseif($task->priority === 'Medium') #F59E0B; color: white;
-                                            @else #228B22; color: white;
+                                    <td style="padding: 18px 20px; text-align: center;">
+                                        <span style="display: inline-flex; align-items: center; gap: 6px; background:
+                                            @if($task->priority === 'High') linear-gradient(135deg, #DC2626, #B91C1C);
+                                            @elseif($task->priority === 'Medium') linear-gradient(135deg, #F59E0B, #D97706);
+                                            @else linear-gradient(135deg, #10B981, #059669);
                                             @endif
-                                            padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 700;">
+                                            color: white; padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                                            <i class="fas @if($task->priority === 'High') fa-fire @elseif($task->priority === 'Medium') fa-minus-circle @else fa-leaf @endif" style="font-size: 10px;"></i>
                                             {{ $task->priority }}
                                         </span>
                                     </td>
-                                    <td style="padding: 14px 16px; text-align: center; color: #1F2937; font-weight: 500;">
-                                        {{ \Carbon\Carbon::parse($task->due_date)->format('M d, Y') }}
-                                        @php
-                                            $daysLeft = now('Asia/Manila')->diffInDays($task->due_date, false);
-                                            $isOverdue = $daysLeft < 0;
-                                        @endphp
+                                    <td style="padding: 18px 20px; text-align: center;">
+                                        <div style="font-weight: 600; color: #1F2937;">{{ \Carbon\Carbon::parse($task->due_date)->format('M d, Y') }}</div>
                                         @if($isOverdue && $task->status !== 'Completed')
-                                            <div style="font-size: 11px; color: #991B1B; margin-top: 2px;">
-                                                <i class="fas fa-exclamation-circle"></i> Overdue
+                                            <div style="font-size: 11px; color: #991B1B; margin-top: 4px; background: #FEE2E2; padding: 2px 8px; border-radius: 10px; display: inline-block;">
+                                                <i class="fas fa-exclamation-circle"></i> {{ abs($daysLeft) }} day(s) overdue
                                             </div>
                                         @elseif($daysLeft === 0 && $task->status !== 'Completed')
-                                            <div style="font-size: 11px; color: #92400E; margin-top: 2px;">
+                                            <div style="font-size: 11px; color: #92400E; margin-top: 4px; background: #FEF3C7; padding: 2px 8px; border-radius: 10px; display: inline-block;">
                                                 <i class="fas fa-hourglass-end"></i> Due Today
+                                            </div>
+                                        @elseif($daysLeft > 0 && $daysLeft <= 3 && $task->status !== 'Completed')
+                                            <div style="font-size: 11px; color: #1E40AF; margin-top: 4px; background: #DBEAFE; padding: 2px 8px; border-radius: 10px; display: inline-block;">
+                                                <i class="fas fa-clock"></i> {{ $daysLeft }} day(s) left
                                             </div>
                                         @endif
                                     </td>
-                                    <td style="padding: 14px 16px; text-align: center;">
-                                        <span style="display: inline-block; background:
-                                            @if($isPendingAdminApproval) #DBEAFE; color: #1E40AF;
-                                            @elseif($task->status === 'Completed') #D1FAE5; color: #065F46;
-                                            @elseif($task->status === 'In Progress') #FEF3C7; color: #92400E;
-                                            @else #E5E7EB; color: #6B7280;
+                                    <td style="padding: 18px 20px; text-align: center;">
+                                        <span style="display: inline-flex; align-items: center; gap: 6px; background:
+                                            @if($isPendingAdminApproval) linear-gradient(135deg, #DBEAFE, #BFDBFE); color: #1E40AF;
+                                            @elseif($task->status === 'Completed') linear-gradient(135deg, #D1FAE5, #A7F3D0); color: #065F46;
+                                            @elseif($task->status === 'In Progress') linear-gradient(135deg, #FEF3C7, #FDE68A); color: #92400E;
+                                            @else linear-gradient(135deg, #F3F4F6, #E5E7EB); color: #6B7280;
                                             @endif
-                                            padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 700;">
-                                            {{ $isPendingAdminApproval ? 'Pending Admin Approval' : $task->status }}
+                                            padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 600;">
+                                            <span style="width: 6px; height: 6px; border-radius: 50%; background: currentColor;"></span>
+                                            {{ $isPendingAdminApproval ? 'Awaiting Approval' : $task->status }}
                                         </span>
                                     </td>
-                                    <td style="padding: 14px 16px; text-align: center;">
+                                    <td style="padding: 18px 20px; text-align: center;">
                                         @if($task->status === 'Completed')
-                                            <span style="color: #6B7280; font-size: 12px;">
+                                            <div style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 500;
+                                                @if($isPendingAdminApproval) background: #EFF6FF; color: #1E40AF;
+                                                @else background: #ECFDF5; color: #059669; @endif">
                                                 @if($isPendingAdminApproval)
-                                                    <i class="fas fa-clock"></i> Submitted (Waiting Approval)
+                                                    <i class="fas fa-paper-plane"></i> Submitted
                                                 @else
-                                                    <i class="fas fa-check-circle"></i> Completed (Approved)
+                                                    <i class="fas fa-check-double"></i> Approved
                                                 @endif
-                                            </span>
+                                            </div>
                                         @elseif($task->status === 'In Progress')
-                                            <div style="display: flex; gap: 6px; justify-content: center;">
-                                                <button onclick="updateTask({{ $task->id }})" style="background: #3B82F6; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 11px; cursor: pointer; font-weight: 600; transition: background 0.2s;" onmouseover="this.style.background='#2563EB'" onmouseout="this.style.background='#3B82F6'">
-                                                    <i class="fas fa-sync"></i> Update
+                                            <div style="display: flex; gap: 8px; justify-content: center;">
+                                                <button onclick="updateTask({{ $task->id }})" style="background: linear-gradient(135deg, #3B82F6, #2563EB); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-size: 12px; cursor: pointer; font-weight: 600; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px;" onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(59,130,246,0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                                                    <i class="fas fa-edit"></i> Update
                                                 </button>
-                                                <button onclick="completeTask({{ $task->id }})" style="background: #10B981; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 11px; cursor: pointer; font-weight: 600; transition: background 0.2s;" onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10B981'">
-                                                    <i class="fas fa-check"></i> Submit
+                                                <button onclick="completeTask({{ $task->id }})" style="background: linear-gradient(135deg, #10B981, #059669); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-size: 12px; cursor: pointer; font-weight: 600; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px;" onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(16,185,129,0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                                                    <i class="fas fa-paper-plane"></i> Submit
                                                 </button>
                                             </div>
                                         @else
-                                            <button onclick="startTask({{ $task->id }})" style="background: #7B1D3A; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 11px; cursor: pointer; font-weight: 600; transition: background 0.2s;" onmouseover="this.style.background='#5a1428'" onmouseout="this.style.background='#7B1D3A'">
-                                                <i class="fas fa-play"></i> Start
+                                            <button onclick="startTask({{ $task->id }})" style="background: linear-gradient(135deg, #7B1D3A, #5a1428); color: white; border: none; padding: 8px 20px; border-radius: 8px; font-size: 12px; cursor: pointer; font-weight: 600; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px;" onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(123,29,58,0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                                                <i class="fas fa-play"></i> Start Task
                                             </button>
                                         @endif
                                     </td>
@@ -2287,23 +2298,13 @@
                             </tbody>
                         </table>
                     </div>
-                    <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #E5E7EB; display: flex; justify-content: space-between; align-items: center; color: #6B7280; font-size: 12px;">
-                        <div>
-                            @php
-                                $approvedCompletedCount = $tasks->filter(fn($t) => $t->status === 'Completed' && !empty($t->completed_date))->count();
-                                $pendingApprovalCount = $tasks->filter(fn($t) => $t->status === 'Completed' && empty($t->completed_date))->count();
-                            @endphp
-                            Total Tasks: <strong>{{ $tasks->count() }}</strong>
-                            | Completed (Approved): <strong>{{ $approvedCompletedCount }}</strong>
-                            | Submitted (Waiting Approval): <strong>{{ $pendingApprovalCount }}</strong>
-                            | Pending: <strong>{{ $tasks->filter(fn($t) => $t->status !== 'Completed')->count() }}</strong>
-                        </div>
-                    </div>
                     @else
-                    <div style="text-align: center; padding: 50px; color: #9CA3AF;">
-                        <i class="fas fa-clipboard-list" style="font-size: 50px; margin-bottom: 16px; display: block;"></i>
-                        <p style="font-size: 16px; font-weight: 600;">No tasks assigned yet</p>
-                        <p style="font-size: 14px; margin-top: 8px;">Tasks assigned by your supervisor will appear here</p>
+                    <div style="text-align: center; padding: 80px 40px;">
+                        <div style="width: 100px; height: 100px; background: linear-gradient(135deg, #F3E8FF, #DDD6FE); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
+                            <i class="fas fa-clipboard-list" style="font-size: 40px; color: #7B1D3A;"></i>
+                        </div>
+                        <h3 style="font-size: 20px; font-weight: 700; color: #1F2937; margin-bottom: 8px;">No Tasks Assigned Yet</h3>
+                        <p style="font-size: 14px; color: #6B7280; max-width: 300px; margin: 0 auto;">When your supervisor assigns tasks to you, they will appear here for you to manage.</p>
                     </div>
                     @endif
                 </div>
@@ -2716,7 +2717,7 @@
                             }
                             throw new Error(`Upload failed for "${file.name}". Please try again.`);
                         }
-                        
+
                         if (!response.ok) {
                             // Handle validation errors from Laravel
                             if (data.errors) {
