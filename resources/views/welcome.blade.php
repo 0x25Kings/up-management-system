@@ -27,28 +27,28 @@
         .mobile-menu-btn { display: none; background: none; border: none; color: white; font-size: 24px; cursor: pointer; }
 
         /* Hero Section */
-        .hero { background: linear-gradient(135deg, #7B1D3A 0%, #5a1428 50%, #3d0d1a 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 120px 24px 80px; position: relative; overflow: hidden; }
-        .hero::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); opacity: 0.5; }
+        .hero { background: linear-gradient(135deg, #7B1D3A 0%, #5a1428 50%, #3d0d1a 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 120px 24px 80px; position: relative; overflow: hidden; background-attachment: fixed; }
+        .hero::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); opacity: 0.5; background-attachment: fixed; }
         .hero-content { max-width: 800px; text-align: center; position: relative; z-index: 1; }
-        .hero-badge { display: inline-block; background: rgba(255, 191, 0, 0.2); color: #FFBF00; padding: 8px 20px; border-radius: 30px; font-size: 14px; font-weight: 600; margin-bottom: 24px; border: 1px solid rgba(255, 191, 0, 0.3); }
+        .hero-badge { display: inline-block; background: rgba(255, 191, 0, 0.15); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: #FFBF00; padding: 10px 24px; border-radius: 30px; font-size: 14px; font-weight: 600; margin-bottom: 28px; border: 1px solid rgba(255, 191, 0, 0.25); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); }
         .hero h1 { color: white; font-size: 48px; font-weight: 800; margin-bottom: 20px; line-height: 1.2; }
         .hero h1 span { color: #FFBF00; }
         .hero p { color: rgba(255, 255, 255, 0.8); font-size: 18px; margin-bottom: 40px; line-height: 1.7; }
         .hero-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
-        .btn-primary { background: linear-gradient(135deg, #FFBF00 0%, #FFA500 100%); color: #7B1D3A; padding: 14px 32px; border-radius: 10px; font-weight: 700; font-size: 16px; text-decoration: none; transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px; }
-        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(255, 191, 0, 0.4); }
-        .btn-secondary { background: transparent; color: white; padding: 14px 32px; border-radius: 10px; font-weight: 600; font-size: 16px; text-decoration: none; border: 2px solid rgba(255, 255, 255, 0.3); transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px; }
-        .btn-secondary:hover { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.5); }
+        .btn-primary { background: linear-gradient(135deg, #FFBF00 0%, #FFA500 100%); color: #7B1D3A; padding: 14px 32px; border-radius: 12px; font-weight: 700; font-size: 16px; text-decoration: none; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(255, 191, 0, 0.3); }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 12px 35px rgba(255, 191, 0, 0.45); }
+        .btn-secondary { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: white; padding: 14px 32px; border-radius: 12px; font-weight: 600; font-size: 16px; text-decoration: none; border: 1px solid rgba(255, 255, 255, 0.2); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: inline-flex; align-items: center; gap: 8px; }
+        .btn-secondary:hover { background: rgba(255, 255, 255, 0.15); border-color: rgba(255, 255, 255, 0.4); transform: translateY(-2px); }
 
         /* Portal Cards Section */
-        .portals-section { padding: 80px 24px; background: #F9FAFB; }
+        .portals-section { padding: 100px 24px; background: #F9FAFB; }
         .section-container { max-width: 1200px; margin: 0 auto; }
-        .section-header { text-align: center; margin-bottom: 50px; }
-        .section-header h2 { font-size: 36px; font-weight: 800; color: #1F2937; margin-bottom: 16px; }
+        .section-header { text-align: center; margin-bottom: 60px; }
+        .section-header h2 { font-size: 36px; font-weight: 800; color: #1F2937; margin-bottom: 18px; }
         .section-header p { font-size: 18px; color: #6B7280; max-width: 600px; margin: 0 auto; }
         .portal-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
-        .portal-card { background: white; border-radius: 20px; padding: 40px 30px; text-align: center; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); transition: all 0.3s; border: 1px solid #E5E7EB; text-decoration: none; cursor: pointer; display: flex; flex-direction: column; }
-        .portal-card:hover { transform: translateY(-10px); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15); }
+        .portal-card { background: white; border-radius: 24px; padding: 44px 32px; text-align: center; box-shadow: 0 4px 25px rgba(0, 0, 0, 0.06); transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid #E5E7EB; text-decoration: none; cursor: pointer; display: flex; flex-direction: column; }
+        .portal-card:hover { transform: translateY(-12px); box-shadow: 0 25px 50px rgba(0, 0, 0, 0.12); border-color: transparent; }
         .portal-icon { width: 80px; height: 80px; border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; font-size: 36px; }
         .portal-card.intern .portal-icon { background: linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%); color: white; }
         .portal-card.startup .portal-icon { background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; }
@@ -62,7 +62,7 @@
         .portal-card:hover .portal-btn { transform: translateX(5px); }
 
         /* Calendar Section */
-        .calendar-section { padding: 80px 24px; background: white; }
+        .calendar-section { padding: 100px 24px; background: white; }
         .calendar-container { display: grid; grid-template-columns: 1fr 400px; gap: 40px; background: #F9FAFB; border-radius: 24px; padding: 40px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); }
         .calendar-widget { background: white; border-radius: 16px; padding: 30px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); }
         .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
@@ -109,6 +109,26 @@
         .footer-links a { display: block; color: #9CA3AF; text-decoration: none; font-size: 14px; margin-bottom: 10px; transition: color 0.3s; }
         .footer-links a:hover { color: #FFBF00; }
         .footer-bottom { text-align: center; padding-top: 30px; border-top: 1px solid #374151; color: #6B7280; font-size: 14px; }
+
+        /* Floating Action Button */
+        .fab-container { position: fixed; bottom: 30px; right: 30px; z-index: 1500; display: flex; flex-direction: column; align-items: flex-end; gap: 12px; }
+        .fab-tooltip { background: #1F2937; color: white; padding: 10px 16px; border-radius: 10px; font-size: 14px; font-weight: 500; opacity: 0; transform: translateX(10px); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); pointer-events: none; white-space: nowrap; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); }
+        .fab-btn { width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%); color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 6px 25px rgba(123, 29, 58, 0.4); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .fab-btn:hover { transform: scale(1.1); box-shadow: 0 10px 35px rgba(123, 29, 58, 0.5); }
+        .fab-btn:hover + .fab-tooltip, .fab-container:hover .fab-tooltip { opacity: 1; transform: translateX(0); }
+        .fab-btn::after { content: ''; position: absolute; width: 60px; height: 60px; border-radius: 50%; background: rgba(123, 29, 58, 0.3); animation: fabPulse 2s ease-in-out infinite; z-index: -1; }
+        @keyframes fabPulse { 0%, 100% { transform: scale(1); opacity: 0.5; } 50% { transform: scale(1.3); opacity: 0; } }
+        @media (max-width: 768px) { .fab-container { bottom: 20px; right: 20px; } .fab-btn { width: 56px; height: 56px; font-size: 22px; } .fab-tooltip { display: none; } }
+
+        /* Enhanced Booking Section Header */
+        .booking-header { text-align: center; margin-bottom: 60px; }
+        .booking-header-icon { width: 80px; height: 80px; background: linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; font-size: 36px; color: #FFBF00; box-shadow: 0 10px 30px rgba(123, 29, 58, 0.3); }
+        .booking-header h2 { font-size: 36px; font-weight: 800; color: #1F2937; margin-bottom: 16px; }
+        .booking-header-subtitle { font-size: 18px; color: #6B7280; max-width: 600px; margin: 0 auto 20px; line-height: 1.6; }
+        .booking-features { display: flex; justify-content: center; gap: 32px; flex-wrap: wrap; margin-top: 24px; }
+        .booking-feature { display: flex; align-items: center; gap: 10px; color: #4B5563; font-size: 14px; font-weight: 500; }
+        .booking-feature i { width: 32px; height: 32px; background: #FEF3C7; color: #D97706; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+        @media (max-width: 768px) { .booking-features { gap: 16px; } .booking-feature { font-size: 13px; } .booking-header h2 { font-size: 28px; } .booking-header-icon { width: 64px; height: 64px; font-size: 28px; } }
 
         /* Booking Modal */
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.6); display: none; justify-content: center; align-items: center; z-index: 2000; padding: 20px; }
@@ -347,9 +367,138 @@
         .confirm-modal-btn.confirm.primary:hover {
             background: #5a1428;
         }
+
+        /* Team Section */
+        .team-section { padding: 100px 24px; background: #F9FAFB; }
+        .team-header { text-align: center; margin-bottom: 60px; }
+        .team-header-icon { width: 80px; height: 80px; background: linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; font-size: 36px; color: #FFBF00; box-shadow: 0 10px 30px rgba(123, 29, 58, 0.3); }
+        .team-header h2 { font-size: 36px; font-weight: 800; color: #1F2937; margin-bottom: 16px; }
+        .team-header p { font-size: 18px; color: #6B7280; max-width: 600px; margin: 0 auto; line-height: 1.6; }
+        
+        /* Leadership Cards */
+        .team-leadership { display: flex; justify-content: center; gap: 40px; margin-bottom: 60px; flex-wrap: wrap; }
+        .leader-card { background: white; border-radius: 24px; padding: 32px; text-align: center; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1); border: 2px solid #7B1D3A; max-width: 280px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .leader-card:hover { transform: translateY(-8px); box-shadow: 0 20px 50px rgba(123, 29, 58, 0.2); }
+        .leader-card .member-photo { width: 120px; height: 120px; border-radius: 50%; margin: 0 auto 20px; background: linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%); display: flex; align-items: center; justify-content: center; font-size: 48px; color: #FFBF00; overflow: hidden; border: 4px solid #FFBF00; }
+        .leader-card .member-photo img { width: 100%; height: 100%; object-fit: cover; }
+        .leader-card .member-name { font-size: 20px; font-weight: 700; color: #1F2937; margin-bottom: 8px; }
+        .leader-card .member-role { display: inline-block; background: linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%); color: white; padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; margin-bottom: 12px; }
+        .leader-card .member-position { font-size: 14px; color: #6B7280; line-height: 1.5; }
+        .leader-badge { background: #FFBF00; color: #7B1D3A; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 700; margin-bottom: 16px; display: inline-block; }
+        
+        /* Member Cards Grid */
+        .team-members-label { text-align: center; margin-bottom: 32px; }
+        .team-members-label h3 { font-size: 24px; font-weight: 700; color: #1F2937; display: inline-flex; align-items: center; gap: 12px; }
+        .team-members-label h3::before, .team-members-label h3::after { content: ''; width: 40px; height: 2px; background: #E5E7EB; }
+        .team-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 24px; max-width: 1200px; margin: 0 auto; }
+        .member-card { background: white; border-radius: 16px; padding: 24px 16px; text-align: center; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid #E5E7EB; }
+        .member-card:hover { transform: translateY(-6px); box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1); border-color: #7B1D3A; }
+        .member-card .member-photo { width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 16px; background: linear-gradient(135deg, #E5E7EB 0%, #D1D5DB 100%); display: flex; align-items: center; justify-content: center; font-size: 32px; color: #9CA3AF; overflow: hidden; }
+        .member-card .member-photo img { width: 100%; height: 100%; object-fit: cover; }
+        .member-card .member-name { font-size: 15px; font-weight: 700; color: #1F2937; margin-bottom: 6px; }
+        .member-card .member-position { font-size: 12px; color: #7B1D3A; font-weight: 600; margin-bottom: 8px; }
+        .member-card .member-task { font-size: 12px; color: #6B7280; line-height: 1.4; }
+
+        /* Mobile Menu Overlay */
+        .mobile-menu-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 1999; display: none; }
+        .mobile-menu-overlay.active { display: block; }
+        .mobile-menu { position: fixed; top: 0; right: -280px; width: 280px; height: 100vh; background: white; z-index: 2000; transition: right 0.3s ease; box-shadow: -5px 0 20px rgba(0, 0, 0, 0.1); }
+        .mobile-menu.active { right: 0; }
+        .mobile-menu-header { padding: 20px; background: linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%); display: flex; justify-content: space-between; align-items: center; }
+        .mobile-menu-header span { color: white; font-weight: 700; font-size: 18px; }
+        .mobile-menu-close { background: none; border: none; color: white; font-size: 24px; cursor: pointer; }
+        .mobile-menu-links { padding: 20px; }
+        .mobile-menu-links a { display: block; padding: 16px 20px; color: #1F2937; text-decoration: none; font-weight: 500; border-radius: 10px; margin-bottom: 8px; transition: all 0.3s; }
+        .mobile-menu-links a:hover { background: #F3F4F6; color: #7B1D3A; }
+        .mobile-menu-links a i { margin-right: 12px; width: 20px; color: #7B1D3A; }
+
+        /* Enhanced Mobile Responsive */
+        @media (max-width: 1200px) { 
+            .portal-cards { grid-template-columns: repeat(2, 1fr); } 
+            .team-grid { grid-template-columns: repeat(4, 1fr); gap: 20px; }
+        }
+        @media (max-width: 1024px) { 
+            .calendar-container { grid-template-columns: 1fr; } 
+            .footer-content { grid-template-columns: 1fr 1fr; } 
+            .team-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .mobile-menu-btn { display: block; }
+            .hero { padding: 100px 20px 60px; min-height: auto; }
+            .hero h1 { font-size: 28px; line-height: 1.3; }
+            .hero p { font-size: 15px; margin-bottom: 30px; }
+            .hero-badge { font-size: 12px; padding: 8px 16px; margin-bottom: 20px; }
+            .hero-buttons { flex-direction: column; gap: 12px; }
+            .hero-buttons a { width: 100%; justify-content: center; padding: 14px 24px; }
+            .section-header h2, .team-header h2, .booking-header h2 { font-size: 26px; }
+            .section-header p, .team-header p, .booking-header-subtitle { font-size: 15px; }
+            .footer-content { grid-template-columns: 1fr; text-align: center; }
+            .form-row { grid-template-columns: 1fr; }
+            .portal-cards { grid-template-columns: 1fr; gap: 20px; }
+            .portal-card { padding: 30px 24px; }
+            .portal-icon { width: 70px; height: 70px; font-size: 30px; margin-bottom: 20px; }
+            .portal-card h3 { font-size: 20px; }
+            .portal-card p { font-size: 14px; margin-bottom: 20px; }
+            .team-section { padding: 60px 16px; }
+            .team-leadership { gap: 24px; }
+            .leader-card { max-width: 100%; width: 100%; padding: 24px; }
+            .team-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+            .member-card { padding: 20px 12px; }
+            .member-card .member-photo { width: 64px; height: 64px; font-size: 26px; }
+            .member-card .member-name { font-size: 13px; }
+            .member-card .member-position { font-size: 11px; }
+            .member-card .member-task { font-size: 11px; }
+            .booking-features { flex-direction: column; gap: 12px; align-items: center; }
+            .booking-header-icon { width: 64px; height: 64px; font-size: 28px; }
+            .calendar-container { padding: 20px; }
+            .calendar-widget { padding: 20px; }
+            .events-sidebar { padding: 20px; }
+            .tl-login-content { max-width: 100%; margin: 16px; }
+            .tl-login-header { padding: 24px; }
+            .tl-login-header .icon-circle { width: 60px; height: 60px; }
+            .tl-login-header .icon-circle i { font-size: 28px; }
+            .tl-login-header h3 { font-size: 20px; }
+            .tl-login-body { padding: 24px; }
+            .modal-content { margin: 16px; border-radius: 16px; }
+            .modal-header { padding: 20px; }
+            .modal-body { padding: 20px; }
+            .modal-footer { padding: 16px 20px; flex-direction: column; }
+            .modal-footer button { width: 100%; }
+        }
+        @media (max-width: 480px) {
+            .hero h1 { font-size: 24px; }
+            .portal-card { padding: 24px 20px; }
+            .team-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+            .member-card { padding: 16px 10px; }
+            .member-card .member-photo { width: 56px; height: 56px; font-size: 22px; margin-bottom: 12px; }
+            .member-card .member-name { font-size: 12px; }
+            .leader-card .member-photo { width: 100px; height: 100px; font-size: 40px; }
+            .leader-card .member-name { font-size: 18px; }
+            .team-members-label h3 { font-size: 18px; }
+            .team-members-label h3::before, .team-members-label h3::after { width: 20px; }
+        }
     </style>
 </head>
 <body>
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-menu-overlay" onclick="closeMobileMenu()"></div>
+    
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-header">
+            <span>Menu</span>
+            <button class="mobile-menu-close" onclick="closeMobileMenu()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="mobile-menu-links">
+            <a href="#home" onclick="closeMobileMenu()"><i class="fas fa-home"></i> Home</a>
+            <a href="#portals" onclick="closeMobileMenu()"><i class="fas fa-th-large"></i> Portals</a>
+            <a href="#calendar" onclick="closeMobileMenu()"><i class="fas fa-calendar-alt"></i> Calendar</a>
+            <a href="#team" onclick="closeMobileMenu()"><i class="fas fa-users"></i> Team</a>
+            <a href="#contact" onclick="closeMobileMenu()"><i class="fas fa-envelope"></i> Contact</a>
+        </div>
+    </div>
+
     <!-- Navigation -->
     <nav class="navbar">
         <div class="nav-container">
@@ -361,6 +510,7 @@
                 <a href="#home">Home</a>
                 <a href="#portals">Portals</a>
                 <a href="#calendar">Calendar</a>
+                <a href="#team">Team</a>
                 <a href="#contact">Contact</a>
             </div>
             <button class="mobile-menu-btn"><i class="fas fa-bars"></i></button>
@@ -413,9 +563,15 @@
     <!-- Calendar Section -->
     <section class="calendar-section" id="calendar">
         <div class="section-container">
-            <div class="section-header">
+            <div class="booking-header">
+                <div class="booking-header-icon"><i class="fas fa-calendar-check"></i></div>
                 <h2>Book an Appointment</h2>
-                <p>Click on any available date to schedule your visit or event</p>
+                <p class="booking-header-subtitle">Schedule a facility tour, partnership meeting, or event with the UP Cebu Innovation Hub. Simply click on any available date to get started!</p>
+                <div class="booking-features">
+                    <div class="booking-feature"><i class="fas fa-clock"></i> Quick & Easy</div>
+                    <div class="booking-feature"><i class="fas fa-check-circle"></i> Instant Confirmation</div>
+                    <div class="booking-feature"><i class="fas fa-calendar-alt"></i> Flexible Scheduling</div>
+                </div>
             </div>
             <div class="calendar-container">
                 <div class="calendar-widget">
@@ -445,6 +601,160 @@
         </div>
     </section>
 
+    <!-- Team Section -->
+    <section class="team-section" id="team">
+        <div class="section-container">
+            <div class="team-header">
+                <div class="team-header-icon"><i class="fas fa-users"></i></div>
+                <h2>Meet Our Team</h2>
+                <p>The dedicated individuals behind the UP Cebu Innovation & Technology Hub Management System</p>
+            </div>
+            
+            <!-- Leadership -->
+            <div class="team-leadership">
+                <div class="leader-card">
+                    <div class="leader-badge"><i class="fas fa-crown"></i> TEAM LEADER</div>
+                    <div class="member-photo"><i class="fas fa-user"></i></div>
+                    <h4 class="member-name">Kingsley Hans Laran</h4>
+                    <span class="member-role">Team Leader</span>
+                    <p class="member-position">Project Manager & Lead Developer</p>
+                </div>
+                <div class="leader-card">
+                    <div class="leader-badge"><i class="fas fa-star"></i> ASSISTANT LEADER</div>
+                    <div class="member-photo"><i class="fas fa-user"></i></div>
+                    <h4 class="member-name">Juliana Laurena</h4>
+                    <span class="member-role">Assistant Leader</span>
+                    <p class="member-position">Co-Project Manager & QA Lead</p>
+                </div>
+            </div>
+            
+            <!-- Team Members Label -->
+            <div class="team-members-label">
+                <h3>Team Members</h3>
+            </div>
+            
+            <!-- Team Members Grid -->
+            <div class="team-grid">
+                <div class="member-card">
+                    <div class="member-photo"><i class="fas fa-user"></i></div>
+                    <h4 class="member-name">Member Name 1</h4>
+                    <p class="member-position">Frontend Developer</p>
+                    <p class="member-task">UI/UX Implementation</p>
+                </div>
+                <div class="member-card">
+                    <div class="member-photo"><i class="fas fa-user"></i></div>
+                    <h4 class="member-name">Member Name 2</h4>
+                    <p class="member-position">Backend Developer</p>
+                    <p class="member-task">API Development</p>
+                </div>
+                <div class="member-card">
+                    <div class="member-photo"><i class="fas fa-user"></i></div>
+                    <h4 class="member-name">Member Name 3</h4>
+                    <p class="member-position">Full Stack Developer</p>
+                    <p class="member-task">Database Management</p>
+                </div>
+                <div class="member-card">
+                    <div class="member-photo"><i class="fas fa-user"></i></div>
+                    <h4 class="member-name">Member Name 4</h4>
+                    <p class="member-position">UI/UX Designer</p>
+                    <p class="member-task">Design System</p>
+                </div>
+                <div class="member-card">
+                    <div class="member-photo"><i class="fas fa-user"></i></div>
+                    <h4 class="member-name">Member Name 5</h4>
+                    <p class="member-position">QA Tester</p>
+                    <p class="member-task">Testing & Bug Reports</p>
+                </div>
+                <div class="member-card">
+                    <div class="member-photo"><i class="fas fa-user"></i></div>
+                    <h4 class="member-name">Member Name 6</h4>
+                    <p class="member-position">Frontend Developer</p>
+                    <p class="member-task">Component Development</p>
+                </div>
+                <div class="member-card">
+                    <div class="member-photo"><i class="fas fa-user"></i></div>
+                    <h4 class="member-name">Member Name 7</h4>
+                    <p class="member-position">Backend Developer</p>
+                    <p class="member-task">Authentication System</p>
+                </div>
+                <div class="member-card">
+                    <div class="member-photo"><i class="fas fa-user"></i></div>
+                    <h4 class="member-name">Member Name 8</h4>
+                    <p class="member-position">Full Stack Developer</p>
+                    <p class="member-task">Booking Module</p>
+                </div>
+                <div class="member-card">
+                    <div class="member-photo"><i class="fas fa-user"></i></div>
+                    <h4 class="member-name">Member Name 9</h4>
+                    <p class="member-position">Documentation Lead</p>
+                    <p class="member-task">Technical Documentation</p>
+                </div>
+                <div class="member-card">
+                    <div class="member-photo"><i class="fas fa-user"></i></div>
+                    <h4 class="member-name">Member Name 10</h4>
+                    <p class="member-position">Frontend Developer</p>
+                    <p class="member-task">Responsive Design</p>
+                </div>
+                <div class="member-card">
+                    <div class="member-photo"><i class="fas fa-user"></i></div>
+                    <h4 class="member-name">Member Name 11</h4>
+                    <p class="member-position">Backend Developer</p>
+                    <p class="member-task">Reporting System</p>
+                </div>
+                <div class="member-card">
+                    <div class="member-photo"><i class="fas fa-user"></i></div>
+                    <h4 class="member-name">Member Name 12</h4>
+                    <p class="member-position">QA Tester</p>
+                    <p class="member-task">User Acceptance Testing</p>
+                </div>
+                <div class="member-card">
+                    <div class="member-photo"><i class="fas fa-user"></i></div>
+                    <h4 class="member-name">Member Name 13</h4>
+                    <p class="member-position">UI/UX Designer</p>
+                    <p class="member-task">Wireframing</p>
+                </div>
+                <div class="member-card">
+                    <div class="member-photo"><i class="fas fa-user"></i></div>
+                    <h4 class="member-name">Member Name 14</h4>
+                    <p class="member-position">Full Stack Developer</p>
+                    <p class="member-task">Attendance Module</p>
+                </div>
+                <div class="member-card">
+                    <div class="member-photo"><i class="fas fa-user"></i></div>
+                    <h4 class="member-name">Member Name 15</h4>
+                    <p class="member-position">Frontend Developer</p>
+                    <p class="member-task">Dashboard Development</p>
+                </div>
+                <div class="member-card">
+                    <div class="member-photo"><i class="fas fa-user"></i></div>
+                    <h4 class="member-name">Member Name 16</h4>
+                    <p class="member-position">Backend Developer</p>
+                    <p class="member-task">Task Management</p>
+                </div>
+                <div class="member-card">
+                    <div class="member-photo"><i class="fas fa-user"></i></div>
+                    <h4 class="member-name">Member Name 17</h4>
+                    <p class="member-position">DevOps Engineer</p>
+                    <p class="member-task">Deployment & CI/CD</p>
+                </div>
+                <div class="member-card">
+                    <div class="member-photo"><i class="fas fa-user"></i></div>
+                    <h4 class="member-name">Member Name 18</h4>
+                    <p class="member-position">Database Admin</p>
+                    <p class="member-task">Data Migration</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Floating Action Button for Quick Booking -->
+    <div class="fab-container">
+        <button class="fab-btn" onclick="openQuickBooking()" aria-label="Quick Book Appointment">
+            <i class="fas fa-calendar-plus"></i>
+        </button>
+        <div class="fab-tooltip">Quick Book Appointment</div>
+    </div>
+
     <!-- Footer -->
     <footer class="footer" id="contact">
         <div class="footer-container">
@@ -458,6 +768,7 @@
                     <a href="#home">Home</a>
                     <a href="#portals">Portals</a>
                     <a href="#calendar">Calendar</a>
+                    <a href="#team">Team</a>
                 </div>
                 <div class="footer-links">
                     <h4>Portals</h4>
@@ -804,6 +1115,39 @@
             document.getElementById('bookingModal').classList.add('active');
         }
 
+        // Quick Booking from FAB - auto-select next available date
+        function openQuickBooking() {
+            const today = new Date();
+            let nextAvailable = new Date(today);
+            nextAvailable.setDate(nextAvailable.getDate() + 1); // Start from tomorrow
+            
+            // Find next available weekday (skip weekends if needed)
+            while (nextAvailable.getDay() === 0 || nextAvailable.getDay() === 6) {
+                nextAvailable.setDate(nextAvailable.getDate() + 1);
+            }
+            
+            // Check if date is blocked
+            const dateString = nextAvailable.toISOString().split('T')[0];
+            const isBlocked = blockedDates.some(b => b.date === dateString);
+            
+            if (isBlocked) {
+                // Find next non-blocked date
+                for (let i = 0; i < 30; i++) {
+                    nextAvailable.setDate(nextAvailable.getDate() + 1);
+                    const checkDate = nextAvailable.toISOString().split('T')[0];
+                    if (!blockedDates.some(b => b.date === checkDate) && nextAvailable.getDay() !== 0 && nextAvailable.getDay() !== 6) {
+                        break;
+                    }
+                }
+            }
+            
+            const finalDate = nextAvailable.toISOString().split('T')[0];
+            selectDate(finalDate);
+            
+            // Scroll to calendar section smoothly
+            document.getElementById('calendar').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
         function closeBookingModal() {
             document.getElementById('bookingModal').classList.remove('active');
             document.getElementById('bookingForm').reset();
@@ -878,6 +1222,22 @@
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) { e.preventDefault(); const target = document.querySelector(this.getAttribute('href')); if (target) { target.scrollIntoView({ behavior: 'smooth' }); } });
         });
+
+        // Mobile Menu Functions
+        function openMobileMenu() {
+            document.getElementById('mobileMenu').classList.add('active');
+            document.querySelector('.mobile-menu-overlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMobileMenu() {
+            document.getElementById('mobileMenu').classList.remove('active');
+            document.querySelector('.mobile-menu-overlay').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Attach mobile menu button event
+        document.querySelector('.mobile-menu-btn').addEventListener('click', openMobileMenu);
     </script>
 </body>
 </html>
