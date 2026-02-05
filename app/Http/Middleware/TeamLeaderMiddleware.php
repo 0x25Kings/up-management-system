@@ -17,7 +17,9 @@ class TeamLeaderMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         if (!Auth::check()) {
-            return redirect()->route('login');
+            // Redirect team leaders to intern portal when session expires
+            return redirect()->route('intern.portal')
+                ->with('error', 'Your session has expired. Please login again.');
         }
 
         /** @var \App\Models\User $user */
@@ -38,7 +40,7 @@ class TeamLeaderMiddleware
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
-            return redirect()->route('login')
+            return redirect()->route('intern.portal')
                 ->with('error', 'Your Team Leader access has been suspended. Please contact the administrator.');
         }
 
