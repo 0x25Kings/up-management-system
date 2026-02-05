@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class TeamLeaderMiddleware
@@ -15,11 +16,12 @@ class TeamLeaderMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!auth()->check()) {
+        if (!Auth::check()) {
             return redirect()->route('login');
         }
 
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
 
         // Allow super admins to access team leader routes (for testing/oversight)
         if ($user->isSuperAdmin()) {
@@ -33,7 +35,9 @@ class TeamLeaderMiddleware
 
         // Check if team leader account is active
         if (!$user->isActive()) {
-            auth()->logout();
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
             return redirect()->route('login')
                 ->with('error', 'Your Team Leader access has been suspended. Please contact the administrator.');
         }

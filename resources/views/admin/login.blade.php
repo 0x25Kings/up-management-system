@@ -39,9 +39,7 @@
     <div class="login-card w-full max-w-md p-8">
         <!-- Logo Section -->
         <div class="text-center mb-8">
-            <div class="w-20 h-20 bg-linear-to-br from-amber-400 to-amber-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-                <i class="fas fa-user-shield text-3xl text-white"></i>
-            </div>
+            <img src="{{ asset('images/UP logo.png') }}" alt="UP Logo" class="w-20 h-20 mx-auto mb-4 object-contain">
             <h1 class="text-2xl font-bold text-gray-800">Admin Login</h1>
             <p class="text-gray-500 mt-2">UP Cebu Management System</p>
         </div>
