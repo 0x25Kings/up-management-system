@@ -3829,6 +3829,10 @@
                         <i class="fas fa-building"></i>
                         <span>Manage Startups</span>
                     </a>
+                    <a href="#" class="submenu-item" onclick="loadPage(event, 'project-progress')">
+                        <i class="fas fa-tasks"></i>
+                        <span>Project Progress</span>
+                    </a>
                     <a href="#" class="submenu-item" onclick="loadPage(event, 'research-tracking')">
                         <i class="fas fa-flask"></i>
                         <span>Research Tracking</span>
@@ -5631,6 +5635,226 @@
                             @endforelse
                         </tbody>
                     </table>
+                </div>
+            </div>
+
+            <!-- Project Progress Page -->
+            <div id="project-progress" class="page-content">
+                <div style="margin-bottom: 24px;">
+                    <h2 style="font-size: 28px; font-weight: 700; color: #1F2937; margin-bottom: 8px;">Project Progress Updates</h2>
+                    <p style="color: #6B7280; font-size: 14px;">View and manage project progress updates submitted by startups</p>
+                </div>
+
+                <!-- Stats Overview -->
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
+                    <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #EDE9FE, #DDD6FE); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-chart-line" style="color: #7C3AED; font-size: 20px;"></i>
+                            </div>
+                            <div>
+                                <div id="totalProgressCount" style="font-size: 28px; font-weight: 700; color: #7C3AED;">{{ $progressUpdates->count() ?? 0 }}</div>
+                                <div style="font-size: 13px; color: #6B7280;">Total Updates</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #FEF3C7, #FCD34D); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-clock" style="color: #D97706; font-size: 20px;"></i>
+                            </div>
+                            <div>
+                                <div style="font-size: 28px; font-weight: 700; color: #D97706;">{{ $progressUpdates->where('status', 'submitted')->count() ?? 0 }}</div>
+                                <div style="font-size: 13px; color: #6B7280;">Pending Review</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #DBEAFE, #93C5FD); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-eye" style="color: #2563EB; font-size: 20px;"></i>
+                            </div>
+                            <div>
+                                <div style="font-size: 28px; font-weight: 700; color: #2563EB;">{{ $progressUpdates->where('status', 'reviewed')->count() ?? 0 }}</div>
+                                <div style="font-size: 13px; color: #6B7280;">Reviewed</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #D1FAE5, #6EE7B7); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-check-circle" style="color: #059669; font-size: 20px;"></i>
+                            </div>
+                            <div>
+                                <div style="font-size: 28px; font-weight: 700; color: #059669;">{{ $progressUpdates->where('status', 'acknowledged')->count() ?? 0 }}</div>
+                                <div style="font-size: 13px; color: #6B7280;">Acknowledged</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filter & Actions -->
+                <div class="filter-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                        <div class="filter-group">
+                            <span class="filter-label">Filter by Status:</span>
+                            <select class="filter-select" id="progressStatusFilter" onchange="filterProgress()">
+                                <option value="all">All Status</option>
+                                <option value="submitted">Pending Review</option>
+                                <option value="reviewed">Reviewed</option>
+                                <option value="acknowledged">Acknowledged</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <span class="filter-label">Milestone Type:</span>
+                            <select class="filter-select" id="progressTypeFilter" onchange="filterProgress()">
+                                <option value="all">All Types</option>
+                                <option value="development">Product Development</option>
+                                <option value="funding">Funding/Investment</option>
+                                <option value="partnership">Partnership</option>
+                                <option value="launch">Product Launch</option>
+                                <option value="achievement">Achievement/Award</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Progress Updates Table -->
+                <div style="background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); overflow: hidden;">
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background: #F9FAFB; border-bottom: 1px solid #E5E7EB;">
+                                    <th style="text-align: left; padding: 14px 16px; font-size: 12px; font-weight: 600; color: #6B7280; text-transform: uppercase;">Startup</th>
+                                    <th style="text-align: left; padding: 14px 16px; font-size: 12px; font-weight: 600; color: #6B7280; text-transform: uppercase;">Title</th>
+                                    <th style="text-align: left; padding: 14px 16px; font-size: 12px; font-weight: 600; color: #6B7280; text-transform: uppercase;">Type</th>
+                                    <th style="text-align: left; padding: 14px 16px; font-size: 12px; font-weight: 600; color: #6B7280; text-transform: uppercase;">Status</th>
+                                    <th style="text-align: left; padding: 14px 16px; font-size: 12px; font-weight: 600; color: #6B7280; text-transform: uppercase;">Submitted</th>
+                                    <th style="text-align: center; padding: 14px 16px; font-size: 12px; font-weight: 600; color: #6B7280; text-transform: uppercase;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="progressTableBody">
+                                @forelse($progressUpdates ?? [] as $progress)
+                                <tr class="progress-row" data-status="{{ $progress->status }}" data-type="{{ $progress->milestone_type }}" style="border-bottom: 1px solid #F3F4F6;">
+                                    <td style="padding: 16px;">
+                                        <div style="display: flex; align-items: center; gap: 10px;">
+                                            <div style="width: 36px; height: 36px; background: linear-gradient(135deg, #7B1D3A, #A62450); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 12px;">
+                                                {{ strtoupper(substr($progress->startup->company_name, 0, 2)) }}
+                                            </div>
+                                            <div>
+                                                <div style="font-weight: 600; color: #1F2937;">{{ $progress->startup->company_name }}</div>
+                                                <div style="font-size: 12px; color: #6B7280;">{{ $progress->startup->startup_code }}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td style="padding: 16px;">
+                                        <div style="font-weight: 500; color: #1F2937;">{{ Str::limit($progress->title, 40) }}</div>
+                                        <div style="font-size: 12px; color: #6B7280; margin-top: 2px;">{{ Str::limit($progress->description, 60) }}</div>
+                                    </td>
+                                    <td style="padding: 16px;">
+                                        @php
+                                            $typeColors = [
+                                                'development' => ['bg' => '#DBEAFE', 'color' => '#1E40AF'],
+                                                'funding' => ['bg' => '#D1FAE5', 'color' => '#065F46'],
+                                                'partnership' => ['bg' => '#FEF3C7', 'color' => '#92400E'],
+                                                'launch' => ['bg' => '#FCE7F3', 'color' => '#9D174D'],
+                                                'achievement' => ['bg' => '#EDE9FE', 'color' => '#5B21B6'],
+                                                'other' => ['bg' => '#F3F4F6', 'color' => '#374151'],
+                                            ];
+                                            $typeStyle = $typeColors[$progress->milestone_type] ?? $typeColors['other'];
+                                        @endphp
+                                        <span style="display: inline-block; padding: 4px 10px; background: {{ $typeStyle['bg'] }}; color: {{ $typeStyle['color'] }}; border-radius: 20px; font-size: 11px; font-weight: 600;">
+                                            {{ $progress->milestone_type_label }}
+                                        </span>
+                                    </td>
+                                    <td style="padding: 16px;">
+                                        @if($progress->status === 'submitted')
+                                            <span style="display: inline-block; padding: 4px 10px; background: #FEF3C7; color: #92400E; border-radius: 20px; font-size: 11px; font-weight: 600;">Pending Review</span>
+                                        @elseif($progress->status === 'reviewed')
+                                            <span style="display: inline-block; padding: 4px 10px; background: #DBEAFE; color: #1E40AF; border-radius: 20px; font-size: 11px; font-weight: 600;">Reviewed</span>
+                                        @else
+                                            <span style="display: inline-block; padding: 4px 10px; background: #D1FAE5; color: #065F46; border-radius: 20px; font-size: 11px; font-weight: 600;">Acknowledged</span>
+                                        @endif
+                                    </td>
+                                    <td style="padding: 16px; font-size: 13px; color: #6B7280;">
+                                        {{ $progress->created_at->format('M d, Y') }}
+                                        <div style="font-size: 11px; color: #9CA3AF;">{{ $progress->created_at->diffForHumans() }}</div>
+                                    </td>
+                                    <td style="padding: 16px; text-align: center;">
+                                        <div style="display: flex; gap: 8px; justify-content: center;">
+                                            <button onclick="viewProgressDetails({{ $progress->id }})" style="width: 32px; height: 32px; background: #F3F4F6; border: none; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" title="View Details">
+                                                <i class="fas fa-eye" style="color: #6B7280;"></i>
+                                            </button>
+                                            <button onclick="respondToProgress({{ $progress->id }})" style="width: 32px; height: 32px; background: #EDE9FE; border: none; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" title="Respond">
+                                                <i class="fas fa-comment-dots" style="color: #7C3AED;"></i>
+                                            </button>
+                                            @if($progress->file_path)
+                                            <a href="{{ Storage::url($progress->file_path) }}" target="_blank" style="width: 32px; height: 32px; background: #DBEAFE; border: none; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; text-decoration: none;" title="Download Attachment">
+                                                <i class="fas fa-paperclip" style="color: #2563EB;"></i>
+                                            </a>
+                                            @endif
+                                        </div>
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="6" style="text-align: center; padding: 60px; color: #9CA3AF;">
+                                        <i class="fas fa-chart-line" style="font-size: 48px; margin-bottom: 16px; display: block; opacity: 0.3;"></i>
+                                        <div style="font-size: 16px; font-weight: 500; margin-bottom: 4px;">No progress updates yet</div>
+                                        <div style="font-size: 13px;">Progress updates from startups will appear here</div>
+                                    </td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Detail Modal -->
+            <div id="progressDetailModal" class="modal" style="display: none;">
+                <div class="modal-content" style="max-width: 600px;">
+                    <div class="modal-header" style="background: linear-gradient(135deg, #7B1D3A.0%, #A62450 100%); color: white; padding: 20px 24px;">
+                        <h3 style="font-size: 18px; font-weight: 700; margin: 0;"><i class="fas fa-chart-line" style="margin-right: 10px;"></i>Progress Update Details</h3>
+                        <button onclick="closeModal('progressDetailModal')" style="background: rgba(255,255,255,0.2); border: none; width: 32px; height: 32px; border-radius: 8px; color: white; cursor: pointer;"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div class="modal-body" id="progressDetailContent" style="padding: 24px;">
+                        <!-- Content will be loaded dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Respond Modal -->
+            <div id="progressRespondModal" class="modal" style="display: none;">
+                <div class="modal-content" style="max-width: 500px;">
+                    <div class="modal-header" style="background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%); color: white; padding: 20px 24px;">
+                        <h3 style="font-size: 18px; font-weight: 700; margin: 0;"><i class="fas fa-comment-dots" style="margin-right: 10px;"></i>Respond to Progress</h3>
+                        <button onclick="closeModal('progressRespondModal')" style="background: rgba(255,255,255,0.2); border: none; width: 32px; height: 32px; border-radius: 8px; color: white; cursor: pointer;"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div class="modal-body" style="padding: 24px;">
+                        <form id="progressRespondForm" onsubmit="submitProgressResponse(event)">
+                            <input type="hidden" id="respondProgressId" name="progress_id">
+                            <div style="margin-bottom: 20px;">
+                                <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #374151;">Update Status</label>
+                                <select id="respondProgressStatus" name="status" style="width: 100%; padding: 12px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px;">
+                                    <option value="submitted">Pending Review</option>
+                                    <option value="reviewed">Reviewed</option>
+                                    <option value="acknowledged">Acknowledged</option>
+                                </select>
+                            </div>
+                            <div style="margin-bottom: 20px;">
+                                <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #374151;">Admin Comment</label>
+                                <textarea id="respondProgressComment" name="admin_comment" rows="4" style="width: 100%; padding: 12px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px; resize: vertical;" placeholder="Add your feedback or comment..."></textarea>
+                            </div>
+                            <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                                <button type="button" onclick="closeModal('progressRespondModal')" style="padding: 12px 24px; background: #F3F4F6; color: #374151; border: none; border-radius: 10px; font-weight: 600; cursor: pointer;">Cancel</button>
+                                <button type="submit" style="padding: 12px 24px; background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer;">
+                                    <i class="fas fa-paper-plane" style="margin-right: 8px;"></i>Submit Response
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
 
@@ -9670,6 +9894,8 @@
                 breadcrumb.innerHTML = 'Dashboard > Startup Management > <span>Incubatee Tracker</span>';
             } else if (pageId === 'issues-management') {
                 breadcrumb.innerHTML = 'Dashboard > Startup Management > <span>Issues & Complaints</span>';
+            } else if (pageId === 'project-progress') {
+                breadcrumb.innerHTML = 'Dashboard > Startup Management > <span>Project Progress</span>';
             } else if (pageId === 'manage-startups') {
                 breadcrumb.innerHTML = 'Dashboard > Startup Management > <span>Manage Startups</span>';
                 loadStartupsData();
@@ -12504,6 +12730,148 @@
             rows.forEach(row => {
                 const text = row.textContent.toLowerCase();
                 row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        }
+
+        // ===== PROJECT PROGRESS FUNCTIONS =====
+
+        function filterProgress() {
+            const statusFilter = document.getElementById('progressStatusFilter').value;
+            const typeFilter = document.getElementById('progressTypeFilter').value;
+            const rows = document.querySelectorAll('.progress-row');
+
+            rows.forEach(row => {
+                const status = row.getAttribute('data-status');
+                const type = row.getAttribute('data-type');
+
+                const matchStatus = statusFilter === 'all' || status === statusFilter;
+                const matchType = typeFilter === 'all' || type === typeFilter;
+
+                row.style.display = (matchStatus && matchType) ? '' : 'none';
+            });
+        }
+
+        function viewProgressDetails(progressId) {
+            fetch(`/admin/progress/${progressId}`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const progress = data.progress;
+                    const typeLabels = {
+                        'development': 'Product Development',
+                        'funding': 'Funding/Investment',
+                        'partnership': 'Partnership',
+                        'launch': 'Product Launch',
+                        'achievement': 'Achievement/Award',
+                        'other': 'Other Update'
+                    };
+                    const statusLabels = {
+                        'submitted': 'Pending Review',
+                        'reviewed': 'Reviewed',
+                        'acknowledged': 'Acknowledged'
+                    };
+                    
+                    const content = `
+                        <div style="display: grid; gap: 16px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid #E5E7EB;">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #7B1D3A, #A62450); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 16px;">
+                                        ${progress.startup.company_name.substring(0, 2).toUpperCase()}
+                                    </div>
+                                    <div>
+                                        <div style="font-weight: 700; color: #1F2937;">${progress.startup.company_name}</div>
+                                        <div style="font-size: 12px; color: #6B7280;">${progress.startup.startup_code}</div>
+                                    </div>
+                                </div>
+                                <span style="padding: 6px 14px; background: #EDE9FE; color: #5B21B6; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                                    ${typeLabels[progress.milestone_type] || 'Update'}
+                                </span>
+                            </div>
+                            
+                            <div>
+                                <div style="font-size: 20px; font-weight: 700; color: #1F2937; margin-bottom: 8px;">${progress.title}</div>
+                                <div style="background: #F9FAFB; padding: 16px; border-radius: 10px; line-height: 1.6; color: #374151;">${progress.description}</div>
+                            </div>
+                            
+                            ${progress.file_path ? `
+                            <div>
+                                <div style="font-size: 12px; color: #6B7280; margin-bottom: 8px;">Attached File</div>
+                                <a href="${progress.file_url}" target="_blank" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; background: #DBEAFE; color: #1E40AF; border-radius: 8px; text-decoration: none; font-weight: 500;">
+                                    <i class="fas fa-paperclip"></i>
+                                    ${progress.original_filename}
+                                </a>
+                            </div>
+                            ` : ''}
+                            
+                            ${progress.admin_comment ? `
+                            <div>
+                                <div style="font-size: 12px; color: #6B7280; margin-bottom: 8px;">Admin Response</div>
+                                <div style="background: #F0F9FF; border-left: 3px solid #0284C7; padding: 12px 16px; border-radius: 0 8px 8px 0; color: #0C4A6E;">
+                                    ${progress.admin_comment}
+                                </div>
+                            </div>
+                            ` : ''}
+                            
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid #E5E7EB; font-size: 12px; color: #6B7280;">
+                                <span><i class="fas fa-clock"></i> Submitted: ${progress.created_at}</span>
+                                <span style="padding: 4px 10px; background: ${progress.status === 'acknowledged' ? '#D1FAE5' : (progress.status === 'reviewed' ? '#DBEAFE' : '#FEF3C7')}; color: ${progress.status === 'acknowledged' ? '#065F46' : (progress.status === 'reviewed' ? '#1E40AF' : '#92400E')}; border-radius: 20px; font-weight: 500;">
+                                    ${statusLabels[progress.status] || progress.status}
+                                </span>
+                            </div>
+                        </div>
+                    `;
+                    
+                    document.getElementById('progressDetailContent').innerHTML = content;
+                    document.getElementById('progressDetailModal').style.display = 'flex';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to load progress details');
+            });
+        }
+
+        function respondToProgress(progressId) {
+            document.getElementById('respondProgressId').value = progressId;
+            document.getElementById('respondProgressStatus').value = 'reviewed';
+            document.getElementById('respondProgressComment').value = '';
+            document.getElementById('progressRespondModal').style.display = 'flex';
+        }
+
+        function submitProgressResponse(event) {
+            event.preventDefault();
+            
+            const progressId = document.getElementById('respondProgressId').value;
+            const status = document.getElementById('respondProgressStatus').value;
+            const comment = document.getElementById('respondProgressComment').value;
+            
+            fetch(`/admin/progress/${progressId}/respond`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ status, admin_comment: comment })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Response submitted successfully!');
+                    closeModal('progressRespondModal');
+                    location.reload();
+                } else {
+                    alert(data.message || 'Failed to submit response');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while submitting the response');
             });
         }
 

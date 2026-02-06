@@ -16,7 +16,7 @@ use App\Models\School;
 use App\Models\Document;
 use App\Models\User;
 use App\Models\TeamLeaderReport;
-
+use App\Models\StartupProgress;
 
 
 use App\Models\UserPermission;
@@ -157,6 +157,11 @@ class AdminDashboardController extends Controller
         // Digital records count
         $totalDocuments = Document::count();
 
+        // Project Progress updates
+        $progressUpdates = StartupProgress::with('startup')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         return view('admin.dashboard', [
             'user' => Auth::user(),
             'totalInterns' => $totalInterns,
@@ -188,6 +193,7 @@ class AdminDashboardController extends Controller
             'inProgressIssues' => $inProgressIssues,
             'resolvedThisMonth' => $resolvedThisMonth,
             'totalDocuments' => $totalDocuments,
+            'progressUpdates' => $progressUpdates,
         ]);
     }
 

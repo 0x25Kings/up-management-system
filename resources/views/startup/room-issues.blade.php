@@ -120,6 +120,85 @@
         overflow: hidden;
     }
 
+    /* Progress Indicator */
+    .issue-progress {
+        margin-bottom: 16px;
+    }
+
+    .progress-bar {
+        height: 6px;
+        background: #E5E7EB;
+        border-radius: 10px;
+        overflow: hidden;
+        margin-bottom: 8px;
+    }
+
+    .progress-fill {
+        height: 100%;
+        border-radius: 10px;
+        transition: width 0.5s ease;
+    }
+
+    .progress-fill.pending { width: 25%; background: linear-gradient(90deg, #F59E0B, #D97706); }
+    .progress-fill.in_progress { width: 60%; background: linear-gradient(90deg, #3B82F6, #2563EB); }
+    .progress-fill.resolved { width: 100%; background: linear-gradient(90deg, #10B981, #059669); }
+    .progress-fill.closed { width: 100%; background: linear-gradient(90deg, #6B7280, #4B5563); }
+
+    .progress-steps {
+        display: flex;
+        justify-content: space-between;
+        font-size: 10px;
+        color: #9CA3AF;
+    }
+
+    .progress-step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .progress-step.active {
+        color: #1F2937;
+        font-weight: 600;
+    }
+
+    .progress-step .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #D1D5DB;
+    }
+
+    .progress-step.active .dot {
+        background: #7B1D3A;
+    }
+
+    .progress-step.completed .dot {
+        background: #10B981;
+    }
+
+    /* Estimated Resolution */
+    .estimated-time {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        background: #F0F9FF;
+        border-radius: 10px;
+        margin-bottom: 16px;
+        border-left: 3px solid #0284C7;
+    }
+
+    .estimated-time i {
+        color: #0284C7;
+    }
+
+    .estimated-time span {
+        font-size: 13px;
+        color: #0369A1;
+    }
+
     .issue-meta {
         display: flex;
         flex-wrap: wrap;
@@ -526,18 +605,51 @@
                     </span>
                 </div>
                 <div class="issue-body">
+                    <!-- Progress Bar -->
+                    <div class="issue-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill {{ $issue->status }}"></div>
+                        </div>
+                        <div class="progress-steps">
+                            <div class="progress-step {{ in_array($issue->status, ['pending', 'in_progress', 'resolved', 'closed']) ? 'completed' : '' }} {{ $issue->status === 'pending' ? 'active' : '' }}">
+                                <span class="dot"></span>
+                                Submitted
+                            </div>
+                            <div class="progress-step {{ in_array($issue->status, ['in_progress', 'resolved', 'closed']) ? 'completed' : '' }} {{ $issue->status === 'in_progress' ? 'active' : '' }}">
+                                <span class="dot"></span>
+                                In Progress
+                            </div>
+                            <div class="progress-step {{ in_array($issue->status, ['resolved', 'closed']) ? 'completed' : '' }} {{ $issue->status === 'resolved' ? 'active' : '' }}">
+                                <span class="dot"></span>
+                                Resolved
+                            </div>
+                        </div>
+                    </div>
+
+                    @if($issue->status === 'in_progress')
+                        <div class="estimated-time">
+                            <i class="fas fa-clock"></i>
+                            <span>Estimated: Usually resolved within 24-48 hours</span>
+                        </div>
+                    @endif
+
                     <p class="issue-description">{{ $issue->description }}</p>
                     <div class="issue-meta">
                         <div class="issue-meta-item">
                             <span class="priority-badge priority-{{ $issue->priority }}">
                                 <i class="fas fa-flag"></i>
-                                {{ ucfirst($issue->priority) }}
+                                {{ ucfirst($issue->priority) }} Priority
                             </span>
                         </div>
                         @if($issue->resolved_at)
                             <div class="issue-meta-item">
                                 <i class="fas fa-check-circle" style="color: #059669;"></i>
                                 Resolved {{ $issue->resolved_at->diffForHumans() }}
+                            </div>
+                        @else
+                            <div class="issue-meta-item">
+                                <i class="fas fa-calendar"></i>
+                                Reported {{ $issue->created_at->diffForHumans() }}
                             </div>
                         @endif
                     </div>

@@ -173,4 +173,12 @@ class Startup extends Model
     {
         return $query->where('status', 'active');
     }
+
+    /**
+     * Get all progress updates for this startup
+     */
+    public function progressUpdates(): HasMany
+    {
+        return $this->hasMany(StartupProgress::class);
+    }
 }

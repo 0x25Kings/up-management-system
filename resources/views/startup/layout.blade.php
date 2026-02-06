@@ -783,6 +783,112 @@
             border: 1px solid #FCD34D;
         }
 
+        /* Logout Confirmation Modal */
+        .logout-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logout-modal-overlay.active {
+            display: flex;
+        }
+
+        .logout-modal {
+            background: white;
+            border-radius: 20px;
+            padding: 32px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .logout-modal-icon {
+            width: 72px;
+            height: 72px;
+            background: linear-gradient(135deg, #FEE2E2, #FECACA);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+        .logout-modal-icon i {
+            font-size: 32px;
+            color: #DC2626;
+        }
+
+        .logout-modal h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1F2937;
+            margin-bottom: 8px;
+        }
+
+        .logout-modal p {
+            font-size: 14px;
+            color: #6B7280;
+            margin-bottom: 24px;
+        }
+
+        .logout-modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .logout-modal-btn {
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .logout-modal-btn.cancel {
+            background: #F3F4F6;
+            color: #374151;
+        }
+
+        .logout-modal-btn.cancel:hover {
+            background: #E5E7EB;
+        }
+
+        .logout-modal-btn.confirm {
+            background: linear-gradient(135deg, #DC2626, #B91C1C);
+            color: white;
+        }
+
+        .logout-modal-btn.confirm:hover {
+            background: linear-gradient(135deg, #B91C1C, #991B1B);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+        }
+
         /* Mobile Menu */
         .mobile-menu-btn {
             display: none;
@@ -838,25 +944,6 @@
             </div>
         </div>
 
-        <div class="company-card">
-            <div class="company-avatar">
-                @php
-                    $words = explode(' ', $startup->company_name);
-                    $initials = '';
-                    foreach ($words as $word) {
-                        if (!empty($word)) {
-                            $initials .= strtoupper(substr($word, 0, 1));
-                        }
-                        if (strlen($initials) >= 2) break;
-                    }
-                    echo $initials ?: strtoupper(substr($startup->company_name, 0, 2));
-                @endphp
-            </div>
-            <h3>{{ ucwords(strtolower($startup->company_name)) }}</h3>
-            <p>{{ ucwords(strtolower($startup->contact_person)) }}</p>
-            <span class="code">{{ $startup->startup_code }}</span>
-        </div>
-
         <nav class="nav-menu">
             <div class="nav-section">Main Menu</div>
             <a href="{{ route('startup.dashboard') }}" class="nav-item {{ request()->routeIs('startup.dashboard') ? 'active' : '' }}">
@@ -885,6 +972,10 @@
                 <i class="fas fa-folder-open"></i>
                 My Submissions
             </a>
+            <a href="{{ route('startup.progress') }}" class="nav-item {{ request()->routeIs('startup.progress') ? 'active' : '' }}">
+                <i class="fas fa-chart-line"></i>
+                Project Progress
+            </a>
             <a href="{{ route('startup.room-issues') }}" class="nav-item {{ request()->routeIs('startup.room-issues') ? 'active' : '' }}">
                 <i class="fas fa-tools"></i>
                 Room Issues
@@ -892,13 +983,10 @@
         </nav>
 
         <div class="sidebar-footer">
-            <form action="{{ route('startup.logout') }}" method="POST">
-                @csrf
-                <button type="submit" class="logout-btn">
-                    <i class="fas fa-sign-out-alt"></i>
-                    Sign Out
-                </button>
-            </form>
+            <button type="button" class="logout-btn" onclick="showLogoutModal()">
+                <i class="fas fa-sign-out-alt"></i>
+                Sign Out
+            </button>
         </div>
     </aside>
 
@@ -954,13 +1042,10 @@
                             <i class="fas fa-cog"></i>
                             Settings
                         </a>
-                        <form action="{{ route('startup.logout') }}" method="POST" style="margin: 0;">
-                            @csrf
-                            <button type="submit" class="profile-menu-item danger" style="width: 100%; border: none; background: none; cursor: pointer;">
-                                <i class="fas fa-sign-out-alt"></i>
-                                Sign Out
-                            </button>
-                        </form>
+                        <button type="button" class="profile-menu-item danger" style="width: 100%; border: none; background: none; cursor: pointer;" onclick="showLogoutModal()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Sign Out
+                        </button>
                     </div>
                 </div>
             </div>
@@ -1004,7 +1089,54 @@
                 }
             });
         });
+
+        // Logout Modal Functions
+        function showLogoutModal() {
+            document.getElementById('logoutModal').classList.add('active');
+        }
+
+        function hideLogoutModal() {
+            document.getElementById('logoutModal').classList.remove('active');
+        }
+
+        function confirmLogout() {
+            document.getElementById('logoutForm').submit();
+        }
+
+        // Close modal when clicking overlay
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('logoutModal');
+            if (modal) {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        hideLogoutModal();
+                    }
+                });
+            }
+        });
     </script>
+
+    <!-- Logout Confirmation Modal -->
+    <div class="logout-modal-overlay" id="logoutModal">
+        <div class="logout-modal">
+            <div class="logout-modal-icon">
+                <i class="fas fa-sign-out-alt"></i>
+            </div>
+            <h3>Sign Out</h3>
+            <p>Are you sure you want to sign out of your account?</p>
+            <div class="logout-modal-actions">
+                <button type="button" class="logout-modal-btn cancel" onclick="hideLogoutModal()">
+                    Cancel
+                </button>
+                <button type="button" class="logout-modal-btn confirm" onclick="confirmLogout()">
+                    Sign Out
+                </button>
+            </div>
+            <form id="logoutForm" action="{{ route('startup.logout') }}" method="POST" style="display: none;">
+                @csrf
+            </form>
+        </div>
+    </div>
 
     @stack('scripts')
 </body>

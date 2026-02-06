@@ -112,6 +112,10 @@ Route::middleware(['maintenance', 'startup.auth'])->prefix('startup')->name('sta
     // Profile
     Route::get('/profile', [StartupDashboardController::class, 'profile'])->name('profile');
     Route::post('/profile', [StartupDashboardController::class, 'updateProfile'])->name('profile.update');
+
+    // Project Progress
+    Route::get('/progress', [StartupDashboardController::class, 'progress'])->name('progress');
+    Route::post('/progress', [StartupDashboardController::class, 'submitProgress'])->name('progress.submit');
 });
 
 Route::get('/agency', function () {
@@ -204,6 +208,10 @@ Route::middleware(['admin'])->group(function () {
     Route::get('/admin/room-issues/{roomIssue}', [AdminStartupController::class, 'getRoomIssue'])->name('admin.room-issues.show');
     Route::put('/admin/room-issues/{roomIssue}', [AdminStartupController::class, 'updateRoomIssue'])->name('admin.room-issues.update');
     Route::delete('/admin/room-issues/{roomIssue}', [AdminStartupController::class, 'deleteRoomIssue'])->name('admin.room-issues.destroy');
+
+    // Project Progress Management (Admin)
+    Route::get('/admin/progress/{progress}', [AdminStartupController::class, 'getProgress'])->name('admin.progress.show');
+    Route::post('/admin/progress/{progress}/respond', [AdminStartupController::class, 'respondToProgress'])->name('admin.progress.respond');
 
     // Startup Accounts Management (Admin)
     Route::get('/admin/startup-accounts', [AdminStartupAccountController::class, 'index'])->name('admin.startup-accounts.index');

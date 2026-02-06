@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\StartupSubmission;
 use App\Models\RoomIssue;
+use App\Models\StartupProgress;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class AdminStartupController extends Controller
 {
@@ -235,6 +237,61 @@ class AdminStartupController extends Controller
         return response()->json([
             'success' => true,
             'message' => "Issue {$trackingCode} deleted successfully"
+        ]);
+    }
+
+    /**
+     * Get a single progress update
+     */
+    public function getProgress(StartupProgress $progress)
+    {
+        $progress->load('startup');
+        
+        return response()->json([
+            'success' => true,
+            'progress' => [
+                'id' => $progress->id,
+                'title' => $progress->title,
+                'description' => $progress->description,
+                'milestone_type' => $progress->milestone_type,
+                'milestone_type_label' => $progress->milestone_type_label,
+                'status' => $progress->status,
+                'file_path' => $progress->file_path,
+                'file_url' => $progress->file_path ? Storage::url($progress->file_path) : null,
+                'original_filename' => $progress->original_filename,
+                'admin_comment' => $progress->admin_comment,
+                'created_at' => $progress->created_at->format('M d, Y h:i A'),
+                'reviewed_at' => $progress->reviewed_at ? $progress->reviewed_at->format('M d, Y h:i A') : null,
+                'startup' => [
+                    'id' => $progress->startup->id,
+                    'company_name' => $progress->startup->company_name,
+                    'startup_code' => $progress->startup->startup_code,
+                ]
+            ]
+        ]);
+    }
+
+    /**
+     * Respond to a project progress update
+     */
+    public function respondToProgress(Request $request, StartupProgress $progress)
+    {
+        $validated = $request->validate([
+            'status' => 'required|in:submitted,reviewed,acknowledged',
+            'admin_comment' => 'nullable|string|max:2000',
+        ]);
+
+        $progress->update([
+            'status' => $validated['status'],
+            'admin_comment' => $validated['admin_comment'],
+            'reviewed_by' => Auth::id(),
+            'reviewed_at' => now(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Response submitted successfully',
+            'progress' => $progress
         ]);
     }
 }

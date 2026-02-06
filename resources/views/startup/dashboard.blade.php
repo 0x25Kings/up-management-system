@@ -289,12 +289,61 @@
             font-size: 15px;
         }
 
+        .welcome-insights {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+
+        .insight-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 13px;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .insight-badge:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+        }
+
+        .insight-badge i {
+            color: #FFBF00;
+        }
+
+        .insight-badge.alert {
+            background: rgba(239, 68, 68, 0.3);
+            border-color: rgba(239, 68, 68, 0.4);
+        }
+
+        .insight-badge.alert i {
+            color: #FCA5A5;
+        }
+
+        .insight-badge.success {
+            background: rgba(16, 185, 129, 0.3);
+            border-color: rgba(16, 185, 129, 0.4);
+        }
+
+        .insight-badge.success i {
+            color: #6EE7B7;
+        }
+
         .welcome-date {
             background: rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(10px);
             padding: 14px 24px;
             border-radius: 14px;
             border: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
         }
 
         .welcome-date .date-day {
@@ -389,11 +438,23 @@
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
+            text-decoration: none;
+            display: block;
+            cursor: pointer;
         }
 
         .stat-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+            transform: translateY(-6px);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
+        }
+
+        .stat-card:hover .stat-icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .stat-card:hover .stat-arrow {
+            opacity: 1;
+            transform: translateX(0);
         }
 
         .stat-card::after {
@@ -413,6 +474,11 @@
         .stat-card:nth-child(3)::after { background: #10B981; }
         .stat-card:nth-child(4)::after { background: #EF4444; }
 
+        .stat-card:nth-child(1):hover { border-color: #7C3AED; }
+        .stat-card:nth-child(2):hover { border-color: #F59E0B; }
+        .stat-card:nth-child(3):hover { border-color: #10B981; }
+        .stat-card:nth-child(4):hover { border-color: #EF4444; }
+
         .stat-header {
             display: flex;
             align-items: flex-start;
@@ -428,6 +494,24 @@
             align-items: center;
             justify-content: center;
             font-size: 22px;
+            transition: all 0.3s ease;
+        }
+
+        .stat-arrow {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 32px;
+            height: 32px;
+            background: #F3F4F6;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6B7280;
+            opacity: 0;
+            transform: translateX(-8px);
+            transition: all 0.3s ease;
         }
 
         .stat-value {
@@ -437,11 +521,41 @@
             line-height: 1;
         }
 
+        .stat-value.animate {
+            animation: countUp 0.6s ease-out forwards;
+        }
+
+        @keyframes countUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .stat-label {
             color: #6B7280;
             font-size: 14px;
             font-weight: 500;
             margin-top: 6px;
+        }
+
+        .stat-trend {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 8px;
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+
+        .stat-trend.up {
+            background: #D1FAE5;
+            color: #059669;
+        }
+
+        .stat-trend.neutral {
+            background: #F3F4F6;
+            color: #6B7280;
         }
 
         /* Two Column Grid */
@@ -508,6 +622,7 @@
         .activity-list {
             display: flex;
             flex-direction: column;
+            position: relative;
         }
 
         .activity-item {
@@ -517,6 +632,22 @@
             padding: 18px 24px;
             border-bottom: 1px solid #F3F4F6;
             transition: all 0.3s ease;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .activity-item::before {
+            content: '';
+            position: absolute;
+            left: 44px;
+            top: 54px;
+            bottom: -18px;
+            width: 2px;
+            background: linear-gradient(180deg, #E5E7EB 0%, transparent 100%);
+        }
+
+        .activity-item:last-child::before {
+            display: none;
         }
 
         .activity-item:last-child {
@@ -524,7 +655,17 @@
         }
 
         .activity-item:hover {
-            background: #FAFAFA;
+            background: linear-gradient(90deg, #FAFAFA 0%, white 100%);
+            transform: translateX(4px);
+        }
+
+        .activity-item:hover .activity-icon {
+            transform: scale(1.1);
+        }
+
+        .activity-item:hover .activity-arrow {
+            opacity: 1;
+            transform: translateX(0);
         }
 
         .activity-icon {
@@ -536,6 +677,9 @@
             justify-content: center;
             font-size: 18px;
             flex-shrink: 0;
+            position: relative;
+            z-index: 1;
+            transition: all 0.3s ease;
         }
 
         .activity-icon.doc { background: linear-gradient(135deg, #EDE9FE, #DDD6FE); color: #7C3AED; }
@@ -564,6 +708,22 @@
             display: flex;
             align-items: center;
             gap: 8px;
+        }
+
+        .activity-arrow {
+            width: 28px;
+            height: 28px;
+            background: #F3F4F6;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #9CA3AF;
+            font-size: 12px;
+            opacity: 0;
+            transform: translateX(-4px);
+            transition: all 0.3s ease;
+            flex-shrink: 0;
         }
 
         .activity-status {
@@ -726,6 +886,497 @@
                 display: block;
             }
         }
+
+        /* Top Header Bar */
+        .top-header {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 0;
+            position: relative;
+            z-index: 100;
+        }
+
+        .profile-dropdown {
+            position: relative;
+            z-index: 101;
+        }
+
+        .profile-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            background: white;
+            border: 1px solid #E5E7EB;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            outline: none;
+        }
+
+        .profile-btn:hover {
+            border-color: #7B1D3A;
+            box-shadow: 0 4px 12px rgba(123, 29, 58, 0.15);
+        }
+
+        .profile-btn .avatar {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #7B1D3A 0%, #A62450 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .profile-btn .info {
+            text-align: left;
+        }
+
+        .profile-btn .info .name {
+            font-weight: 600;
+            color: #1F2937;
+            font-size: 14px;
+        }
+
+        .profile-btn .info .role {
+            font-size: 11px;
+            color: #6B7280;
+        }
+
+        .profile-btn i.fa-chevron-down {
+            color: #9CA3AF;
+            font-size: 12px;
+            transition: transform 0.3s;
+        }
+
+        .profile-dropdown.active .profile-btn i.fa-chevron-down {
+            transform: rotate(180deg);
+        }
+
+        .profile-menu {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: white;
+            border: 1px solid #E5E7EB;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+            min-width: 220px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .profile-dropdown.active .profile-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .profile-menu-header {
+            padding: 16px;
+            border-bottom: 1px solid #E5E7EB;
+            text-align: center;
+        }
+
+        .profile-menu-header .avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #7B1D3A 0%, #A62450 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 18px;
+            margin: 0 auto 10px;
+        }
+
+        .profile-menu-header .name {
+            font-weight: 600;
+            color: #1F2937;
+            font-size: 15px;
+        }
+
+        .profile-menu-header .email {
+            font-size: 12px;
+            color: #6B7280;
+            margin-top: 2px;
+        }
+
+        .profile-menu-items {
+            padding: 8px;
+        }
+
+        .profile-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            color: #374151;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .profile-menu-item:hover {
+            background: #F3F4F6;
+            color: #7B1D3A;
+        }
+
+        .profile-menu-item i {
+            width: 18px;
+            text-align: center;
+            color: #6B7280;
+        }
+
+        .profile-menu-item:hover i {
+            color: #7B1D3A;
+        }
+
+        .profile-menu-item.danger {
+            color: #DC2626;
+        }
+
+        .profile-menu-item.danger:hover {
+            background: #FEE2E2;
+            color: #DC2626;
+        }
+
+        .profile-menu-item.danger i {
+            color: #DC2626;
+        }
+
+        /* Project Progress Panel */
+        .progress-panel {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            border: 1px solid #E5E7EB;
+            margin-bottom: 28px;
+            overflow: hidden;
+        }
+
+        .progress-panel-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #E5E7EB;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #EDE9FE 0%, #DDD6FE 100%);
+        }
+
+        .progress-panel-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: #5B21B6;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .progress-form {
+            padding: 24px;
+            border-bottom: 1px solid #E5E7EB;
+            background: #FAFAFA;
+        }
+
+        .progress-form-row {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .progress-input, .progress-select, .progress-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #E5E7EB;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .progress-input:focus, .progress-select:focus, .progress-textarea:focus {
+            outline: none;
+            border-color: #7B1D3A;
+            box-shadow: 0 0 0 3px rgba(123, 29, 58, 0.1);
+        }
+
+        .progress-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .progress-file-upload {
+            border: 2px dashed #D1D5DB;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .progress-file-upload:hover {
+            border-color: #7B1D3A;
+            background: #FDF2F4;
+        }
+
+        .progress-file-upload i {
+            font-size: 24px;
+            color: #9CA3AF;
+            margin-bottom: 8px;
+        }
+
+        .progress-file-upload p {
+            font-size: 13px;
+            color: #6B7280;
+        }
+
+        .progress-file-upload span {
+            color: #7B1D3A;
+            font-weight: 600;
+        }
+
+        .progress-form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .progress-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .progress-item {
+            display: flex;
+            gap: 16px;
+            padding: 20px 24px;
+            border-bottom: 1px solid #F3F4F6;
+            transition: all 0.3s;
+        }
+
+        .progress-item:last-child {
+            border-bottom: none;
+        }
+
+        .progress-item:hover {
+            background: #FAFAFA;
+        }
+
+        .progress-item-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .progress-item-icon.development { background: linear-gradient(135deg, #DBEAFE, #BFDBFE); color: #2563EB; }
+        .progress-item-icon.funding { background: linear-gradient(135deg, #D1FAE5, #A7F3D0); color: #059669; }
+        .progress-item-icon.partnership { background: linear-gradient(135deg, #FEF3C7, #FDE68A); color: #D97706; }
+        .progress-item-icon.launch { background: linear-gradient(135deg, #FCE7F3, #FBCFE8); color: #DB2777; }
+        .progress-item-icon.achievement { background: linear-gradient(135deg, #EDE9FE, #DDD6FE); color: #7C3AED; }
+        .progress-item-icon.other { background: linear-gradient(135deg, #F3F4F6, #E5E7EB); color: #6B7280; }
+
+        .progress-item-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .progress-item-title {
+            font-weight: 600;
+            color: #1F2937;
+            margin-bottom: 4px;
+        }
+
+        .progress-item-desc {
+            font-size: 14px;
+            color: #6B7280;
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+
+        .progress-item-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 12px;
+            color: #9CA3AF;
+        }
+
+        .progress-item-status {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .progress-status-submitted { background: #FEF3C7; color: #92400E; }
+        .progress-status-reviewed { background: #DBEAFE; color: #1E40AF; }
+        .progress-status-acknowledged { background: #D1FAE5; color: #065F46; }
+
+        .progress-admin-comment {
+            margin-top: 12px;
+            padding: 12px;
+            background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%);
+            border-radius: 8px;
+            border-left: 3px solid #0284C7;
+        }
+
+        .progress-admin-comment-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #0369A1;
+            margin-bottom: 4px;
+        }
+
+        .progress-admin-comment-text {
+            font-size: 13px;
+            color: #0C4A6E;
+        }
+
+        .file-attached {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            background: #F3F4F6;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #4B5563;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .file-attached:hover {
+            background: #E5E7EB;
+            color: #1F2937;
+        }
+
+        /* Logout Confirmation Modal */
+        .logout-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logout-modal-overlay.active {
+            display: flex;
+        }
+
+        .logout-modal {
+            background: white;
+            border-radius: 20px;
+            padding: 32px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .logout-modal-icon {
+            width: 72px;
+            height: 72px;
+            background: linear-gradient(135deg, #FEE2E2, #FECACA);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+        .logout-modal-icon i {
+            font-size: 32px;
+            color: #DC2626;
+        }
+
+        .logout-modal h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1F2937;
+            margin-bottom: 8px;
+        }
+
+        .logout-modal p {
+            font-size: 14px;
+            color: #6B7280;
+            margin-bottom: 24px;
+        }
+
+        .logout-modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .logout-modal-btn {
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .logout-modal-btn.cancel {
+            background: #F3F4F6;
+            color: #374151;
+        }
+
+        .logout-modal-btn.cancel:hover {
+            background: #E5E7EB;
+        }
+
+        .logout-modal-btn.confirm {
+            background: linear-gradient(135deg, #DC2626, #B91C1C);
+            color: white;
+        }
+
+        .logout-modal-btn.confirm:hover {
+            background: linear-gradient(135deg, #B91C1C, #991B1B);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+        }
     </style>
 </head>
 <body>
@@ -737,33 +1388,9 @@
     <!-- Sidebar -->
     <aside class="sidebar">
         <div class="sidebar-header">
-            <img src="{{ asset('images/UP%20logo.png') }}" alt="UP Logo">
+            <img src="{{ asset('images/upLogo.png') }}" alt="UP Logo">
             <h3>Startup Portal</h3>
             <p>UP Cebu Incubator</p>
-        </div>
-
-        <div class="company-card">
-            <div class="company-avatar">
-@php
-                    $words = explode(' ', $startup->company_name);
-                    $initials = '';
-                    foreach ($words as $word) {
-                        if (!empty($word)) {
-                            $initials .= strtoupper(substr($word, 0, 1));
-                        }
-                        if (strlen($initials) >= 2) break;
-                    }
-                    echo $initials ?: strtoupper(substr($startup->company_name, 0, 2));
-                @endphp
-            </div>
-            <div class="company-name">{{ ucwords(strtolower($startup->company_name)) }}</div>
-            <div class="company-code">{{ $startup->startup_code }}</div>
-            @if($startup->room_number)
-                <div class="room-badge">
-                    <i class="fas fa-door-open"></i>
-                    Room {{ $startup->room_number }}
-                </div>
-            @endif
         </div>
 
         <nav class="sidebar-menu">
@@ -772,6 +1399,7 @@
                 <i class="fas fa-th-large"></i>
                 <span>Dashboard</span>
             </a>
+            
             <a href="{{ route('startup.upload-document') }}" class="menu-item">
                 <i class="fas fa-cloud-upload-alt"></i>
                 <span>Upload Document</span>
@@ -788,7 +1416,6 @@
                 <i class="fas fa-credit-card"></i>
                 <span>Submit Payment</span>
             </a>
-
             <div class="menu-section">History & Records</div>
             <a href="{{ route('startup.submissions') }}" class="menu-item">
                 <i class="fas fa-folder-open"></i>
@@ -797,6 +1424,11 @@
                     <span class="menu-badge">{{ $pendingCount }}</span>
                 @endif
             </a>
+            <a href="{{ route('startup.progress') }}" class="menu-item">
+                <i class="fas fa-chart-line"></i>
+                <span>Project Progress</span>
+            </a>
+            
             <a href="{{ route('startup.room-issues') }}" class="menu-item">
                 <i class="fas fa-tools"></i>
                 <span>Room Issues</span>
@@ -804,18 +1436,74 @@
         </nav>
 
         <div class="sidebar-footer">
-            <form action="{{ route('startup.logout') }}" method="POST">
-                @csrf
-                <button type="submit" class="logout-btn">
-                    <i class="fas fa-sign-out-alt"></i>
-                    Sign Out
-                </button>
-            </form>
+            <button type="button" class="logout-btn" onclick="showLogoutModal()">
+                <i class="fas fa-sign-out-alt"></i>
+                Sign Out
+            </button>
         </div>
     </aside>
 
     <!-- Main Content -->
     <main class="main-content">
+        <!-- Top Header with Profile -->
+        <div class="top-header">
+            <div class="profile-dropdown" id="profileDropdown">
+                <button type="button" class="profile-btn" id="profileBtn">
+                    <div class="avatar">
+                        @php
+                            $words = explode(' ', $startup->company_name);
+                            $initials = '';
+                            foreach ($words as $word) {
+                                if (!empty($word)) {
+                                    $initials .= strtoupper(substr($word, 0, 1));
+                                }
+                                if (strlen($initials) >= 2) break;
+                            }
+                            echo $initials ?: strtoupper(substr($startup->company_name, 0, 2));
+                        @endphp
+                    </div>
+                    <div class="info">
+                        <div class="name">{{ Str::limit(ucwords(strtolower($startup->company_name)), 20) }}</div>
+                        <div class="role">{{ $startup->startup_code }}</div>
+                    </div>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="profile-menu">
+                    <div class="profile-menu-header">
+                        <div class="avatar">
+                            @php
+                                $words = explode(' ', $startup->company_name);
+                                $initials = '';
+                                foreach ($words as $word) {
+                                    if (!empty($word)) {
+                                        $initials .= strtoupper(substr($word, 0, 1));
+                                    }
+                                    if (strlen($initials) >= 2) break;
+                                }
+                                echo $initials ?: strtoupper(substr($startup->company_name, 0, 2));
+                            @endphp
+                        </div>
+                        <div class="name">{{ ucwords(strtolower($startup->company_name)) }}</div>
+                        <div class="email">{{ $startup->email }}</div>
+                    </div>
+                    <div class="profile-menu-items">
+                        <a href="{{ route('startup.profile') }}" class="profile-menu-item">
+                            <i class="fas fa-user-circle"></i>
+                            Company Profile
+                        </a>
+                        <a href="{{ route('startup.profile') }}" class="profile-menu-item">
+                            <i class="fas fa-cog"></i>
+                            Settings
+                        </a>
+                        <button type="button" class="profile-menu-item danger" style="width: 100%; border: none; background: none; cursor: pointer;" onclick="showLogoutModal()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Sign Out
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         @if(session('success'))
             <div class="alert alert-success">
                 <i class="fas fa-check-circle"></i>
@@ -829,6 +1517,53 @@
                 <div class="welcome-text">
                     <h1>Welcome back, {{ ucwords(strtolower($startup->company_name)) }}! 👋</h1>
                     <p>Here's your startup dashboard overview. Manage your documents, track issues, and stay updated.</p>
+                    
+                    <!-- Insight Badges -->
+                    <div class="welcome-insights">
+                        @php
+                            $pendingSubmissions = $startup->submissions()->where('status', 'pending')->count();
+                            $pendingIssues = $startup->roomIssues()->where('status', 'pending')->count();
+                            $totalItems = $documentCount + $moaCount + $paymentCount;
+                        @endphp
+                        
+                        @if($pendingSubmissions > 0)
+                            <a href="{{ route('startup.submissions') }}" class="insight-badge alert">
+                                <i class="fas fa-clock"></i>
+                                {{ $pendingSubmissions }} pending {{ Str::plural('submission', $pendingSubmissions) }}
+                            </a>
+                        @endif
+                        
+                        @if($pendingIssues > 0)
+                            <a href="{{ route('startup.room-issues') }}" class="insight-badge alert">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                {{ $pendingIssues }} unresolved {{ Str::plural('issue', $pendingIssues) }}
+                            </a>
+                        @endif
+                        
+                        @if($pendingSubmissions == 0 && $pendingIssues == 0)
+                            <span class="insight-badge success">
+                                <i class="fas fa-check-circle"></i>
+                                All caught up!
+                            </span>
+                        @endif
+                        
+                        <span class="insight-badge">
+                            <i class="fas fa-folder"></i>
+                            {{ $totalItems }} total {{ Str::plural('submission', $totalItems) }}
+                        </span>
+                        
+                        @if($startup->moa_status === 'active')
+                            <span class="insight-badge success">
+                                <i class="fas fa-file-contract"></i>
+                                MOA Active
+                            </span>
+                        @elseif($startup->moa_status === 'expired')
+                            <span class="insight-badge alert">
+                                <i class="fas fa-file-contract"></i>
+                                MOA Expired
+                            </span>
+                        @endif
+                    </div>
                 </div>
                 <div class="welcome-date">
                     <div class="date-day">{{ now()->format('d') }}</div>
@@ -869,42 +1604,54 @@
 
         <!-- Stats Grid -->
         <div class="stats-grid">
-            <div class="stat-card">
+            <a href="{{ route('startup.submissions', ['type' => 'document']) }}" class="stat-card">
+                <div class="stat-arrow"><i class="fas fa-arrow-right"></i></div>
                 <div class="stat-header">
                     <div class="stat-icon" style="background: linear-gradient(135deg, #EDE9FE, #DDD6FE); color: #7C3AED;">
                         <i class="fas fa-file-alt"></i>
                     </div>
                 </div>
-                <div class="stat-value">{{ $documentCount }}</div>
+                <div class="stat-value animate" data-count="{{ $documentCount }}">{{ $documentCount }}</div>
                 <div class="stat-label">Documents Submitted</div>
-            </div>
-            <div class="stat-card">
+                <div class="stat-trend neutral"><i class="fas fa-folder"></i> Click to view</div>
+            </a>
+            <a href="{{ route('startup.submissions', ['type' => 'moa']) }}" class="stat-card">
+                <div class="stat-arrow"><i class="fas fa-arrow-right"></i></div>
                 <div class="stat-header">
                     <div class="stat-icon" style="background: linear-gradient(135deg, #FEF3C7, #FDE68A); color: #D97706;">
                         <i class="fas fa-file-signature"></i>
                     </div>
                 </div>
-                <div class="stat-value">{{ $moaCount }}</div>
+                <div class="stat-value animate" data-count="{{ $moaCount }}">{{ $moaCount }}</div>
                 <div class="stat-label">MOA Requests</div>
-            </div>
-            <div class="stat-card">
+                <div class="stat-trend neutral"><i class="fas fa-folder"></i> Click to view</div>
+            </a>
+            <a href="{{ route('startup.submissions', ['type' => 'finance']) }}" class="stat-card">
+                <div class="stat-arrow"><i class="fas fa-arrow-right"></i></div>
                 <div class="stat-header">
                     <div class="stat-icon" style="background: linear-gradient(135deg, #D1FAE5, #A7F3D0); color: #059669;">
                         <i class="fas fa-receipt"></i>
                     </div>
                 </div>
-                <div class="stat-value">{{ $paymentCount }}</div>
+                <div class="stat-value animate" data-count="{{ $paymentCount }}">{{ $paymentCount }}</div>
                 <div class="stat-label">Payment Submissions</div>
-            </div>
-            <div class="stat-card">
+                <div class="stat-trend neutral"><i class="fas fa-folder"></i> Click to view</div>
+            </a>
+            <a href="{{ route('startup.room-issues') }}" class="stat-card">
+                <div class="stat-arrow"><i class="fas fa-arrow-right"></i></div>
                 <div class="stat-header">
                     <div class="stat-icon" style="background: linear-gradient(135deg, #FEE2E2, #FECACA); color: #DC2626;">
                         <i class="fas fa-tools"></i>
                     </div>
                 </div>
-                <div class="stat-value">{{ $roomIssueCount }}</div>
+                <div class="stat-value animate" data-count="{{ $roomIssueCount }}">{{ $roomIssueCount }}</div>
                 <div class="stat-label">Room Issues Reported</div>
-            </div>
+                @if($roomIssueCount > 0)
+                    <div class="stat-trend up"><i class="fas fa-exclamation-circle"></i> {{ $startup->roomIssues()->where('status', 'pending')->count() }} pending</div>
+                @else
+                    <div class="stat-trend neutral"><i class="fas fa-check"></i> All clear</div>
+                @endif
+            </a>
         </div>
 
         <!-- Two Column Grid -->
@@ -986,5 +1733,73 @@
             </div>
         </div>
     </main>
+
+    <!-- Logout Confirmation Modal -->
+    <div class="logout-modal-overlay" id="logoutModal">
+        <div class="logout-modal">
+            <div class="logout-modal-icon">
+                <i class="fas fa-sign-out-alt"></i>
+            </div>
+            <h3>Sign Out</h3>
+            <p>Are you sure you want to sign out of your account?</p>
+            <div class="logout-modal-actions">
+                <button type="button" class="logout-modal-btn cancel" onclick="hideLogoutModal()">
+                    Cancel
+                </button>
+                <button type="button" class="logout-modal-btn confirm" onclick="confirmLogout()">
+                    Sign Out
+                </button>
+            </div>
+            <form id="logoutForm" action="{{ route('startup.logout') }}" method="POST" style="display: none;">
+                @csrf
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Profile dropdown toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const profileBtn = document.getElementById('profileBtn');
+            const profileDropdown = document.getElementById('profileDropdown');
+            
+            if (profileBtn) {
+                profileBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    profileDropdown.classList.toggle('active');
+                });
+            }
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(event) {
+                if (profileDropdown && !profileDropdown.contains(event.target)) {
+                    profileDropdown.classList.remove('active');
+                }
+            });
+
+            // Close logout modal when clicking overlay
+            const logoutModal = document.getElementById('logoutModal');
+            if (logoutModal) {
+                logoutModal.addEventListener('click', function(e) {
+                    if (e.target === logoutModal) {
+                        hideLogoutModal();
+                    }
+                });
+            }
+        });
+
+        // Logout Modal Functions
+        function showLogoutModal() {
+            document.getElementById('logoutModal').classList.add('active');
+        }
+
+        function hideLogoutModal() {
+            document.getElementById('logoutModal').classList.remove('active');
+        }
+
+        function confirmLogout() {
+            document.getElementById('logoutForm').submit();
+        }
+    </script>
 </body>
 </html>

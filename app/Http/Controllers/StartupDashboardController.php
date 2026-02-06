@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\RoomIssue;
 use App\Models\Startup;
+use App\Models\StartupProgress;
 use App\Models\StartupSubmission;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -41,6 +42,11 @@ class StartupDashboardController extends Controller
             ->take(5)
             ->get();
 
+        $recentProgress = $startup->progressUpdates()
+            ->latest()
+            ->take(5)
+            ->get();
+
         $pendingCount = $startup->submissions()->where('status', 'pending')->count()
             + $startup->roomIssues()->where('status', 'pending')->count();
 
@@ -52,6 +58,7 @@ class StartupDashboardController extends Controller
             'roomIssueCount',
             'recentSubmissions',
             'recentRoomIssues',
+            'recentProgress',
             'pendingCount'
         ));
     }
@@ -70,7 +77,7 @@ class StartupDashboardController extends Controller
             $query->where('type', $type);
         }
 
-        $submissions = $query->latest()->paginate(10);
+        $submissions = $query->latest()->paginate(6);
 
         return view('startup.submissions', compact('startup', 'submissions', 'type'));
     }
@@ -81,7 +88,7 @@ class StartupDashboardController extends Controller
     public function roomIssues()
     {
         $startup = $this->getStartup();
-        $roomIssues = $startup->roomIssues()->latest()->paginate(10);
+        $roomIssues = $startup->roomIssues()->latest()->paginate(6);
 
         return view('startup.room-issues', compact('startup', 'roomIssues'));
     }
@@ -356,5 +363,54 @@ class StartupDashboardController extends Controller
         }
 
         return response()->download($templatePath, 'MOA-Template.docx');
+    }
+
+    /**
+     * Show project progress page
+     */
+    public function progress()
+    {
+        $startup = $this->getStartup();
+        $progressUpdates = $startup->progressUpdates()->latest()->get();
+
+        return view('startup.progress', compact('startup', 'progressUpdates'));
+    }
+
+    /**
+     * Submit project progress update
+     */
+    public function submitProgress(Request $request)
+    {
+        $startup = $this->getStartup();
+
+        $validated = $request->validate([
+            'milestone_type' => 'required|in:development,funding,partnership,launch,achievement,other',
+            'title' => 'required|string|max:255',
+            'description' => 'required|string|max:2000',
+            'attachment' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,jpg,jpeg,png|max:10240',
+        ]);
+
+        $path = null;
+        $originalFilename = null;
+
+        if ($request->hasFile('attachment')) {
+            $file = $request->file('attachment');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $path = $file->storeAs('startup-progress', $filename, 'public');
+            $originalFilename = $file->getClientOriginalName();
+        }
+
+        StartupProgress::create([
+            'startup_id' => $startup->id,
+            'title' => $validated['title'],
+            'description' => $validated['description'],
+            'milestone_type' => $validated['milestone_type'],
+            'file_path' => $path,
+            'original_filename' => $originalFilename,
+            'status' => 'submitted',
+        ]);
+
+        return redirect()->route('startup.progress')
+            ->with('success', 'Project progress update submitted successfully!');
     }
 }
