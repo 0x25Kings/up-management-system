@@ -75,7 +75,7 @@ class TeamLeaderController extends Controller
         // Today's attendance
         $today = Carbon::today('Asia/Manila');
         $presentToday = Attendance::whereIn('intern_id', $internIds)
-            ->whereDate('date', $today)
+            ->where('date', $today->toDateString())
             ->where('status', 'Present')
             ->count();
 
@@ -125,7 +125,7 @@ class TeamLeaderController extends Controller
 
         // Today's attendance for attendance page
         $todayAttendances = Attendance::whereIn('intern_id', $internIds)
-            ->whereDate('date', $today)
+            ->where('date', $today->toDateString())
             ->with('intern')
             ->get();
 
@@ -615,7 +615,7 @@ class TeamLeaderController extends Controller
         $date = $request->date ? Carbon::parse($request->date) : Carbon::today('Asia/Manila');
 
         $attendances = Attendance::whereIn('intern_id', $internIds)
-            ->whereDate('date', $date)
+            ->where('date', $date->toDateString())
             ->with('intern')
             ->get();
 
@@ -731,7 +731,7 @@ class TeamLeaderController extends Controller
             'total_interns' => $this->getSchoolInterns()->count(),
             'active_interns' => $this->getSchoolInterns()->where('status', 'Active')->count(),
             'present_today' => Attendance::whereIn('intern_id', $internIds)
-                ->whereDate('date', Carbon::today('Asia/Manila'))
+                ->where('date', Carbon::today('Asia/Manila')->toDateString())
                 ->where('status', 'Present')
                 ->count(),
         ];
@@ -752,8 +752,8 @@ class TeamLeaderController extends Controller
             ->orderBy('name')
             ->get()
             ->map(function ($intern) {
-                $progress = $intern->required_hours > 0 
-                    ? round(($intern->completed_hours / $intern->required_hours) * 100, 1) 
+                $progress = $intern->required_hours > 0
+                    ? round(($intern->completed_hours / $intern->required_hours) * 100, 1)
                     : 0;
                 return [
                     'id' => $intern->id,
@@ -784,7 +784,7 @@ class TeamLeaderController extends Controller
         $today = Carbon::today('Asia/Manila');
 
         $attendances = Attendance::whereIn('intern_id', $internIds)
-            ->whereDate('date', $today)
+            ->where('date', $today->toDateString())
             ->with('intern:id,name,course')
             ->get()
             ->map(function ($attendance) {
@@ -830,9 +830,10 @@ class TeamLeaderController extends Controller
     public function updateSubmission(Request $request, StartupSubmission $submission)
     {
         // Check if user has edit access to incubatee_tracker
+        /** @var \App\Models\User $user */
         $user = Auth::user();
         $editableModules = $user->getEditableModules();
-        
+
         if (!in_array('incubatee_tracker', $editableModules)) {
             return response()->json([
                 'success' => false,
@@ -864,9 +865,10 @@ class TeamLeaderController extends Controller
     public function updateRoomIssue(Request $request, RoomIssue $roomIssue)
     {
         // Check if user has edit access to issues_management
+        /** @var \App\Models\User $user */
         $user = Auth::user();
         $editableModules = $user->getEditableModules();
-        
+
         if (!in_array('issues_management', $editableModules)) {
             return response()->json([
                 'success' => false,
@@ -882,11 +884,11 @@ class TeamLeaderController extends Controller
         $roomIssue->status = $validated['status'];
         $roomIssue->admin_notes = $validated['admin_notes'] ?? $roomIssue->admin_notes;
         $roomIssue->resolved_by = $user->id;
-        
+
         if ($validated['status'] === 'resolved' || $validated['status'] === 'closed') {
             $roomIssue->resolved_at = Carbon::now();
         }
-        
+
         $roomIssue->save();
 
         return response()->json([

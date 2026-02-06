@@ -23,6 +23,8 @@ class AdminStartupController extends Controller
                     'id' => $submission->id,
                     'tracking_code' => $submission->tracking_code,
                     'startup_name' => $submission->company_name,
+                    'company_name' => $submission->company_name,
+                    'type' => $submission->type,
                     'industry' => $submission->type ?? 'General',
                     'contact_person' => $submission->contact_person,
                     'email' => $submission->email,
@@ -246,7 +248,7 @@ class AdminStartupController extends Controller
     public function getProgress(StartupProgress $progress)
     {
         $progress->load('startup');
-        
+
         return response()->json([
             'success' => true,
             'progress' => [

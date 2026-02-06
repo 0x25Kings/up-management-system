@@ -1,3 +1,12 @@
+@php
+/**
+ * @var \Illuminate\Support\Collection<int, \App\Models\Attendance> $todayAttendances
+ * @var \Illuminate\Support\Collection<int, \App\Models\Attendance> $attendanceHistory
+ * @var \Illuminate\Support\Collection<int, \App\Models\Intern> $interns
+ * @var \Illuminate\Support\Collection<int, \App\Models\Task> $tasks
+ * @var \Illuminate\Support\Collection<int, \App\Models\StartupSubmission> $progressUpdates
+ */
+@endphp
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1579,6 +1588,56 @@
         .notification-icon.issue {
             background: #FEE2E2;
             color: #DC2626;
+        }
+
+        .notification-icon.intern {
+            background: #FEF3C7;
+            color: #D97706;
+        }
+
+        .notification-icon.report {
+            background: #E0E7FF;
+            color: #4F46E5;
+        }
+
+        .notification-icon.payment {
+            background: #FCE7F3;
+            color: #DB2777;
+        }
+
+        .notification-icon.moa {
+            background: #CCFBF1;
+            color: #0D9488;
+        }
+
+        .notification-icon.document {
+            background: #F3E8FF;
+            color: #7C3AED;
+        }
+
+        .notification-icon.absent {
+            background: #FEE2E2;
+            color: #B91C1C;
+        }
+
+        .notification-icon.task {
+            background: #D1FAE5;
+            color: #047857;
+        }
+
+        .notification-icon.upload {
+            background: #DBEAFE;
+            color: #1D4ED8;
+        }
+
+        .notification-icon.tlactivity {
+            background: #E0E7FF;
+            color: #4338CA;
+        }
+
+        .notification-icon.progress {
+            background: #FEF3C7;
+            color: #B45309;
         }
 
         .notification-content {
@@ -4390,6 +4449,7 @@
                             </thead>
                             <tbody id="dailyHoursTableBody">
                                 @forelse($todayAttendances ?? [] as $attendance)
+                                @php /** @var \App\Models\Attendance $attendance */ @endphp
                                 <tr data-attendance-id="{{ $attendance->id }}" data-time-in="{{ $attendance->raw_time_in }}" data-timed-out="{{ $attendance->time_out ? 'true' : 'false' }}">
                                     <td>
                                         <div style="display: flex; align-items: center; gap: 12px;">
@@ -4430,16 +4490,16 @@
                                         @if($attendance->time_out)
                                             @if($attendance->hasUndertime())
                                                 <span style="background: #FEE2E2; color: #991B1B; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
-                                                    <i class="fas fa-arrow-down"></i> -{{ number_format($attendance->undertime_hours, 2) }} hrs
+                                                    <i class="fas fa-arrow-down"></i> -{{ number_format((float)($attendance->undertime_hours ?? 0), 2) }} hrs
                                                 </span>
                                             @elseif($attendance->hasOvertime())
                                                 @if($attendance->overtime_approved)
                                                     <span style="background: #D1FAE5; color: #065F46; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
-                                                        <i class="fas fa-check-circle"></i> +{{ number_format($attendance->overtime_hours, 2) }} hrs (Approved)
+                                                        <i class="fas fa-check-circle"></i> +{{ number_format((float)($attendance->overtime_hours ?? 0), 2) }} hrs (Approved)
                                                     </span>
                                                 @else
                                                     <span style="background: #FEF3C7; color: #92400E; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
-                                                        <i class="fas fa-clock"></i> +{{ number_format($attendance->overtime_hours, 2) }} hrs (Pending)
+                                                        <i class="fas fa-clock"></i> +{{ number_format((float)($attendance->overtime_hours ?? 0), 2) }} hrs (Pending)
                                                     </span>
                                                 @endif
                                             @else
@@ -4507,10 +4567,11 @@
                             </thead>
                             <tbody>
                                 @forelse($attendanceHistory ?? [] as $attendance)
+                                @php /** @var \App\Models\Attendance $attendance */ @endphp
                                 <tr>
                                     <td>
-                                        <div style="font-weight: 600;">{{ $attendance->date ? $attendance->date->format('M d, Y') : 'N/A' }}</div>
-                                        <div style="font-size: 12px; color: #6B7280;">{{ $attendance->date ? $attendance->date->format('l') : '' }}</div>
+                                        <div style="font-weight: 600;">{{ $attendance->date ? \Carbon\Carbon::parse($attendance->date)->format('M d, Y') : 'N/A' }}</div>
+                                        <div style="font-size: 12px; color: #6B7280;">{{ $attendance->date ? \Carbon\Carbon::parse($attendance->date)->format('l') : '' }}</div>
                                     </td>
                                     <td>
                                         <div style="display: flex; align-items: center; gap: 12px;">
@@ -4542,21 +4603,21 @@
                                         <span style="color: #9CA3AF; font-style: italic;">Not yet</span>
                                         @endif
                                     </td>
-                                    <td><strong style="color: #7B1D3A;">{{ number_format($attendance->hours_worked, 2) }} hrs</strong></td>
+                                    <td><strong style="color: #7B1D3A;">{{ number_format((float)($attendance->hours_worked ?? 0), 2) }} hrs</strong></td>
                                     <td>
                                         @if($attendance->time_out)
                                             @if($attendance->hasUndertime())
                                                 <span style="background: #FEE2E2; color: #991B1B; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
-                                                    <i class="fas fa-arrow-down"></i> -{{ number_format($attendance->undertime_hours, 2) }} hrs
+                                                    <i class="fas fa-arrow-down"></i> -{{ number_format((float)($attendance->undertime_hours ?? 0), 2) }} hrs
                                                 </span>
                                             @elseif($attendance->hasOvertime())
                                                 @if($attendance->overtime_approved)
                                                     <span style="background: #D1FAE5; color: #065F46; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
-                                                        <i class="fas fa-check-circle"></i> +{{ number_format($attendance->overtime_hours, 2) }} hrs
+                                                        <i class="fas fa-check-circle"></i> +{{ number_format((float)($attendance->overtime_hours ?? 0), 2) }} hrs
                                                     </span>
                                                 @else
                                                     <span style="background: #FEF3C7; color: #92400E; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
-                                                        <i class="fas fa-clock"></i> +{{ number_format($attendance->overtime_hours, 2) }} hrs (Pending)
+                                                        <i class="fas fa-clock"></i> +{{ number_format((float)($attendance->overtime_hours ?? 0), 2) }} hrs (Pending)
                                                     </span>
                                                 @endif
                                             @else
@@ -4610,6 +4671,7 @@
                             </thead>
                             <tbody>
                                 @forelse($interns ?? [] as $intern)
+                                @php /** @var \App\Models\Intern $intern */ @endphp
                                 <tr>
                                     <td>
                                         <div style="display: flex; align-items: center; gap: 12px;">
@@ -4732,10 +4794,12 @@
                         </thead>
                         <tbody id="taskTableBody">
                             @php
+                                /** @var \Illuminate\Support\Collection<int, \App\Models\Task> $tasks */
                                 $groupedTasks = ($tasks ?? collect())->groupBy('group_id')->map(function($group) {
                                     return $group->first()->group_id ? $group : $group->each(fn($t) => $t->group_id = 'single_'.$t->id);
                                 });
                                 $displayedTasks = collect();
+                                /** @var \App\Models\Task $task */
                                 foreach($tasks ?? [] as $task) {
                                     if (!$task->group_id || !$displayedTasks->contains('group_id', $task->group_id)) {
                                         $displayedTasks->push($task);
@@ -5736,6 +5800,7 @@
                             </thead>
                             <tbody id="progressTableBody">
                                 @forelse($progressUpdates ?? [] as $progress)
+                                @php /** @var \App\Models\StartupSubmission $progress */ @endphp
                                 <tr class="progress-row" data-status="{{ $progress->status }}" data-type="{{ $progress->milestone_type }}" style="border-bottom: 1px solid #F3F4F6;">
                                     <td style="padding: 16px;">
                                         <div style="display: flex; align-items: center; gap: 10px;">
@@ -9091,10 +9156,52 @@
 
         // Notification System
         let notifications = [];
-        let previousBookingCount = 0;
-        let previousStartupCount = 0;
-        let previousIssueCount = 0;
-        let isFirstLoad = true;
+
+        // Load previous counts from localStorage (persisted across page reloads)
+        function loadStoredCounts() {
+            try {
+                const stored = JSON.parse(localStorage.getItem('adminNotifCounts') || '{}');
+                return stored;
+            } catch (e) {
+                return {};
+            }
+        }
+
+        function saveStoredCounts(counts) {
+            localStorage.setItem('adminNotifCounts', JSON.stringify(counts));
+        }
+
+        let storedCounts = loadStoredCounts();
+        let previousBookingCount = storedCounts.booking || 0;
+        let previousStartupCount = storedCounts.startup || 0;
+        let previousIssueCount = storedCounts.issue || 0;
+        let previousInternCount = storedCounts.intern || 0;
+        let previousReportCount = storedCounts.report || 0;
+        let previousMoaCount = storedCounts.moa || 0;
+        let previousPaymentCount = storedCounts.payment || 0;
+        let previousDocumentCount = storedCounts.document || 0;
+        let previousAbsentCount = storedCounts.absent || 0;
+        let previousTaskSubmissionCount = storedCounts.taskSubmission || 0;
+        let previousDocUploadCount = storedCounts.docUpload || 0;
+        let previousProgressCount = storedCounts.progress || 0;
+        let previousTlActivityCount = storedCounts.tlActivity || 0;
+
+        // Track if this is the very first poll (to initialize counts without toasts)
+        let isVeryFirstPoll = Object.keys(storedCounts).length === 0;
+
+        // Check if first load summary was already shown today
+        function hasShownFirstLoadToday() {
+            const today = new Date().toISOString().split('T')[0];
+            const lastShown = localStorage.getItem('adminNotifFirstLoadDate');
+            return lastShown === today;
+        }
+
+        function markFirstLoadShown() {
+            const today = new Date().toISOString().split('T')[0];
+            localStorage.setItem('adminNotifFirstLoadDate', today);
+        }
+
+        let isFirstLoad = !hasShownFirstLoadToday();
 
         // Get read notification IDs from localStorage
         function getReadNotifications() {
@@ -9231,6 +9338,9 @@
                 let bookings = [];
                 let startups = [];
                 let issues = [];
+                let pendingInterns = [];
+                let teamReports = [];
+                let notificationData = {};
 
                 // Fetch pending bookings
                 try {
@@ -9253,7 +9363,12 @@
                 } catch (e) {
                     console.warn('Error fetching startups:', e);
                 }
-                const pendingStartups = Array.isArray(startups) ? startups.filter(s => s.status === 'pending') : [];
+                // Categorize startup submissions by type
+                const allPendingSubmissions = Array.isArray(startups) ? startups.filter(s => s.status === 'pending') : [];
+                const pendingMoa = allPendingSubmissions.filter(s => s.industry === 'moa' || s.type === 'moa');
+                const pendingPayments = allPendingSubmissions.filter(s => s.industry === 'finance' || s.type === 'finance' || s.industry === 'payment' || s.type === 'payment');
+                const pendingDocuments = allPendingSubmissions.filter(s => s.industry === 'document' || s.type === 'document');
+                const pendingStartups = allPendingSubmissions.filter(s => !['moa', 'finance', 'payment', 'document'].includes(s.industry) && !['moa', 'finance', 'payment', 'document'].includes(s.type));
 
                 // Fetch room issues
                 try {
@@ -9266,8 +9381,48 @@
                 }
                 const pendingIssues = Array.isArray(issues) ? issues.filter(i => i.status === 'pending' || i.status === 'in_progress') : [];
 
-                // Check for new items and show toast notifications
-                if (!isFirstLoad) {
+                // Fetch pending intern registrations
+                try {
+                    const internsResponse = await fetch('/admin/interns/pending');
+                    if (internsResponse.ok) {
+                        const internsData = await internsResponse.json();
+                        pendingInterns = internsData.interns || internsData || [];
+                    }
+                } catch (e) {
+                    console.warn('Error fetching pending interns:', e);
+                }
+                pendingInterns = Array.isArray(pendingInterns) ? pendingInterns : [];
+
+                // Fetch team leader reports
+                try {
+                    const reportsResponse = await fetch('/admin/api/team-reports');
+                    if (reportsResponse.ok) {
+                        const reportsData = await reportsResponse.json();
+                        teamReports = reportsData.reports || reportsData || [];
+                    }
+                } catch (e) {
+                    console.warn('Error fetching team reports:', e);
+                }
+                const pendingReports = Array.isArray(teamReports) ? teamReports.filter(r => r.status === 'submitted') : [];
+
+                // Fetch additional notification data (absent interns, task submissions, document uploads, progress, TL activities)
+                try {
+                    const notifResponse = await fetch('/admin/api/notifications');
+                    if (notifResponse.ok) {
+                        notificationData = await notifResponse.json();
+                    }
+                } catch (e) {
+                    console.warn('Error fetching notification data:', e);
+                }
+
+                const absentInterns = notificationData.absent_interns || [];
+                const taskSubmissions = notificationData.task_submissions || [];
+                const documentUploads = notificationData.document_uploads || [];
+                const progressUpdates = notificationData.progress_updates || [];
+                const tlActivities = notificationData.team_leader_activities || [];
+
+                // Check for new items and show toast notifications (only if not the very first poll)
+                if (!isFirstLoad && !isVeryFirstPoll) {
                     // New bookings
                     if (pendingBookings.length > previousBookingCount) {
                         const newCount = pendingBookings.length - previousBookingCount;
@@ -9275,19 +9430,134 @@
                         showToast('info', `🗓️ New Booking Request${newCount > 1 ? 's' : ''}!`,
                             newCount > 1
                                 ? `${newCount} new booking requests need your attention.`
-                                : `${latestBooking.agency_name} wants to book for ${latestBooking.event_name}.`,
+                                : `${latestBooking.agency_name || 'Someone'} wants to book for ${latestBooking.event_name || 'an event'}.`,
                             6000);
                         playNotificationSound();
                     }
 
-                    // New startups
+                    // New intern registrations
+                    if (pendingInterns.length > previousInternCount) {
+                        const newCount = pendingInterns.length - previousInternCount;
+                        const latestIntern = pendingInterns[0];
+                        showToast('warning', `👤 New Intern Registration${newCount > 1 ? 's' : ''}!`,
+                            newCount > 1
+                                ? `${newCount} new intern registrations need approval.`
+                                : `${latestIntern.name || 'An intern'} has registered and awaits approval.`,
+                            6000);
+                        playNotificationSound();
+                    }
+
+                    // Absent interns (only notify once per day on first detection)
+                    if (absentInterns.length > 0 && absentInterns.length !== previousAbsentCount && previousAbsentCount === 0) {
+                        showToast('warning', `⏰ Absent Interns Today`,
+                            `${absentInterns.length} intern${absentInterns.length > 1 ? 's are' : ' is'} absent today.`,
+                            6000);
+                    }
+
+                    // New task submissions
+                    if (taskSubmissions.length > previousTaskSubmissionCount) {
+                        const newCount = taskSubmissions.length - previousTaskSubmissionCount;
+                        const latestTask = taskSubmissions[0];
+                        showToast('success', `✅ Task Completed${newCount > 1 ? ' (Multiple)' : ''}!`,
+                            newCount > 1
+                                ? `${newCount} tasks have been completed.`
+                                : `${latestTask.intern_name || 'An intern'} completed "${latestTask.title || 'a task'}".`,
+                            6000);
+                        playNotificationSound();
+                    }
+
+                    // New document uploads
+                    if (documentUploads.length > previousDocUploadCount) {
+                        const newCount = documentUploads.length - previousDocUploadCount;
+                        const latestDoc = documentUploads[0];
+                        showToast('info', `📤 New File Upload${newCount > 1 ? 's' : ''}!`,
+                            newCount > 1
+                                ? `${newCount} new files have been uploaded.`
+                                : `"${latestDoc.name || 'A file'}" was uploaded by ${latestDoc.uploader || 'someone'}.`,
+                            6000);
+                        playNotificationSound();
+                    }
+
+                    // New team leader reports
+                    if (pendingReports.length > previousReportCount) {
+                        const newCount = pendingReports.length - previousReportCount;
+                        const latestReport = pendingReports[0];
+                        showToast('info', `📋 New Team Leader Report${newCount > 1 ? 's' : ''}!`,
+                            newCount > 1
+                                ? `${newCount} new reports need your review.`
+                                : `${latestReport.team_leader_name || 'A team leader'} submitted a ${latestReport.report_type || 'report'}.`,
+                            6000);
+                        playNotificationSound();
+                    }
+
+                    // Team leader activities
+                    if (tlActivities.length > previousTlActivityCount) {
+                        const newCount = tlActivities.length - previousTlActivityCount;
+                        const latestActivity = tlActivities[0];
+                        showToast('info', `👥 Team Leader Action${newCount > 1 ? 's' : ''}!`,
+                            newCount > 1
+                                ? `Team leaders performed ${newCount} new actions.`
+                                : `${latestActivity.team_leader_name || 'A team leader'}: ${latestActivity.action || 'performed an action'}.`,
+                            6000);
+                        playNotificationSound();
+                    }
+
+                    // New project progress updates
+                    if (progressUpdates.length > previousProgressCount) {
+                        const newCount = progressUpdates.length - previousProgressCount;
+                        const latestProgress = progressUpdates[0];
+                        showToast('success', `📈 Project Progress Update${newCount > 1 ? 's' : ''}!`,
+                            newCount > 1
+                                ? `${newCount} startups submitted progress updates.`
+                                : `${latestProgress.startup_name || 'A startup'} submitted a ${latestProgress.milestone_type || 'progress'} update.`,
+                            6000);
+                        playNotificationSound();
+                    }
+
+                    // New MOA submissions
+                    if (pendingMoa.length > previousMoaCount) {
+                        const newCount = pendingMoa.length - previousMoaCount;
+                        const latestMoa = pendingMoa[0];
+                        showToast('success', `📄 New MOA Submission${newCount > 1 ? 's' : ''}!`,
+                            newCount > 1
+                                ? `${newCount} new MOA requests need review.`
+                                : `${latestMoa.startup_name || 'A startup'} submitted an MOA request.`,
+                            6000);
+                        playNotificationSound();
+                    }
+
+                    // New payment submissions
+                    if (pendingPayments.length > previousPaymentCount) {
+                        const newCount = pendingPayments.length - previousPaymentCount;
+                        const latestPayment = pendingPayments[0];
+                        showToast('success', `💰 New Payment Submission${newCount > 1 ? 's' : ''}!`,
+                            newCount > 1
+                                ? `${newCount} new payment submissions need verification.`
+                                : `${latestPayment.startup_name || 'A startup'} submitted a payment.`,
+                            6000);
+                        playNotificationSound();
+                    }
+
+                    // New document submissions (startup)
+                    if (pendingDocuments.length > previousDocumentCount) {
+                        const newCount = pendingDocuments.length - previousDocumentCount;
+                        const latestDoc = pendingDocuments[0];
+                        showToast('info', `📁 New Document Submission${newCount > 1 ? 's' : ''}!`,
+                            newCount > 1
+                                ? `${newCount} new documents need review.`
+                                : `${latestDoc.startup_name || 'A startup'} submitted a document.`,
+                            6000);
+                        playNotificationSound();
+                    }
+
+                    // New startups (general applications)
                     if (pendingStartups.length > previousStartupCount) {
                         const newCount = pendingStartups.length - previousStartupCount;
                         const latestStartup = pendingStartups[0];
                         showToast('success', `🚀 New Startup Application${newCount > 1 ? 's' : ''}!`,
                             newCount > 1
                                 ? `${newCount} new startup applications need review.`
-                                : `${latestStartup.startup_name} has applied for incubation.`,
+                                : `${latestStartup.startup_name || 'A startup'} has applied for incubation.`,
                             6000);
                         playNotificationSound();
                     }
@@ -9299,24 +9569,73 @@
                         showToast('warning', `⚠️ New Issue Reported${newCount > 1 ? 's' : ''}!`,
                             newCount > 1
                                 ? `${newCount} new issues require attention.`
-                                : `Issue at ${latestIssue.room_location}: ${latestIssue.category}`,
+                                : `Issue at ${latestIssue.room_location || 'a room'}: ${latestIssue.category || 'Reported'}`,
                             6000);
                         playNotificationSound();
                     }
-                } else {
-                    // First load - show summary if there are pending items
-                    if (pendingBookings.length > 0) {
-                        showToast('info', '🗓️ Pending Bookings',
-                            `You have ${pendingBookings.length} booking request${pendingBookings.length > 1 ? 's' : ''} awaiting approval.`,
+                } else if (isFirstLoad && !isVeryFirstPoll) {
+                    // First load of the day (but not very first poll ever) - show summary if there are pending items
+                    const totalPending = pendingBookings.length + pendingInterns.length + pendingReports.length +
+                                         pendingMoa.length + pendingPayments.length + pendingDocuments.length +
+                                         pendingStartups.length + pendingIssues.length + progressUpdates.length;
+                    if (totalPending > 0) {
+                        let summaryParts = [];
+                        if (pendingBookings.length > 0) summaryParts.push(`${pendingBookings.length} booking${pendingBookings.length > 1 ? 's' : ''}`);
+                        if (pendingInterns.length > 0) summaryParts.push(`${pendingInterns.length} intern${pendingInterns.length > 1 ? 's' : ''}`);
+                        if (pendingReports.length > 0) summaryParts.push(`${pendingReports.length} report${pendingReports.length > 1 ? 's' : ''}`);
+                        if (pendingMoa.length > 0) summaryParts.push(`${pendingMoa.length} MOA${pendingMoa.length > 1 ? 's' : ''}`);
+                        if (pendingPayments.length > 0) summaryParts.push(`${pendingPayments.length} payment${pendingPayments.length > 1 ? 's' : ''}`);
+                        if (progressUpdates.length > 0) summaryParts.push(`${progressUpdates.length} progress update${progressUpdates.length > 1 ? 's' : ''}`);
+
+                        showToast('info', '📬 Pending Items',
+                            `You have ${summaryParts.slice(0, 3).join(', ')}${summaryParts.length > 3 ? ' and more' : ''} awaiting review.`,
                             5000);
                     }
+
+                    // Show absent interns on first load
+                    if (absentInterns.length > 0) {
+                        showToast('warning', `⏰ Today's Attendance`,
+                            `${absentInterns.length} intern${absentInterns.length > 1 ? 's are' : ' is'} currently absent.`,
+                            5000);
+                    }
+
+                    // Mark first load as shown for today
+                    markFirstLoadShown();
                 }
 
                 // Update previous counts
                 previousBookingCount = pendingBookings.length;
                 previousStartupCount = pendingStartups.length;
                 previousIssueCount = pendingIssues.length;
+                previousInternCount = pendingInterns.length;
+                previousReportCount = pendingReports.length;
+                previousMoaCount = pendingMoa.length;
+                previousPaymentCount = pendingPayments.length;
+                previousDocumentCount = pendingDocuments.length;
+                previousAbsentCount = absentInterns.length;
+                previousTaskSubmissionCount = taskSubmissions.length;
+                previousDocUploadCount = documentUploads.length;
+                previousProgressCount = progressUpdates.length;
+                previousTlActivityCount = tlActivities.length;
                 isFirstLoad = false;
+                isVeryFirstPoll = false;
+
+                // Persist counts to localStorage so they survive page refresh
+                saveStoredCounts({
+                    booking: previousBookingCount,
+                    startup: previousStartupCount,
+                    issue: previousIssueCount,
+                    intern: previousInternCount,
+                    report: previousReportCount,
+                    moa: previousMoaCount,
+                    payment: previousPaymentCount,
+                    document: previousDocumentCount,
+                    absent: previousAbsentCount,
+                    taskSubmission: previousTaskSubmissionCount,
+                    docUpload: previousDocUploadCount,
+                    progress: previousProgressCount,
+                    tlActivity: previousTlActivityCount
+                });
 
                 // Get read notification IDs
                 const readIds = getReadNotifications();
@@ -9324,6 +9643,119 @@
                 // Build notifications array (excluding read ones)
                 notifications = [];
 
+                // Absent interns (high priority)
+                if (absentInterns.length > 0) {
+                    const notifId = `absent_today_${new Date().toISOString().split('T')[0]}`;
+                    if (!readIds.includes(notifId)) {
+                        notifications.push({
+                            id: notifId,
+                            type: 'absent',
+                            icon: 'fa-user-clock',
+                            title: 'Absent Interns Today',
+                            text: `${absentInterns.length} intern${absentInterns.length > 1 ? 's' : ''} absent - ${absentInterns.slice(0, 2).map(i => i.name).join(', ')}${absentInterns.length > 2 ? '...' : ''}`,
+                            time: 'Today',
+                            page: 'time-attendance'
+                        });
+                    }
+                }
+
+                // Pending intern registrations
+                pendingInterns.forEach(intern => {
+                    const notifId = `intern_${intern.id}`;
+                    if (!readIds.includes(notifId)) {
+                        notifications.push({
+                            id: notifId,
+                            type: 'intern',
+                            icon: 'fa-user-plus',
+                            title: 'New Intern Registration',
+                            text: `${intern.name || 'Unknown'} - ${intern.school || intern.school_name || 'Unknown School'}`,
+                            time: formatTimeAgo(intern.created_at),
+                            page: 'intern-list'
+                        });
+                    }
+                });
+
+                // Task submissions
+                taskSubmissions.forEach(task => {
+                    const notifId = `task_complete_${task.id}`;
+                    if (!readIds.includes(notifId)) {
+                        notifications.push({
+                            id: notifId,
+                            type: 'task',
+                            icon: 'fa-check-circle',
+                            title: 'Task Completed',
+                            text: `${task.intern_name || 'Intern'} completed "${task.title || 'task'}"`,
+                            time: formatTimeAgo(task.completed_at),
+                            page: 'task-assignment'
+                        });
+                    }
+                });
+
+                // Document uploads (intern files)
+                documentUploads.forEach(doc => {
+                    const notifId = `upload_${doc.id}`;
+                    if (!readIds.includes(notifId)) {
+                        notifications.push({
+                            id: notifId,
+                            type: 'upload',
+                            icon: 'fa-cloud-upload-alt',
+                            title: 'File Uploaded',
+                            text: `${doc.uploader || 'Someone'} uploaded "${doc.name || 'file'}"`,
+                            time: formatTimeAgo(doc.created_at),
+                            page: 'digital-records'
+                        });
+                    }
+                });
+
+                // Pending team leader reports
+                pendingReports.forEach(report => {
+                    const notifId = `report_${report.id}`;
+                    if (!readIds.includes(notifId)) {
+                        notifications.push({
+                            id: notifId,
+                            type: 'report',
+                            icon: 'fa-file-alt',
+                            title: 'Team Leader Report',
+                            text: `${report.team_leader_name || 'Team Leader'} - ${report.report_type || report.title || 'Report'}`,
+                            time: formatTimeAgo(report.created_at),
+                            page: 'team-leaders'
+                        });
+                    }
+                });
+
+                // Team leader activities
+                tlActivities.forEach(activity => {
+                    const notifId = activity.id;
+                    if (!readIds.includes(notifId)) {
+                        notifications.push({
+                            id: notifId,
+                            type: 'tlactivity',
+                            icon: 'fa-user-shield',
+                            title: activity.action || 'Team Leader Action',
+                            text: `${activity.team_leader_name}: ${activity.description || 'performed an action'}`,
+                            time: formatTimeAgo(activity.created_at),
+                            page: 'team-leaders'
+                        });
+                    }
+                });
+
+                // Project progress updates
+                progressUpdates.forEach(progress => {
+                    const notifId = `progress_${progress.id}`;
+                    if (!readIds.includes(notifId)) {
+                        notifications.push({
+                            id: notifId,
+                            type: 'progress',
+                            icon: 'fa-chart-line',
+                            title: 'Project Progress',
+                            text: `${progress.startup_name || 'Startup'} - ${progress.milestone_type || progress.title || 'Update'}`,
+                            time: formatTimeAgo(progress.created_at),
+                            page: 'incubatee-tracker'
+                        });
+                    }
+                });
+
+                // Pending bookings
                 pendingBookings.forEach(booking => {
                     const notifId = getNotificationId('booking', booking);
                     if (!readIds.includes(notifId)) {
@@ -9332,13 +9764,62 @@
                             type: 'booking',
                             icon: 'fa-calendar-check',
                             title: 'New Booking Request',
-                            text: `${booking.agency_name} - ${booking.event_name}`,
+                            text: `${booking.agency_name || 'Unknown'} - ${booking.event_name || 'Event'}`,
                             time: formatTimeAgo(booking.created_at),
                             page: 'scheduler'
                         });
                     }
                 });
 
+                // Pending MOA submissions
+                pendingMoa.forEach(moa => {
+                    const notifId = `moa_${moa.id}`;
+                    if (!readIds.includes(notifId)) {
+                        notifications.push({
+                            id: notifId,
+                            type: 'moa',
+                            icon: 'fa-file-contract',
+                            title: 'MOA Submission',
+                            text: `${moa.startup_name || moa.company_name || 'Startup'} - MOA Request`,
+                            time: formatTimeAgo(moa.created_at),
+                            page: 'incubatee-tracker'
+                        });
+                    }
+                });
+
+                // Pending payment submissions
+                pendingPayments.forEach(payment => {
+                    const notifId = `payment_${payment.id}`;
+                    if (!readIds.includes(notifId)) {
+                        notifications.push({
+                            id: notifId,
+                            type: 'payment',
+                            icon: 'fa-money-bill-wave',
+                            title: 'Payment Submission',
+                            text: `${payment.startup_name || payment.company_name || 'Startup'} - Payment Verification`,
+                            time: formatTimeAgo(payment.created_at),
+                            page: 'incubatee-tracker'
+                        });
+                    }
+                });
+
+                // Pending document submissions (startup)
+                pendingDocuments.forEach(doc => {
+                    const notifId = `document_${doc.id}`;
+                    if (!readIds.includes(notifId)) {
+                        notifications.push({
+                            id: notifId,
+                            type: 'document',
+                            icon: 'fa-folder-open',
+                            title: 'Document Submission',
+                            text: `${doc.startup_name || doc.company_name || 'Startup'} - Document Review`,
+                            time: formatTimeAgo(doc.created_at),
+                            page: 'incubatee-tracker'
+                        });
+                    }
+                });
+
+                // Other startup applications
                 pendingStartups.forEach(startup => {
                     const notifId = getNotificationId('startup', startup);
                     if (!readIds.includes(notifId)) {
@@ -9346,14 +9827,15 @@
                             id: notifId,
                             type: 'startup',
                             icon: 'fa-rocket',
-                            title: 'New Startup Application',
-                            text: `${startup.startup_name} - ${startup.industry}`,
+                            title: 'Startup Application',
+                            text: `${startup.startup_name || startup.company_name || 'Startup'} - ${startup.industry || 'General'}`,
                             time: formatTimeAgo(startup.created_at),
                             page: 'incubatee-tracker'
                         });
                     }
                 });
 
+                // Pending issues
                 pendingIssues.forEach(issue => {
                     const notifId = getNotificationId('issue', issue);
                     if (!readIds.includes(notifId)) {
@@ -9362,7 +9844,7 @@
                             type: 'issue',
                             icon: 'fa-exclamation-circle',
                             title: issue.status === 'pending' ? 'New Issue Reported' : 'Issue In Progress',
-                            text: `${issue.room_location} - ${issue.category}`,
+                            text: `${issue.room_location || 'Room'} - ${issue.category || 'Issue'}`,
                             time: formatTimeAgo(issue.created_at),
                             page: 'issues-management'
                         });
@@ -12775,7 +13257,7 @@
                         'reviewed': 'Reviewed',
                         'acknowledged': 'Acknowledged'
                     };
-                    
+
                     const content = `
                         <div style="display: grid; gap: 16px;">
                             <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid #E5E7EB;">
@@ -12792,12 +13274,12 @@
                                     ${typeLabels[progress.milestone_type] || 'Update'}
                                 </span>
                             </div>
-                            
+
                             <div>
                                 <div style="font-size: 20px; font-weight: 700; color: #1F2937; margin-bottom: 8px;">${progress.title}</div>
                                 <div style="background: #F9FAFB; padding: 16px; border-radius: 10px; line-height: 1.6; color: #374151;">${progress.description}</div>
                             </div>
-                            
+
                             ${progress.file_path ? `
                             <div>
                                 <div style="font-size: 12px; color: #6B7280; margin-bottom: 8px;">Attached File</div>
@@ -12807,7 +13289,7 @@
                                 </a>
                             </div>
                             ` : ''}
-                            
+
                             ${progress.admin_comment ? `
                             <div>
                                 <div style="font-size: 12px; color: #6B7280; margin-bottom: 8px;">Admin Response</div>
@@ -12816,7 +13298,7 @@
                                 </div>
                             </div>
                             ` : ''}
-                            
+
                             <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid #E5E7EB; font-size: 12px; color: #6B7280;">
                                 <span><i class="fas fa-clock"></i> Submitted: ${progress.created_at}</span>
                                 <span style="padding: 4px 10px; background: ${progress.status === 'acknowledged' ? '#D1FAE5' : (progress.status === 'reviewed' ? '#DBEAFE' : '#FEF3C7')}; color: ${progress.status === 'acknowledged' ? '#065F46' : (progress.status === 'reviewed' ? '#1E40AF' : '#92400E')}; border-radius: 20px; font-weight: 500;">
@@ -12825,7 +13307,7 @@
                             </div>
                         </div>
                     `;
-                    
+
                     document.getElementById('progressDetailContent').innerHTML = content;
                     document.getElementById('progressDetailModal').style.display = 'flex';
                 }
@@ -12845,11 +13327,11 @@
 
         function submitProgressResponse(event) {
             event.preventDefault();
-            
+
             const progressId = document.getElementById('respondProgressId').value;
             const status = document.getElementById('respondProgressStatus').value;
             const comment = document.getElementById('respondProgressComment').value;
-            
+
             fetch(`/admin/progress/${progressId}/respond`, {
                 method: 'POST',
                 headers: {

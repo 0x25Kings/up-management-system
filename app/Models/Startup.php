@@ -9,6 +9,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
+/**
+ * @property \Carbon\Carbon|null $moa_expiry
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ */
 class Startup extends Model
 {
     use HasFactory;
@@ -66,7 +71,7 @@ class Startup extends Model
         $word = $words[array_rand($words)];
         $number = rand(100, 999);
         $special = ['!', '@', '#', '$'][array_rand(['!', '@', '#', '$'])];
-        
+
         return $word . $number . $special;
     }
 

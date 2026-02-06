@@ -105,7 +105,7 @@ class SchoolController extends Controller
     {
         // Check if school has any interns
         $internCount = $school->interns()->count();
-        
+
         if ($internCount > 0) {
             return response()->json([
                 'success' => false,
@@ -144,9 +144,20 @@ class SchoolController extends Controller
         $pendingInterns = Intern::with('schoolRelation')
             ->where('approval_status', 'pending')
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->get()
+            ->map(function ($intern) {
+                return [
+                    'id' => $intern->id,
+                    'name' => $intern->name,
+                    'email' => $intern->email,
+                    'school' => $intern->school,
+                    'school_name' => $intern->schoolRelation ? $intern->schoolRelation->name : $intern->school,
+                    'course' => $intern->course,
+                    'created_at' => $intern->created_at->toISOString(),
+                ];
+            });
 
-        return response()->json($pendingInterns);
+        return response()->json(['interns' => $pendingInterns]);
     }
 
     /**
@@ -235,7 +246,7 @@ class SchoolController extends Controller
         // Check school capacity if max_interns is set
         if ($school->max_interns) {
             $remainingSlots = $school->getRemainingSlots();
-            
+
             if ($remainingSlots <= 0) {
                 return response()->json([
                     'success' => false,

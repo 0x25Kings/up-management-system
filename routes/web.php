@@ -253,6 +253,7 @@ Route::middleware(['admin'])->group(function () {
     // Team Leader AJAX endpoints (for inline dashboard)
     Route::get('/admin/api/team-leaders', [AdminDashboardController::class, 'getTeamLeadersData'])->name('admin.api.team-leaders');
     Route::get('/admin/api/team-reports', [AdminDashboardController::class, 'getTeamReportsData'])->name('admin.api.team-reports');
+    Route::get('/admin/api/notifications', [AdminDashboardController::class, 'getNotificationData'])->name('admin.api.notifications');
     Route::post('/admin/api/team-leaders', [AdminDashboardController::class, 'storeTeamLeaderAjax'])->name('admin.api.team-leaders.store');
     Route::put('/admin/api/team-leaders/{user}', [AdminDashboardController::class, 'updateTeamLeaderAjax'])->name('admin.api.team-leaders.update');
     Route::patch('/admin/api/team-leaders/{user}/toggle-status', [AdminDashboardController::class, 'toggleTeamLeaderStatusAjax'])->name('admin.api.team-leaders.toggle-status');

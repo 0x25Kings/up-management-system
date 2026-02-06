@@ -372,7 +372,7 @@ class AdminDashboardController extends Controller
             ->with('school')
             ->orderBy('name')
             ->get()
-            ->map(function ($tl) {
+            ->map(function (\App\Models\User $tl) {
                 return [
                     'id' => $tl->id,
                     'name' => $tl->name,
@@ -1008,7 +1008,7 @@ class AdminDashboardController extends Controller
             'pendingTasks' => Task::where('status', 'pending')->count(),
             'completedTasks' => Task::where('status', 'completed')->count(),
             'pendingBookings' => Booking::where('status', 'pending')->count(),
-            'todayAttendance' => Attendance::whereDate('date', Carbon::now($timezone)->toDateString())->count(),
+            'todayAttendance' => Attendance::where('date', Carbon::now($timezone)->toDateString())->count(),
         ];
 
         return response()->json([
@@ -1191,13 +1191,13 @@ class AdminDashboardController extends Controller
     {
         $settings = Setting::getAllSettings();
         $defaults = Setting::getDefaults();
-        
+
         // Merge defaults with saved settings
         $merged = [];
         foreach ($defaults as $key => $default) {
             $merged[$key] = array_key_exists($key, $settings) ? $settings[$key] : $default['value'];
         }
-        
+
         return response()->json(['success' => true, 'settings' => $merged]);
     }
 
@@ -1212,7 +1212,7 @@ class AdminDashboardController extends Controller
             ]);
 
             $defaults = Setting::getDefaults();
-            
+
             foreach ($validated['settings'] as $key => $value) {
                 $type = isset($defaults[$key]) ? $defaults[$key]['type'] : 'string';
                 Setting::set($key, $value, $type);
@@ -1230,7 +1230,7 @@ class AdminDashboardController extends Controller
     public function resetSettings()
     {
         $defaults = Setting::getDefaults();
-        
+
         foreach ($defaults as $key => $default) {
             Setting::set($key, $default['value'], $default['type']);
         }
@@ -1292,6 +1292,7 @@ class AdminDashboardController extends Controller
             'profile_picture' => 'required|image|mimes:jpeg,png,jpg,gif|max:5120', // 5MB max
         ]);
 
+        /** @var \App\Models\User $user */
         $user = Auth::user();
 
         if ($request->hasFile('profile_picture')) {
@@ -1323,5 +1324,110 @@ class AdminDashboardController extends Controller
             'success' => false,
             'message' => 'No file uploaded'
         ], 400);
+    }
+
+    /**
+     * Get comprehensive notification data for admin dashboard
+     */
+    public function getNotificationData()
+    {
+        $timezone = 'Asia/Manila';
+        $today = Carbon::now($timezone)->toDateString();
+
+        // Get today's absent interns (Active interns without time-in today)
+        $activeInterns = Intern::approved()->where('status', 'Active')->get();
+        $presentTodayIds = Attendance::where('date', $today)
+            ->whereNotNull('time_in')
+            ->pluck('intern_id')
+            ->toArray();
+
+        $absentInterns = $activeInterns->filter(function($intern) use ($presentTodayIds) {
+            return !in_array($intern->id, $presentTodayIds);
+        })->map(function($intern) {
+            return [
+                'id' => $intern->id,
+                'name' => $intern->name,
+                'school' => $intern->school,
+                'school_name' => $intern->schoolRelation ? $intern->schoolRelation->name : $intern->school,
+                'created_at' => Carbon::now()->toISOString(),
+            ];
+        })->values();
+
+        // Get recent task submissions (completed tasks in last 24 hours)
+        $recentTaskSubmissions = Task::with('intern')
+            ->where('status', 'Completed')
+            ->where('updated_at', '>=', Carbon::now($timezone)->subHours(24))
+            ->orderBy('updated_at', 'desc')
+            ->get()
+            ->map(function($task) {
+                return [
+                    'id' => $task->id,
+                    'title' => $task->title,
+                    'intern_name' => $task->intern ? $task->intern->name : 'Unknown',
+                    'completed_at' => $task->updated_at->toISOString(),
+                    'created_at' => $task->updated_at->toISOString(),
+                ];
+            });
+
+        // Get recent document uploads (last 24 hours)
+        $recentDocuments = Document::where('created_at', '>=', Carbon::now($timezone)->subHours(24))
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function($doc) {
+                return [
+                    'id' => $doc->id,
+                    'name' => $doc->original_name ?? $doc->name ?? 'Document',
+                    'type' => $doc->type ?? 'file',
+                    'uploader' => $doc->uploaded_by_name ?? 'Unknown',
+                    'created_at' => $doc->created_at->toISOString(),
+                ];
+            });
+
+        // Get project progress updates (pending review)
+        $progressUpdates = StartupProgress::with('startup')
+            ->where('status', 'pending')
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function($progress) {
+                return [
+                    'id' => $progress->id,
+                    'title' => $progress->title,
+                    'startup_name' => $progress->startup ? $progress->startup->startup_name : 'Unknown Startup',
+                    'milestone_type' => $progress->milestone_type,
+                    'status' => $progress->status,
+                    'created_at' => $progress->created_at->toISOString(),
+                ];
+            });
+
+        // Get team leader activities (recent actions from activity_logs or booking approvals by TL)
+        $teamLeaderActivities = [];
+
+        // Get bookings approved by team leaders
+        $tlApprovedBookings = Booking::whereNotNull('approved_by')
+            ->where('updated_at', '>=', Carbon::now($timezone)->subHours(24))
+            ->whereHas('approvedBy', function($q) {
+                $q->where('role', User::ROLE_TEAM_LEADER);
+            })
+            ->with(['approvedBy'])
+            ->orderBy('updated_at', 'desc')
+            ->get();
+
+        foreach ($tlApprovedBookings as $booking) {
+            $teamLeaderActivities[] = [
+                'id' => 'booking_' . $booking->id,
+                'action' => 'Approved Booking',
+                'description' => "Approved booking for {$booking->event_name}",
+                'team_leader_name' => $booking->approvedBy ? $booking->approvedBy->name : 'Team Leader',
+                'created_at' => $booking->updated_at->toISOString(),
+            ];
+        }
+
+        return response()->json([
+            'absent_interns' => $absentInterns,
+            'task_submissions' => $recentTaskSubmissions,
+            'document_uploads' => $recentDocuments,
+            'progress_updates' => $progressUpdates,
+            'team_leader_activities' => $teamLeaderActivities,
+        ]);
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Startup;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -101,7 +102,7 @@ class AdminStartupAccountController extends Controller
                 'status_color' => $startup->status_color,
                 'moa_status' => $startup->moa_status,
                 'moa_status_color' => $startup->moa_status_color,
-                'moa_expiry' => $startup->moa_expiry?->format('M d, Y'),
+                'moa_expiry' => $startup->moa_expiry ? Carbon::parse($startup->moa_expiry)->format('M d, Y') : null,
                 'created_by' => $startup->creator?->name,
                 'created_at' => $startup->created_at->format('M d, Y h:i A'),
                 'submission_count' => $startup->submissions->count(),
