@@ -4159,7 +4159,27 @@
                             <i class="fas fa-user-clock"></i>
                             Pending Intern Approvals
                         </h4>
-                        <span style="background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;">{{ ($pendingInterns ?? collect())->count() }} Pending from {{ $pendingBySchool->count() }} {{ $pendingBySchool->count() == 1 ? 'School' : 'Schools' }}</span>
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <span style="background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;">{{ ($pendingInterns ?? collect())->count() }} Pending from {{ $pendingBySchool->count() }} {{ $pendingBySchool->count() == 1 ? 'School' : 'Schools' }}</span>
+                        </div>
+                    </div>
+                    <!-- Bulk Actions Bar -->
+                    <div id="bulkActionsBar" style="display: none; background: linear-gradient(135deg, #1E40AF 0%, #1E3A8A 100%); color: white; padding: 12px 20px; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <input type="checkbox" id="selectAllPending" onchange="toggleSelectAllPending()" style="width: 18px; height: 18px; cursor: pointer; accent-color: #FFBF00;">
+                            <span id="selectedCountText" style="font-size: 14px; font-weight: 600;">0 selected</span>
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <button onclick="bulkApproveSelected()" style="background: linear-gradient(135deg, #10B981, #059669); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                                <i class="fas fa-check-double"></i> Approve Selected
+                            </button>
+                            <button onclick="bulkRejectSelected()" style="background: linear-gradient(135deg, #EF4444, #DC2626); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                                <i class="fas fa-times"></i> Reject Selected
+                            </button>
+                            <button onclick="clearBulkSelection()" style="background: rgba(255,255,255,0.2); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;">
+                                <i class="fas fa-times"></i> Clear
+                            </button>
+                        </div>
                     </div>
                     <div style="background: white; border-radius: 0 0 12px 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
                         @foreach($pendingBySchool as $schoolName => $schoolPending)
@@ -4188,6 +4208,7 @@
                                 <table style="width: 100%; border-collapse: collapse;">
                                     <thead>
                                         <tr style="background: #F3F4F6;">
+                                            <th style="padding: 10px 12px; text-align: center; width: 40px;"><input type="checkbox" class="school-select-all" data-school="{{ $schoolId }}" onchange="toggleSchoolSelection({{ $schoolId }})" style="width: 16px; height: 16px; cursor: pointer; accent-color: #7B1D3A;"></th>
                                             <th style="padding: 10px 12px; text-align: left; font-size: 12px; font-weight: 600; color: #6B7280;">Name</th>
                                             <th style="padding: 10px 12px; text-align: left; font-size: 12px; font-weight: 600; color: #6B7280;">Email</th>
                                             <th style="padding: 10px 12px; text-align: left; font-size: 12px; font-weight: 600; color: #6B7280;">Course</th>
@@ -4197,7 +4218,10 @@
                                     </thead>
                                     <tbody>
                                         @foreach($schoolPending as $pending)
-                                        <tr id="pending-intern-{{ $pending->id }}" style="border-bottom: 1px solid #E5E7EB;">
+                                        <tr id="pending-intern-{{ $pending->id }}" style="border-bottom: 1px solid #E5E7EB;" data-school-id="{{ $schoolId }}">
+                                            <td style="padding: 12px; text-align: center;">
+                                                <input type="checkbox" class="pending-intern-checkbox" data-intern-id="{{ $pending->id }}" data-intern-name="{{ $pending->name }}" data-school-id="{{ $schoolId }}" onchange="updateBulkSelection()" style="width: 16px; height: 16px; cursor: pointer; accent-color: #7B1D3A;">
+                                            </td>
                                             <td style="padding: 12px;">
                                                 <div style="display: flex; align-items: center; gap: 10px;">
                                                     <div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #FEF3C7, #FDE68A); display: flex; align-items: center; justify-content: center; color: #92400E; font-weight: 700; font-size: 13px; overflow: hidden;">
@@ -4770,6 +4794,27 @@
                     </button>
                 </div>
 
+                <!-- Bulk Task Actions Bar -->
+                <div id="bulkTaskActionsBar" style="display: none; background: linear-gradient(135deg, #1E40AF 0%, #1E3A8A 100%); color: white; padding: 12px 20px; border-radius: 10px; margin-bottom: 16px; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span id="selectedTaskCountText" style="font-size: 14px; font-weight: 600;">0 tasks selected</span>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button onclick="bulkUpdateTaskStatus('In Progress')" style="background: linear-gradient(135deg, #F59E0B, #D97706); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                            <i class="fas fa-play"></i> Mark In Progress
+                        </button>
+                        <button onclick="bulkUpdateTaskStatus('Completed')" style="background: linear-gradient(135deg, #10B981, #059669); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                            <i class="fas fa-check-double"></i> Mark Completed
+                        </button>
+                        <button onclick="bulkDeleteTasks()" style="background: linear-gradient(135deg, #EF4444, #DC2626); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                            <i class="fas fa-trash"></i> Delete Selected
+                        </button>
+                        <button onclick="clearTaskSelection()" style="background: rgba(255,255,255,0.2); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;">
+                            <i class="fas fa-times"></i> Clear
+                        </button>
+                    </div>
+                </div>
+
                 <div class="table-card">
                     <div class="table-header">
                         <h3 class="table-title">All Task Assignments</h3>
@@ -4781,6 +4826,7 @@
                     <table style="min-width: 1400px;">
                         <thead>
                             <tr>
+                                <th style="width: 40px; min-width: 40px;"><input type="checkbox" id="selectAllTasks" onchange="toggleSelectAllTasks()" style="width: 16px; height: 16px; cursor: pointer; accent-color: #7B1D3A;"></th>
                                 <th style="min-width: 200px;">Task Title</th>
                                 <th style="min-width: 180px;">Assigned To</th>
                                 <th style="min-width: 140px;">Assignment Type</th>
@@ -4813,7 +4859,10 @@
                                 $schoolsInGroup = $groupMembers->pluck('intern.school')->filter()->unique();
                                 $isMixedSchool = $schoolsInGroup->count() > 1;
                             @endphp
-                            <tr>
+                            <tr data-task-id="{{ $task->id }}">
+                                <td style="text-align: center;">
+                                    <input type="checkbox" class="task-checkbox" data-task-id="{{ $task->id }}" data-task-title="{{ $task->title }}" onchange="updateTaskSelection()" style="width: 16px; height: 16px; cursor: pointer; accent-color: #7B1D3A;">
+                                </td>
                                 <td>
                                     <div style="font-weight: 600; margin-bottom: 4px;">{{ $task->title }}</div>
                                     <div style="font-size: 12px; color: #6B7280;">{{ Str::limit($task->description ?? 'No description', 80) }}</div>
@@ -4904,7 +4953,7 @@
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="9" style="text-align: center; padding: 40px; color: #9CA3AF;">
+                                <td colspan="10" style="text-align: center; padding: 40px; color: #9CA3AF;">
                                     <i class="fas fa-tasks" style="font-size: 40px; margin-bottom: 12px; display: block;"></i>
                                     No tasks assigned yet. Click <strong>New Task</strong> to create one.
                                 </td>
@@ -15299,17 +15348,129 @@ University of the Philippines Cebu
         }
 
         function viewFileDetails(filePath, fileName) {
-            const message = `
-                <div style="text-align: left;">
-                    <p><strong>File:</strong> ${escapeHtml(fileName)}</p>
-                    <p><strong>Path:</strong> ${escapeHtml(filePath)}</p>
-                    <button onclick="downloadFile('${escapeHtml(filePath)}', '${escapeHtml(fileName)}')" style="margin-top: 16px; padding: 10px 20px; background: linear-gradient(135deg, #7B1D3A, #5a1428); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
-                        <i class="fas fa-download"></i> Download File
-                    </button>
-                </div>
-            `;
-            showToast('info', fileName, message);
+            currentPreviewFile = { path: filePath, name: fileName };
+            const ext = fileName.split('.').pop().toLowerCase();
+            const fileIcon = getFileIcon(fileName);
+            const downloadUrl = `/admin/documents/download?path=${encodeURIComponent(filePath)}`;
+
+            // Update modal header
+            document.getElementById('filePreviewName').textContent = fileName;
+            document.getElementById('filePreviewIcon').className = fileIcon.icon;
+            document.getElementById('filePreviewIcon').style.cssText = fileIcon.style;
+
+            // Determine preview type
+            const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'];
+            const pdfExts = ['pdf'];
+            const textExts = ['txt', 'csv', 'log', 'json', 'xml', 'html', 'css', 'js'];
+            const officeExts = ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'];
+
+            let previewContent = '';
+
+            if (imageExts.includes(ext)) {
+                previewContent = `
+                    <div style="padding: 20px; text-align: center; width: 100%;">
+                        <img src="${downloadUrl}" alt="${escapeHtml(fileName)}" style="max-width: 100%; max-height: 60vh; object-fit: contain; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);" onerror="this.parentElement.innerHTML='<div style=\\'text-align: center; color: #6B7280; padding: 40px;\\'><i class=\\'fas fa-exclamation-triangle\\' style=\\'font-size: 48px; margin-bottom: 12px; color: #F59E0B;\\'></i><p>Failed to load image</p></div>'">
+                    </div>
+                `;
+                document.getElementById('filePreviewInfo').textContent = 'Image Preview';
+            } else if (pdfExts.includes(ext)) {
+                previewContent = `
+                    <iframe src="${downloadUrl}#toolbar=1&navpanes=0" style="width: 100%; height: 100%; min-height: 500px; border: none;" title="PDF Preview"></iframe>
+                `;
+                document.getElementById('filePreviewInfo').textContent = 'PDF Document';
+            } else if (textExts.includes(ext)) {
+                previewContent = `
+                    <div style="padding: 20px; width: 100%;">
+                        <div id="textPreviewContent" style="background: white; border-radius: 8px; padding: 20px; font-family: 'Consolas', 'Monaco', monospace; font-size: 13px; line-height: 1.6; white-space: pre-wrap; word-break: break-word; max-height: 60vh; overflow: auto; border: 1px solid #E5E7EB;">
+                            <div style="text-align: center; color: #6B7280;"><i class="fas fa-spinner fa-spin"></i> Loading content...</div>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('filePreviewInfo').textContent = `${ext.toUpperCase()} File`;
+
+                // Fetch text content
+                fetch(downloadUrl)
+                    .then(response => response.text())
+                    .then(text => {
+                        const textEl = document.getElementById('textPreviewContent');
+                        if (textEl) {
+                            const maxChars = 100000;
+                            if (text.length > maxChars) {
+                                text = text.substring(0, maxChars) + '\n\n... (File truncated. Download to see full content)';
+                            }
+                            textEl.textContent = text || '(Empty file)';
+                        }
+                    })
+                    .catch(error => {
+                        const textEl = document.getElementById('textPreviewContent');
+                        if (textEl) {
+                            textEl.innerHTML = '<div style="text-align: center; color: #EF4444;"><i class="fas fa-exclamation-circle"></i> Failed to load file content</div>';
+                        }
+                    });
+            } else if (officeExts.includes(ext)) {
+                previewContent = `
+                    <div style="text-align: center; padding: 60px 40px;">
+                        <div style="width: 100px; height: 100px; margin: 0 auto 24px; background: linear-gradient(135deg, #DBEAFE, #93C5FD); border-radius: 20px; display: flex; align-items: center; justify-content: center;">
+                            <i class="${fileIcon.icon}" style="font-size: 48px; ${fileIcon.style}"></i>
+                        </div>
+                        <h3 style="color: #1F2937; margin-bottom: 8px; font-size: 20px;">${escapeHtml(fileName)}</h3>
+                        <p style="color: #6B7280; margin-bottom: 24px; font-size: 14px;">Office documents cannot be previewed directly in the browser.</p>
+                        <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                            <a href="https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(window.location.origin + downloadUrl)}" target="_blank" style="padding: 12px 24px; background: linear-gradient(135deg, #2563EB, #1D4ED8); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
+                                <i class="fas fa-external-link-alt"></i> Open in Office Online
+                            </a>
+                            <button onclick="downloadCurrentFile()" style="padding: 12px 24px; background: linear-gradient(135deg, #10B981, #059669); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;">
+                                <i class="fas fa-download"></i> Download
+                            </button>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('filePreviewInfo').textContent = 'Office Document';
+            } else {
+                previewContent = `
+                    <div style="text-align: center; padding: 60px 40px;">
+                        <div style="width: 100px; height: 100px; margin: 0 auto 24px; background: linear-gradient(135deg, #F3F4F6, #E5E7EB); border-radius: 20px; display: flex; align-items: center; justify-content: center;">
+                            <i class="${fileIcon.icon}" style="font-size: 48px; ${fileIcon.style}"></i>
+                        </div>
+                        <h3 style="color: #1F2937; margin-bottom: 8px; font-size: 20px;">${escapeHtml(fileName)}</h3>
+                        <p style="color: #6B7280; margin-bottom: 24px; font-size: 14px;">Preview not available for this file type.</p>
+                        <button onclick="downloadCurrentFile()" style="padding: 12px 24px; background: linear-gradient(135deg, #10B981, #059669); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-download"></i> Download File
+                        </button>
+                    </div>
+                `;
+                document.getElementById('filePreviewInfo').textContent = ext.toUpperCase() + ' File';
+            }
+
+            document.getElementById('filePreviewContent').innerHTML = previewContent;
+            document.getElementById('filePreviewMeta').innerHTML = `<i class="fas fa-folder" style="margin-right: 6px;"></i> ${escapeHtml(filePath)}`;
+            document.getElementById('filePreviewModal').style.display = 'flex';
         }
+
+        let currentPreviewFile = null;
+
+        function closeFilePreview() {
+            document.getElementById('filePreviewModal').style.display = 'none';
+            currentPreviewFile = null;
+        }
+
+        function downloadCurrentFile() {
+            if (currentPreviewFile) {
+                downloadFile(currentPreviewFile.path, currentPreviewFile.name);
+            }
+        }
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                if (document.getElementById('filePreviewModal').style.display === 'flex') {
+                    closeFilePreview();
+                }
+                if (document.getElementById('bulkRejectModal').style.display === 'flex') {
+                    closeBulkRejectModal();
+                }
+            }
+        });
 
         function downloadFile(filePath, fileName) {
             window.location.href = `/admin/documents/download?path=${encodeURIComponent(filePath)}`;
@@ -16605,6 +16766,377 @@ University of the Philippines Cebu
             }
         }
 
+        // ===== BULK OPERATIONS FUNCTIONS =====
+        let selectedInterns = new Set();
+
+        function updateBulkSelection() {
+            const checkboxes = document.querySelectorAll('.pending-intern-checkbox');
+            selectedInterns.clear();
+
+            checkboxes.forEach(cb => {
+                if (cb.checked) {
+                    selectedInterns.add({
+                        id: cb.dataset.internId,
+                        name: cb.dataset.internName,
+                        schoolId: cb.dataset.schoolId
+                    });
+                }
+            });
+
+            updateBulkUI();
+        }
+
+        function updateBulkUI() {
+            const bulkBar = document.getElementById('bulkActionsBar');
+            const countText = document.getElementById('selectedCountText');
+            const selectAllCheckbox = document.getElementById('selectAllPending');
+
+            if (selectedInterns.size > 0) {
+                bulkBar.style.display = 'flex';
+                countText.textContent = `${selectedInterns.size} selected`;
+
+                const totalCheckboxes = document.querySelectorAll('.pending-intern-checkbox').length;
+                selectAllCheckbox.checked = selectedInterns.size === totalCheckboxes;
+                selectAllCheckbox.indeterminate = selectedInterns.size > 0 && selectedInterns.size < totalCheckboxes;
+            } else {
+                bulkBar.style.display = 'none';
+                selectAllCheckbox.checked = false;
+                selectAllCheckbox.indeterminate = false;
+            }
+
+            // Update school-level checkboxes
+            document.querySelectorAll('.school-select-all').forEach(schoolCb => {
+                const schoolId = schoolCb.dataset.school;
+                const schoolCheckboxes = document.querySelectorAll(`.pending-intern-checkbox[data-school-id="${schoolId}"]`);
+                const checkedCount = Array.from(schoolCheckboxes).filter(cb => cb.checked).length;
+
+                schoolCb.checked = checkedCount === schoolCheckboxes.length && checkedCount > 0;
+                schoolCb.indeterminate = checkedCount > 0 && checkedCount < schoolCheckboxes.length;
+            });
+        }
+
+        function toggleSelectAllPending() {
+            const selectAll = document.getElementById('selectAllPending');
+            const checkboxes = document.querySelectorAll('.pending-intern-checkbox');
+
+            checkboxes.forEach(cb => {
+                cb.checked = selectAll.checked;
+            });
+
+            updateBulkSelection();
+        }
+
+        function toggleSchoolSelection(schoolId) {
+            const schoolCb = document.querySelector(`.school-select-all[data-school="${schoolId}"]`);
+            const schoolCheckboxes = document.querySelectorAll(`.pending-intern-checkbox[data-school-id="${schoolId}"]`);
+
+            schoolCheckboxes.forEach(cb => {
+                cb.checked = schoolCb.checked;
+            });
+
+            updateBulkSelection();
+        }
+
+        function clearBulkSelection() {
+            document.querySelectorAll('.pending-intern-checkbox').forEach(cb => cb.checked = false);
+            document.querySelectorAll('.school-select-all').forEach(cb => cb.checked = false);
+            document.getElementById('selectAllPending').checked = false;
+            selectedInterns.clear();
+            updateBulkUI();
+        }
+
+        async function bulkApproveSelected() {
+            if (selectedInterns.size === 0) {
+                showToast('No interns selected', 'warning');
+                return;
+            }
+
+            const internIds = Array.from(selectedInterns).map(i => i.id);
+            const count = internIds.length;
+
+            if (!confirm(`Are you sure you want to approve ${count} intern(s)?`)) {
+                return;
+            }
+
+            showToast(`Approving ${count} intern(s)...`, 'info');
+
+            let successCount = 0;
+            let failCount = 0;
+
+            for (const internId of internIds) {
+                try {
+                    const response = await fetch(`/admin/interns/${internId}/approve`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        successCount++;
+                        const row = document.getElementById(`pending-intern-${internId}`);
+                        if (row) row.remove();
+                    } else {
+                        failCount++;
+                    }
+                } catch (error) {
+                    console.error('Error approving intern:', internId, error);
+                    failCount++;
+                }
+            }
+
+            clearBulkSelection();
+
+            if (successCount > 0) {
+                showToast(`Successfully approved ${successCount} intern(s)${failCount > 0 ? `, ${failCount} failed` : ''}`, 'success');
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                showToast('Failed to approve interns', 'error');
+            }
+        }
+
+        function bulkRejectSelected() {
+            if (selectedInterns.size === 0) {
+                showToast('No interns selected', 'warning');
+                return;
+            }
+
+            const internList = Array.from(selectedInterns).map(i => `<div style="padding: 4px 0;"><i class="fas fa-user" style="color: #DC2626; margin-right: 8px;"></i>${i.name}</div>`).join('');
+
+            document.getElementById('bulkRejectCount').textContent = selectedInterns.size;
+            document.getElementById('bulkRejectList').innerHTML = internList;
+            document.getElementById('bulkRejectReason').value = '';
+            document.getElementById('bulkRejectModal').style.display = 'flex';
+        }
+
+        function closeBulkRejectModal() {
+            document.getElementById('bulkRejectModal').style.display = 'none';
+        }
+
+        async function submitBulkReject() {
+            const reason = document.getElementById('bulkRejectReason').value.trim();
+
+            if (!reason) {
+                showToast('Please provide a rejection reason', 'error');
+                return;
+            }
+
+            const internIds = Array.from(selectedInterns).map(i => i.id);
+            const count = internIds.length;
+
+            showToast(`Rejecting ${count} intern(s)...`, 'info');
+
+            let successCount = 0;
+            let failCount = 0;
+
+            for (const internId of internIds) {
+                try {
+                    const response = await fetch(`/admin/interns/${internId}/reject`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({ rejection_reason: reason })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        successCount++;
+                        const row = document.getElementById(`pending-intern-${internId}`);
+                        if (row) row.remove();
+                    } else {
+                        failCount++;
+                    }
+                } catch (error) {
+                    console.error('Error rejecting intern:', internId, error);
+                    failCount++;
+                }
+            }
+
+            closeBulkRejectModal();
+            clearBulkSelection();
+
+            if (successCount > 0) {
+                showToast(`Successfully rejected ${successCount} intern(s)${failCount > 0 ? `, ${failCount} failed` : ''}`, 'success');
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                showToast('Failed to reject interns', 'error');
+            }
+        }
+
+        // ===== BULK TASK OPERATIONS =====
+        let selectedTasks = new Set();
+
+        function updateTaskSelection() {
+            const checkboxes = document.querySelectorAll('.task-checkbox');
+            selectedTasks.clear();
+
+            checkboxes.forEach(cb => {
+                if (cb.checked) {
+                    selectedTasks.add({
+                        id: cb.dataset.taskId,
+                        title: cb.dataset.taskTitle
+                    });
+                }
+            });
+
+            updateTaskBulkUI();
+        }
+
+        function updateTaskBulkUI() {
+            const bulkBar = document.getElementById('bulkTaskActionsBar');
+            const countText = document.getElementById('selectedTaskCountText');
+            const selectAllCheckbox = document.getElementById('selectAllTasks');
+
+            if (selectedTasks.size > 0) {
+                bulkBar.style.display = 'flex';
+                countText.textContent = `${selectedTasks.size} task(s) selected`;
+
+                const totalCheckboxes = document.querySelectorAll('.task-checkbox').length;
+                selectAllCheckbox.checked = selectedTasks.size === totalCheckboxes;
+                selectAllCheckbox.indeterminate = selectedTasks.size > 0 && selectedTasks.size < totalCheckboxes;
+            } else {
+                bulkBar.style.display = 'none';
+                selectAllCheckbox.checked = false;
+                selectAllCheckbox.indeterminate = false;
+            }
+        }
+
+        function toggleSelectAllTasks() {
+            const selectAll = document.getElementById('selectAllTasks');
+            const checkboxes = document.querySelectorAll('.task-checkbox');
+
+            checkboxes.forEach(cb => {
+                cb.checked = selectAll.checked;
+            });
+
+            updateTaskSelection();
+        }
+
+        function clearTaskSelection() {
+            document.querySelectorAll('.task-checkbox').forEach(cb => cb.checked = false);
+            document.getElementById('selectAllTasks').checked = false;
+            selectedTasks.clear();
+            updateTaskBulkUI();
+        }
+
+        async function bulkUpdateTaskStatus(newStatus) {
+            if (selectedTasks.size === 0) {
+                showToast('No tasks selected', 'warning');
+                return;
+            }
+
+            const taskIds = Array.from(selectedTasks).map(t => t.id);
+            const count = taskIds.length;
+
+            if (!confirm(`Are you sure you want to mark ${count} task(s) as "${newStatus}"?`)) {
+                return;
+            }
+
+            showToast(`Updating ${count} task(s)...`, 'info');
+
+            let successCount = 0;
+            let failCount = 0;
+
+            for (const taskId of taskIds) {
+                try {
+                    const response = await fetch(`/admin/tasks/${taskId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({ status: newStatus })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success || response.ok) {
+                        successCount++;
+                    } else {
+                        failCount++;
+                    }
+                } catch (error) {
+                    console.error('Error updating task:', taskId, error);
+                    failCount++;
+                }
+            }
+
+            clearTaskSelection();
+
+            if (successCount > 0) {
+                showToast(`Successfully updated ${successCount} task(s)${failCount > 0 ? `, ${failCount} failed` : ''}`, 'success');
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                showToast('Failed to update tasks', 'error');
+            }
+        }
+
+        async function bulkDeleteTasks() {
+            if (selectedTasks.size === 0) {
+                showToast('No tasks selected', 'warning');
+                return;
+            }
+
+            const taskIds = Array.from(selectedTasks).map(t => t.id);
+            const count = taskIds.length;
+            const taskNames = Array.from(selectedTasks).map(t => t.title).slice(0, 5).join(', ');
+
+            if (!confirm(`Are you sure you want to delete ${count} task(s)?\n\nTasks: ${taskNames}${count > 5 ? '...' : ''}\n\nThis action cannot be undone.`)) {
+                return;
+            }
+
+            showToast(`Deleting ${count} task(s)...`, 'info');
+
+            let successCount = 0;
+            let failCount = 0;
+
+            for (const taskId of taskIds) {
+                try {
+                    const response = await fetch(`/admin/tasks/${taskId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success || response.ok) {
+                        successCount++;
+                        const row = document.querySelector(`tr[data-task-id="${taskId}"]`);
+                        if (row) row.remove();
+                    } else {
+                        failCount++;
+                    }
+                } catch (error) {
+                    console.error('Error deleting task:', taskId, error);
+                    failCount++;
+                }
+            }
+
+            clearTaskSelection();
+
+            if (successCount > 0) {
+                showToast(`Successfully deleted ${successCount} task(s)${failCount > 0 ? `, ${failCount} failed` : ''}`, 'success');
+                if (failCount === 0) {
+                    // If all deleted successfully, no need to reload
+                } else {
+                    setTimeout(() => location.reload(), 1500);
+                }
+            } else {
+                showToast('Failed to delete tasks', 'error');
+            }
+        }
+
         // View Intern Details
         async function viewInternDetails(internId) {
             try {
@@ -17308,6 +17840,68 @@ University of the Philippines Cebu
                 <i class="fas fa-times"></i>
             </button>
             <img id="zoomedProfileImage" src="" alt="Profile Picture" style="max-width: 100%; max-height: 90vh; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.5);" onclick="event.stopPropagation()">
+        </div>
+    </div>
+
+    <!-- File Preview Modal -->
+    <div id="filePreviewModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10001; align-items: center; justify-content: center; padding: 20px;">
+        <div style="background: white; border-radius: 16px; width: 100%; max-width: 1000px; max-height: 90vh; overflow: hidden; box-shadow: 0 25px 80px rgba(0,0,0,0.5); display: flex; flex-direction: column;">
+            <!-- Header -->
+            <div style="background: linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%); color: white; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <i id="filePreviewIcon" class="fas fa-file" style="font-size: 24px;"></i>
+                    <div>
+                        <h3 id="filePreviewName" style="margin: 0; font-size: 16px; font-weight: 600;">File Preview</h3>
+                        <p id="filePreviewInfo" style="margin: 0; font-size: 12px; opacity: 0.8;"></p>
+                    </div>
+                </div>
+                <button onclick="closeFilePreview()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                    <i class="fas fa-times" style="font-size: 16px;"></i>
+                </button>
+            </div>
+            <!-- Preview Content -->
+            <div id="filePreviewContent" style="flex: 1; overflow: auto; background: #F3F4F6; display: flex; align-items: center; justify-content: center; min-height: 400px;">
+                <div style="text-align: center; color: #6B7280;">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 40px; margin-bottom: 12px;"></i>
+                    <p>Loading preview...</p>
+                </div>
+            </div>
+            <!-- Footer -->
+            <div style="padding: 16px 24px; background: white; border-top: 1px solid #E5E7EB; display: flex; justify-content: space-between; align-items: center;">
+                <div id="filePreviewMeta" style="font-size: 13px; color: #6B7280;">
+                    <!-- File metadata will be shown here -->
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button id="filePreviewDownloadBtn" onclick="downloadCurrentFile()" style="padding: 10px 20px; background: linear-gradient(135deg, #10B981, #059669); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                        <i class="fas fa-download"></i> Download
+                    </button>
+                    <button onclick="closeFilePreview()" style="padding: 10px 20px; background: #F3F4F6; color: #4B5563; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bulk Reject Modal -->
+    <div id="bulkRejectModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10001; align-items: center; justify-content: center;">
+        <div style="background: white; border-radius: 16px; width: 100%; max-width: 500px; box-shadow: 0 25px 50px rgba(0,0,0,0.25);">
+            <div style="background: linear-gradient(135deg, #EF4444, #DC2626); color: white; padding: 20px 24px; border-radius: 16px 16px 0 0;">
+                <h3 style="margin: 0; font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-times-circle"></i> Bulk Reject Interns
+                </h3>
+            </div>
+            <div style="padding: 24px;">
+                <p style="color: #374151; margin-bottom: 16px;">You are about to reject <strong id="bulkRejectCount">0</strong> intern(s). Please provide a reason for rejection:</p>
+                <div id="bulkRejectList" style="max-height: 150px; overflow-y: auto; margin-bottom: 16px; padding: 12px; background: #F9FAFB; border-radius: 8px; font-size: 13px;"></div>
+                <textarea id="bulkRejectReason" rows="3" placeholder="Enter rejection reason..." style="width: 100%; padding: 12px; border: 2px solid #E5E7EB; border-radius: 8px; font-size: 14px; resize: vertical;" onfocus="this.style.borderColor='#DC2626'" onblur="this.style.borderColor='#E5E7EB'"></textarea>
+            </div>
+            <div style="padding: 16px 24px; background: #F9FAFB; border-top: 1px solid #E5E7EB; display: flex; justify-content: flex-end; gap: 10px; border-radius: 0 0 16px 16px;">
+                <button onclick="closeBulkRejectModal()" style="padding: 10px 20px; background: white; color: #6B7280; border: 1px solid #E5E7EB; border-radius: 8px; font-weight: 600; cursor: pointer;">Cancel</button>
+                <button onclick="submitBulkReject()" style="padding: 10px 20px; background: linear-gradient(135deg, #EF4444, #DC2626); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-times"></i> Reject All
+                </button>
+            </div>
         </div>
     </div>
 </body>
