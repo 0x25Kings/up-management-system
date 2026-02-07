@@ -70,21 +70,29 @@
             text-align: center;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             background: rgba(0, 0, 0, 0.1);
+            transition: all 0.4s ease;
         }
 
         .sidebar-header img {
             height: 52px;
             margin: 0 auto 14px;
             filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .sidebar-header h1 {
+        .sidebar-header:hover img {
+            transform: scale(1.05);
+            filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.4));
+        }
+
+        .sidebar-header h3 {
+            color: white;
             font-size: 15px;
             font-weight: 700;
             letter-spacing: 0.5px;
         }
 
-        .sidebar-header span {
+        .sidebar-header p {
             font-size: 12px;
             color: var(--gold);
             font-weight: 500;
@@ -97,6 +105,14 @@
             border: 1px solid rgba(255, 191, 0, 0.3);
             border-radius: 16px;
             text-align: center;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .company-card:hover {
+            background: linear-gradient(135deg, rgba(255, 191, 0, 0.2) 0%, rgba(255, 165, 0, 0.15) 100%);
+            border-color: rgba(255, 191, 0, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 191, 0, 0.15);
         }
 
         .company-avatar {
@@ -112,6 +128,12 @@
             font-weight: 800;
             color: #7B1D3A;
             box-shadow: 0 6px 16px rgba(255, 191, 0, 0.4);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .company-card:hover .company-avatar {
+            transform: scale(1.08);
+            box-shadow: 0 8px 24px rgba(255, 191, 0, 0.5);
         }
 
         .company-card h3 {
@@ -146,6 +168,7 @@
             letter-spacing: 1.5px;
             color: rgba(255, 255, 255, 0.35);
             font-weight: 700;
+            transition: all 0.3s ease;
         }
 
         .nav-item {
@@ -157,15 +180,38 @@
             color: rgba(255, 255, 255, 0.75);
             text-decoration: none;
             border-radius: 12px;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             font-size: 14px;
             font-weight: 500;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 0;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255, 191, 0, 0.2) 0%, rgba(255, 165, 0, 0.1) 100%);
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 12px;
+            z-index: -1;
+        }
+
+        .nav-item:hover::before {
+            width: 100%;
         }
 
         .nav-item:hover {
-            background: rgba(255, 191, 0, 0.15);
             color: white;
-            transform: translateX(4px);
+            transform: translateX(6px);
+        }
+
+        .nav-item:hover i {
+            transform: scale(1.15);
+            color: var(--gold);
         }
 
         .nav-item.active {
@@ -173,9 +219,28 @@
             color: #7B1D3A;
             font-weight: 700;
             box-shadow: 0 4px 15px rgba(255, 191, 0, 0.4);
+            transform: translateX(0);
         }
 
-        .nav-item i { width: 20px; text-align: center; font-size: 16px; }
+        .nav-item.active::before {
+            display: none;
+        }
+
+        .nav-item.active:hover {
+            transform: translateX(0);
+            box-shadow: 0 6px 20px rgba(255, 191, 0, 0.5);
+        }
+
+        .nav-item.active i {
+            color: #7B1D3A;
+        }
+
+        .nav-item i { 
+            width: 20px; 
+            text-align: center; 
+            font-size: 16px; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
         .sidebar-footer {
             padding: 20px 16px;
@@ -196,7 +261,35 @@
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logout-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(239, 68, 68, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .logout-btn:hover::before {
+            left: 100%;
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: #FCA5A5;
+            transform: scale(1.02);
+        }
+
+        .logout-btn:active {
+            transform: scale(0.98);
         }
 
         .logout-btn:hover {
@@ -208,12 +301,59 @@
         /* Top Header Bar */
         .top-header {
             display: flex;
-            justify-content: flex-end;
+            justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
             padding: 0;
             position: relative;
             z-index: 100;
+        }
+
+        .top-header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .navbar-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 15px;
+            color: #6B7280;
+        }
+
+        .navbar-breadcrumb a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            background: rgba(123, 29, 58, 0.1);
+            border-radius: 8px;
+            color: var(--maroon);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .navbar-breadcrumb a:hover {
+            background: var(--maroon);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .navbar-breadcrumb a i {
+            font-size: 16px;
+        }
+
+        .navbar-breadcrumb .separator {
+            color: #D1D5DB;
+            font-size: 14px;
+        }
+
+        .navbar-breadcrumb .page-title {
+            color: #6B7280;
+            font-weight: 500;
         }
 
         .profile-dropdown {
@@ -937,11 +1077,9 @@
     <!-- Sidebar -->
     <aside class="sidebar">
         <div class="sidebar-header">
-            <img src="{{ asset('images/UP%20logo.png') }}" alt="UP Logo">
-            <div>
-                <h1>Startup Portal</h1>
-                <span>UP Cebu Incubator</span>
-            </div>
+            <img src="{{ asset('images/upLogo.png') }}" alt="UP Logo">
+            <h3>Startup Portal</h3>
+            <p>UP Cebu Incubator</p>
         </div>
 
         <nav class="nav-menu">
@@ -968,6 +1106,10 @@
             </a>
 
             <div class="nav-section">History & Records</div>
+            <a href="{{ route('startup.track') }}" class="nav-item {{ request()->routeIs('startup.track*') ? 'active' : '' }}">
+                <i class="fas fa-search-location"></i>
+                Track Submissions
+            </a>
             <a href="{{ route('startup.submissions') }}" class="nav-item {{ request()->routeIs('startup.submissions') ? 'active' : '' }}">
                 <i class="fas fa-folder-open"></i>
                 My Submissions
@@ -994,6 +1136,17 @@
     <main class="main-content">
         <!-- Top Header with Profile -->
         <div class="top-header">
+            <!-- Navbar Breadcrumb -->
+            <div class="top-header-left">
+                <div class="navbar-breadcrumb">
+                    <a href="{{ route('startup.dashboard') }}" title="Go to Dashboard">
+                        <i class="fas fa-home"></i>
+                    </a>
+                    <span class="separator">/</span>
+                    <span class="page-title">@yield('page-title', 'Page')</span>
+                </div>
+            </div>
+            
             <div class="profile-dropdown" id="profileDropdown">
                 <button type="button" class="profile-btn" id="profileBtn">
                     <div class="avatar">

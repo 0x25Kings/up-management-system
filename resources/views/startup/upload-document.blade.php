@@ -1,15 +1,9 @@
 @extends('startup.layout')
 
 @section('title', 'Upload Document')
+@section('page-title', 'Upload Document')
 
 @section('content')
-    <!-- Breadcrumb -->
-    <div class="breadcrumb">
-        <a href="{{ route('startup.dashboard') }}"><i class="fas fa-home"></i></a>
-        <span>/</span>
-        <span>Upload Document</span>
-    </div>
-
     <!-- Page Header -->
     <div class="page-header-card">
         <div class="header-content">

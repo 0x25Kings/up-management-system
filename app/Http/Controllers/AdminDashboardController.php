@@ -1385,14 +1385,14 @@ class AdminDashboardController extends Controller
 
         // Get project progress updates (pending review)
         $progressUpdates = StartupProgress::with('startup')
-            ->where('status', 'pending')
+            ->where('status', 'submitted')
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function($progress) {
                 return [
                     'id' => $progress->id,
                     'title' => $progress->title,
-                    'startup_name' => $progress->startup ? $progress->startup->startup_name : 'Unknown Startup',
+                    'startup_name' => $progress->startup ? $progress->startup->company_name : 'Unknown Startup',
                     'milestone_type' => $progress->milestone_type,
                     'status' => $progress->status,
                     'created_at' => $progress->created_at->toISOString(),

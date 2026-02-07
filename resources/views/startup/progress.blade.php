@@ -1,6 +1,7 @@
 @extends('startup.layout')
 
 @section('title', 'Project Progress')
+@section('page-title', 'Project Progress')
 
 @push('styles')
 <style>
@@ -315,16 +316,68 @@
     .empty-state p {
         color: #6B7280;
     }
+
+    /* Pagination Styles */
+    .pagination-wrapper {
+        padding: 20px 24px;
+        border-top: 1px solid #E5E7EB;
+        display: flex;
+        justify-content: center;
+    }
+
+    .pagination-wrapper nav {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .pagination-wrapper nav > div:first-child {
+        display: none;
+    }
+
+    .pagination-wrapper nav span,
+    .pagination-wrapper nav a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 36px;
+        height: 36px;
+        padding: 0 12px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .pagination-wrapper nav a {
+        background: white;
+        border: 1px solid #E5E7EB;
+        color: #374151;
+    }
+
+    .pagination-wrapper nav a:hover {
+        background: #7B1D3A;
+        border-color: #7B1D3A;
+        color: white;
+    }
+
+    .pagination-wrapper nav span[aria-current="page"] span {
+        background: #7B1D3A;
+        color: white;
+        border: 1px solid #7B1D3A;
+    }
+
+    .pagination-wrapper nav span[aria-disabled="true"] {
+        background: #F9FAFB;
+        border: 1px solid #E5E7EB;
+        color: #D1D5DB;
+        cursor: not-allowed;
+    }
 </style>
 @endpush
 
 @section('content')
-<div class="breadcrumb">
-    <a href="{{ route('startup.dashboard') }}">Dashboard</a>
-    <span>/</span>
-    <span>Project Progress</span>
-</div>
-
 <div class="page-header">
     <h1>Project Progress</h1>
     <p>Share your milestones and progress updates with the UP Cebu Incubator</p>
@@ -383,7 +436,7 @@
 <div class="progress-list-card">
     <div class="progress-list-header">
         <h2><i class="fas fa-history"></i> Progress History</h2>
-        <span style="font-size: 13px; color: #6B7280;">{{ $progressUpdates->count() }} updates</span>
+        <span style="font-size: 13px; color: #6B7280;">{{ $progressUpdates->total() }} updates</span>
     </div>
     
     @forelse($progressUpdates as $progress)
@@ -431,6 +484,12 @@
             <p>Submit your first progress update to share your milestones with the admin.</p>
         </div>
     @endforelse
+
+    @if($progressUpdates->hasPages())
+        <div class="pagination-wrapper">
+            {{ $progressUpdates->links() }}
+        </div>
+    @endif
 </div>
 @endsection
 

@@ -371,7 +371,7 @@ class StartupDashboardController extends Controller
     public function progress()
     {
         $startup = $this->getStartup();
-        $progressUpdates = $startup->progressUpdates()->latest()->get();
+        $progressUpdates = $startup->progressUpdates()->latest()->paginate(10);
 
         return view('startup.progress', compact('startup', 'progressUpdates'));
     }
@@ -412,5 +412,126 @@ class StartupDashboardController extends Controller
 
         return redirect()->route('startup.progress')
             ->with('success', 'Project progress update submitted successfully!');
+    }
+
+    /**
+     * Show track submissions page with timeline
+     */
+    public function trackSubmissions(Request $request)
+    {
+        $startup = $this->getStartup();
+        
+        // Get filter parameters
+        $type = $request->get('type', 'all');
+        $status = $request->get('status', 'all');
+        $search = $request->get('search');
+
+        // Get submissions
+        $submissionsQuery = $startup->submissions()->latest();
+        if ($type !== 'all') {
+            $submissionsQuery->where('type', $type);
+        }
+        if ($status !== 'all') {
+            $submissionsQuery->where('status', $status);
+        }
+        if ($search) {
+            $submissionsQuery->where('tracking_code', 'like', "%{$search}%");
+        }
+        $submissions = $submissionsQuery->get();
+
+        // Get room issues
+        $roomIssuesQuery = $startup->roomIssues()->latest();
+        if ($status !== 'all') {
+            $roomIssuesQuery->where('status', $status);
+        }
+        if ($search) {
+            $roomIssuesQuery->where('tracking_code', 'like', "%{$search}%");
+        }
+        $roomIssues = ($type === 'all' || $type === 'room_issue') ? $roomIssuesQuery->get() : collect();
+
+        // Combine and sort by date
+        $allItems = collect();
+        
+        foreach ($submissions as $submission) {
+            $allItems->push([
+                'type' => 'submission',
+                'category' => $submission->type,
+                'tracking_code' => $submission->tracking_code,
+                'title' => $submission->type === 'document' ? $submission->document_type : 
+                           ($submission->type === 'moa' ? 'MOA Request' : 'Payment Submission'),
+                'description' => $submission->notes ?? $submission->moa_purpose ?? "Amount: ₱" . number_format($submission->amount ?? 0, 2),
+                'status' => $submission->status,
+                'status_label' => $submission->status_label,
+                'status_color' => $submission->status_color,
+                'admin_notes' => $submission->admin_notes,
+                'created_at' => $submission->created_at,
+                'reviewed_at' => $submission->reviewed_at,
+            ]);
+        }
+
+        foreach ($roomIssues as $issue) {
+            $allItems->push([
+                'type' => 'room_issue',
+                'category' => 'room_issue',
+                'tracking_code' => $issue->tracking_code,
+                'title' => $issue->issue_type_label . ' - Room ' . $issue->room_number,
+                'description' => $issue->description,
+                'status' => $issue->status,
+                'status_label' => $issue->status_label,
+                'status_color' => $issue->status_color,
+                'admin_notes' => $issue->admin_notes,
+                'created_at' => $issue->created_at,
+                'resolved_at' => $issue->resolved_at,
+            ]);
+        }
+
+        // Sort by created_at descending
+        $allItems = $allItems->sortByDesc('created_at')->values();
+
+        // Stats (calculated before pagination)
+        $stats = [
+            'total' => $allItems->count(),
+            'pending' => $allItems->where('status', 'pending')->count(),
+            'in_progress' => $allItems->whereIn('status', ['in_progress', 'under_review'])->count(),
+            'approved' => $allItems->whereIn('status', ['approved', 'resolved'])->count(),
+            'rejected' => $allItems->whereIn('status', ['rejected', 'cancelled'])->count(),
+        ];
+
+        // Manual pagination for combined collection
+        $page = $request->get('page', 1);
+        $perPage = 10;
+        $paginatedItems = new \Illuminate\Pagination\LengthAwarePaginator(
+            $allItems->forPage($page, $perPage),
+            $allItems->count(),
+            $perPage,
+            $page,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
+
+        return view('startup.track', compact('startup', 'paginatedItems', 'stats', 'type', 'status', 'search'));
+    }
+
+    /**
+     * Show submission details with timeline
+     */
+    public function trackSubmissionDetails($trackingCode)
+    {
+        $startup = $this->getStartup();
+        $trackingCode = strtoupper(trim($trackingCode));
+
+        // Check if it's a room issue
+        if (str_starts_with($trackingCode, 'ROOM-')) {
+            $item = $startup->roomIssues()->where('tracking_code', $trackingCode)->first();
+            $itemType = 'room_issue';
+        } else {
+            $item = $startup->submissions()->where('tracking_code', $trackingCode)->first();
+            $itemType = 'submission';
+        }
+
+        if (!$item) {
+            return redirect()->route('startup.track')->with('error', 'Submission not found.');
+        }
+
+        return view('startup.track-details', compact('startup', 'item', 'itemType'));
     }
 }

@@ -1,6 +1,7 @@
 @extends('startup.layout')
 
 @section('title', 'Room Issues')
+@section('page-title', 'Room Issues')
 
 @push('styles')
 <style>
@@ -536,12 +537,6 @@
 @endpush
 
 @section('content')
-<div class="breadcrumb">
-    <a href="{{ route('startup.dashboard') }}">Dashboard</a>
-    <span>/</span>
-    <span>Room Issues</span>
-</div>
-
 <div class="page-header-card">
     <div class="header-content">
         <div class="header-icon">
@@ -690,10 +685,6 @@
         <i class="fas fa-clipboard-check"></i>
         <h3>No room issues reported</h3>
         <p>You haven't reported any room issues yet.</p>
-        <a href="{{ route('startup.report-issue') }}" class="btn btn-primary">
-            <i class="fas fa-plus"></i>
-            Report an Issue
-        </a>
     </div>
 @endif
 @endsection

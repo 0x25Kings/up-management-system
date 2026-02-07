@@ -1,6 +1,7 @@
 @extends('startup.layout')
 
 @section('title', 'My Submissions')
+@section('page-title', 'My Submissions')
 
 @push('styles')
 <style>
@@ -297,12 +298,6 @@
 @endpush
 
 @section('content')
-<div class="breadcrumb">
-    <a href="{{ route('startup.dashboard') }}">Dashboard</a>
-    <span>/</span>
-    <span>My Submissions</span>
-</div>
-
 <div class="page-header">
     <div>
         <h1>My Submissions</h1>
@@ -448,10 +443,6 @@
             <i class="fas fa-inbox"></i>
             <h3>No submissions yet</h3>
             <p>You haven't submitted any {{ $type ? str_replace('_', ' ', $type) . 's' : 'items' }} yet.</p>
-            <a href="{{ route('startup.dashboard') }}" class="btn btn-primary">
-                <i class="fas fa-plus"></i>
-                Make a Submission
-            </a>
         </div>
     @endif
 </div>

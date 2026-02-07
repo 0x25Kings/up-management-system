@@ -1417,6 +1417,10 @@
                 <span>Submit Payment</span>
             </a>
             <div class="menu-section">History & Records</div>
+            <a href="{{ route('startup.track') }}" class="menu-item">
+                <i class="fas fa-search-location"></i>
+                <span>Track Submissions</span>
+            </a>
             <a href="{{ route('startup.submissions') }}" class="menu-item">
                 <i class="fas fa-folder-open"></i>
                 <span>My Submissions</span>

@@ -1,15 +1,9 @@
 @extends('startup.layout')
 
 @section('title', 'Request MOA')
+@section('page-title', 'Request MOA')
 
 @section('content')
-    <!-- Breadcrumb -->
-    <div class="breadcrumb">
-        <a href="{{ route('startup.dashboard') }}"><i class="fas fa-home"></i></a>
-        <span>/</span>
-        <span>Request MOA</span>
-    </div>
-
     <!-- Page Header -->
     <div class="page-header-card">
         <div class="header-content">

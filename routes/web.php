@@ -116,6 +116,10 @@ Route::middleware(['maintenance', 'startup.auth'])->prefix('startup')->name('sta
     // Project Progress
     Route::get('/progress', [StartupDashboardController::class, 'progress'])->name('progress');
     Route::post('/progress', [StartupDashboardController::class, 'submitProgress'])->name('progress.submit');
+
+    // Track Submissions
+    Route::get('/track', [StartupDashboardController::class, 'trackSubmissions'])->name('track');
+    Route::get('/track/{trackingCode}', [StartupDashboardController::class, 'trackSubmissionDetails'])->name('track.details');
 });
 
 Route::get('/agency', function () {

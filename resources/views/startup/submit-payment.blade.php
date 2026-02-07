@@ -1,15 +1,9 @@
 @extends('startup.layout')
 
 @section('title', 'Submit Payment')
+@section('page-title', 'Submit Payment')
 
 @section('content')
-    <!-- Breadcrumb -->
-    <div class="breadcrumb">
-        <a href="{{ route('startup.dashboard') }}"><i class="fas fa-home"></i></a>
-        <span>/</span>
-        <span>Submit Payment</span>
-    </div>
-
     <!-- Page Header -->
     <div class="page-header-card">
         <div class="header-content">

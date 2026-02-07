@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="icon" type="image/png" href="{{ asset('images/upLogo.png') }}">
     <title>Admin Login - UP Cebu Management System</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -149,6 +150,47 @@
                 toggleIcon.classList.add('fa-eye');
             }
         }
+
+        // Auto-refresh CSRF token every 30 minutes to prevent session expired errors
+        setInterval(function() {
+            fetch('{{ url("/") }}', {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            }).then(response => response.text())
+              .then(html => {
+                  const match = html.match(/name="csrf-token" content="([^"]+)"/);
+                  if (match) {
+                      document.querySelector('meta[name="csrf-token"]').setAttribute('content', match[1]);
+                      document.querySelector('input[name="_token"]').value = match[1];
+                  }
+              }).catch(err => {
+                  // If fetch fails, reload the page to get a fresh token
+                  window.location.reload();
+              });
+        }, 30 * 60 * 1000); // 30 minutes
+
+        // Also refresh on page visibility change (when user comes back to tab)
+        document.addEventListener('visibilitychange', function() {
+            if (document.visibilityState === 'visible') {
+                fetch('{{ url("/") }}', {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                }).then(response => response.text())
+                  .then(html => {
+                      const match = html.match(/name="csrf-token" content="([^"]+)"/);
+                      if (match) {
+                          const metaTag = document.querySelector('meta[name="csrf-token"]');
+                          const tokenInput = document.querySelector('input[name="_token"]');
+                          if (metaTag) metaTag.setAttribute('content', match[1]);
+                          if (tokenInput) tokenInput.value = match[1];
+                      }
+                  }).catch(() => {});
+            }
+        });
     </script>
 </body>
 </html>

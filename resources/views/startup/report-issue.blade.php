@@ -1,15 +1,9 @@
 @extends('startup.layout')
 
 @section('title', 'Report Issue')
+@section('page-title', 'Report Issue')
 
 @section('content')
-    <!-- Breadcrumb -->
-    <div class="breadcrumb">
-        <a href="{{ route('startup.dashboard') }}"><i class="fas fa-home"></i></a>
-        <span>/</span>
-        <span>Report Issue</span>
-    </div>
-
     <!-- Page Header -->
     <div class="page-header-card">
         <div class="header-content">
