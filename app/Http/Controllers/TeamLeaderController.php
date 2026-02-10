@@ -941,6 +941,7 @@ class TeamLeaderController extends Controller
     }
 
     /**
+<<<<<<< HEAD
      * Show the password reset form for team leaders
      */
     public function showResetPasswordForm(Request $request)
@@ -1026,5 +1027,43 @@ class TeamLeaderController extends Controller
         DB::table('password_reset_tokens')->where('email', $request->email)->delete();
 
         return redirect()->route('admin.login')->with('success', 'Password has been reset successfully. You can now log in with your new password.');
+=======
+     * Switch to intern portal for the linked intern account
+     */
+    public function switchToIntern(Request $request)
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        // Find the linked intern by name (full name match) with reference code starting with INT
+        $intern = Intern::where('name', $user->name)
+            ->where('reference_code', 'like', 'INT-%')
+            ->where('approval_status', 'approved')
+            ->first();
+
+        // If not found by name, try by email
+        if (!$intern) {
+            $intern = Intern::where('email', $user->email)
+                ->where('reference_code', 'like', 'INT-%')
+                ->where('approval_status', 'approved')
+                ->first();
+        }
+
+        if (!$intern) {
+            return redirect()->back()
+                ->with('error', 'No linked intern account found. Please contact the administrator.');
+        }
+
+        // Logout from team leader and set intern session
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        // Set intern session
+        $request->session()->put('intern_id', $intern->id);
+
+        return redirect()->route('intern.portal')
+            ->with('success', 'Switched to Intern Portal. Welcome, ' . $intern->name . '!');
+>>>>>>> 871e7d1199944416b3db8690eac6e38f049fd7f4
     }
 }

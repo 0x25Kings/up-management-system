@@ -162,10 +162,20 @@ class InternController extends Controller
         }
 
         // Regular intern access - no password required
-        $intern = Intern::where('reference_code', $referenceCode)->first();
+        $intern = Intern::with('schoolRelation')->where('reference_code', $referenceCode)->first();
 
         if (!$intern) {
             return back()->withErrors(['reference_code' => 'Invalid reference code. Please check and try again.']);
+        }
+
+        // Check if intern's school is active
+        if ($intern->schoolRelation && $intern->schoolRelation->status !== 'Active') {
+            return back()->withErrors(['reference_code' => 'Your school account has been deactivated. Please contact the administrator.']);
+        }
+
+        // Check if intern's own status is active
+        if ($intern->status !== 'Active') {
+            return back()->withErrors(['reference_code' => 'Your account has been deactivated. Please contact the administrator.']);
         }
 
         // Store intern ID in session (no password verification needed)

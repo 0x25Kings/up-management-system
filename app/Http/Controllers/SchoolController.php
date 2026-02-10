@@ -137,6 +137,41 @@ class SchoolController extends Controller
     }
 
     /**
+     * Mark eligible interns from a school as accomplished/completed
+     * Interns who have completed their required hours will be marked as "Completed"
+     */
+    public function accomplish(School $school)
+    {
+        // Get interns who have completed their required hours
+        $eligibleInterns = $school->approvedInterns()
+            ->where('status', 'Active')
+            ->get()
+            ->filter(function ($intern) use ($school) {
+                return $intern->completed_hours >= $school->required_hours;
+            });
+
+        if ($eligibleInterns->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No eligible interns found. Interns must have completed their required hours to be marked as completed.'
+            ], 400);
+        }
+
+        $count = 0;
+        foreach ($eligibleInterns as $intern) {
+            $intern->status = 'Completed';
+            $intern->save();
+            $count++;
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => "{$count} intern(s) from {$school->name} have been marked as Completed!",
+            'count' => $count
+        ]);
+    }
+
+    /**
      * Get pending interns for approval
      */
     public function getPendingInterns()
