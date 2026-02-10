@@ -4451,7 +4451,7 @@
                     <div class="filter-bar">
                         <div class="filter-group">
                             <span class="filter-label">Status:</span>
-                            <select class="filter-select" id="statusFilter">
+                            <select class="filter-select" id="attendanceStatusFilter" onchange="filterDailyAttendance()">
                                 <option value="all">All Status</option>
                                 <option value="Present">Present</option>
                                 <option value="Late">Late</option>
@@ -4460,7 +4460,7 @@
                         </div>
                         <div class="filter-group">
                             <span class="filter-label">School:</span>
-                            <select class="filter-select" id="schoolFilter">
+                            <select class="filter-select" id="schoolFilter" onchange="filterDailyAttendance()">
                                 <option value="all">All Schools</option>
                                 @foreach(($interns ?? collect())->pluck('school')->unique() as $school)
                                 <option value="{{ $school }}">{{ $school }}</option>
@@ -4469,17 +4469,32 @@
                         </div>
                         <div class="filter-search">
                             <i class="fas fa-search"></i>
-                            <input type="text" placeholder="Search by intern name..." id="dailySearchInput">
+                            <input type="text" placeholder="Search by intern name..." id="dailySearchInput" onkeyup="filterDailyAttendance()">
                         </div>
                     </div>
 
+                    @php
+                        // Get IDs of interns who have attendance today
+                        $attendingInternIds = $todayAttendances->pluck('intern_id')->toArray();
+                        // Get active interns who don't have attendance today (absent)
+                        $absentInterns = $interns->where('status', 'Active')->filter(function($intern) use ($attendingInternIds) {
+                            return !in_array($intern->id, $attendingInternIds);
+                        });
+                        $absentCount = $absentInterns->count();
+                        $presentCount = $todayAttendances->count();
+                    @endphp
                     <div class="table-card">
                         <div class="table-header">
                             <h3 class="table-title">Today's Attendance - {{ now()->timezone('Asia/Manila')->format('F d, Y') }}</h3>
                             <div style="display: flex; gap: 8px;">
                                 <span style="background: #D1FAE5; color: #065F46; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
-                                    <i class="fas fa-user-check"></i> {{ $todayAttendances->count() ?? 0 }} Present
+                                    <i class="fas fa-user-check"></i> {{ $presentCount }} Present
                                 </span>
+                                @if($absentCount > 0)
+                                <span style="background: #FEE2E2; color: #991B1B; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                                    <i class="fas fa-user-times"></i> {{ $absentCount }} Absent
+                                </span>
+                                @endif
                             </div>
                         </div>
                         <div style="overflow-x: auto;">
@@ -4499,7 +4514,7 @@
                             <tbody id="dailyHoursTableBody">
                                 @forelse($todayAttendances ?? [] as $attendance)
                                 @php /** @var \App\Models\Attendance $attendance */ @endphp
-                                <tr data-attendance-id="{{ $attendance->id }}" data-time-in="{{ $attendance->raw_time_in }}" data-timed-out="{{ $attendance->time_out ? 'true' : 'false' }}">
+                                <tr data-attendance-id="{{ $attendance->id }}" data-time-in="{{ $attendance->raw_time_in }}" data-timed-out="{{ $attendance->time_out ? 'true' : 'false' }}" data-status="{{ $attendance->status }}" data-school="{{ $attendance->intern->school ?? 'N/A' }}" data-name="{{ strtolower($attendance->intern->name ?? '') }}">
                                     <td style="white-space: nowrap;">
                                         <div style="display: flex; align-items: center; gap: 12px;">
                                             <div style="width: 36px; height: 36px; min-width: 36px; border-radius: 50%; background: linear-gradient(135deg, #FFBF00, #FFA500); display: flex; align-items: center; justify-content: center; color: #7B1D3A; font-weight: 700; overflow: hidden;">
@@ -4579,13 +4594,56 @@
                                     </td>
                                 </tr>
                                 @empty
+                                @endforelse
+                                {{-- Show absent interns --}}
+                                @foreach($absentInterns as $absentIntern)
+                                <tr class="absent-row" data-attendance-id="absent-{{ $absentIntern->id }}" data-status="Absent" data-school="{{ $absentIntern->school ?? 'N/A' }}" data-name="{{ strtolower($absentIntern->name ?? '') }}">
+                                    <td style="white-space: nowrap;">
+                                        <div style="display: flex; align-items: center; gap: 12px;">
+                                            <div style="width: 36px; height: 36px; min-width: 36px; border-radius: 50%; background: linear-gradient(135deg, #9CA3AF, #6B7280); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; overflow: hidden;">
+                                                @if($absentIntern->profile_picture ?? null)
+                                                    <img src="{{ asset('storage/' . $absentIntern->profile_picture) }}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.7;">
+                                                @else
+                                                    {{ strtoupper(substr($absentIntern->name ?? 'U', 0, 1)) }}
+                                                @endif
+                                            </div>
+                                            <div class="intern-info" style="white-space: nowrap;">
+                                                <span class="intern-name" style="font-weight: 600; color: #6B7280;">{{ $absentIntern->name ?? 'Unknown' }}</span>
+                                                <span class="intern-school" style="font-size: 12px; color: #9CA3AF; display: block;">{{ $absentIntern->reference_code ?? '' }}</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td style="white-space: nowrap; color: #6B7280;">{{ $absentIntern->school ?? 'N/A' }}</td>
+                                    <td style="white-space: nowrap;">
+                                        <span style="color: #9CA3AF; font-style: italic;">--</span>
+                                    </td>
+                                    <td style="white-space: nowrap;">
+                                        <span style="color: #9CA3AF; font-style: italic;">--</span>
+                                    </td>
+                                    <td style="white-space: nowrap;">
+                                        <strong style="font-size: 16px; color: #9CA3AF;">0.00 hrs</strong>
+                                    </td>
+                                    <td style="white-space: nowrap;">
+                                        <span style="color: #9CA3AF; font-size: 12px;">--</span>
+                                    </td>
+                                    <td style="white-space: nowrap;">
+                                        <span class="hours-badge" style="padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap; background: #FEE2E2; color: #991B1B;">
+                                            Absent
+                                        </span>
+                                    </td>
+                                    <td style="white-space: nowrap;">
+                                        <span style="color: #9CA3AF;">--</span>
+                                    </td>
+                                </tr>
+                                @endforeach
+                                @if($todayAttendances->isEmpty() && $absentInterns->isEmpty())
                                 <tr>
                                     <td colspan="8" style="text-align: center; padding: 40px; color: #9CA3AF;">
                                         <i class="fas fa-clock" style="font-size: 40px; margin-bottom: 12px; display: block;"></i>
-                                        No attendance records for today yet.
+                                        No active interns found.
                                     </td>
                                 </tr>
-                                @endforelse
+                                @endif
                             </tbody>
                         </table>
                         </div>
@@ -4608,6 +4666,31 @@
                 </div>
                 <!-- Attendance History -->
                 <div id="attendance-history" class="time-tab-content" style="display: none;">
+                    <!-- Filter Bar for History -->
+                    <div class="filter-bar" style="margin-bottom: 16px;">
+                        <div class="filter-group">
+                            <span class="filter-label">Status:</span>
+                            <select class="filter-select" id="historyStatusFilter" onchange="filterHistoryAttendance()">
+                                <option value="all">All Status</option>
+                                <option value="Present">Present</option>
+                                <option value="Late">Late</option>
+                                <option value="Absent">Absent</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <span class="filter-label">School:</span>
+                            <select class="filter-select" id="historySchoolFilter" onchange="filterHistoryAttendance()">
+                                <option value="all">All Schools</option>
+                                @foreach(($interns ?? collect())->pluck('school')->unique() as $school)
+                                <option value="{{ $school }}">{{ $school }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="filter-search">
+                            <i class="fas fa-search"></i>
+                            <input type="text" placeholder="Search by intern name..." id="historySearchInput" onkeyup="filterHistoryAttendance()">
+                        </div>
+                    </div>
                     <div class="table-card">
                         <div class="table-header">
                             <h3 class="table-title">Attendance History - All Records</h3>
@@ -4632,7 +4715,7 @@
                             <tbody id="historyTableBody">
                                 @forelse($attendanceHistory ?? [] as $attendance)
                                 @php /** @var \App\Models\Attendance $attendance */ @endphp
-                                <tr>
+                                <tr data-status="{{ $attendance->status }}" data-school="{{ $attendance->intern->school ?? 'N/A' }}" data-name="{{ strtolower($attendance->intern->name ?? '') }}">
                                     <td style="white-space: nowrap;">
                                         <div style="font-weight: 600;">{{ $attendance->date ? \Carbon\Carbon::parse($attendance->date)->format('M d, Y') : 'N/A' }}</div>
                                         <div style="font-size: 12px; color: #6B7280;">{{ $attendance->date ? \Carbon\Carbon::parse($attendance->date)->format('l') : '' }}</div>
@@ -7399,25 +7482,9 @@
                             </h3>
 
                             <div class="settings-group">
-                                <label class="settings-label">Default Required Hours</label>
-                                <input type="number" id="settingDefaultHours" class="settings-input" value="480" min="1" max="1000">
-                                <p class="settings-hint">Default OJT hours required for interns (can be overridden per school)</p>
-                            </div>
-
-                            <div class="settings-group">
                                 <label class="settings-label">Work Hours Start</label>
                                 <input type="time" id="settingWorkStart" class="settings-input" value="08:00">
-                            </div>
-
-                            <div class="settings-group">
-                                <label class="settings-label">Work Hours End</label>
-                                <input type="time" id="settingWorkEnd" class="settings-input" value="17:00">
-                            </div>
-
-                            <div class="settings-group">
-                                <label class="settings-label">Grace Period (minutes)</label>
-                                <input type="number" id="settingGracePeriod" class="settings-input" value="15" min="0" max="60">
-                                <p class="settings-hint">Minutes allowed after start time before marking as late</p>
+                                <p class="settings-hint">Time when work starts. Interns timing in after this are marked as Late.</p>
                             </div>
 
                             <div class="settings-group">
@@ -7459,19 +7526,6 @@
                                 <i class="fas fa-bell" style="color: #7B1D3A;"></i>
                                 Notification Settings
                             </h3>
-
-                            <div class="settings-group">
-                                <div class="settings-toggle-row">
-                                    <div>
-                                        <label class="settings-label" style="margin-bottom: 0;">Email Notifications</label>
-                                        <p class="settings-hint" style="margin-top: 4px;">Send email notifications for important events</p>
-                                    </div>
-                                    <label class="toggle-switch">
-                                        <input type="checkbox" id="settingEmailNotifications" checked>
-                                        <span class="toggle-slider"></span>
-                                    </label>
-                                </div>
-                            </div>
 
                             <div class="settings-group">
                                 <div class="settings-toggle-row">
@@ -10607,16 +10661,12 @@
                 maintenance_mode: false,
 
                 // Internship
-                default_hours: 480,
                 work_start: '08:00',
-                work_end: '17:00',
-                grace_period: 15,
                 overtime_threshold: 8,
                 auto_approve_intern: false,
                 require_overtime_approval: true,
 
                 // Notifications
-                email_notifications: true,
                 booking_alerts: true,
                 intern_alerts: true,
                 issue_alerts: true,
@@ -10667,16 +10717,12 @@
             document.getElementById('settingMaintenanceMode').checked = settings.maintenance_mode || false;
 
             // Internship Settings
-            document.getElementById('settingDefaultHours').value = settings.default_hours || 480;
             document.getElementById('settingWorkStart').value = settings.work_start || '08:00';
-            document.getElementById('settingWorkEnd').value = settings.work_end || '17:00';
-            document.getElementById('settingGracePeriod').value = settings.grace_period || 15;
             document.getElementById('settingOvertimeThreshold').value = settings.overtime_threshold || 8;
             document.getElementById('settingAutoApproveIntern').checked = settings.auto_approve_intern || false;
             document.getElementById('settingRequireOvertimeApproval').checked = settings.require_overtime_approval !== false;
 
             // Notification Settings
-            document.getElementById('settingEmailNotifications').checked = settings.email_notifications !== false;
             document.getElementById('settingBookingAlerts').checked = settings.booking_alerts !== false;
             document.getElementById('settingInternAlerts').checked = settings.intern_alerts !== false;
             document.getElementById('settingIssueAlerts').checked = settings.issue_alerts !== false;
@@ -10716,16 +10762,12 @@
                 maintenance_mode: document.getElementById('settingMaintenanceMode').checked,
 
                 // Internship
-                default_hours: parseInt(document.getElementById('settingDefaultHours').value),
                 work_start: document.getElementById('settingWorkStart').value,
-                work_end: document.getElementById('settingWorkEnd').value,
-                grace_period: parseInt(document.getElementById('settingGracePeriod').value),
                 overtime_threshold: parseFloat(document.getElementById('settingOvertimeThreshold').value),
                 auto_approve_intern: document.getElementById('settingAutoApproveIntern').checked,
                 require_overtime_approval: document.getElementById('settingRequireOvertimeApproval').checked,
 
                 // Notifications
-                email_notifications: document.getElementById('settingEmailNotifications').checked,
                 booking_alerts: document.getElementById('settingBookingAlerts').checked,
                 intern_alerts: document.getElementById('settingInternAlerts').checked,
                 issue_alerts: document.getElementById('settingIssueAlerts').checked,
@@ -10907,13 +10949,13 @@
             if (url) {
                 const link = document.createElement('a');
                 link.href = url;
-                link.download = `${type}_export_${new Date().toISOString().split('T')[0]}.csv`;
+                link.download = `${type}_export_${new Date().toISOString().split('T')[0]}.xls`;
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
 
                 setTimeout(() => {
-                    showToast('success', 'Export Ready', `Your ${type} data has been exported.`);
+                    showToast('success', 'Export Ready', `Your ${type} data has been exported to Excel.`);
                 }, 1000);
             }
         }
@@ -15790,6 +15832,51 @@ University of the Philippines Cebu
             updateDailyPagination();
         }
 
+        // Filter Daily Attendance by status, school and name
+        function filterDailyAttendance() {
+            const statusFilter = document.getElementById('attendanceStatusFilter')?.value || 'all';
+            const schoolFilter = document.getElementById('schoolFilter')?.value || 'all';
+            const searchTerm = document.getElementById('dailySearchInput')?.value?.toLowerCase() || '';
+
+            const tbody = document.getElementById('dailyHoursTableBody');
+            if (!tbody) return;
+
+            const rows = Array.from(tbody.querySelectorAll('tr[data-attendance-id]'));
+
+            rows.forEach(row => {
+                const rowStatus = row.dataset.status || '';
+                const rowSchool = row.dataset.school || '';
+                const rowName = row.dataset.name || '';
+
+                const matchesStatus = statusFilter === 'all' || rowStatus === statusFilter;
+                const matchesSchool = schoolFilter === 'all' || rowSchool === schoolFilter;
+                const matchesSearch = !searchTerm || rowName.includes(searchTerm);
+
+                row.style.display = (matchesStatus && matchesSchool && matchesSearch) ? '' : 'none';
+            });
+
+            // Update pagination counts
+            const visibleRows = rows.filter(row => row.style.display !== 'none');
+            const totalVisible = visibleRows.length;
+
+            dailyCurrentPage = 1;
+            dailyTotalPages = Math.ceil(totalVisible / ITEMS_PER_PAGE) || 1;
+
+            // Apply pagination to visible rows only
+            visibleRows.forEach((row, index) => {
+                row.style.display = (index < ITEMS_PER_PAGE) ? '' : 'none';
+            });
+
+            document.getElementById('dailyShowingStart').textContent = totalVisible > 0 ? 1 : 0;
+            document.getElementById('dailyShowingEnd').textContent = Math.min(ITEMS_PER_PAGE, totalVisible);
+            document.getElementById('dailyTotalRecords').textContent = totalVisible;
+            document.getElementById('dailyPrevBtn').disabled = true;
+            document.getElementById('dailyNextBtn').disabled = dailyCurrentPage >= dailyTotalPages;
+
+            // Show/hide pagination based on results
+            document.getElementById('dailyHoursPagination').style.display = totalVisible > 0 ? 'flex' : 'none';
+        }
+
         // History Pagination
         let historyCurrentPage = 1;
         let historyTotalPages = 1;
@@ -15850,6 +15937,51 @@ University of the Philippines Cebu
                 historyCurrentPage = direction;
             }
             updateHistoryPagination();
+        }
+
+        // Filter History Attendance by status, school and name
+        function filterHistoryAttendance() {
+            const statusFilter = document.getElementById('historyStatusFilter')?.value || 'all';
+            const schoolFilter = document.getElementById('historySchoolFilter')?.value || 'all';
+            const searchTerm = document.getElementById('historySearchInput')?.value?.toLowerCase() || '';
+
+            const tbody = document.getElementById('historyTableBody');
+            if (!tbody) return;
+
+            const rows = Array.from(tbody.querySelectorAll('tr[data-status]'));
+
+            rows.forEach(row => {
+                const rowStatus = row.dataset.status || '';
+                const rowSchool = row.dataset.school || '';
+                const rowName = row.dataset.name || '';
+
+                const matchesStatus = statusFilter === 'all' || rowStatus === statusFilter;
+                const matchesSchool = schoolFilter === 'all' || rowSchool === schoolFilter;
+                const matchesSearch = !searchTerm || rowName.includes(searchTerm);
+
+                row.style.display = (matchesStatus && matchesSchool && matchesSearch) ? '' : 'none';
+            });
+
+            // Update pagination counts
+            const visibleRows = rows.filter(row => row.style.display !== 'none');
+            const totalVisible = visibleRows.length;
+
+            historyCurrentPage = 1;
+            historyTotalPages = Math.ceil(totalVisible / ITEMS_PER_PAGE) || 1;
+
+            // Apply pagination to visible rows only
+            visibleRows.forEach((row, index) => {
+                row.style.display = (index < ITEMS_PER_PAGE) ? '' : 'none';
+            });
+
+            document.getElementById('historyShowingStart').textContent = totalVisible > 0 ? 1 : 0;
+            document.getElementById('historyShowingEnd').textContent = Math.min(ITEMS_PER_PAGE, totalVisible);
+            document.getElementById('historyTotalRecords').textContent = totalVisible;
+            document.getElementById('historyPrevBtn').disabled = true;
+            document.getElementById('historyNextBtn').disabled = historyCurrentPage >= historyTotalPages;
+
+            // Show/hide pagination based on results
+            document.getElementById('historyPagination').style.display = totalVisible > 0 ? 'flex' : 'none';
         }
 
         // Summary Pagination
