@@ -166,6 +166,7 @@ Route::middleware(['admin'])->group(function () {
     Route::post('/admin/profile/upload-picture', [AdminDashboardController::class, 'uploadProfilePicture'])->name('admin.profile.upload-picture');
 
     Route::post('/admin/attendance/{attendance}/approve-overtime', [AdminDashboardController::class, 'approveOvertime'])->name('admin.attendance.approve-overtime');
+    Route::post('/admin/attendance/{attendance}/decline-overtime', [AdminDashboardController::class, 'declineOvertime'])->name('admin.attendance.decline-overtime');
 
     // Task routes
     Route::post('/admin/tasks', [TaskController::class, 'store'])->name('task.store');
@@ -233,6 +234,7 @@ Route::middleware(['admin'])->group(function () {
     Route::put('/admin/schools/{school}', [SchoolController::class, 'update'])->name('admin.schools.update');
     Route::delete('/admin/schools/{school}', [SchoolController::class, 'destroy'])->name('admin.schools.destroy');
     Route::post('/admin/schools/{school}/toggle-status', [SchoolController::class, 'toggleStatus'])->name('admin.schools.toggleStatus');
+    Route::post('/admin/schools/{school}/accomplish', [SchoolController::class, 'accomplish'])->name('admin.schools.accomplish');
 
     // Intern Approval Routes (Admin)
     Route::get('/admin/interns/pending', [SchoolController::class, 'getPendingInterns'])->name('admin.interns.pending');

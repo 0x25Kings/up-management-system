@@ -235,6 +235,39 @@ class AdminDashboardController extends Controller
     }
 
     /**
+     * Decline overtime for an attendance record
+     */
+    public function declineOvertime(Request $request, Attendance $attendance)
+    {
+        // Check if attendance has overtime to decline
+        if (!$attendance->hasOvertime()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This attendance record has no overtime to decline.'
+            ], 400);
+        }
+
+        // Check if already approved
+        if ($attendance->overtime_approved) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Cannot decline already approved overtime.'
+            ], 400);
+        }
+
+        // Decline the overtime by setting overtime_hours to 0
+        $declinedHours = $attendance->overtime_hours;
+        $attendance->overtime_hours = 0;
+        $attendance->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Overtime declined successfully. ' . $declinedHours . ' hours were removed.',
+            'declined_hours' => $declinedHours
+        ]);
+    }
+
+    /**
      * List all team leaders
      */
     public function teamLeaders()
