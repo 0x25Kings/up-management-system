@@ -514,6 +514,105 @@
             background: #DC2626;
         }
 
+        /* OT Action Dropdown Styles */
+        .ot-action-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .ot-action-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #6B7280;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .ot-action-btn:hover {
+            background: #F3F4F6;
+            border-color: #E5E7EB;
+            color: #374151;
+        }
+
+        .ot-action-btn.has-overtime {
+            color: #92400E;
+        }
+
+        .ot-action-btn.has-overtime:hover {
+            background: #FEF3C7;
+            border-color: #F59E0B;
+        }
+
+        .ot-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border: 1px solid #E5E7EB;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            z-index: 100;
+            min-width: 160px;
+            display: none;
+            overflow: hidden;
+        }
+
+        .ot-dropdown.show {
+            display: block;
+            animation: dropdownFadeIn 0.15s ease;
+        }
+
+        @keyframes dropdownFadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .ot-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+        }
+
+        .ot-dropdown-item:hover {
+            background: #F9FAFB;
+        }
+
+        .ot-dropdown-item.approve {
+            color: #065F46;
+        }
+
+        .ot-dropdown-item.approve:hover {
+            background: #D1FAE5;
+        }
+
+        .ot-dropdown-item.decline {
+            color: #991B1B;
+        }
+
+        .ot-dropdown-item.decline:hover {
+            background: #FEE2E2;
+        }
+
+        .ot-dropdown-item i {
+            width: 16px;
+            text-align: center;
+        }
+
         .time-in-out-badge {
             display: inline-flex;
             align-items: center;
@@ -4654,9 +4753,19 @@
                                     </td>
                                     <td style="white-space: nowrap;">
                                         @if($attendance->isOvertimePending())
-                                            <button onclick="approveOvertime({{ $attendance->id }})" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap;">
-                                                <i class="fas fa-check"></i> Approve OT
-                                            </button>
+                                            <div class="ot-action-wrapper">
+                                                <button class="ot-action-btn has-overtime" onclick="toggleOTDropdown(event, {{ $attendance->id }})" title="Overtime Actions">
+                                                    <i class="fas fa-ellipsis-v"></i>
+                                                </button>
+                                                <div id="ot-dropdown-{{ $attendance->id }}" class="ot-dropdown">
+                                                    <button class="ot-dropdown-item approve" onclick="approveOvertime({{ $attendance->id }})">
+                                                        <i class="fas fa-check-circle"></i> Approve OT
+                                                    </button>
+                                                    <button class="ot-dropdown-item decline" onclick="declineOvertime({{ $attendance->id }})">
+                                                        <i class="fas fa-times-circle"></i> Decline OT
+                                                    </button>
+                                                </div>
+                                            </div>
                                         @else
                                             <span style="color: #9CA3AF;">--</span>
                                         @endif
@@ -4779,6 +4888,7 @@
                                     <th style="min-width: 110px; white-space: nowrap;">Hours Worked</th>
                                     <th style="min-width: 140px; white-space: nowrap;">Over/Under</th>
                                     <th style="min-width: 80px; white-space: nowrap;">Status</th>
+                                    <th style="min-width: 100px; white-space: nowrap;">Action</th>
                                 </tr>
                             </thead>
                             <tbody id="historyTableBody">
@@ -4853,10 +4963,29 @@
                                             {{ $attendance->status }}
                                         </span>
                                     </td>
+                                    <td style="white-space: nowrap;">
+                                        @if($attendance->isOvertimePending())
+                                            <div class="ot-action-wrapper">
+                                                <button class="ot-action-btn has-overtime" onclick="toggleOTDropdown(event, {{ $attendance->id }})" title="Overtime Actions">
+                                                    <i class="fas fa-ellipsis-v"></i>
+                                                </button>
+                                                <div id="ot-dropdown-{{ $attendance->id }}" class="ot-dropdown">
+                                                    <button class="ot-dropdown-item approve" onclick="approveOvertime({{ $attendance->id }})">
+                                                        <i class="fas fa-check-circle"></i> Approve OT
+                                                    </button>
+                                                    <button class="ot-dropdown-item decline" onclick="declineOvertime({{ $attendance->id }})">
+                                                        <i class="fas fa-times-circle"></i> Decline OT
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        @else
+                                            <span style="color: #9CA3AF;">--</span>
+                                        @endif
+                                    </td>
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="8" style="text-align: center; padding: 40px; color: #9CA3AF;">
+                                    <td colspan="9" style="text-align: center; padding: 40px; color: #9CA3AF;">
                                         <i class="fas fa-history" style="font-size: 40px; margin-bottom: 12px; display: block;"></i>
                                         No attendance history yet. Records will appear here once interns start timing in.
                                     </td>
@@ -16470,8 +16599,38 @@ University of the Philippines Cebu
             }
         }
 
+        // Toggle OT dropdown menu
+        function toggleOTDropdown(event, attendanceId) {
+            event.stopPropagation();
+            
+            // Close all other dropdowns first
+            document.querySelectorAll('.ot-dropdown.show').forEach(dropdown => {
+                if (dropdown.id !== `ot-dropdown-${attendanceId}`) {
+                    dropdown.classList.remove('show');
+                }
+            });
+            
+            const dropdown = document.getElementById(`ot-dropdown-${attendanceId}`);
+            if (dropdown) {
+                dropdown.classList.toggle('show');
+            }
+        }
+
+        // Close OT dropdowns when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.ot-action-wrapper')) {
+                document.querySelectorAll('.ot-dropdown.show').forEach(dropdown => {
+                    dropdown.classList.remove('show');
+                });
+            }
+        });
+
         // Approve overtime function
         function approveOvertime(attendanceId) {
+            // Close dropdown first
+            const dropdown = document.getElementById(`ot-dropdown-${attendanceId}`);
+            if (dropdown) dropdown.classList.remove('show');
+
             if (!confirm('Are you sure you want to approve this overtime?')) {
                 return;
             }
@@ -16496,6 +16655,39 @@ University of the Philippines Cebu
             .catch(error => {
                 console.error('Error:', error);
                 alert('An error occurred while approving overtime.');
+            });
+        }
+
+        // Decline overtime function
+        function declineOvertime(attendanceId) {
+            // Close dropdown first
+            const dropdown = document.getElementById(`ot-dropdown-${attendanceId}`);
+            if (dropdown) dropdown.classList.remove('show');
+
+            if (!confirm('Are you sure you want to decline this overtime? The excess hours will not be counted.')) {
+                return;
+            }
+
+            fetch(`/admin/attendance/${attendanceId}/decline-overtime`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Overtime declined successfully!');
+                    window.location.reload();
+                } else {
+                    alert(data.message || 'Failed to decline overtime.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while declining overtime.');
             });
         }
 
