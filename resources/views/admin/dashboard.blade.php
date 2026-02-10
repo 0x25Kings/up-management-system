@@ -920,6 +920,73 @@
             background: #E5E7EB;
         }
 
+        /* School Action Buttons */
+        .school-action-btn {
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .school-action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .school-action-edit {
+            background: #DBEAFE;
+            color: #1E40AF;
+        }
+
+        .school-action-edit:hover {
+            background: #BFDBFE;
+        }
+
+        .school-action-deactivate {
+            background: #FEE2E2;
+            color: #991B1B;
+        }
+
+        .school-action-deactivate:hover {
+            background: #FECACA;
+            color: #7F1D1D;
+        }
+
+        .school-action-activate {
+            background: #D1FAE5;
+            color: #065F46;
+        }
+
+        .school-action-activate:hover {
+            background: #A7F3D0;
+            color: #064E3B;
+        }
+
+        .school-action-accomplish {
+            background: #D1FAE5;
+            color: #065F46;
+        }
+
+        .school-action-accomplish:hover {
+            background: #A7F3D0;
+            color: #064E3B;
+        }
+
+        .school-action-delete {
+            background: #FEE2E2;
+            color: #991B1B;
+        }
+
+        .school-action-delete:hover {
+            background: #FECACA;
+            color: #7F1D1D;
+        }
+
         /* Responsive Modal Styles for Small Laptops */
         @media (max-width: 1366px) {
             .modal-content {
@@ -4295,13 +4362,15 @@
                             ->first();
                     @endphp
                     <div class="school-group" style="margin-bottom: 16px;">
-                        <div class="school-header" style="background: linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%); color: white; padding: 16px 20px; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s ease;">
+                        <div class="school-header" style="background: {{ $school->status !== 'Active' ? 'linear-gradient(135deg, #6B7280 0%, #4B5563 100%)' : 'linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%)' }}; color: white; padding: 16px 20px; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s ease;">
                             <div onclick="toggleSchoolGroup('school-{{ $school->id }}')" style="cursor: pointer; flex: 1; display: flex; align-items: center; gap: 12px;">
                                 <h4 style="margin: 0; font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 12px;">
                                     <i class="fas fa-university"></i>
                                     {{ $school->name }}
                                     @if($school->status !== 'Active')
-                                    <span style="background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 10px; font-size: 10px;">Inactive</span>
+                                    <span style="background: #EF4444; color: white; padding: 4px 10px; border-radius: 10px; font-size: 11px; font-weight: 600; display: flex; align-items: center; gap: 4px;">
+                                        <i class="fas fa-ban" style="font-size: 10px;"></i> Inactive
+                                    </span>
                                     @endif
                                 </h4>
                             </div>
@@ -8920,8 +8989,10 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td style="padding: 14px 16px; text-align: center;">
-                                    <span style="background: #DBEAFE; color: #1E40AF; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 600;">{{ $school->required_hours }} hrs</span>
+                                <td style="padding: 14px 16px; text-align: center; vertical-align: middle;">
+                                    <div style="display: flex; justify-content: center; align-items: center;">
+                                        <span style="background: #DBEAFE; color: #1E40AF; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; white-space: nowrap;">{{ $school->required_hours }} hrs</span>
+                                    </div>
                                 </td>
                                 <td style="padding: 14px 16px; text-align: center;">
                                     <div style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
@@ -8975,14 +9046,17 @@
                                 </td>
                                 <td style="padding: 14px 16px; text-align: center;">
                                     <div style="display: flex; justify-content: center; gap: 6px;">
-                                        <button onclick="editSchool({{ $school->id }}, '{{ addslashes($school->name) }}', {{ $school->required_hours }}, {{ $school->max_interns ?? 'null' }}, '{{ addslashes($school->contact_person ?? '') }}', '{{ addslashes($school->contact_email ?? '') }}', '{{ addslashes($school->contact_phone ?? '') }}', '{{ addslashes($school->notes ?? '') }}')" style="background: #DBEAFE; color: #1E40AF; border: none; width: 32px; height: 32px; border-radius: 6px; cursor: pointer;" title="Edit">
+                                        <button onclick="editSchool({{ $school->id }}, '{{ addslashes($school->name) }}', {{ $school->required_hours }}, {{ $school->max_interns ?? 'null' }}, '{{ addslashes($school->contact_person ?? '') }}', '{{ addslashes($school->contact_email ?? '') }}', '{{ addslashes($school->contact_phone ?? '') }}', '{{ addslashes($school->notes ?? '') }}')" class="school-action-btn school-action-edit" title="Edit School">
                                             <i class="fas fa-edit"></i>
                                         </button>
-                                        <button onclick="toggleSchoolStatus({{ $school->id }})" style="background: {{ $school->status === 'Active' ? '#FEF3C7' : '#D1FAE5' }}; color: {{ $school->status === 'Active' ? '#92400E' : '#065F46' }}; border: none; width: 32px; height: 32px; border-radius: 6px; cursor: pointer;" title="{{ $school->status === 'Active' ? 'Deactivate' : 'Activate' }}">
-                                            <i class="fas {{ $school->status === 'Active' ? 'fa-toggle-off' : 'fa-toggle-on' }}"></i>
+                                        <button onclick="toggleSchoolStatus({{ $school->id }}, '{{ addslashes($school->name) }}', '{{ $school->status }}')" class="school-action-btn {{ $school->status === 'Active' ? 'school-action-deactivate' : 'school-action-activate' }}" title="{{ $school->status === 'Active' ? 'Deactivate School' : 'Activate School' }}">
+                                            <i class="fas {{ $school->status === 'Active' ? 'fa-ban' : 'fa-check-circle' }}"></i>
+                                        </button>
+                                        <button onclick="accomplishSchool({{ $school->id }}, '{{ addslashes($school->name) }}')" class="school-action-btn school-action-accomplish" title="Mark Eligible Interns as Completed">
+                                            <i class="fas fa-trophy"></i>
                                         </button>
                                         @if(($school->total_interns ?? 0) == 0)
-                                        <button onclick="deleteSchool({{ $school->id }}, '{{ addslashes($school->name) }}')" style="background: #FEE2E2; color: #991B1B; border: none; width: 32px; height: 32px; border-radius: 6px; cursor: pointer;" title="Delete">
+                                        <button onclick="deleteSchool({{ $school->id }}, '{{ addslashes($school->name) }}')" class="school-action-btn school-action-delete" title="Delete School">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                         @endif
@@ -9003,6 +9077,71 @@
             </div>
             <div class="modal-footer">
                 <button class="btn-modal secondary" onclick="closeSchoolManagementModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toggle School Status Confirmation Modal -->
+    <div id="toggleSchoolStatusModal" class="modal-overlay" onclick="if(event.target === this) closeToggleSchoolStatusModal()">
+        <div class="modal-content" style="max-width: 450px;">
+            <div class="modal-header" id="toggleSchoolStatusHeader" style="background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%); color: white; transition: background 0.3s ease;">
+                <h3 class="modal-title" style="color: white;"><i class="fas fa-ban" style="margin-right: 8px;" id="toggleSchoolStatusIcon"></i><span id="toggleSchoolStatusTitle">Deactivate School</span></h3>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="toggleSchoolId">
+                <input type="hidden" id="toggleSchoolCurrentStatus">
+                <div id="toggleSchoolStatusWarning" style="background: #FEE2E2; border-radius: 8px; padding: 16px; margin-bottom: 20px; transition: background 0.3s ease;">
+                    <p style="margin: 0; color: #991B1B; font-size: 14px; transition: color 0.3s ease;">
+                        <i class="fas fa-exclamation-triangle" style="margin-right: 8px;"></i>
+                        You are about to deactivate <strong id="toggleSchoolName"></strong>.
+                    </p>
+                </div>
+                <div id="toggleSchoolStatusMessage" style="background: #F3F4F6; border-radius: 8px; padding: 16px;">
+                    <p style="margin: 0; color: #374151; font-size: 14px;">
+                        <i class="fas fa-info-circle" style="margin-right: 8px; color: #6B7280;"></i>
+                        <span id="toggleSchoolStatusDescription">All interns from this school will be unable to login until the school is reactivated.</span>
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal secondary" onclick="closeToggleSchoolStatusModal()">Cancel</button>
+                <button class="btn-modal primary" id="toggleSchoolStatusConfirmBtn" onclick="confirmToggleSchoolStatus()" style="background: linear-gradient(135deg, #DC2626, #B91C1C); transition: all 0.3s ease;">
+                    <i class="fas fa-ban"></i> <span id="toggleSchoolStatusBtnText">Deactivate School</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Accomplish School Confirmation Modal -->
+    <div id="accomplishSchoolModal" class="modal-overlay" onclick="if(event.target === this) closeAccomplishSchoolModal()">
+        <div class="modal-content" style="max-width: 450px;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white;">
+                <h3 class="modal-title" style="color: white;"><i class="fas fa-trophy" style="margin-right: 8px;"></i>Mark Interns as Completed</h3>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="accomplishSchoolId">
+                <div style="background: #D1FAE5; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+                    <p style="margin: 0; color: #065F46; font-size: 14px;">
+                        <i class="fas fa-check-circle" style="margin-right: 8px;"></i>
+                        Mark eligible interns from <strong id="accomplishSchoolName"></strong> as completed.
+                    </p>
+                </div>
+                <div style="background: #F3F4F6; border-radius: 8px; padding: 16px;">
+                    <p style="margin: 0 0 12px 0; color: #374151; font-size: 14px;">
+                        <i class="fas fa-info-circle" style="margin-right: 8px; color: #6B7280;"></i>
+                        This action will mark the following interns as "Completed":
+                    </p>
+                    <ul style="margin: 0; padding-left: 20px; color: #6B7280; font-size: 13px;">
+                        <li>Interns who have completed their required hours</li>
+                        <li>Only active interns will be affected</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal secondary" onclick="closeAccomplishSchoolModal()">Cancel</button>
+                <button class="btn-modal primary" id="accomplishSchoolConfirmBtn" onclick="confirmAccomplishSchool()" style="background: linear-gradient(135deg, #059669, #047857); transition: all 0.3s ease;">
+                    <i class="fas fa-trophy"></i> <span id="accomplishSchoolBtnText">Mark as Completed</span>
+                </button>
             </div>
         </div>
     </div>
@@ -17319,7 +17458,71 @@ University of the Philippines Cebu
             }
         });
 
-        async function toggleSchoolStatus(schoolId) {
+        async function toggleSchoolStatus(schoolId, schoolName, currentStatus) {
+            // Open confirmation modal
+            document.getElementById('toggleSchoolId').value = schoolId;
+            document.getElementById('toggleSchoolCurrentStatus').value = currentStatus;
+            document.getElementById('toggleSchoolName').textContent = schoolName;
+            
+            const isDeactivating = currentStatus === 'Active';
+            const modal = document.getElementById('toggleSchoolStatusModal');
+            const header = document.getElementById('toggleSchoolStatusHeader');
+            const icon = document.getElementById('toggleSchoolStatusIcon');
+            const title = document.getElementById('toggleSchoolStatusTitle');
+            const warning = document.getElementById('toggleSchoolStatusWarning');
+            const description = document.getElementById('toggleSchoolStatusDescription');
+            const confirmBtn = document.getElementById('toggleSchoolStatusConfirmBtn');
+            const btnText = document.getElementById('toggleSchoolStatusBtnText');
+            
+            if (isDeactivating) {
+                header.style.background = 'linear-gradient(135deg, #DC2626 0%, #B91C1C 100%)';
+                icon.className = 'fas fa-ban';
+                title.textContent = 'Deactivate School';
+                warning.style.background = '#FEE2E2';
+                warning.querySelector('p').style.color = '#991B1B';
+                warning.querySelector('p').innerHTML = '<i class="fas fa-exclamation-triangle" style="margin-right: 8px;"></i>You are about to deactivate <strong>' + schoolName + '</strong>.';
+                description.textContent = 'All interns from this school will be unable to login until the school is reactivated.';
+                confirmBtn.style.background = 'linear-gradient(135deg, #DC2626, #B91C1C)';
+                btnText.textContent = 'Deactivate School';
+                confirmBtn.querySelector('i').className = 'fas fa-ban';
+            } else {
+                header.style.background = 'linear-gradient(135deg, #059669 0%, #047857 100%)';
+                icon.className = 'fas fa-check-circle';
+                title.textContent = 'Activate School';
+                warning.style.background = '#D1FAE5';
+                warning.querySelector('p').style.color = '#065F46';
+                warning.querySelector('p').innerHTML = '<i class="fas fa-check-circle" style="margin-right: 8px;"></i>You are about to activate <strong>' + schoolName + '</strong>.';
+                description.textContent = 'All interns from this school will be able to login again.';
+                confirmBtn.style.background = 'linear-gradient(135deg, #059669, #047857)';
+                btnText.textContent = 'Activate School';
+                confirmBtn.querySelector('i').className = 'fas fa-check-circle';
+            }
+            
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeToggleSchoolStatusModal() {
+            const modal = document.getElementById('toggleSchoolStatusModal');
+            modal.classList.add('closing');
+            setTimeout(() => {
+                modal.classList.remove('active', 'closing');
+                document.body.style.overflow = 'auto';
+            }, 300);
+        }
+
+        async function confirmToggleSchoolStatus() {
+            const schoolId = document.getElementById('toggleSchoolId').value;
+            const confirmBtn = document.getElementById('toggleSchoolStatusConfirmBtn');
+            const btnText = document.getElementById('toggleSchoolStatusBtnText');
+            const originalText = btnText.textContent;
+            const originalIcon = confirmBtn.querySelector('i').className;
+            
+            // Set loading state
+            confirmBtn.disabled = true;
+            confirmBtn.querySelector('i').className = 'fas fa-spinner fa-spin';
+            btnText.textContent = 'Processing...';
+            
             try {
                 const response = await fetch(`/admin/schools/${schoolId}/toggle-status`, {
                     method: 'POST',
@@ -17332,13 +17535,22 @@ University of the Philippines Cebu
                 const result = await response.json();
 
                 if (result.success) {
+                    closeToggleSchoolStatusModal();
                     showToast('success', 'Success', result.message);
                     setTimeout(() => location.reload(), 1000);
                 } else {
+                    // Reset button state
+                    confirmBtn.disabled = false;
+                    confirmBtn.querySelector('i').className = originalIcon;
+                    btnText.textContent = originalText;
                     showToast('error', 'Error', result.message || 'An error occurred');
                 }
             } catch (error) {
                 console.error('Error:', error);
+                // Reset button state
+                confirmBtn.disabled = false;
+                confirmBtn.querySelector('i').className = originalIcon;
+                btnText.textContent = originalText;
                 showToast('error', 'Error', 'An error occurred');
             }
         }
@@ -17368,6 +17580,65 @@ University of the Philippines Cebu
             } catch (error) {
                 console.error('Error:', error);
                 showToast('error', 'Error', 'An error occurred while deleting the school');
+            }
+        }
+
+        function accomplishSchool(schoolId, schoolName) {
+            // Open confirmation modal
+            document.getElementById('accomplishSchoolId').value = schoolId;
+            document.getElementById('accomplishSchoolName').textContent = schoolName;
+            document.getElementById('accomplishSchoolModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeAccomplishSchoolModal() {
+            const modal = document.getElementById('accomplishSchoolModal');
+            modal.classList.add('closing');
+            setTimeout(() => {
+                modal.classList.remove('active', 'closing');
+                document.body.style.overflow = 'auto';
+            }, 300);
+        }
+
+        async function confirmAccomplishSchool() {
+            const schoolId = document.getElementById('accomplishSchoolId').value;
+            const confirmBtn = document.getElementById('accomplishSchoolConfirmBtn');
+            const btnText = document.getElementById('accomplishSchoolBtnText');
+            
+            // Set loading state
+            confirmBtn.disabled = true;
+            confirmBtn.querySelector('i').className = 'fas fa-spinner fa-spin';
+            btnText.textContent = 'Processing...';
+
+            try {
+                const response = await fetch(`/admin/schools/${schoolId}/accomplish`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    closeAccomplishSchoolModal();
+                    showToast('success', 'Success', result.message);
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    // Reset button state
+                    confirmBtn.disabled = false;
+                    confirmBtn.querySelector('i').className = 'fas fa-trophy';
+                    btnText.textContent = 'Mark as Completed';
+                    showToast('error', 'Error', result.message || 'An error occurred');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                // Reset button state
+                confirmBtn.disabled = false;
+                confirmBtn.querySelector('i').className = 'fas fa-trophy';
+                btnText.textContent = 'Mark as Completed';
+                showToast('error', 'Error', 'An error occurred while processing the request');
             }
         }
 
