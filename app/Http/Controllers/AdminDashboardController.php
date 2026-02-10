@@ -235,6 +235,39 @@ class AdminDashboardController extends Controller
     }
 
     /**
+     * Decline overtime for an attendance record
+     */
+    public function declineOvertime(Request $request, Attendance $attendance)
+    {
+        // Check if attendance has overtime to decline
+        if (!$attendance->hasOvertime()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This attendance record has no overtime to decline.'
+            ], 400);
+        }
+
+        // Check if already approved
+        if ($attendance->overtime_approved) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Cannot decline already approved overtime.'
+            ], 400);
+        }
+
+        // Decline the overtime by setting overtime_hours to 0
+        $declinedHours = $attendance->overtime_hours;
+        $attendance->overtime_hours = 0;
+        $attendance->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Overtime declined successfully. ' . $declinedHours . ' hours were removed.',
+            'declined_hours' => $declinedHours
+        ]);
+    }
+
+    /**
      * List all team leaders
      */
     public function teamLeaders()
@@ -372,7 +405,16 @@ class AdminDashboardController extends Controller
             ->with('school')
             ->orderBy('name')
             ->get()
-            ->map(function (\App\Models\User $tl) {
+            ->map(function (User $tl) {
+                // Get profile picture - check User first, then check linked Intern by email
+                $profilePicture = $tl->profile_picture;
+                if (!$profilePicture) {
+                    $linkedIntern = Intern::where('email', $tl->email)->first();
+                    if ($linkedIntern && $linkedIntern->profile_picture) {
+                        $profilePicture = $linkedIntern->profile_picture;
+                    }
+                }
+
                 return [
                     'id' => $tl->id,
                     'name' => $tl->name,
@@ -381,9 +423,11 @@ class AdminDashboardController extends Controller
                     'school_id' => $tl->school_id,
                     'school_name' => $tl->school->name ?? 'Not assigned',
                     'is_active' => $tl->is_active,
-                    'interns_count' => \App\Models\Intern::where('school_id', $tl->school_id)->count(),
+                    'interns_count' => Intern::where('school_id', $tl->school_id)->count(),
                     'reports_count' => $tl->teamLeaderReports()->count(),
                     'created_at' => $tl->created_at->format('M d, Y'),
+                    'profile_picture' => $profilePicture,
+                    'profile_picture_url' => $profilePicture ? asset('storage/' . $profilePicture) : null,
                 ];
             });
 
@@ -1020,27 +1064,24 @@ class AdminDashboardController extends Controller
     }
 
     /**
-     * Export interns data to CSV
+     * Export interns data to Excel
      */
     public function exportInterns()
     {
         $interns = Intern::approved()->with('schoolRelation')->get();
 
-        $filename = 'interns_export_' . date('Y-m-d') . '.csv';
+        $filename = 'interns_export_' . date('Y-m-d') . '.xls';
 
         $headers = [
-            'Content-Type' => 'text/csv',
+            'Content-Type' => 'application/vnd.ms-excel',
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
         ];
 
-        $callback = function() use ($interns) {
-            $file = fopen('php://output', 'w');
-
-            // Add headers
-            fputcsv($file, ['ID', 'Name', 'Email', 'School', 'Status', 'Required Hours', 'Completed Hours', 'Start Date', 'End Date', 'Created At']);
-
-            foreach ($interns as $intern) {
-                fputcsv($file, [
+        $html = $this->generateExcelHtml(
+            'Interns Export - ' . date('F d, Y'),
+            ['ID', 'Name', 'Email', 'School', 'Status', 'Required Hours', 'Completed Hours', 'Start Date', 'End Date', 'Created At'],
+            $interns->map(function($intern) {
+                return [
                     $intern->id,
                     $intern->name,
                     $intern->email,
@@ -1050,78 +1091,68 @@ class AdminDashboardController extends Controller
                     $intern->completed_hours,
                     $intern->start_date,
                     $intern->end_date,
-                    $intern->created_at
-                ]);
-            }
+                    $intern->created_at ? $intern->created_at->format('Y-m-d H:i') : ''
+                ];
+            })->toArray()
+        );
 
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
+        return response($html, 200, $headers);
     }
 
     /**
-     * Export attendance data to CSV
+     * Export attendance data to Excel
      */
     public function exportAttendance()
     {
         $attendances = Attendance::with('intern')->orderBy('date', 'desc')->get();
 
-        $filename = 'attendance_export_' . date('Y-m-d') . '.csv';
+        $filename = 'attendance_export_' . date('Y-m-d') . '.xls';
 
         $headers = [
-            'Content-Type' => 'text/csv',
+            'Content-Type' => 'application/vnd.ms-excel',
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
         ];
 
-        $callback = function() use ($attendances) {
-            $file = fopen('php://output', 'w');
-
-            // Add headers
-            fputcsv($file, ['ID', 'Intern Name', 'Date', 'Time In', 'Time Out', 'Hours Worked', 'Overtime', 'Undertime', 'Status']);
-
-            foreach ($attendances as $attendance) {
-                fputcsv($file, [
+        $html = $this->generateExcelHtml(
+            'Attendance Export - ' . date('F d, Y'),
+            ['ID', 'Intern Name', 'Date', 'Time In', 'Time Out', 'Hours Worked', 'Overtime', 'Undertime', 'Status'],
+            $attendances->map(function($attendance) {
+                return [
                     $attendance->id,
                     $attendance->intern ? $attendance->intern->name : 'N/A',
-                    $attendance->date,
+                    $attendance->date ? $attendance->date->format('Y-m-d') : '',
                     $attendance->time_in,
                     $attendance->time_out,
-                    $attendance->hours_worked,
-                    $attendance->overtime ?? 0,
-                    $attendance->undertime ?? 0,
+                    number_format((float)$attendance->hours_worked, 2),
+                    number_format((float)($attendance->overtime_hours ?? 0), 2),
+                    number_format((float)($attendance->undertime_hours ?? 0), 2),
                     $attendance->status ?? 'Present'
-                ]);
-            }
+                ];
+            })->toArray()
+        );
 
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
+        return response($html, 200, $headers);
     }
 
     /**
-     * Export tasks data to CSV
+     * Export tasks data to Excel
      */
     public function exportTasks()
     {
         $tasks = Task::with(['intern', 'assignedBy'])->orderBy('created_at', 'desc')->get();
 
-        $filename = 'tasks_export_' . date('Y-m-d') . '.csv';
+        $filename = 'tasks_export_' . date('Y-m-d') . '.xls';
 
         $headers = [
-            'Content-Type' => 'text/csv',
+            'Content-Type' => 'application/vnd.ms-excel',
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
         ];
 
-        $callback = function() use ($tasks) {
-            $file = fopen('php://output', 'w');
-
-            // Add headers
-            fputcsv($file, ['ID', 'Title', 'Description', 'Assigned To', 'Assigned By', 'Due Date', 'Status', 'Priority', 'Created At']);
-
-            foreach ($tasks as $task) {
-                fputcsv($file, [
+        $html = $this->generateExcelHtml(
+            'Tasks Export - ' . date('F d, Y'),
+            ['ID', 'Title', 'Description', 'Assigned To', 'Assigned By', 'Due Date', 'Status', 'Priority', 'Created At'],
+            $tasks->map(function($task) {
+                return [
                     $task->id,
                     $task->title,
                     $task->description,
@@ -1130,38 +1161,33 @@ class AdminDashboardController extends Controller
                     $task->due_date,
                     $task->status,
                     $task->priority ?? 'Normal',
-                    $task->created_at
-                ]);
-            }
+                    $task->created_at ? $task->created_at->format('Y-m-d H:i') : ''
+                ];
+            })->toArray()
+        );
 
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
+        return response($html, 200, $headers);
     }
 
     /**
-     * Export bookings data to CSV
+     * Export bookings data to Excel
      */
     public function exportBookings()
     {
         $bookings = Booking::with('approvedBy')->orderBy('booking_date', 'desc')->get();
 
-        $filename = 'bookings_export_' . date('Y-m-d') . '.csv';
+        $filename = 'bookings_export_' . date('Y-m-d') . '.xls';
 
         $headers = [
-            'Content-Type' => 'text/csv',
+            'Content-Type' => 'application/vnd.ms-excel',
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
         ];
 
-        $callback = function() use ($bookings) {
-            $file = fopen('php://output', 'w');
-
-            // Add headers
-            fputcsv($file, ['ID', 'Contact Person', 'Email', 'Phone', 'Organization', 'Room', 'Purpose', 'Booking Date', 'Start Time', 'End Time', 'Status', 'Approved By', 'Created At']);
-
-            foreach ($bookings as $booking) {
-                fputcsv($file, [
+        $html = $this->generateExcelHtml(
+            'Bookings Export - ' . date('F d, Y'),
+            ['ID', 'Contact Person', 'Email', 'Phone', 'Organization', 'Room', 'Purpose', 'Booking Date', 'Start Time', 'End Time', 'Status', 'Approved By', 'Created At'],
+            $bookings->map(function($booking) {
+                return [
                     $booking->id,
                     $booking->contact_person,
                     $booking->email,
@@ -1169,19 +1195,85 @@ class AdminDashboardController extends Controller
                     $booking->organization ?? 'N/A',
                     $booking->room,
                     $booking->purpose,
-                    $booking->booking_date,
+                    $booking->booking_date ? $booking->booking_date->format('Y-m-d') : '',
                     $booking->time_start,
                     $booking->time_end,
                     $booking->status,
                     $booking->approvedBy ? $booking->approvedBy->name : 'N/A',
-                    $booking->created_at
-                ]);
+                    $booking->created_at ? $booking->created_at->format('Y-m-d H:i') : ''
+                ];
+            })->toArray()
+        );
+
+        return response($html, 200, $headers);
+    }
+
+    /**
+     * Generate Excel-compatible HTML with bold headers and proper spacing
+     */
+    private function generateExcelHtml(string $title, array $headers, array $data): string
+    {
+        $html = '<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        table { border-collapse: collapse; width: 100%; }
+        th, td {
+            border: 1px solid #000;
+            padding: 8px 15px;
+            text-align: left;
+            white-space: nowrap;
+            mso-number-format: "\@";
+        }
+        th {
+            background-color: #7B1D3A;
+            color: white;
+            font-weight: bold;
+            font-size: 12pt;
+        }
+        td {
+            font-size: 11pt;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .title {
+            font-size: 14pt;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #7B1D3A;
+        }
+    </style>
+</head>
+<body>
+    <div class="title">' . htmlspecialchars($title) . '</div>
+    <table>
+        <thead>
+            <tr>';
+
+        foreach ($headers as $header) {
+            $html .= '<th>' . htmlspecialchars($header) . '</th>';
+        }
+
+        $html .= '</tr>
+        </thead>
+        <tbody>';
+
+        foreach ($data as $row) {
+            $html .= '<tr>';
+            foreach ($row as $cell) {
+                $html .= '<td>' . htmlspecialchars((string)$cell) . '</td>';
             }
+            $html .= '</tr>';
+        }
 
-            fclose($file);
-        };
+        $html .= '</tbody>
+    </table>
+</body>
+</html>';
 
-        return response()->stream($callback, 200, $headers);
+        return $html;
     }
 
     /**

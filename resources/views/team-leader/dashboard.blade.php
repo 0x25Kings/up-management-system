@@ -1880,6 +1880,7 @@
                                 <th>Time In</th>
                                 <th>Time Out</th>
                                 <th>Hours Worked</th>
+                                <th>Over/Under</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
@@ -1921,6 +1922,31 @@
                                     @if($hoursWorked > 0)
                                     <span style="font-weight: 600; color: var(--maroon);">{{ number_format($hoursWorked, 1) }} hrs</span>
                                     @else <span style="color: #9CA3AF;">--</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($attendance->time_out)
+                                        @if($attendance->hasUndertime())
+                                            <span style="background: #FEE2E2; color: #991B1B; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;">
+                                                <i class="fas fa-arrow-down"></i> -{{ number_format((float)($attendance->undertime_hours ?? 0), 2) }} hrs
+                                            </span>
+                                        @elseif($attendance->hasOvertime())
+                                            @if($attendance->overtime_approved)
+                                                <span style="background: #D1FAE5; color: #065F46; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;">
+                                                    <i class="fas fa-check-circle"></i> +{{ number_format((float)($attendance->overtime_hours ?? 0), 2) }} hrs
+                                                </span>
+                                            @else
+                                                <span style="background: #FEF3C7; color: #92400E; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;">
+                                                    <i class="fas fa-clock"></i> +{{ number_format((float)($attendance->overtime_hours ?? 0), 2) }} hrs (Pending)
+                                                </span>
+                                            @endif
+                                        @else
+                                            <span style="background: #DBEAFE; color: #1E40AF; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;">
+                                                <i class="fas fa-check"></i> On Target
+                                            </span>
+                                        @endif
+                                    @else
+                                        <span style="color: #9CA3AF; font-size: 12px;">--</span>
                                     @endif
                                 </td>
                                 <td>
@@ -4444,22 +4470,22 @@
             const visibleRows = Array.from(rows).filter(row => row.getAttribute('data-filtered') !== 'false');
             const totalVisible = visibleRows.length;
             const totalPages = Math.ceil(totalVisible / tlIssuesPerPage);
-            
+
             // Hide all rows first
             rows.forEach(row => row.style.display = 'none');
-            
+
             // Show only rows for current page
             const start = (tlIssuesCurrentPage - 1) * tlIssuesPerPage;
             const end = start + tlIssuesPerPage;
-            
+
             visibleRows.slice(start, end).forEach(row => row.style.display = '');
-            
+
             // Update pagination info
             const showingStart = totalVisible > 0 ? start + 1 : 0;
             const showingEnd = Math.min(end, totalVisible);
             document.getElementById('tlIssuesShowing').textContent = `${showingStart}-${showingEnd}`;
             document.getElementById('tlIssuesTotalCount').textContent = totalVisible;
-            
+
             // Update buttons
             document.getElementById('tlIssuesPrevBtn').disabled = tlIssuesCurrentPage <= 1;
             document.getElementById('tlIssuesNextBtn').disabled = tlIssuesCurrentPage >= totalPages;
@@ -4485,7 +4511,7 @@
             if (!confirm('Are you sure you want to archive this issue?')) {
                 return;
             }
-            
+
             fetch(`/team-leader/issues/${issueId}/archive`, {
                 method: 'POST',
                 headers: {
@@ -4538,14 +4564,14 @@
         // Profile dropdown toggle
         const tlProfileBtn = document.getElementById('tlProfileBtn');
         const tlProfileDropdown = document.getElementById('tlProfileDropdown');
-        
+
         if (tlProfileBtn && tlProfileDropdown) {
             tlProfileBtn.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
                 tlProfileDropdown.classList.toggle('active');
             });
-            
+
             // Close dropdown when clicking outside
             document.addEventListener('click', function(event) {
                 if (!tlProfileDropdown.contains(event.target)) {

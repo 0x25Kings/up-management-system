@@ -112,10 +112,10 @@ class InternController extends Controller
         $validated['reference_code'] = Intern::generateReferenceCode();
         $validated['school'] = $school->name; // Keep school name for backward compatibility
         $validated['required_hours'] = $school->required_hours ?? Setting::get('default_hours', 480);
-        
+
         // Check if auto-approve is enabled
         $autoApprove = Setting::get('auto_approve_intern', false);
-        
+
         if ($autoApprove) {
             // Auto-approve the intern
             $validated['approval_status'] = 'approved';
@@ -126,7 +126,7 @@ class InternController extends Controller
         } else {
             $validated['approval_status'] = 'pending';
         }
-        
+
         // No password required - interns access with reference code only
 
         // Create the intern
@@ -162,10 +162,20 @@ class InternController extends Controller
         }
 
         // Regular intern access - no password required
-        $intern = Intern::where('reference_code', $referenceCode)->first();
+        $intern = Intern::with('schoolRelation')->where('reference_code', $referenceCode)->first();
 
         if (!$intern) {
             return back()->withErrors(['reference_code' => 'Invalid reference code. Please check and try again.']);
+        }
+
+        // Check if intern's school is active
+        if ($intern->schoolRelation && $intern->schoolRelation->status !== 'Active') {
+            return back()->withErrors(['reference_code' => 'Your school account has been deactivated. Please contact the administrator.']);
+        }
+
+        // Check if intern's own status is active
+        if ($intern->status !== 'Active') {
+            return back()->withErrors(['reference_code' => 'Your account has been deactivated. Please contact the administrator.']);
         }
 
         // Store intern ID in session (no password verification needed)
@@ -331,6 +341,11 @@ class InternController extends Controller
         $now = Carbon::now('Asia/Manila');
         $today = $now->toDateString();
 
+        // Get work start time from settings (default 08:00)
+        $workStart = Setting::get('work_start', '08:00');
+        $workStartTime = Carbon::parse($today . ' ' . $workStart, 'Asia/Manila');
+        $isLate = $now->gt($workStartTime);
+
         // Check if already has attendance for today using whereDate for reliable comparison
         $attendance = Attendance::where('intern_id', $intern->id)
             ->whereDate('date', $today)
@@ -346,7 +361,7 @@ class InternController extends Controller
             }
             // Update existing record with time_in (rare case - record exists but no time_in)
             $attendance->time_in = $now->format('H:i:s');
-            $attendance->status = $now->hour >= 9 ? 'Late' : 'Present';
+            $attendance->status = $isLate ? 'Late' : 'Present';
             $attendance->save();
         } else {
             // Create new attendance record using firstOrCreate to prevent race conditions
@@ -355,14 +370,14 @@ class InternController extends Controller
                     ['intern_id' => $intern->id, 'date' => $today],
                     [
                         'time_in' => $now->format('H:i:s'),
-                        'status' => $now->hour >= 9 ? 'Late' : 'Present',
+                        'status' => $isLate ? 'Late' : 'Present',
                     ]
                 );
 
                 // If record was found (not created), update it
                 if (!$attendance->wasRecentlyCreated && !$attendance->time_in) {
                     $attendance->time_in = $now->format('H:i:s');
-                    $attendance->status = $now->hour >= 9 ? 'Late' : 'Present';
+                    $attendance->status = $isLate ? 'Late' : 'Present';
                     $attendance->save();
                 } elseif (!$attendance->wasRecentlyCreated && $attendance->time_in) {
                     if ($expectsJson) {
@@ -456,17 +471,17 @@ class InternController extends Controller
 
         // Calculate overtime/undertime
         $attendance->calculateOvertimeUndertime();
-        
+
         // Check if overtime approval is required
         $requireOvertimeApproval = Setting::get('require_overtime_approval', true);
-        
+
         // If overtime approval is NOT required and there's overtime, auto-approve it
         if (!$requireOvertimeApproval && $attendance->hasOvertime()) {
             $attendance->overtime_approved = true;
             $attendance->approved_at = Carbon::now();
             // approved_by remains null for auto-approved overtime
         }
-        
+
         $attendance->save();
 
         // Update intern's completed hours (only count effective hours)
@@ -857,18 +872,18 @@ class InternController extends Controller
                 'name' => $intern->name,
                 'completed_hours' => $intern->completed_hours,
                 'required_hours' => $intern->required_hours,
-                'progress_percentage' => $intern->required_hours > 0 
-                    ? min(100, round(($intern->completed_hours / $intern->required_hours) * 100, 1)) 
+                'progress_percentage' => $intern->required_hours > 0
+                    ? min(100, round(($intern->completed_hours / $intern->required_hours) * 100, 1))
                     : 0,
             ],
             'attendance' => [
                 'has_timed_in' => $todayAttendance && $todayAttendance->time_in ? true : false,
                 'has_timed_out' => $todayAttendance && $todayAttendance->time_out ? true : false,
-                'time_in' => $todayAttendance && $todayAttendance->time_in 
-                    ? Carbon::parse($todayAttendance->time_in)->format('h:i A') 
+                'time_in' => $todayAttendance && $todayAttendance->time_in
+                    ? Carbon::parse($todayAttendance->time_in)->format('h:i A')
                     : null,
-                'time_out' => $todayAttendance && $todayAttendance->time_out 
-                    ? Carbon::parse($todayAttendance->time_out)->format('h:i A') 
+                'time_out' => $todayAttendance && $todayAttendance->time_out
+                    ? Carbon::parse($todayAttendance->time_out)->format('h:i A')
                     : null,
                 'hours_today' => $todayHours,
                 'is_working' => $isWorking,
