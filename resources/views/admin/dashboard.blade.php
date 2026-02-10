@@ -124,7 +124,7 @@
         }
 
         .sidebar-logo p {
-            color: #FFBF00;
+            color: var(--accent-color);
             font-size: 11px;
             text-align: center;
             font-weight: 600;
@@ -165,14 +165,14 @@
 
         .menu-item:hover i:first-child {
             transform: scale(1.1);
-            color: #FFBF00;
+            color: var(--accent-color);
         }
 
         .menu-item.active {
-            background: linear-gradient(135deg, #FFBF00 0%, #FFD54F 100%);
+            background: linear-gradient(135deg, var(--accent-color) 0%, color-mix(in srgb, var(--accent-color) 70%, white) 100%);
             color: #7B1D3A;
             font-weight: 600;
-            box-shadow: 0 4px 15px rgba(255, 191, 0, 0.3);
+            box-shadow: 0 4px 15px color-mix(in srgb, var(--accent-color) 30%, transparent);
         }
 
         .menu-item.active i:first-child {
@@ -232,13 +232,13 @@
         }
 
         .submenu-item:hover {
-            background: rgba(255, 191, 0, 0.1);
-            color: #FFBF00;
+            background: color-mix(in srgb, var(--accent-color) 10%, transparent);
+            color: var(--accent-color);
         }
 
         .submenu-item:hover::before {
-            background: #FFBF00;
-            box-shadow: 0 0 8px rgba(255, 191, 0, 0.5);
+            background: var(--accent-color);
+            box-shadow: 0 0 8px color-mix(in srgb, var(--accent-color) 50%, transparent);
         }
 
         .submenu-item i {
@@ -277,13 +277,13 @@
         }
 
         .filter-tab.active {
-            background: linear-gradient(135deg, #FFBF00 0%, #FFA500 100%);
-            color: #7B1D3A;
-            border-color: #FFBF00;
+            background: linear-gradient(135deg, var(--accent-color) 0%, color-mix(in srgb, var(--accent-color) 80%, #FFA500) 100%);
+            color: var(--primary-color);
+            border-color: var(--accent-color);
         }
 
         .filter-tab:hover {
-            border-color: #FFBF00;
+            border-color: var(--accent-color);
         }
 
         .intern-table-wrapper {
@@ -318,8 +318,8 @@
         }
 
         .school-badge {
-            background: rgba(255, 191, 0, 0.2);
-            color: #FFBF00;
+            background: color-mix(in srgb, var(--accent-color) 20%, transparent);
+            color: var(--accent-color);
             padding: 4px 12px;
             border-radius: 12px;
             font-size: 12px;
@@ -336,7 +336,7 @@
 
         .progress-bar {
             height: 100%;
-            background: linear-gradient(135deg, #FFBF00 0%, #FFA500 100%);
+            background: linear-gradient(135deg, var(--accent-color) 0%, color-mix(in srgb, var(--accent-color) 80%, #FFA500) 100%);
             transition: width 0.3s ease;
         }
 
@@ -363,7 +363,7 @@
 
         .time-stat-card.required { border-left-color: #3B82F6; }
         .time-stat-card.completed { border-left-color: #10B981; }
-        .time-stat-card.remaining { border-left-color: #FFBF00; }
+        .time-stat-card.remaining { border-left-color: var(--accent-color); }
         .time-stat-card.overtime { border-left-color: #7B1D3A; }
 
         .time-stat-label {
@@ -654,27 +654,20 @@
         }
 
         .modal-overlay {
-            display: flex;
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0);
+            background: rgba(0, 0, 0, 0.5);
             z-index: 9999;
             justify-content: center;
             align-items: center;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(0px);
         }
 
         .modal-overlay.active {
-            opacity: 1;
-            visibility: visible;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(4px);
+            display: flex;
         }
 
         .modal-content {
@@ -685,25 +678,7 @@
             max-height: 90vh;
             overflow-y: auto;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            transform: translateY(-30px) scale(0.95);
-            opacity: 0;
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .modal-overlay.active .modal-content {
-            transform: translateY(0) scale(1);
-            opacity: 1;
-        }
-
-        .modal-overlay.closing {
-            opacity: 0;
-            background: rgba(0, 0, 0, 0);
-            backdrop-filter: blur(0px);
-        }
-
-        .modal-overlay.closing .modal-content {
-            transform: translateY(-20px) scale(0.95);
-            opacity: 0;
+            animation: modalSlideIn 0.3s ease;
         }
 
         @keyframes modalSlideIn {
@@ -932,15 +907,8 @@
             color: white;
         }
 
-        .btn-modal.primary:hover:not(:disabled) {
+        .btn-modal.primary:hover {
             background: #5a1428;
-            transform: translateY(-1px);
-        }
-
-        .btn-modal.primary:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-            transform: none;
         }
 
         .btn-modal.secondary {
@@ -948,9 +916,8 @@
             color: #6B7280;
         }
 
-        .btn-modal.secondary:hover:not(:disabled) {
+        .btn-modal.secondary:hover {
             background: #E5E7EB;
-            transform: translateY(-1px);
         }
 
         /* Responsive Modal Styles for Small Laptops */
@@ -1289,11 +1256,11 @@
             width: 32px;
             height: 32px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #FFBF00, #FFA500);
+            background: linear-gradient(135deg, var(--accent-color), color-mix(in srgb, var(--accent-color) 80%, #FFA500));
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #7B1D3A;
+            color: var(--primary-color);
             font-weight: 700;
             font-size: 12px;
             border: 2px solid white;
@@ -1741,11 +1708,11 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #FFBF00 0%, #FFA500 100%);
+            background: linear-gradient(135deg, var(--accent-color) 0%, color-mix(in srgb, var(--accent-color) 80%, #FFA500) 100%);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #7B1D3A;
+            color: var(--primary-color);
             font-weight: 700;
         }
 
@@ -1817,7 +1784,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #FFBF00;
+            color: var(--accent-color);
             font-weight: 700;
             font-size: 18px;
             margin: 0 auto 10px;
@@ -1918,12 +1885,12 @@
             width: 56px;
             height: 56px;
             border-radius: 12px;
-            background: linear-gradient(135deg, #FFBF00 0%, #FFA500 100%);
+            background: linear-gradient(135deg, var(--accent-color) 0%, color-mix(in srgb, var(--accent-color) 80%, #FFA500) 100%);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 28px;
-            color: #7B1D3A;
+            color: var(--primary-color);
             margin-bottom: 16px;
         }
 
@@ -1992,6 +1959,20 @@
             min-width: max-content;
         }
 
+        /* Table Pagination Styles */
+        .table-pagination button {
+            transition: all 0.2s ease;
+        }
+
+        .table-pagination button:hover:not(:disabled) {
+            background: #E5E7EB !important;
+        }
+
+        .table-pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed !important;
+        }
+
         .table-header {
             padding: 20px 24px;
             border-bottom: 1px solid #E5E7EB;
@@ -2015,7 +1996,7 @@
         }
 
         .view-all-btn:hover {
-            color: #FFBF00;
+            color: var(--accent-color);
         }
 
         table {
@@ -2091,18 +2072,18 @@
             width: 56px;
             height: 56px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #FFBF00 0%, #FFA500 100%);
-            color: #7B1D3A;
+            background: linear-gradient(135deg, var(--accent-color) 0%, color-mix(in srgb, var(--accent-color) 80%, #FFA500) 100%);
+            color: var(--primary-color);
             border: none;
             font-size: 24px;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(255, 191, 0, 0.4);
+            box-shadow: 0 4px 12px color-mix(in srgb, var(--accent-color) 40%, transparent);
             transition: all 0.3s ease;
         }
 
         .fab-button:hover {
             transform: scale(1.1);
-            box-shadow: 0 8px 20px rgba(255, 191, 0, 0.6);
+            box-shadow: 0 8px 20px color-mix(in srgb, var(--accent-color) 60%, transparent);
         }
 
         /* Calendar Styles */
@@ -2215,7 +2196,7 @@
             transform: translateX(-50%);
             width: 4px;
             height: 4px;
-            background: #FFBF00;
+            background: var(--accent-color);
             border-radius: 50%;
         }
 
@@ -2604,7 +2585,7 @@
 
         .folder-icon {
             background: none !important;
-            color: #FFBF00;
+            color: var(--accent-color);
             font-size: 48px;
         }
 
@@ -2685,8 +2666,8 @@
         }
 
         .mobile-menu-btn.active {
-            background: linear-gradient(135deg, #FFBF00 0%, #FFA500 100%);
-            color: #7B1D3A;
+            background: linear-gradient(135deg, var(--accent-color) 0%, color-mix(in srgb, var(--accent-color) 80%, #FFA500) 100%);
+            color: var(--primary-color);
         }
 
         /* Mobile Overlay */
@@ -3847,6 +3828,16 @@
             animation: none !important;
             transition: none !important;
         }
+
+        /* Pulse animation for email pending badge */
+        @keyframes pulse-amber {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4);
+            }
+            50% {
+                box-shadow: 0 0 0 6px rgba(245, 158, 11, 0);
+            }
+        }
     </style>
 </head>
 <body>
@@ -4304,15 +4295,13 @@
                             ->first();
                     @endphp
                     <div class="school-group" style="margin-bottom: 16px;">
-                        <div class="school-header" style="background: {{ $school->status !== 'Active' ? 'linear-gradient(135deg, #6B7280 0%, #4B5563 100%)' : 'linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%)' }}; color: white; padding: 16px 20px; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s ease;">
+                        <div class="school-header" style="background: linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%); color: white; padding: 16px 20px; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s ease;">
                             <div onclick="toggleSchoolGroup('school-{{ $school->id }}')" style="cursor: pointer; flex: 1; display: flex; align-items: center; gap: 12px;">
                                 <h4 style="margin: 0; font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 12px;">
                                     <i class="fas fa-university"></i>
                                     {{ $school->name }}
                                     @if($school->status !== 'Active')
-                                    <span style="background: #EF4444; padding: 4px 10px; border-radius: 10px; font-size: 11px; font-weight: 600; display: flex; align-items: center; gap: 4px;">
-                                        <i class="fas fa-ban" style="font-size: 10px;"></i> DEACTIVATED
-                                    </span>
+                                    <span style="background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 10px; font-size: 10px;">Inactive</span>
                                     @endif
                                 </h4>
                             </div>
@@ -4462,7 +4451,7 @@
                     <div class="filter-bar">
                         <div class="filter-group">
                             <span class="filter-label">Status:</span>
-                            <select class="filter-select" id="statusFilter">
+                            <select class="filter-select" id="attendanceStatusFilter" onchange="filterDailyAttendance()">
                                 <option value="all">All Status</option>
                                 <option value="Present">Present</option>
                                 <option value="Late">Late</option>
@@ -4471,7 +4460,7 @@
                         </div>
                         <div class="filter-group">
                             <span class="filter-label">School:</span>
-                            <select class="filter-select" id="schoolFilter">
+                            <select class="filter-select" id="schoolFilter" onchange="filterDailyAttendance()">
                                 <option value="all">All Schools</option>
                                 @foreach(($interns ?? collect())->pluck('school')->unique() as $school)
                                 <option value="{{ $school }}">{{ $school }}</option>
@@ -4480,110 +4469,105 @@
                         </div>
                         <div class="filter-search">
                             <i class="fas fa-search"></i>
-                            <input type="text" placeholder="Search by intern name..." id="dailySearchInput">
+                            <input type="text" placeholder="Search by intern name..." id="dailySearchInput" onkeyup="filterDailyAttendance()">
                         </div>
                     </div>
 
+                    @php
+                        // Get IDs of interns who have attendance today
+                        $attendingInternIds = $todayAttendances->pluck('intern_id')->toArray();
+                        // Get active interns who don't have attendance today (absent)
+                        $absentInterns = $interns->where('status', 'Active')->filter(function($intern) use ($attendingInternIds) {
+                            return !in_array($intern->id, $attendingInternIds);
+                        });
+                        $absentCount = $absentInterns->count();
+                        $presentCount = $todayAttendances->count();
+                    @endphp
                     <div class="table-card">
                         <div class="table-header">
                             <h3 class="table-title">Today's Attendance - {{ now()->timezone('Asia/Manila')->format('F d, Y') }}</h3>
                             <div style="display: flex; gap: 8px;">
                                 <span style="background: #D1FAE5; color: #065F46; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
-                                    <i class="fas fa-user-check"></i> {{ $todayAttendances->count() ?? 0 }} Present
+                                    <i class="fas fa-user-check"></i> {{ $presentCount }} Present
                                 </span>
+                                @if($absentCount > 0)
+                                <span style="background: #FEE2E2; color: #991B1B; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                                    <i class="fas fa-user-times"></i> {{ $absentCount }} Absent
+                                </span>
+                                @endif
                             </div>
                         </div>
-                        <div style="overflow-x: auto; max-width: 100%;">
-                        <table style="min-width: 900px;">
+                        <div style="overflow-x: auto;">
+                        <table style="min-width: 1000px;">
                             <thead>
                                 <tr>
-                                    <th>Intern Name</th>
-                                    <th>School</th>
-                                    <th>Time In</th>
-                                    <th>Time Out</th>
-                                    <th>Hours Today</th>
-                                    <th>Over/Under</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
+                                    <th style="min-width: 180px; white-space: nowrap;">Intern Name</th>
+                                    <th style="min-width: 150px; white-space: nowrap;">School</th>
+                                    <th style="min-width: 100px; white-space: nowrap;">Time In</th>
+                                    <th style="min-width: 100px; white-space: nowrap;">Time Out</th>
+                                    <th style="min-width: 100px; white-space: nowrap;">Hours Today</th>
+                                    <th style="min-width: 140px; white-space: nowrap;">Over/Under</th>
+                                    <th style="min-width: 80px; white-space: nowrap;">Status</th>
+                                    <th style="min-width: 120px; white-space: nowrap;">Action</th>
                                 </tr>
                             </thead>
                             <tbody id="dailyHoursTableBody">
                                 @forelse($todayAttendances ?? [] as $attendance)
                                 @php /** @var \App\Models\Attendance $attendance */ @endphp
-                                <tr data-attendance-id="{{ $attendance->id }}" data-time-in="{{ $attendance->raw_time_in }}" data-timed-out="{{ $attendance->time_out ? 'true' : 'false' }}">
-                                    <td>
+                                <tr data-attendance-id="{{ $attendance->id }}" data-time-in="{{ $attendance->raw_time_in }}" data-timed-out="{{ $attendance->time_out ? 'true' : 'false' }}" data-status="{{ $attendance->status }}" data-school="{{ $attendance->intern->school ?? 'N/A' }}" data-name="{{ strtolower($attendance->intern->name ?? '') }}">
+                                    <td style="white-space: nowrap;">
                                         <div style="display: flex; align-items: center; gap: 12px;">
-                                            <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #FFBF00, #FFA500); display: flex; align-items: center; justify-content: center; color: #7B1D3A; font-weight: 700; overflow: hidden;">
+                                            <div style="width: 36px; height: 36px; min-width: 36px; border-radius: 50%; background: linear-gradient(135deg, #FFBF00, #FFA500); display: flex; align-items: center; justify-content: center; color: #7B1D3A; font-weight: 700; overflow: hidden;">
                                                 @if($attendance->intern->profile_picture ?? null)
                                                     <img src="{{ asset('storage/' . $attendance->intern->profile_picture) }}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
                                                 @else
                                                     {{ strtoupper(substr($attendance->intern->name ?? 'U', 0, 1)) }}
                                                 @endif
                                             </div>
-                                            <div class="intern-info">
+                                            <div class="intern-info" style="white-space: nowrap;">
                                                 <span class="intern-name" style="font-weight: 600;">{{ $attendance->intern->name ?? 'Unknown' }}</span>
                                                 <span class="intern-school" style="font-size: 12px; color: #6B7280; display: block;">{{ $attendance->intern->reference_code ?? '' }}</span>
                                             </div>
                                         </div>
                                     </td>
-                                    <td>
-                                        @php
-                                            $schoolColors = [
-                                                'University of the Philippines' => ['bg' => '#7B1D3A', 'text' => '#FFFFFF'],
-                                                'UP' => ['bg' => '#7B1D3A', 'text' => '#FFFFFF'],
-                                                'Technological University of the Philippines' => ['bg' => '#1E40AF', 'text' => '#FFFFFF'],
-                                                'TUP' => ['bg' => '#1E40AF', 'text' => '#FFFFFF'],
-                                                'Polytechnic University of the Philippines' => ['bg' => '#DC2626', 'text' => '#FFFFFF'],
-                                                'PUP' => ['bg' => '#DC2626', 'text' => '#FFFFFF'],
-                                                'University of Santo Tomas' => ['bg' => '#FBBF24', 'text' => '#1F2937'],
-                                                'UST' => ['bg' => '#FBBF24', 'text' => '#1F2937'],
-                                                'FEU' => ['bg' => '#059669', 'text' => '#FFFFFF'],
-                                                'default' => ['bg' => '#6B7280', 'text' => '#FFFFFF'],
-                                            ];
-                                            $internSchool = $attendance->intern->school ?? 'N/A';
-                                            $schoolColor = $schoolColors[$internSchool] ?? $schoolColors['default'];
-                                        @endphp
-                                        <span style="background: {{ $schoolColor['bg'] }}; color: {{ $schoolColor['text'] }}; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; white-space: nowrap;">
-                                            <i class="fas fa-university" style="margin-right: 4px;"></i>{{ $internSchool }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span class="time-in-out-badge time-in" style="background: #D1FAE5; color: #065F46; padding: 4px 10px; border-radius: 6px; font-size: 13px; font-weight: 600;">
+                                    <td style="white-space: nowrap;">{{ $attendance->intern->school ?? 'N/A' }}</td>
+                                    <td style="white-space: nowrap;">
+                                        <span class="time-in-out-badge time-in" style="background: #D1FAE5; color: #065F46; padding: 4px 10px; border-radius: 6px; font-size: 13px; font-weight: 600; white-space: nowrap;">
                                             <i class="fas fa-sign-in-alt"></i> {{ $attendance->formatted_time_in }}
                                         </span>
                                     </td>
-                                    <td>
+                                    <td style="white-space: nowrap;">
                                         @if($attendance->time_out)
-                                        <span class="time-in-out-badge time-out" style="background: #FEE2E2; color: #991B1B; padding: 4px 10px; border-radius: 6px; font-size: 13px; font-weight: 600;">
+                                        <span class="time-in-out-badge time-out" style="background: #FEE2E2; color: #991B1B; padding: 4px 10px; border-radius: 6px; font-size: 13px; font-weight: 600; white-space: nowrap;">
                                             <i class="fas fa-sign-out-alt"></i> {{ $attendance->formatted_time_out }}
                                         </span>
                                         @else
-                                        <span style="color: #9CA3AF; font-style: italic;">Still working...</span>
+                                        <span style="color: #9CA3AF; font-style: italic; white-space: nowrap;">Still working...</span>
                                         @endif
                                     </td>
-                                    <td>
+                                    <td style="white-space: nowrap;">
                                         <strong style="font-size: 16px;" id="hours-{{ $attendance->id }}">
                                             {{ number_format($attendance->current_hours_worked, 2) }} hrs
                                         </strong>
                                     </td>
-                                    <td>
+                                    <td style="white-space: nowrap;">
                                         @if($attendance->time_out)
                                             @if($attendance->hasUndertime())
-                                                <span style="background: #FEE2E2; color: #991B1B; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;">
+                                                <span style="background: #FEE2E2; color: #991B1B; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
                                                     <i class="fas fa-arrow-down"></i> -{{ number_format((float)($attendance->undertime_hours ?? 0), 2) }} hrs
                                                 </span>
                                             @elseif($attendance->hasOvertime())
                                                 @if($attendance->overtime_approved)
-                                                    <span style="background: #D1FAE5; color: #065F46; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;">
-                                                        <i class="fas fa-check-circle"></i> +{{ number_format((float)($attendance->overtime_hours ?? 0), 2) }} hrs
+                                                    <span style="background: #D1FAE5; color: #065F46; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                                                        <i class="fas fa-check-circle"></i> +{{ number_format((float)($attendance->overtime_hours ?? 0), 2) }} hrs (Approved)
                                                     </span>
                                                 @else
-                                                    <span style="background: #FEF3C7; color: #92400E; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;">
-                                                        <i class="fas fa-clock"></i> +{{ number_format((float)($attendance->overtime_hours ?? 0), 2) }} hrs
+                                                    <span style="background: #FEF3C7; color: #92400E; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                                                        <i class="fas fa-clock"></i> +{{ number_format((float)($attendance->overtime_hours ?? 0), 2) }} hrs (Pending)
                                                     </span>
                                                 @endif
                                             @else
-                                                <span style="background: #DBEAFE; color: #1E40AF; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;">
+                                                <span style="background: #DBEAFE; color: #1E40AF; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
                                                     <i class="fas fa-check"></i> On Target
                                                 </span>
                                             @endif
@@ -4591,17 +4575,17 @@
                                             <span style="color: #9CA3AF; font-size: 12px;">--</span>
                                         @endif
                                     </td>
-                                    <td>
-                                        <span class="hours-badge" style="padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
+                                    <td style="white-space: nowrap;">
+                                        <span class="hours-badge" style="padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap;
                                             @if($attendance->status === 'Present') background: #D1FAE5; color: #065F46;
                                             @elseif($attendance->status === 'Late') background: #FEF3C7; color: #92400E;
                                             @else background: #FEE2E2; color: #991B1B; @endif">
                                             {{ $attendance->status }}
                                         </span>
                                     </td>
-                                    <td>
+                                    <td style="white-space: nowrap;">
                                         @if($attendance->isOvertimePending())
-                                            <button onclick="approveOvertime({{ $attendance->id }})" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;">
+                                            <button onclick="approveOvertime({{ $attendance->id }})" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap;">
                                                 <i class="fas fa-check"></i> Approve OT
                                             </button>
                                         @else
@@ -4610,36 +4594,83 @@
                                     </td>
                                 </tr>
                                 @empty
+                                @endforelse
+                                {{-- Show absent interns --}}
+                                @foreach($absentInterns as $absentIntern)
+                                <tr class="absent-row" data-attendance-id="absent-{{ $absentIntern->id }}" data-status="Absent" data-school="{{ $absentIntern->school ?? 'N/A' }}" data-name="{{ strtolower($absentIntern->name ?? '') }}">
+                                    <td style="white-space: nowrap;">
+                                        <div style="display: flex; align-items: center; gap: 12px;">
+                                            <div style="width: 36px; height: 36px; min-width: 36px; border-radius: 50%; background: linear-gradient(135deg, #9CA3AF, #6B7280); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; overflow: hidden;">
+                                                @if($absentIntern->profile_picture ?? null)
+                                                    <img src="{{ asset('storage/' . $absentIntern->profile_picture) }}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.7;">
+                                                @else
+                                                    {{ strtoupper(substr($absentIntern->name ?? 'U', 0, 1)) }}
+                                                @endif
+                                            </div>
+                                            <div class="intern-info" style="white-space: nowrap;">
+                                                <span class="intern-name" style="font-weight: 600; color: #6B7280;">{{ $absentIntern->name ?? 'Unknown' }}</span>
+                                                <span class="intern-school" style="font-size: 12px; color: #9CA3AF; display: block;">{{ $absentIntern->reference_code ?? '' }}</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td style="white-space: nowrap; color: #6B7280;">{{ $absentIntern->school ?? 'N/A' }}</td>
+                                    <td style="white-space: nowrap;">
+                                        <span style="color: #9CA3AF; font-style: italic;">--</span>
+                                    </td>
+                                    <td style="white-space: nowrap;">
+                                        <span style="color: #9CA3AF; font-style: italic;">--</span>
+                                    </td>
+                                    <td style="white-space: nowrap;">
+                                        <strong style="font-size: 16px; color: #9CA3AF;">0.00 hrs</strong>
+                                    </td>
+                                    <td style="white-space: nowrap;">
+                                        <span style="color: #9CA3AF; font-size: 12px;">--</span>
+                                    </td>
+                                    <td style="white-space: nowrap;">
+                                        <span class="hours-badge" style="padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap; background: #FEE2E2; color: #991B1B;">
+                                            Absent
+                                        </span>
+                                    </td>
+                                    <td style="white-space: nowrap;">
+                                        <span style="color: #9CA3AF;">--</span>
+                                    </td>
+                                </tr>
+                                @endforeach
+                                @if($todayAttendances->isEmpty() && $absentInterns->isEmpty())
                                 <tr>
                                     <td colspan="8" style="text-align: center; padding: 40px; color: #9CA3AF;">
                                         <i class="fas fa-clock" style="font-size: 40px; margin-bottom: 12px; display: block;"></i>
-                                        No attendance records for today yet.
+                                        No active interns found.
                                     </td>
                                 </tr>
-                                @endforelse
+                                @endif
                             </tbody>
                         </table>
                         </div>
+                        <!-- Pagination for Today's Attendance -->
+                        <div id="dailyHoursPagination" class="table-pagination" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; border-top: 1px solid #E5E7EB;">
+                            <div style="font-size: 14px; color: #6B7280;">
+                                Showing <span id="dailyShowingStart">1</span>-<span id="dailyShowingEnd">8</span> of <span id="dailyTotalRecords">0</span> records
+                            </div>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <button onclick="changeDailyPage('prev')" id="dailyPrevBtn" style="background: #F3F4F6; border: 1px solid #E5E7EB; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 4px;" disabled>
+                                    <i class="fas fa-chevron-left"></i> Previous
+                                </button>
+                                <div id="dailyPageNumbers" style="display: flex; gap: 4px;"></div>
+                                <button onclick="changeDailyPage('next')" id="dailyNextBtn" style="background: #F3F4F6; border: 1px solid #E5E7EB; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 4px;">
+                                    Next <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
-
-                <!-- Time In/Out Records -->
                 <!-- Attendance History -->
                 <div id="attendance-history" class="time-tab-content" style="display: none;">
                     <!-- Filter Bar for History -->
-                    <div class="filter-bar">
-                        <div class="filter-group">
-                            <span class="filter-label">School:</span>
-                            <select class="filter-select" id="historySchoolFilter" onchange="filterAttendanceHistory()">
-                                <option value="all">All Schools</option>
-                                @foreach(($interns ?? collect())->pluck('school')->unique() as $school)
-                                <option value="{{ $school }}">{{ $school }}</option>
-                                @endforeach
-                            </select>
-                        </div>
+                    <div class="filter-bar" style="margin-bottom: 16px;">
                         <div class="filter-group">
                             <span class="filter-label">Status:</span>
-                            <select class="filter-select" id="historyStatusFilter" onchange="filterAttendanceHistory()">
+                            <select class="filter-select" id="historyStatusFilter" onchange="filterHistoryAttendance()">
                                 <option value="all">All Status</option>
                                 <option value="Present">Present</option>
                                 <option value="Late">Late</option>
@@ -4647,99 +4678,97 @@
                             </select>
                         </div>
                         <div class="filter-group">
-                            <span class="filter-label">Per Page:</span>
-                            <select class="filter-select" id="historyPerPage" onchange="filterAttendanceHistory()">
-                                <option value="10">10</option>
-                                <option value="25" selected>25</option>
-                                <option value="50">50</option>
-                                <option value="100">100</option>
+                            <span class="filter-label">School:</span>
+                            <select class="filter-select" id="historySchoolFilter" onchange="filterHistoryAttendance()">
+                                <option value="all">All Schools</option>
+                                @foreach(($interns ?? collect())->pluck('school')->unique() as $school)
+                                <option value="{{ $school }}">{{ $school }}</option>
+                                @endforeach
                             </select>
                         </div>
                         <div class="filter-search">
                             <i class="fas fa-search"></i>
-                            <input type="text" placeholder="Search by intern name..." id="historySearchInput" oninput="filterAttendanceHistory()">
+                            <input type="text" placeholder="Search by intern name..." id="historySearchInput" onkeyup="filterHistoryAttendance()">
                         </div>
                     </div>
-                    
                     <div class="table-card">
                         <div class="table-header">
                             <h3 class="table-title">Attendance History - All Records</h3>
-                            <span id="historyRecordCount" style="background: #DBEAFE; color: #1E40AF; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                            <span style="background: #DBEAFE; color: #1E40AF; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
                                 {{ ($attendanceHistory ?? collect())->count() }} Records
                             </span>
                         </div>
-                        <div style="overflow-x: auto; max-width: 100%;">
-                        <table id="attendanceHistoryTable" style="min-width: 1100px;">
+                        <div style="overflow-x: auto;">
+                        <table style="min-width: 1100px;">
                             <thead>
                                 <tr>
-                                    <th>Date</th>
-                                    <th>Intern Name</th>
-                                    <th>School</th>
-                                    <th>Time In</th>
-                                    <th>Time Out</th>
-                                    <th>Hours Worked</th>
-                                    <th>Over/Under</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
+                                    <th style="min-width: 120px; white-space: nowrap;">Date</th>
+                                    <th style="min-width: 180px; white-space: nowrap;">Intern Name</th>
+                                    <th style="min-width: 150px; white-space: nowrap;">School</th>
+                                    <th style="min-width: 100px; white-space: nowrap;">Time In</th>
+                                    <th style="min-width: 100px; white-space: nowrap;">Time Out</th>
+                                    <th style="min-width: 110px; white-space: nowrap;">Hours Worked</th>
+                                    <th style="min-width: 140px; white-space: nowrap;">Over/Under</th>
+                                    <th style="min-width: 80px; white-space: nowrap;">Status</th>
                                 </tr>
                             </thead>
-                            <tbody id="attendanceHistoryBody">
+                            <tbody id="historyTableBody">
                                 @forelse($attendanceHistory ?? [] as $attendance)
                                 @php /** @var \App\Models\Attendance $attendance */ @endphp
-                                <tr>
-                                    <td>
+                                <tr data-status="{{ $attendance->status }}" data-school="{{ $attendance->intern->school ?? 'N/A' }}" data-name="{{ strtolower($attendance->intern->name ?? '') }}">
+                                    <td style="white-space: nowrap;">
                                         <div style="font-weight: 600;">{{ $attendance->date ? \Carbon\Carbon::parse($attendance->date)->format('M d, Y') : 'N/A' }}</div>
                                         <div style="font-size: 12px; color: #6B7280;">{{ $attendance->date ? \Carbon\Carbon::parse($attendance->date)->format('l') : '' }}</div>
                                     </td>
-                                    <td>
+                                    <td style="white-space: nowrap;">
                                         <div style="display: flex; align-items: center; gap: 12px;">
-                                            <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #FFBF00, #FFA500); display: flex; align-items: center; justify-content: center; color: #7B1D3A; font-weight: 700; overflow: hidden;">
+                                            <div style="width: 36px; height: 36px; min-width: 36px; border-radius: 50%; background: linear-gradient(135deg, #FFBF00, #FFA500); display: flex; align-items: center; justify-content: center; color: #7B1D3A; font-weight: 700; overflow: hidden;">
                                                 @if($attendance->intern->profile_picture ?? null)
                                                     <img src="{{ asset('storage/' . $attendance->intern->profile_picture) }}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
                                                 @else
                                                     {{ strtoupper(substr($attendance->intern->name ?? 'U', 0, 1)) }}
                                                 @endif
                                             </div>
-                                            <div>
+                                            <div style="white-space: nowrap;">
                                                 <span style="font-weight: 600;">{{ $attendance->intern->name ?? 'Unknown' }}</span>
                                                 <div style="font-size: 12px; color: #6B7280;">{{ $attendance->intern->reference_code ?? '' }}</div>
                                             </div>
                                         </div>
                                     </td>
-                                    <td>{{ $attendance->intern->school ?? 'N/A' }}</td>
-                                    <td>
-                                        <span style="background: #D1FAE5; color: #065F46; padding: 4px 10px; border-radius: 6px; font-size: 13px; font-weight: 500;">
+                                    <td style="white-space: nowrap;">{{ $attendance->intern->school ?? 'N/A' }}</td>
+                                    <td style="white-space: nowrap;">
+                                        <span style="background: #D1FAE5; color: #065F46; padding: 4px 10px; border-radius: 6px; font-size: 13px; font-weight: 500; white-space: nowrap;">
                                             <i class="fas fa-sign-in-alt" style="margin-right: 4px;"></i>{{ $attendance->formatted_time_in }}
                                         </span>
                                     </td>
-                                    <td>
+                                    <td style="white-space: nowrap;">
                                         @if($attendance->time_out)
                                         <span style="background: #FEE2E2; color: #991B1B; padding: 4px 10px; border-radius: 6px; font-size: 13px; font-weight: 500;">
                                             <i class="fas fa-sign-out-alt" style="margin-right: 4px;"></i>{{ $attendance->formatted_time_out }}
                                         </span>
                                         @else
-                                        <span style="color: #9CA3AF; font-style: italic;">Not yet</span>
+                                        <span style="color: #9CA3AF; font-style: italic; white-space: nowrap;">Not yet</span>
                                         @endif
                                     </td>
-                                    <td><strong style="color: #7B1D3A;">{{ number_format((float)($attendance->hours_worked ?? 0), 2) }} hrs</strong></td>
-                                    <td>
+                                    <td style="white-space: nowrap;"><strong style="color: #7B1D3A;">{{ number_format((float)($attendance->hours_worked ?? 0), 2) }} hrs</strong></td>
+                                    <td style="white-space: nowrap;">
                                         @if($attendance->time_out)
                                             @if($attendance->hasUndertime())
-                                                <span style="background: #FEE2E2; color: #991B1B; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;">
+                                                <span style="background: #FEE2E2; color: #991B1B; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap;">
                                                     <i class="fas fa-arrow-down"></i> -{{ number_format((float)($attendance->undertime_hours ?? 0), 2) }} hrs
                                                 </span>
                                             @elseif($attendance->hasOvertime())
                                                 @if($attendance->overtime_approved)
-                                                    <span style="background: #D1FAE5; color: #065F46; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;">
+                                                    <span style="background: #D1FAE5; color: #065F46; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap;">
                                                         <i class="fas fa-check-circle"></i> +{{ number_format((float)($attendance->overtime_hours ?? 0), 2) }} hrs
                                                     </span>
                                                 @else
-                                                    <span style="background: #FEF3C7; color: #92400E; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;">
-                                                        <i class="fas fa-clock"></i> +{{ number_format((float)($attendance->overtime_hours ?? 0), 2) }} hrs
+                                                    <span style="background: #FEF3C7; color: #92400E; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap;">
+                                                        <i class="fas fa-clock"></i> +{{ number_format((float)($attendance->overtime_hours ?? 0), 2) }} hrs (Pending)
                                                     </span>
                                                 @endif
                                             @else
-                                                <span style="background: #DBEAFE; color: #1E40AF; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;">
+                                                <span style="background: #DBEAFE; color: #1E40AF; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap;">
                                                     <i class="fas fa-check"></i> On Target
                                                 </span>
                                             @endif
@@ -4747,40 +4776,18 @@
                                             <span style="color: #9CA3AF; font-size: 12px;">--</span>
                                         @endif
                                     </td>
-                                    <td>
-                                        <span style="padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
+                                    <td style="white-space: nowrap;">
+                                        <span style="padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap;
                                             @if($attendance->status === 'Present') background: #D1FAE5; color: #065F46;
                                             @elseif($attendance->status === 'Late') background: #FEF3C7; color: #92400E;
                                             @else background: #FEE2E2; color: #991B1B; @endif">
                                             {{ $attendance->status }}
                                         </span>
                                     </td>
-                                    <td>
-                                        @if($attendance->time_out && $attendance->overtime_hours > 0 && !$attendance->overtime_approved)
-                                            <div class="action-dropdown" style="position: relative;">
-                                                <button onclick="toggleHistoryActionMenu(this)" style="background: #F3F4F6; border: 1px solid #E5E7EB; padding: 8px 12px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; color: #374151;">
-                                                    <i class="fas fa-clock" style="color: #F59E0B;"></i> OT Pending
-                                                    <i class="fas fa-chevron-down" style="font-size: 10px;"></i>
-                                                </button>
-                                                <div class="action-menu" style="display: none; position: absolute; top: 100%; right: 0; margin-top: 4px; background: white; border: 1px solid #E5E7EB; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 100; min-width: 140px; overflow: hidden;">
-                                                    <button onclick="approveOvertime({{ $attendance->id }}); closeAllActionMenus();" style="width: 100%; padding: 10px 14px; border: none; background: white; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 13px; color: #059669; transition: background 0.2s;" onmouseover="this.style.background='#F0FDF4'" onmouseout="this.style.background='white'">
-                                                        <i class="fas fa-check-circle"></i> Approve OT
-                                                    </button>
-                                                    <button onclick="declineOvertime({{ $attendance->id }}); closeAllActionMenus();" style="width: 100%; padding: 10px 14px; border: none; background: white; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 13px; color: #DC2626; border-top: 1px solid #F3F4F6; transition: background 0.2s;" onmouseover="this.style.background='#FEF2F2'" onmouseout="this.style.background='white'">
-                                                        <i class="fas fa-times-circle"></i> Decline OT
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        @elseif($attendance->time_out && $attendance->overtime_hours > 0 && $attendance->overtime_approved)
-                                            <span style="color: #059669; font-size: 12px; font-weight: 500;"><i class="fas fa-check-circle"></i> Approved</span>
-                                        @else
-                                            <span style="color: #9CA3AF;">--</span>
-                                        @endif
-                                    </td>
                                 </tr>
                                 @empty
-                                <tr class="attendance-history-empty">
-                                    <td colspan="9" style="text-align: center; padding: 40px; color: #9CA3AF;">
+                                <tr>
+                                    <td colspan="8" style="text-align: center; padding: 40px; color: #9CA3AF;">
                                         <i class="fas fa-history" style="font-size: 40px; margin-bottom: 12px; display: block;"></i>
                                         No attendance history yet. Records will appear here once interns start timing in.
                                     </td>
@@ -4789,25 +4796,18 @@
                             </tbody>
                         </table>
                         </div>
-                        
-                        <!-- Pagination Controls -->
-                        <div id="historyPagination" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-top: 1px solid #E5E7EB; background: #F9FAFB; flex-wrap: wrap; gap: 12px;">
-                            <div style="color: #6B7280; font-size: 14px;">
-                                Showing <span id="historyShowingFrom">1</span> to <span id="historyShowingTo">10</span> of <span id="historyTotalRecords">0</span> records
+                        <!-- Pagination for Attendance History -->
+                        <div id="historyPagination" class="table-pagination" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; border-top: 1px solid #E5E7EB;">
+                            <div style="font-size: 14px; color: #6B7280;">
+                                Showing <span id="historyShowingStart">1</span>-<span id="historyShowingEnd">8</span> of <span id="historyTotalRecords">0</span> records
                             </div>
-                            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-                                <button onclick="goToHistoryPage('first')" id="historyFirstBtn" style="padding: 8px 12px; border: 1px solid #D1D5DB; background: white; border-radius: 6px; cursor: pointer; font-size: 13px;" title="First Page">
-                                    <i class="fas fa-angle-double-left"></i>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <button onclick="changeHistoryPage('prev')" id="historyPrevBtn" style="background: #F3F4F6; border: 1px solid #E5E7EB; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 4px;" disabled>
+                                    <i class="fas fa-chevron-left"></i> Previous
                                 </button>
-                                <button onclick="goToHistoryPage('prev')" id="historyPrevBtn" style="padding: 8px 12px; border: 1px solid #D1D5DB; background: white; border-radius: 6px; cursor: pointer; font-size: 13px;" title="Previous Page">
-                                    <i class="fas fa-angle-left"></i> Previous
-                                </button>
-                                <span id="historyPageNumbers" style="display: flex; gap: 4px;"></span>
-                                <button onclick="goToHistoryPage('next')" id="historyNextBtn" style="padding: 8px 12px; border: 1px solid #D1D5DB; background: white; border-radius: 6px; cursor: pointer; font-size: 13px;" title="Next Page">
-                                    Next <i class="fas fa-angle-right"></i>
-                                </button>
-                                <button onclick="goToHistoryPage('last')" id="historyLastBtn" style="padding: 8px 12px; border: 1px solid #D1D5DB; background: white; border-radius: 6px; cursor: pointer; font-size: 13px;" title="Last Page">
-                                    <i class="fas fa-angle-double-right"></i>
+                                <div id="historyPageNumbers" style="display: flex; gap: 4px;"></div>
+                                <button onclick="changeHistoryPage('next')" id="historyNextBtn" style="background: #F3F4F6; border: 1px solid #E5E7EB; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 4px;">
+                                    Next <i class="fas fa-chevron-right"></i>
                                 </button>
                             </div>
                         </div>
@@ -4820,55 +4820,56 @@
                         <div class="table-header">
                             <h3 class="table-title">Comprehensive Hours Summary - All Interns</h3>
                         </div>
-                        <table>
+                        <div style="overflow-x: auto;">
+                        <table style="min-width: 950px;">
                             <thead>
                                 <tr>
-                                    <th>Intern Name</th>
-                                    <th>School</th>
-                                    <th>Required Hours</th>
-                                    <th>Completed Hours</th>
-                                    <th>Remaining Hours</th>
-                                    <th>Completion %</th>
-                                    <th>Status</th>
+                                    <th style="min-width: 180px; white-space: nowrap;">Intern Name</th>
+                                    <th style="min-width: 150px; white-space: nowrap;">School</th>
+                                    <th style="min-width: 110px; white-space: nowrap;">Required Hours</th>
+                                    <th style="min-width: 120px; white-space: nowrap;">Completed Hours</th>
+                                    <th style="min-width: 120px; white-space: nowrap;">Remaining Hours</th>
+                                    <th style="min-width: 140px; white-space: nowrap;">Completion %</th>
+                                    <th style="min-width: 100px; white-space: nowrap;">Status</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="summaryTableBody">
                                 @forelse($interns ?? [] as $intern)
                                 @php /** @var \App\Models\Intern $intern */ @endphp
                                 <tr>
-                                    <td>
+                                    <td style="white-space: nowrap;">
                                         <div style="display: flex; align-items: center; gap: 12px;">
-                                            <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #FFBF00, #FFA500); display: flex; align-items: center; justify-content: center; color: #7B1D3A; font-weight: 700; overflow: hidden;">
+                                            <div style="width: 36px; height: 36px; min-width: 36px; border-radius: 50%; background: linear-gradient(135deg, #FFBF00, #FFA500); display: flex; align-items: center; justify-content: center; color: #7B1D3A; font-weight: 700; overflow: hidden;">
                                                 @if($intern->profile_picture ?? null)
                                                     <img src="{{ asset('storage/' . $intern->profile_picture) }}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
                                                 @else
                                                     {{ strtoupper(substr($intern->name, 0, 1)) }}
                                                 @endif
                                             </div>
-                                            <span style="font-weight: 600;">{{ $intern->name }}</span>
+                                            <span style="font-weight: 600; white-space: nowrap;">{{ $intern->name }}</span>
                                         </div>
                                     </td>
-                                    <td>{{ $intern->school }}</td>
-                                    <td>{{ $intern->required_hours }} hrs</td>
-                                    <td><strong style="color: #10B981;">{{ $intern->completed_hours }} hrs</strong></td>
-                                    <td style="@if($intern->remaining_hours > 200) color: #EF4444; font-weight: 600; @endif">
+                                    <td style="white-space: nowrap;">{{ $intern->school }}</td>
+                                    <td style="white-space: nowrap;">{{ $intern->required_hours }} hrs</td>
+                                    <td style="white-space: nowrap;"><strong style="color: #10B981;">{{ $intern->completed_hours }} hrs</strong></td>
+                                    <td style="white-space: nowrap; @if($intern->remaining_hours > 200) color: #EF4444; font-weight: 600; @endif">
                                         {{ $intern->remaining_hours }} hrs
                                     </td>
-                                    <td>
+                                    <td style="white-space: nowrap;">
                                         <div style="display: flex; align-items: center; gap: 8px;">
-                                            <div class="progress-bar-container" style="flex: 1; max-width: 80px;">
+                                            <div class="progress-bar-container" style="flex: 1; max-width: 80px; min-width: 60px;">
                                                 <div class="progress-bar" style="width: {{ $intern->progress_percentage }}%; @if($intern->progress_percentage < 50) background: #EF4444; @endif"></div>
                                             </div>
                                             <span style="font-weight: 600;">{{ $intern->progress_percentage }}%</span>
                                         </div>
                                     </td>
-                                    <td>
+                                    <td style="white-space: nowrap;">
                                         @if($intern->progress_percentage >= 75)
-                                        <span class="status-badge status-active">On Track</span>
+                                        <span class="status-badge status-active" style="white-space: nowrap;">On Track</span>
                                         @elseif($intern->progress_percentage >= 50)
-                                        <span class="status-badge status-pending">Moderate</span>
+                                        <span class="status-badge status-pending" style="white-space: nowrap;">Moderate</span>
                                         @else
-                                        <span class="status-badge" style="background: #FEE2E2; color: #991B1B;">At Risk</span>
+                                        <span class="status-badge" style="background: #FEE2E2; color: #991B1B; white-space: nowrap;">At Risk</span>
                                         @endif
                                     </td>
                                 </tr>
@@ -4882,6 +4883,22 @@
                                 @endforelse
                             </tbody>
                         </table>
+                        </div>
+                        <!-- Pagination for Hours Summary -->
+                        <div id="summaryPagination" class="table-pagination" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; border-top: 1px solid #E5E7EB;">
+                            <div style="font-size: 14px; color: #6B7280;">
+                                Showing <span id="summaryShowingStart">1</span>-<span id="summaryShowingEnd">8</span> of <span id="summaryTotalRecords">0</span> records
+                            </div>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <button onclick="changeSummaryPage('prev')" id="summaryPrevBtn" style="background: #F3F4F6; border: 1px solid #E5E7EB; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 4px;" disabled>
+                                    <i class="fas fa-chevron-left"></i> Previous
+                                </button>
+                                <div id="summaryPageNumbers" style="display: flex; gap: 4px;"></div>
+                                <button onclick="changeSummaryPage('next')" id="summaryNextBtn" style="background: #F3F4F6; border: 1px solid #E5E7EB; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 4px;">
+                                    Next <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -6774,18 +6791,18 @@
                     </script>
                     @endif
 
-                    <div class="table-card">
-                        <table>
+                    <div class="table-card" style="overflow-x: auto;">
+                        <table style="min-width: 1000px;">
                             <thead>
                                 <tr>
-                                    <th>Date & Time</th>
-                                    <th>Agency</th>
-                                    <th>Purpose</th>
-                                    <th>Contact Person</th>
-                                    <th>Contact Info</th>
-                                    <th>Notes</th>
-                                    <th>Attachment</th>
-                                    <th>Actions</th>
+                                    <th style="min-width: 130px; white-space: nowrap;">Date & Time</th>
+                                    <th style="min-width: 120px; white-space: nowrap;">Agency</th>
+                                    <th style="min-width: 120px; white-space: nowrap;">Purpose</th>
+                                    <th style="min-width: 120px; white-space: nowrap;">Contact Person</th>
+                                    <th style="min-width: 140px; white-space: nowrap;">Contact Info</th>
+                                    <th style="min-width: 150px; white-space: nowrap;">Notes</th>
+                                    <th style="min-width: 80px; white-space: nowrap;">Attachment</th>
+                                    <th style="min-width: 120px; white-space: nowrap;">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="pendingBookingsBody">
@@ -6824,15 +6841,17 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <button class="btn-action btn-view" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? asset('storage/' . $booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})" title="View Details">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                        <button class="btn-action btn-edit" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? asset('storage/' . $booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})" title="Approve">
-                                            <i class="fas fa-check"></i>
-                                        </button>
-                                        <button class="btn-action btn-delete" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? asset('storage/' . $booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})" title="Reject">
-                                            <i class="fas fa-times"></i>
-                                        </button>
+                                        <div style="display: flex; gap: 4px; align-items: center;">
+                                            <button class="btn-action btn-view" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? asset('storage/' . $booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})" title="View Details">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn-action btn-edit" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? asset('storage/' . $booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})" title="Approve">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                            <button class="btn-action btn-delete" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? asset('storage/' . $booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})" title="Reject">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                                 @empty
@@ -6845,6 +6864,21 @@
                                 @endforelse
                             </tbody>
                         </table>
+                    </div>
+                    <!-- Pagination for Pending Bookings -->
+                    <div id="pendingBookingsPagination" class="pagination-controls" style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding: 12px 16px; background: #F9FAFB; border-radius: 8px;">
+                        <div style="font-size: 14px; color: #6B7280;">
+                            Showing <span id="pendingShowingStart">1</span> to <span id="pendingShowingEnd">8</span> of <span id="pendingTotalItems">0</span> entries
+                        </div>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <button id="pendingPrevBtn" onclick="pendingPrevPage()" style="padding: 8px 12px; border: 1px solid #D1D5DB; border-radius: 6px; background: white; cursor: pointer; font-size: 14px;">
+                                <i class="fas fa-chevron-left"></i> Previous
+                            </button>
+                            <span id="pendingPageInfo" style="padding: 8px 16px; background: #7B1D3A; color: white; border-radius: 6px; font-weight: 600;">1 / 1</span>
+                            <button id="pendingNextBtn" onclick="pendingNextPage()" style="padding: 8px 12px; border: 1px solid #D1D5DB; border-radius: 6px; background: white; cursor: pointer; font-size: 14px;">
+                                Next <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -6948,7 +6982,7 @@
 
                 <!-- All Bookings Tab -->
                 <div id="allBookingsTab" class="booking-tab-content" style="display: none;">
-                    <div class="filter-bar" style="margin-bottom: 16px;">
+                    <div class="filter-bar" style="margin-bottom: 16px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
                         <div class="search-box" style="max-width: 300px;">
                             <i class="fas fa-search"></i>
                             <input type="text" placeholder="Search bookings..." id="searchBookings" onkeyup="filterBookings()">
@@ -6959,31 +6993,32 @@
                             <option value="approved">Approved</option>
                             <option value="rejected">Rejected</option>
                         </select>
+                        <select class="filter-select" id="filterEmailStatus" onchange="filterBookings()" style="min-width: 140px;">
+                            <option value="">All Email Status</option>
+                            <option value="not-sent">Not Sent</option>
+                            <option value="sent">Sent</option>
+                        </select>
                     </div>
-                    <div class="table-card">
-                        <table>
+                    <div class="table-card" style="overflow-x: auto;">
+                        <table style="min-width: 1100px;">
                             <thead>
                                 <tr>
-                                    <th>Date</th>
-                                    <th>Time</th>
-                                    <th>Agency</th>
-                                    <th>Purpose</th>
-                                    <th>Contact</th>
-                                    <th>Status</th>
-                                    <th>Attachment</th>
-                                    <th>Actions</th>
+                                    <th style="min-width: 120px; white-space: nowrap;">Date</th>
+                                    <th style="min-width: 80px; white-space: nowrap;">Time</th>
+                                    <th style="min-width: 120px; white-space: nowrap;">Agency</th>
+                                    <th style="min-width: 120px; white-space: nowrap;">Purpose</th>
+                                    <th style="min-width: 140px; white-space: nowrap;">Contact</th>
+                                    <th style="min-width: 100px; white-space: nowrap;">Status</th>
+                                    <th style="min-width: 100px; white-space: nowrap;">Email Status</th>
+                                    <th style="min-width: 80px; white-space: nowrap;">Attachment</th>
+                                    <th style="min-width: 150px; white-space: nowrap;">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="allBookingsBody">
                                 @forelse($allBookings ?? [] as $booking)
-                                <tr class="booking-row" data-status="{{ $booking->status }}" data-search="{{ strtolower($booking->agency_name . ' ' . $booking->event_name . ' ' . $booking->contact_person) }}">
-                                    <td>
+                                <tr class="booking-row" data-status="{{ $booking->status }}" data-search="{{ strtolower($booking->agency_name . ' ' . $booking->event_name . ' ' . $booking->contact_person) }}" data-emailed="{{ $booking->admin_emailed ? 'yes' : 'no' }}">
+                                    <td style="white-space: nowrap;">
                                         {{ $booking->booking_date->format('M d, Y') }}
-                                        @if($booking->admin_emailed)
-                                        <span style="background: #D1FAE5; color: #059669; font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 4px;" title="Admin Emailed">
-                                            <i class="fas fa-envelope-circle-check"></i>
-                                        </span>
-                                        @endif
                                     </td>
                                     <td>{{ $booking->formatted_time }}</td>
                                     <td>
@@ -7004,6 +7039,21 @@
                                         @endif
                                     </td>
                                     <td>
+                                        @if($booking->status === 'approved')
+                                            @if($booking->admin_emailed)
+                                            <span style="display: inline-flex; align-items: center; gap: 4px; background: #D1FAE5; color: #059669; font-size: 11px; padding: 4px 8px; border-radius: 6px; font-weight: 600;" title="Email notification sent to booker">
+                                                <i class="fas fa-check-circle"></i> Sent
+                                            </span>
+                                            @else
+                                            <span style="display: inline-flex; align-items: center; gap: 4px; background: #FEF3C7; color: #D97706; font-size: 11px; padding: 4px 8px; border-radius: 6px; font-weight: 600; cursor: pointer; animation: pulse-amber 2s infinite;" title="Click to send email notification" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? asset('storage/' . $booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})">
+                                                <i class="fas fa-envelope"></i> Not Sent
+                                            </span>
+                                            @endif
+                                        @else
+                                        <span style="color: #9CA3AF; font-size: 12px;">—</span>
+                                        @endif
+                                    </td>
+                                    <td>
                                         @if($booking->attachment_path)
                                         <a href="{{ asset('storage/' . $booking->attachment_path) }}" target="_blank" class="btn-action btn-view" title="View PDF" style="background: #DBEAFE; color: #2563EB;">
                                             <i class="fas fa-file-pdf"></i>
@@ -7013,32 +7063,34 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <button class="btn-action btn-view" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? asset('storage/' . $booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})" title="View Details">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                        @if($booking->status === 'pending')
-                                        <button class="btn-action btn-edit" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? asset('storage/' . $booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})" title="Approve">
-                                            <i class="fas fa-check"></i>
-                                        </button>
-                                        <button class="btn-action btn-delete" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? asset('storage/' . $booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})" title="Reject">
-                                            <i class="fas fa-times"></i>
-                                        </button>
-                                        @else
-                                        <button class="btn-action" disabled title="Already {{ ucfirst($booking->status) }}">
-                                            <i class="fas fa-check"></i>
-                                        </button>
-                                        <button class="btn-action" disabled title="Already {{ ucfirst($booking->status) }}">
-                                            <i class="fas fa-times"></i>
-                                        </button>
-                                        @endif
-                                        <button class="btn-action btn-delete" onclick="deleteBooking({{ $booking->id }})" title="Delete">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
+                                        <div style="display: flex; gap: 4px; align-items: center; flex-wrap: nowrap;">
+                                            <button class="btn-action btn-view" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? asset('storage/' . $booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})" title="View Details">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            @if($booking->status === 'pending')
+                                            <button class="btn-action btn-edit" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? asset('storage/' . $booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})" title="Approve">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                            <button class="btn-action btn-delete" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? asset('storage/' . $booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})" title="Reject">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                            @else
+                                            <button class="btn-action" disabled title="Already {{ ucfirst($booking->status) }}" style="opacity: 0.5;">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                            <button class="btn-action" disabled title="Already {{ ucfirst($booking->status) }}" style="opacity: 0.5;">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                            @endif
+                                            <button class="btn-action btn-delete" onclick="deleteBooking({{ $booking->id }})" title="Delete">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="8" style="text-align: center; padding: 40px; color: #9CA3AF;">
+                                    <td colspan="9" style="text-align: center; padding: 40px; color: #9CA3AF;">
                                         <i class="fas fa-calendar-times" style="font-size: 40px; margin-bottom: 12px; display: block;"></i>
                                         No bookings found
                                     </td>
@@ -7046,6 +7098,21 @@
                                 @endforelse
                             </tbody>
                         </table>
+                    </div>
+                    <!-- Pagination for All Bookings -->
+                    <div id="allBookingsPagination" class="pagination-controls" style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding: 12px 16px; background: #F9FAFB; border-radius: 8px;">
+                        <div style="font-size: 14px; color: #6B7280;">
+                            Showing <span id="allShowingStart">1</span> to <span id="allShowingEnd">8</span> of <span id="allTotalItems">0</span> entries
+                        </div>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <button id="allPrevBtn" onclick="allBookingsPrevPage()" style="padding: 8px 12px; border: 1px solid #D1D5DB; border-radius: 6px; background: white; cursor: pointer; font-size: 14px;">
+                                <i class="fas fa-chevron-left"></i> Previous
+                            </button>
+                            <span id="allPageInfo" style="padding: 8px 16px; background: #7B1D3A; color: white; border-radius: 6px; font-weight: 600;">1 / 1</span>
+                            <button id="allNextBtn" onclick="allBookingsNextPage()" style="padding: 8px 12px; border: 1px solid #D1D5DB; border-radius: 6px; background: white; cursor: pointer; font-size: 14px;">
+                                Next <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -7134,17 +7201,17 @@
                         </div>
                     </div>
                     <div style="overflow-x: auto;">
-                        <table style="width: 100%; border-collapse: collapse;">
+                        <table style="width: 100%; border-collapse: collapse; min-width: 900px;">
                             <thead>
                                 <tr style="background: #F9FAFB;">
-                                    <th style="padding: 14px 16px; text-align: left; font-weight: 600; color: #374151; font-size: 13px;">Reference Code</th>
-                                    <th style="padding: 14px 16px; text-align: left; font-weight: 600; color: #374151; font-size: 13px;">Name</th>
-                                    <th style="padding: 14px 16px; text-align: left; font-weight: 600; color: #374151; font-size: 13px;">Email</th>
-                                    <th style="padding: 14px 16px; text-align: left; font-weight: 600; color: #374151; font-size: 13px;">School</th>
-                                    <th style="padding: 14px 16px; text-align: center; font-weight: 600; color: #374151; font-size: 13px;">Interns</th>
-                                    <th style="padding: 14px 16px; text-align: center; font-weight: 600; color: #374151; font-size: 13px;">Reports</th>
-                                    <th style="padding: 14px 16px; text-align: center; font-weight: 600; color: #374151; font-size: 13px;">Status</th>
-                                    <th style="padding: 14px 16px; text-align: center; font-weight: 600; color: #374151; font-size: 13px;">Actions</th>
+                                    <th style="padding: 14px 16px; text-align: left; font-weight: 600; color: #374151; font-size: 13px; min-width: 120px; white-space: nowrap;">Reference Code</th>
+                                    <th style="padding: 14px 16px; text-align: left; font-weight: 600; color: #374151; font-size: 13px; min-width: 180px;">Name</th>
+                                    <th style="padding: 14px 16px; text-align: left; font-weight: 600; color: #374151; font-size: 13px; min-width: 180px;">Email</th>
+                                    <th style="padding: 14px 16px; text-align: left; font-weight: 600; color: #374151; font-size: 13px; min-width: 150px; white-space: nowrap;">School</th>
+                                    <th style="padding: 14px 16px; text-align: center; font-weight: 600; color: #374151; font-size: 13px; min-width: 70px; white-space: nowrap;">Interns</th>
+                                    <th style="padding: 14px 16px; text-align: center; font-weight: 600; color: #374151; font-size: 13px; min-width: 70px; white-space: nowrap;">Reports</th>
+                                    <th style="padding: 14px 16px; text-align: center; font-weight: 600; color: #374151; font-size: 13px; min-width: 80px; white-space: nowrap;">Status</th>
+                                    <th style="padding: 14px 16px; text-align: center; font-weight: 600; color: #374151; font-size: 13px; min-width: 120px; white-space: nowrap;">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="teamLeadersTableBody">
@@ -7415,25 +7482,9 @@
                             </h3>
 
                             <div class="settings-group">
-                                <label class="settings-label">Default Required Hours</label>
-                                <input type="number" id="settingDefaultHours" class="settings-input" value="480" min="1" max="1000">
-                                <p class="settings-hint">Default OJT hours required for interns (can be overridden per school)</p>
-                            </div>
-
-                            <div class="settings-group">
                                 <label class="settings-label">Work Hours Start</label>
                                 <input type="time" id="settingWorkStart" class="settings-input" value="08:00">
-                            </div>
-
-                            <div class="settings-group">
-                                <label class="settings-label">Work Hours End</label>
-                                <input type="time" id="settingWorkEnd" class="settings-input" value="17:00">
-                            </div>
-
-                            <div class="settings-group">
-                                <label class="settings-label">Grace Period (minutes)</label>
-                                <input type="number" id="settingGracePeriod" class="settings-input" value="15" min="0" max="60">
-                                <p class="settings-hint">Minutes allowed after start time before marking as late</p>
+                                <p class="settings-hint">Time when work starts. Interns timing in after this are marked as Late.</p>
                             </div>
 
                             <div class="settings-group">
@@ -7475,19 +7526,6 @@
                                 <i class="fas fa-bell" style="color: #7B1D3A;"></i>
                                 Notification Settings
                             </h3>
-
-                            <div class="settings-group">
-                                <div class="settings-toggle-row">
-                                    <div>
-                                        <label class="settings-label" style="margin-bottom: 0;">Email Notifications</label>
-                                        <p class="settings-hint" style="margin-top: 4px;">Send email notifications for important events</p>
-                                    </div>
-                                    <label class="toggle-switch">
-                                        <input type="checkbox" id="settingEmailNotifications" checked>
-                                        <span class="toggle-slider"></span>
-                                    </label>
-                                </div>
-                            </div>
 
                             <div class="settings-group">
                                 <div class="settings-toggle-row">
@@ -7897,11 +7935,11 @@
 
     <!-- Team Leader Modal (Manual Entry - for external coordinators) -->
     <div id="teamLeaderModal" class="modal-overlay">
-        <div class="modal-content" style="max-width: 600px;">
+        <div class="modal-content" style="max-width: 600px; overflow: hidden;">
             <div class="modal-header">
                 <h3 class="modal-title" id="teamLeaderModalTitle"><i class="fas fa-user-tie" style="margin-right: 8px;"></i>Add Team Leader</h3>
             </div>
-            <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+            <div class="modal-body" style="max-height: calc(90vh - 140px); overflow-y: auto;">
                 <form id="teamLeaderForm">
                     <input type="hidden" id="teamLeaderId">
 
@@ -7919,13 +7957,6 @@
                         <label class="form-label" id="passwordLabel">Password</label>
                         <input type="password" id="teamLeaderPassword" class="form-input" placeholder="Enter password (min 8 characters)" minlength="8">
                         <small id="passwordHint" style="color: #6B7280; font-size: 12px; margin-top: 4px; display: block;">Leave blank when editing to keep current password</small>
-                    </div>
-
-                    <div class="form-group" id="schoolGroup">
-                        <label class="form-label required">Assigned School</label>
-                        <select id="teamLeaderSchool" class="form-input" required>
-                            <option value="">-- Select School --</option>
-                        </select>
                     </div>
 
                     <!-- Module Permissions Section -->
@@ -8303,13 +8334,13 @@
                     </div>
                 </div>
             </div>
-            <div class="modal-footer" id="bookingActionFooter">
-                <button class="btn-modal secondary" onclick="closeBookingActionModal()">Close</button>
-                <button class="btn-modal" id="btnRejectBooking" onclick="confirmRejectBooking()" style="background: #EF4444; color: white;">
-                    <i class="fas fa-times"></i> Reject
+            <div class="modal-footer" id="bookingActionFooter" style="display: flex; gap: 10px; justify-content: flex-end; align-items: center;">
+                <button class="btn-modal secondary" onclick="closeBookingActionModal()" style="display: inline-flex; align-items: center; gap: 6px;">Close</button>
+                <button class="btn-modal" id="btnRejectBooking" onclick="confirmRejectBooking()" style="background: #EF4444; color: white; display: inline-flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-times"></i> <span>Reject</span>
                 </button>
-                <button class="btn-modal primary" id="btnApproveBooking" onclick="confirmApproveBooking()" style="background: #10B981;">
-                    <i class="fas fa-check"></i> Approve
+                <button class="btn-modal primary" id="btnApproveBooking" onclick="confirmApproveBooking()" style="background: #10B981; display: inline-flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-check"></i> <span>Approve</span>
                 </button>
             </div>
         </div>
@@ -8889,10 +8920,8 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td style="padding: 14px 16px; text-align: center; vertical-align: middle;">
-                                    <div style="display: flex; justify-content: center; align-items: center;">
-                                        <span style="background: #DBEAFE; color: #1E40AF; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; white-space: nowrap;">{{ $school->required_hours }} hrs</span>
-                                    </div>
+                                <td style="padding: 14px 16px; text-align: center;">
+                                    <span style="background: #DBEAFE; color: #1E40AF; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 600;">{{ $school->required_hours }} hrs</span>
                                 </td>
                                 <td style="padding: 14px 16px; text-align: center;">
                                     <div style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
@@ -8946,17 +8975,14 @@
                                 </td>
                                 <td style="padding: 14px 16px; text-align: center;">
                                     <div style="display: flex; justify-content: center; gap: 6px;">
-                                        <button onclick="editSchool({{ $school->id }}, '{{ addslashes($school->name) }}', {{ $school->required_hours }}, {{ $school->max_interns ?? 'null' }}, '{{ addslashes($school->contact_person ?? '') }}', '{{ addslashes($school->contact_email ?? '') }}', '{{ addslashes($school->contact_phone ?? '') }}', '{{ addslashes($school->notes ?? '') }}')" style="background: #DBEAFE; color: #1E40AF; border: none; width: 32px; height: 32px; border-radius: 6px; cursor: pointer;" title="Edit School">
+                                        <button onclick="editSchool({{ $school->id }}, '{{ addslashes($school->name) }}', {{ $school->required_hours }}, {{ $school->max_interns ?? 'null' }}, '{{ addslashes($school->contact_person ?? '') }}', '{{ addslashes($school->contact_email ?? '') }}', '{{ addslashes($school->contact_phone ?? '') }}', '{{ addslashes($school->notes ?? '') }}')" style="background: #DBEAFE; color: #1E40AF; border: none; width: 32px; height: 32px; border-radius: 6px; cursor: pointer;" title="Edit">
                                             <i class="fas fa-edit"></i>
                                         </button>
-                                        <button onclick="toggleSchoolStatus({{ $school->id }}, '{{ addslashes($school->name) }}', '{{ $school->status }}')" style="background: {{ $school->status === 'Active' ? '#FEE2E2' : '#D1FAE5' }}; color: {{ $school->status === 'Active' ? '#991B1B' : '#065F46' }}; border: none; width: 32px; height: 32px; border-radius: 6px; cursor: pointer;" title="{{ $school->status === 'Active' ? 'Deactivate School' : 'Activate School' }}">
-                                            <i class="fas {{ $school->status === 'Active' ? 'fa-ban' : 'fa-check-circle' }}"></i>
-                                        </button>
-                                        <button onclick="accomplishSchool({{ $school->id }}, '{{ addslashes($school->name) }}')" style="background: #D1FAE5; color: #065F46; border: none; width: 32px; height: 32px; border-radius: 6px; cursor: pointer;" title="Mark Eligible Interns as Completed">
-                                            <i class="fas fa-trophy"></i>
+                                        <button onclick="toggleSchoolStatus({{ $school->id }})" style="background: {{ $school->status === 'Active' ? '#FEF3C7' : '#D1FAE5' }}; color: {{ $school->status === 'Active' ? '#92400E' : '#065F46' }}; border: none; width: 32px; height: 32px; border-radius: 6px; cursor: pointer;" title="{{ $school->status === 'Active' ? 'Deactivate' : 'Activate' }}">
+                                            <i class="fas {{ $school->status === 'Active' ? 'fa-toggle-off' : 'fa-toggle-on' }}"></i>
                                         </button>
                                         @if(($school->total_interns ?? 0) == 0)
-                                        <button onclick="deleteSchool({{ $school->id }}, '{{ addslashes($school->name) }}')" style="background: #FEE2E2; color: #991B1B; border: none; width: 32px; height: 32px; border-radius: 6px; cursor: pointer;" title="Delete School">
+                                        <button onclick="deleteSchool({{ $school->id }}, '{{ addslashes($school->name) }}')" style="background: #FEE2E2; color: #991B1B; border: none; width: 32px; height: 32px; border-radius: 6px; cursor: pointer;" title="Delete">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                         @endif
@@ -9004,71 +9030,6 @@
                 <button class="btn-modal secondary" onclick="closeRejectInternModal()">Cancel</button>
                 <button class="btn-modal primary" onclick="submitRejectIntern()" style="background: linear-gradient(135deg, #DC2626, #B91C1C);">
                     <i class="fas fa-times"></i> Reject Intern
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Toggle School Status Confirmation Modal -->
-    <div id="toggleSchoolStatusModal" class="modal-overlay" onclick="if(event.target === this) closeToggleSchoolStatusModal()">
-        <div class="modal-content" style="max-width: 450px;">
-            <div class="modal-header" id="toggleSchoolStatusHeader" style="background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%); color: white; transition: background 0.3s ease;">
-                <h3 class="modal-title" style="color: white;"><i class="fas fa-ban" style="margin-right: 8px;" id="toggleSchoolStatusIcon"></i><span id="toggleSchoolStatusTitle">Deactivate School</span></h3>
-            </div>
-            <div class="modal-body">
-                <input type="hidden" id="toggleSchoolId">
-                <input type="hidden" id="toggleSchoolCurrentStatus">
-                <div id="toggleSchoolStatusWarning" style="background: #FEE2E2; border-radius: 8px; padding: 16px; margin-bottom: 20px; transition: background 0.3s ease;">
-                    <p style="margin: 0; color: #991B1B; font-size: 14px; transition: color 0.3s ease;">
-                        <i class="fas fa-exclamation-triangle" style="margin-right: 8px;"></i>
-                        You are about to deactivate <strong id="toggleSchoolName"></strong>.
-                    </p>
-                </div>
-                <div id="toggleSchoolStatusMessage" style="background: #F3F4F6; border-radius: 8px; padding: 16px;">
-                    <p style="margin: 0; color: #374151; font-size: 14px;">
-                        <i class="fas fa-info-circle" style="margin-right: 8px; color: #6B7280;"></i>
-                        <span id="toggleSchoolStatusDescription">All interns from this school will be unable to login until the school is reactivated.</span>
-                    </p>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn-modal secondary" onclick="closeToggleSchoolStatusModal()">Cancel</button>
-                <button class="btn-modal primary" id="toggleSchoolStatusConfirmBtn" onclick="confirmToggleSchoolStatus()" style="background: linear-gradient(135deg, #DC2626, #B91C1C); transition: all 0.3s ease;">
-                    <i class="fas fa-ban"></i> <span id="toggleSchoolStatusBtnText">Deactivate School</span>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Accomplish School Confirmation Modal -->
-    <div id="accomplishSchoolModal" class="modal-overlay" onclick="if(event.target === this) closeAccomplishSchoolModal()">
-        <div class="modal-content" style="max-width: 450px;">
-            <div class="modal-header" style="background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white;">
-                <h3 class="modal-title" style="color: white;"><i class="fas fa-trophy" style="margin-right: 8px;"></i>Mark Interns as Completed</h3>
-            </div>
-            <div class="modal-body">
-                <input type="hidden" id="accomplishSchoolId">
-                <div style="background: #D1FAE5; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
-                    <p style="margin: 0; color: #065F46; font-size: 14px;">
-                        <i class="fas fa-check-circle" style="margin-right: 8px;"></i>
-                        Mark eligible interns from <strong id="accomplishSchoolName"></strong> as completed.
-                    </p>
-                </div>
-                <div style="background: #F3F4F6; border-radius: 8px; padding: 16px;">
-                    <p style="margin: 0 0 12px 0; color: #374151; font-size: 14px;">
-                        <i class="fas fa-info-circle" style="margin-right: 8px; color: #6B7280;"></i>
-                        This action will mark the following interns as "Completed":
-                    </p>
-                    <ul style="margin: 0; padding-left: 20px; color: #6B7280; font-size: 13px;">
-                        <li>Interns who have completed their required hours</li>
-                        <li>Only active interns will be affected</li>
-                    </ul>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn-modal secondary" onclick="closeAccomplishSchoolModal()">Cancel</button>
-                <button class="btn-modal primary" id="accomplishSchoolConfirmBtn" onclick="confirmAccomplishSchool()" style="background: linear-gradient(135deg, #059669, #047857); transition: all 0.3s ease;">
-                    <i class="fas fa-trophy"></i> <span id="accomplishSchoolBtnText">Mark as Completed</span>
                 </button>
             </div>
         </div>
@@ -10693,16 +10654,12 @@
                 maintenance_mode: false,
 
                 // Internship
-                default_hours: 480,
                 work_start: '08:00',
-                work_end: '17:00',
-                grace_period: 15,
                 overtime_threshold: 8,
                 auto_approve_intern: false,
                 require_overtime_approval: true,
 
                 // Notifications
-                email_notifications: true,
                 booking_alerts: true,
                 intern_alerts: true,
                 issue_alerts: true,
@@ -10753,16 +10710,12 @@
             document.getElementById('settingMaintenanceMode').checked = settings.maintenance_mode || false;
 
             // Internship Settings
-            document.getElementById('settingDefaultHours').value = settings.default_hours || 480;
             document.getElementById('settingWorkStart').value = settings.work_start || '08:00';
-            document.getElementById('settingWorkEnd').value = settings.work_end || '17:00';
-            document.getElementById('settingGracePeriod').value = settings.grace_period || 15;
             document.getElementById('settingOvertimeThreshold').value = settings.overtime_threshold || 8;
             document.getElementById('settingAutoApproveIntern').checked = settings.auto_approve_intern || false;
             document.getElementById('settingRequireOvertimeApproval').checked = settings.require_overtime_approval !== false;
 
             // Notification Settings
-            document.getElementById('settingEmailNotifications').checked = settings.email_notifications !== false;
             document.getElementById('settingBookingAlerts').checked = settings.booking_alerts !== false;
             document.getElementById('settingInternAlerts').checked = settings.intern_alerts !== false;
             document.getElementById('settingIssueAlerts').checked = settings.issue_alerts !== false;
@@ -10802,16 +10755,12 @@
                 maintenance_mode: document.getElementById('settingMaintenanceMode').checked,
 
                 // Internship
-                default_hours: parseInt(document.getElementById('settingDefaultHours').value),
                 work_start: document.getElementById('settingWorkStart').value,
-                work_end: document.getElementById('settingWorkEnd').value,
-                grace_period: parseInt(document.getElementById('settingGracePeriod').value),
                 overtime_threshold: parseFloat(document.getElementById('settingOvertimeThreshold').value),
                 auto_approve_intern: document.getElementById('settingAutoApproveIntern').checked,
                 require_overtime_approval: document.getElementById('settingRequireOvertimeApproval').checked,
 
                 // Notifications
-                email_notifications: document.getElementById('settingEmailNotifications').checked,
                 booking_alerts: document.getElementById('settingBookingAlerts').checked,
                 intern_alerts: document.getElementById('settingInternAlerts').checked,
                 issue_alerts: document.getElementById('settingIssueAlerts').checked,
@@ -10940,7 +10889,8 @@
         async function resetSettingsForm() {
             const defaults = getDefaultSettings();
             populateSettingsForm(defaults);
-            showToast('info', 'Form Reset', 'Settings form has been reset to defaults. Click Save to apply.');
+            applySettings(defaults);
+            showToast('info', 'Form Reset', 'Settings form has been reset to defaults. Click Save to apply permanently.');
         }
 
         async function resetSettings() {
@@ -10957,7 +10907,9 @@
                     const data = await response.json();
 
                     if (data.success) {
-                        await loadSettingsFromStorage();
+                        const defaults = getDefaultSettings();
+                        populateSettingsForm(defaults);
+                        applySettings(defaults);
                         showToast('success', 'Settings Reset', data.message);
                     } else {
                         showToast('error', 'Error', 'Failed to reset settings');
@@ -10993,13 +10945,13 @@
             if (url) {
                 const link = document.createElement('a');
                 link.href = url;
-                link.download = `${type}_export_${new Date().toISOString().split('T')[0]}.csv`;
+                link.download = `${type}_export_${new Date().toISOString().split('T')[0]}.xls`;
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
 
                 setTimeout(() => {
-                    showToast('success', 'Export Ready', `Your ${type} data has been exported.`);
+                    showToast('success', 'Export Ready', `Your ${type} data has been exported to Excel.`);
                 }, 1000);
             }
         }
@@ -11139,44 +11091,47 @@
 
             tbody.innerHTML = filtered.map(tl => `
                 <tr style="border-bottom: 1px solid #E5E7EB;">
-                    <td style="padding: 14px 16px;">
+                    <td style="padding: 14px 16px; white-space: nowrap;">
                         <span style="background: #F3F4F6; padding: 4px 10px; border-radius: 6px; font-family: monospace; font-weight: 600; color: #374151;">${tl.reference_code || 'N/A'}</span>
                     </td>
-                    <td style="padding: 14px 16px;">
+                    <td style="padding: 14px 16px; min-width: 180px;">
                         <div style="display: flex; align-items: center; gap: 12px;">
-                            <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #7B1D3A, #5a1428); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600;">
-                                ${tl.name.charAt(0).toUpperCase()}
-                            </div>
-                            <div>
+                            ${tl.profile_picture_url
+                                ? `<img src="${tl.profile_picture_url}" alt="${tl.name}" style="width: 40px; height: 40px; min-width: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #E5E7EB;">`
+                                : `<div style="width: 40px; height: 40px; min-width: 40px; background: linear-gradient(135deg, #7B1D3A, #5a1428); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600;">
+                                    ${tl.name.charAt(0).toUpperCase()}
+                                </div>`
+                            }
+                            <div style="white-space: nowrap;">
                                 <div style="font-weight: 600; color: #1F2937;">${tl.name}</div>
                                 <div style="font-size: 12px; color: #6B7280;">Added ${tl.created_at}</div>
                             </div>
                         </div>
                     </td>
-                    <td style="padding: 14px 16px; color: #4B5563;">${tl.email}</td>
-                    <td style="padding: 14px 16px;">
-                        <span style="background: #DBEAFE; color: #1E40AF; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 500;">${tl.school_name}</span>
+                    <td style="padding: 14px 16px; color: #4B5563; min-width: 180px; word-break: break-word;">${tl.email}</td>
+                    <td style="padding: 14px 16px; white-space: nowrap;">
+                        <span style="background: #DBEAFE; color: #1E40AF; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 500; white-space: nowrap; display: inline-block;">${tl.school_name}</span>
                     </td>
-                    <td style="padding: 14px 16px; text-align: center;">
+                    <td style="padding: 14px 16px; text-align: center; white-space: nowrap;">
                         <span style="font-weight: 600; color: #1F2937;">${tl.interns_count}</span>
                     </td>
-                    <td style="padding: 14px 16px; text-align: center;">
+                    <td style="padding: 14px 16px; text-align: center; white-space: nowrap;">
                         <span style="font-weight: 600; color: #1F2937;">${tl.reports_count}</span>
                     </td>
-                    <td style="padding: 14px 16px; text-align: center;">
-                        <span style="padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; ${tl.is_active ? 'background: #D1FAE5; color: #065F46;' : 'background: #FEE2E2; color: #991B1B;'}">
+                    <td style="padding: 14px 16px; text-align: center; white-space: nowrap;">
+                        <span style="padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap; ${tl.is_active ? 'background: #D1FAE5; color: #065F46;' : 'background: #FEE2E2; color: #991B1B;'}">
                             ${tl.is_active ? 'Active' : 'Inactive'}
                         </span>
                     </td>
-                    <td style="padding: 14px 16px; text-align: center;">
+                    <td style="padding: 14px 16px; text-align: center; white-space: nowrap;">
                         <div style="display: flex; justify-content: center; gap: 6px;">
-                            <button onclick="editTeamLeader(${tl.id})" style="background: #DBEAFE; color: #1E40AF; border: none; width: 32px; height: 32px; border-radius: 6px; cursor: pointer;" title="Edit">
+                            <button onclick="editTeamLeader(${tl.id})" style="background: #DBEAFE; color: #1E40AF; border: none; width: 32px; height: 32px; min-width: 32px; border-radius: 6px; cursor: pointer;" title="Edit">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button onclick="toggleTeamLeaderStatus(${tl.id})" style="background: ${tl.is_active ? '#FEF3C7' : '#D1FAE5'}; color: ${tl.is_active ? '#92400E' : '#065F46'}; border: none; width: 32px; height: 32px; border-radius: 6px; cursor: pointer;" title="${tl.is_active ? 'Deactivate' : 'Activate'}">
+                            <button onclick="toggleTeamLeaderStatus(${tl.id})" style="background: ${tl.is_active ? '#FEF3C7' : '#D1FAE5'}; color: ${tl.is_active ? '#92400E' : '#065F46'}; border: none; width: 32px; height: 32px; min-width: 32px; border-radius: 6px; cursor: pointer;" title="${tl.is_active ? 'Deactivate' : 'Activate'}">
                                 <i class="fas ${tl.is_active ? 'fa-toggle-off' : 'fa-toggle-on'}"></i>
                             </button>
-                            <button onclick="deleteTeamLeader(${tl.id}, '${tl.name.replace(/'/g, "\\'")}')" style="background: #FEE2E2; color: #991B1B; border: none; width: 32px; height: 32px; border-radius: 6px; cursor: pointer;" title="Delete">
+                            <button onclick="deleteTeamLeader(${tl.id}, '${tl.name.replace(/'/g, "\\'")}')" style="background: #FEE2E2; color: #991B1B; border: none; width: 32px; height: 32px; min-width: 32px; border-radius: 6px; cursor: pointer;" title="Delete">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
@@ -11190,15 +11145,7 @@
         }
 
         function populateSchoolsDropdown() {
-            const select = document.getElementById('teamLeaderSchool');
-            select.innerHTML = '<option value="">-- Select School --</option>';
-
-            schoolsData.forEach(school => {
-                const option = document.createElement('option');
-                option.value = school.id;
-                option.textContent = school.name;
-                select.appendChild(option);
-            });
+            // School dropdown removed from team leader modal
         }
 
         function openTeamLeaderModal(id = null) {
@@ -11206,7 +11153,6 @@
             const title = document.getElementById('teamLeaderModalTitle');
             const form = document.getElementById('teamLeaderForm');
             const passwordGroup = document.getElementById('passwordGroup');
-            const schoolGroup = document.getElementById('schoolGroup');
             const refCodeDisplay = document.getElementById('referenceCodeDisplay');
             const passwordLabel = document.getElementById('passwordLabel');
             const passwordInput = document.getElementById('teamLeaderPassword');
@@ -11227,9 +11173,6 @@
                     document.getElementById('teamLeaderName').value = tl.name;
                     document.getElementById('teamLeaderEmail').value = tl.email;
 
-                    // Hide school field during edit - school cannot be changed
-                    schoolGroup.style.display = 'none';
-
                     // Make password optional for editing
                     passwordInput.removeAttribute('required');
                     passwordLabel.classList.remove('required');
@@ -11246,9 +11189,6 @@
                 }
             } else {
                 title.innerHTML = '<i class="fas fa-user-tie" style="margin-right: 8px;"></i>Add Team Leader';
-
-                // Show school field for new team leaders
-                schoolGroup.style.display = 'block';
 
                 // Make password required for new team leaders
                 passwordInput.setAttribute('required', 'required');
@@ -11622,7 +11562,6 @@
             const name = document.getElementById('teamLeaderName').value;
             const email = document.getElementById('teamLeaderEmail').value;
             const password = document.getElementById('teamLeaderPassword').value;
-            const school_id = document.getElementById('teamLeaderSchool').value;
             const permissions = getPermissionsFromForm();
 
             // Validate name and email (always required)
@@ -11631,23 +11570,16 @@
                 return;
             }
 
-            // For new team leaders, school_id and password are required
+            // For new team leaders, password is required
             if (!id) {
-                if (!school_id) {
-                    showToast('error', 'Validation Error', 'Please select a school');
-                    return;
-                }
                 if (!password) {
                     showToast('error', 'Validation Error', 'Password is required for new team leaders');
                     return;
                 }
             }
 
-            // Build data object - only include school_id for new team leaders
+            // Build data object
             const data = { name, email, permissions };
-            if (!id && school_id) {
-                data.school_id = school_id;
-            }
             if (password) data.password = password;
 
             try {
@@ -14261,8 +14193,18 @@
             document.querySelectorAll('#scheduler .filter-tab').forEach(tab => {
                 tab.classList.remove('active');
             });
-            // Add active to clicked tab
-            event.target.closest('.filter-tab').classList.add('active');
+
+            // Find and activate the correct tab
+            const tabs = document.querySelectorAll('#scheduler .filter-tab');
+            tabs.forEach(tab => {
+                const tabText = tab.textContent.toLowerCase();
+                if ((tabName === 'pending' && tabText.includes('pending')) ||
+                    (tabName === 'calendar' && tabText.includes('calendar')) ||
+                    (tabName === 'events' && tabText.includes('event')) ||
+                    (tabName === 'all' && tabText.includes('all'))) {
+                    tab.classList.add('active');
+                }
+            });
 
             // Hide all tab contents
             document.querySelectorAll('.booking-tab-content').forEach(content => {
@@ -14280,6 +14222,10 @@
                 loadAdminEvents();
             } else if (tabName === 'all') {
                 document.getElementById('allBookingsTab').style.display = 'block';
+                // Initialize pagination for all bookings
+                if (typeof initAllBookingsPagination === 'function') {
+                    initAllBookingsPagination();
+                }
             }
         }
 
@@ -15789,6 +15735,498 @@ University of the Philippines Cebu
             console.log('Filtering by:', filterType);
         }
 
+        // ===== TIME & ATTENDANCE PAGINATION =====
+        const ITEMS_PER_PAGE = 8;
+
+        // Daily Hours Pagination
+        let dailyCurrentPage = 1;
+        let dailyTotalPages = 1;
+
+        function initDailyPagination() {
+            const tbody = document.getElementById('dailyHoursTableBody');
+            if (!tbody) return;
+
+            const rows = tbody.querySelectorAll('tr:not(:only-child)');
+            const totalRows = rows.length;
+
+            // Check if only empty state row exists
+            if (totalRows === 0 || (totalRows === 1 && rows[0].querySelector('td[colspan]'))) {
+                document.getElementById('dailyHoursPagination').style.display = 'none';
+                return;
+            }
+
+            dailyTotalPages = Math.ceil(totalRows / ITEMS_PER_PAGE);
+            document.getElementById('dailyTotalRecords').textContent = totalRows;
+            updateDailyPagination();
+        }
+
+        function updateDailyPagination() {
+            const tbody = document.getElementById('dailyHoursTableBody');
+            const rows = Array.from(tbody.querySelectorAll('tr:not(:only-child)'));
+            const totalRows = rows.filter(r => !r.querySelector('td[colspan]')).length;
+
+            if (totalRows === 0) {
+                document.getElementById('dailyHoursPagination').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('dailyHoursPagination').style.display = 'flex';
+
+            const start = (dailyCurrentPage - 1) * ITEMS_PER_PAGE;
+            const end = Math.min(start + ITEMS_PER_PAGE, totalRows);
+
+            // Hide all rows, show only current page
+            rows.forEach((row, index) => {
+                if (row.querySelector('td[colspan]')) return;
+                row.style.display = (index >= start && index < end) ? '' : 'none';
+            });
+
+            // Update showing text
+            document.getElementById('dailyShowingStart').textContent = totalRows > 0 ? start + 1 : 0;
+            document.getElementById('dailyShowingEnd').textContent = end;
+            document.getElementById('dailyTotalRecords').textContent = totalRows;
+
+            // Update buttons
+            document.getElementById('dailyPrevBtn').disabled = dailyCurrentPage === 1;
+            document.getElementById('dailyNextBtn').disabled = dailyCurrentPage >= dailyTotalPages;
+
+            // Update page numbers
+            updatePageNumbers('daily', dailyCurrentPage, dailyTotalPages);
+        }
+
+        function changeDailyPage(direction) {
+            if (direction === 'prev' && dailyCurrentPage > 1) {
+                dailyCurrentPage--;
+            } else if (direction === 'next' && dailyCurrentPage < dailyTotalPages) {
+                dailyCurrentPage++;
+            } else if (typeof direction === 'number') {
+                dailyCurrentPage = direction;
+            }
+            updateDailyPagination();
+        }
+
+        // Filter Daily Attendance by status, school and name
+        function filterDailyAttendance() {
+            const statusFilter = document.getElementById('attendanceStatusFilter')?.value || 'all';
+            const schoolFilter = document.getElementById('schoolFilter')?.value || 'all';
+            const searchTerm = document.getElementById('dailySearchInput')?.value?.toLowerCase() || '';
+
+            const tbody = document.getElementById('dailyHoursTableBody');
+            if (!tbody) return;
+
+            const rows = Array.from(tbody.querySelectorAll('tr[data-attendance-id]'));
+
+            rows.forEach(row => {
+                const rowStatus = row.dataset.status || '';
+                const rowSchool = row.dataset.school || '';
+                const rowName = row.dataset.name || '';
+
+                const matchesStatus = statusFilter === 'all' || rowStatus === statusFilter;
+                const matchesSchool = schoolFilter === 'all' || rowSchool === schoolFilter;
+                const matchesSearch = !searchTerm || rowName.includes(searchTerm);
+
+                row.style.display = (matchesStatus && matchesSchool && matchesSearch) ? '' : 'none';
+            });
+
+            // Update pagination counts
+            const visibleRows = rows.filter(row => row.style.display !== 'none');
+            const totalVisible = visibleRows.length;
+
+            dailyCurrentPage = 1;
+            dailyTotalPages = Math.ceil(totalVisible / ITEMS_PER_PAGE) || 1;
+
+            // Apply pagination to visible rows only
+            visibleRows.forEach((row, index) => {
+                row.style.display = (index < ITEMS_PER_PAGE) ? '' : 'none';
+            });
+
+            document.getElementById('dailyShowingStart').textContent = totalVisible > 0 ? 1 : 0;
+            document.getElementById('dailyShowingEnd').textContent = Math.min(ITEMS_PER_PAGE, totalVisible);
+            document.getElementById('dailyTotalRecords').textContent = totalVisible;
+            document.getElementById('dailyPrevBtn').disabled = true;
+            document.getElementById('dailyNextBtn').disabled = dailyCurrentPage >= dailyTotalPages;
+
+            // Show/hide pagination based on results
+            document.getElementById('dailyHoursPagination').style.display = totalVisible > 0 ? 'flex' : 'none';
+        }
+
+        // History Pagination
+        let historyCurrentPage = 1;
+        let historyTotalPages = 1;
+
+        function initHistoryPagination() {
+            const tbody = document.getElementById('historyTableBody');
+            if (!tbody) return;
+
+            const rows = tbody.querySelectorAll('tr:not(:only-child)');
+            const totalRows = rows.length;
+
+            if (totalRows === 0 || (totalRows === 1 && rows[0].querySelector('td[colspan]'))) {
+                document.getElementById('historyPagination').style.display = 'none';
+                return;
+            }
+
+            historyTotalPages = Math.ceil(totalRows / ITEMS_PER_PAGE);
+            document.getElementById('historyTotalRecords').textContent = totalRows;
+            updateHistoryPagination();
+        }
+
+        function updateHistoryPagination() {
+            const tbody = document.getElementById('historyTableBody');
+            const rows = Array.from(tbody.querySelectorAll('tr:not(:only-child)'));
+            const totalRows = rows.filter(r => !r.querySelector('td[colspan]')).length;
+
+            if (totalRows === 0) {
+                document.getElementById('historyPagination').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('historyPagination').style.display = 'flex';
+
+            const start = (historyCurrentPage - 1) * ITEMS_PER_PAGE;
+            const end = Math.min(start + ITEMS_PER_PAGE, totalRows);
+
+            rows.forEach((row, index) => {
+                if (row.querySelector('td[colspan]')) return;
+                row.style.display = (index >= start && index < end) ? '' : 'none';
+            });
+
+            document.getElementById('historyShowingStart').textContent = totalRows > 0 ? start + 1 : 0;
+            document.getElementById('historyShowingEnd').textContent = end;
+            document.getElementById('historyTotalRecords').textContent = totalRows;
+
+            document.getElementById('historyPrevBtn').disabled = historyCurrentPage === 1;
+            document.getElementById('historyNextBtn').disabled = historyCurrentPage >= historyTotalPages;
+
+            updatePageNumbers('history', historyCurrentPage, historyTotalPages);
+        }
+
+        function changeHistoryPage(direction) {
+            if (direction === 'prev' && historyCurrentPage > 1) {
+                historyCurrentPage--;
+            } else if (direction === 'next' && historyCurrentPage < historyTotalPages) {
+                historyCurrentPage++;
+            } else if (typeof direction === 'number') {
+                historyCurrentPage = direction;
+            }
+            updateHistoryPagination();
+        }
+
+        // Filter History Attendance by status, school and name
+        function filterHistoryAttendance() {
+            const statusFilter = document.getElementById('historyStatusFilter')?.value || 'all';
+            const schoolFilter = document.getElementById('historySchoolFilter')?.value || 'all';
+            const searchTerm = document.getElementById('historySearchInput')?.value?.toLowerCase() || '';
+
+            const tbody = document.getElementById('historyTableBody');
+            if (!tbody) return;
+
+            const rows = Array.from(tbody.querySelectorAll('tr[data-status]'));
+
+            rows.forEach(row => {
+                const rowStatus = row.dataset.status || '';
+                const rowSchool = row.dataset.school || '';
+                const rowName = row.dataset.name || '';
+
+                const matchesStatus = statusFilter === 'all' || rowStatus === statusFilter;
+                const matchesSchool = schoolFilter === 'all' || rowSchool === schoolFilter;
+                const matchesSearch = !searchTerm || rowName.includes(searchTerm);
+
+                row.style.display = (matchesStatus && matchesSchool && matchesSearch) ? '' : 'none';
+            });
+
+            // Update pagination counts
+            const visibleRows = rows.filter(row => row.style.display !== 'none');
+            const totalVisible = visibleRows.length;
+
+            historyCurrentPage = 1;
+            historyTotalPages = Math.ceil(totalVisible / ITEMS_PER_PAGE) || 1;
+
+            // Apply pagination to visible rows only
+            visibleRows.forEach((row, index) => {
+                row.style.display = (index < ITEMS_PER_PAGE) ? '' : 'none';
+            });
+
+            document.getElementById('historyShowingStart').textContent = totalVisible > 0 ? 1 : 0;
+            document.getElementById('historyShowingEnd').textContent = Math.min(ITEMS_PER_PAGE, totalVisible);
+            document.getElementById('historyTotalRecords').textContent = totalVisible;
+            document.getElementById('historyPrevBtn').disabled = true;
+            document.getElementById('historyNextBtn').disabled = historyCurrentPage >= historyTotalPages;
+
+            // Show/hide pagination based on results
+            document.getElementById('historyPagination').style.display = totalVisible > 0 ? 'flex' : 'none';
+        }
+
+        // Summary Pagination
+        let summaryCurrentPage = 1;
+        let summaryTotalPages = 1;
+
+        function initSummaryPagination() {
+            const tbody = document.getElementById('summaryTableBody');
+            if (!tbody) return;
+
+            const rows = tbody.querySelectorAll('tr:not(:only-child)');
+            const totalRows = rows.length;
+
+            if (totalRows === 0 || (totalRows === 1 && rows[0].querySelector('td[colspan]'))) {
+                document.getElementById('summaryPagination').style.display = 'none';
+                return;
+            }
+
+            summaryTotalPages = Math.ceil(totalRows / ITEMS_PER_PAGE);
+            document.getElementById('summaryTotalRecords').textContent = totalRows;
+            updateSummaryPagination();
+        }
+
+        function updateSummaryPagination() {
+            const tbody = document.getElementById('summaryTableBody');
+            const rows = Array.from(tbody.querySelectorAll('tr:not(:only-child)'));
+            const totalRows = rows.filter(r => !r.querySelector('td[colspan]')).length;
+
+            if (totalRows === 0) {
+                document.getElementById('summaryPagination').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('summaryPagination').style.display = 'flex';
+
+            const start = (summaryCurrentPage - 1) * ITEMS_PER_PAGE;
+            const end = Math.min(start + ITEMS_PER_PAGE, totalRows);
+
+            rows.forEach((row, index) => {
+                if (row.querySelector('td[colspan]')) return;
+                row.style.display = (index >= start && index < end) ? '' : 'none';
+            });
+
+            document.getElementById('summaryShowingStart').textContent = totalRows > 0 ? start + 1 : 0;
+            document.getElementById('summaryShowingEnd').textContent = end;
+            document.getElementById('summaryTotalRecords').textContent = totalRows;
+
+            document.getElementById('summaryPrevBtn').disabled = summaryCurrentPage === 1;
+            document.getElementById('summaryNextBtn').disabled = summaryCurrentPage >= summaryTotalPages;
+
+            updatePageNumbers('summary', summaryCurrentPage, summaryTotalPages);
+        }
+
+        function changeSummaryPage(direction) {
+            if (direction === 'prev' && summaryCurrentPage > 1) {
+                summaryCurrentPage--;
+            } else if (direction === 'next' && summaryCurrentPage < summaryTotalPages) {
+                summaryCurrentPage++;
+            } else if (typeof direction === 'number') {
+                summaryCurrentPage = direction;
+            }
+            updateSummaryPagination();
+        }
+
+        // Shared page numbers renderer
+        function updatePageNumbers(prefix, currentPage, totalPages) {
+            const container = document.getElementById(`${prefix}PageNumbers`);
+            if (!container) return;
+
+            container.innerHTML = '';
+
+            const maxButtons = 5;
+            let startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+            let endPage = Math.min(totalPages, startPage + maxButtons - 1);
+
+            if (endPage - startPage < maxButtons - 1) {
+                startPage = Math.max(1, endPage - maxButtons + 1);
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                const btn = document.createElement('button');
+                btn.textContent = i;
+                btn.style.cssText = `
+                    min-width: 32px; height: 32px; border-radius: 6px; border: 1px solid #E5E7EB;
+                    cursor: pointer; font-size: 13px; font-weight: 500;
+                    ${i === currentPage ? 'background: #7B1D3A; color: white; border-color: #7B1D3A;' : 'background: #F3F4F6; color: #374151;'}
+                `;
+                btn.onclick = () => {
+                    if (prefix === 'daily') changeDailyPage(i);
+                    else if (prefix === 'history') changeHistoryPage(i);
+                    else if (prefix === 'summary') changeSummaryPage(i);
+                };
+                container.appendChild(btn);
+            }
+        }
+
+        // Initialize pagination on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initDailyPagination();
+            initHistoryPagination();
+            initSummaryPagination();
+            initPendingBookingsPagination();
+            initAllBookingsPagination();
+        });
+
+        // ===== SCHEDULER PAGINATION =====
+
+        // Pending Bookings Pagination
+        let pendingCurrentPage = 1;
+        let pendingTotalPages = 1;
+
+        function initPendingBookingsPagination() {
+            const tbody = document.getElementById('pendingBookingsBody');
+            if (!tbody) return;
+
+            const rows = tbody.querySelectorAll('tr:not(#noPendingRow)');
+            const totalRows = rows.length;
+
+            if (totalRows === 0) {
+                document.getElementById('pendingBookingsPagination').style.display = 'none';
+                return;
+            }
+
+            pendingTotalPages = Math.ceil(totalRows / ITEMS_PER_PAGE);
+            updatePendingBookingsPagination();
+        }
+
+        function updatePendingBookingsPagination() {
+            const tbody = document.getElementById('pendingBookingsBody');
+            const rows = Array.from(tbody.querySelectorAll('tr:not(#noPendingRow)'));
+            const totalRows = rows.length;
+
+            if (totalRows === 0) {
+                document.getElementById('pendingBookingsPagination').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('pendingBookingsPagination').style.display = 'flex';
+
+            const start = (pendingCurrentPage - 1) * ITEMS_PER_PAGE;
+            const end = Math.min(start + ITEMS_PER_PAGE, totalRows);
+
+            rows.forEach((row, index) => {
+                row.style.display = (index >= start && index < end) ? '' : 'none';
+            });
+
+            document.getElementById('pendingShowingStart').textContent = totalRows > 0 ? start + 1 : 0;
+            document.getElementById('pendingShowingEnd').textContent = end;
+            document.getElementById('pendingTotalItems').textContent = totalRows;
+
+            document.getElementById('pendingPrevBtn').disabled = pendingCurrentPage === 1;
+            document.getElementById('pendingPrevBtn').style.opacity = pendingCurrentPage === 1 ? '0.5' : '1';
+            document.getElementById('pendingNextBtn').disabled = pendingCurrentPage >= pendingTotalPages;
+            document.getElementById('pendingNextBtn').style.opacity = pendingCurrentPage >= pendingTotalPages ? '0.5' : '1';
+
+            document.getElementById('pendingPageInfo').textContent = `${pendingCurrentPage} / ${pendingTotalPages}`;
+        }
+
+        function pendingPrevPage() {
+            if (pendingCurrentPage > 1) {
+                pendingCurrentPage--;
+                updatePendingBookingsPagination();
+            }
+        }
+
+        function pendingNextPage() {
+            if (pendingCurrentPage < pendingTotalPages) {
+                pendingCurrentPage++;
+                updatePendingBookingsPagination();
+            }
+        }
+
+        // All Bookings Pagination
+        let allCurrentPage = 1;
+        let allTotalPages = 1;
+
+        function initAllBookingsPagination() {
+            const tbody = document.getElementById('allBookingsBody');
+            if (!tbody) return;
+
+            const rows = tbody.querySelectorAll('tr.booking-row');
+            const totalRows = rows.length;
+
+            if (totalRows === 0) {
+                document.getElementById('allBookingsPagination').style.display = 'none';
+                return;
+            }
+
+            allTotalPages = Math.ceil(totalRows / ITEMS_PER_PAGE);
+            updateAllBookingsPagination();
+        }
+
+        function updateAllBookingsPagination() {
+            const tbody = document.getElementById('allBookingsBody');
+            const rows = Array.from(tbody.querySelectorAll('tr.booking-row'));
+            // Apply filters first
+            const searchTerm = document.getElementById('searchBookings')?.value?.toLowerCase() || '';
+            const statusFilter = document.getElementById('filterBookingStatus')?.value || '';
+            const emailFilter = document.getElementById('filterEmailStatus')?.value || '';
+
+            const visibleRows = rows.filter(row => {
+                const matchesSearch = !searchTerm || row.dataset.search.includes(searchTerm);
+                const matchesStatus = !statusFilter || row.dataset.status === statusFilter;
+                let matchesEmail = true;
+                if (emailFilter === 'sent') {
+                    matchesEmail = row.dataset.emailed === 'yes';
+                } else if (emailFilter === 'not-sent') {
+                    matchesEmail = row.dataset.emailed === 'no' && row.dataset.status === 'approved';
+                }
+                return matchesSearch && matchesStatus && matchesEmail;
+            });
+
+            const totalRows = visibleRows.length;
+
+            if (totalRows === 0) {
+                document.getElementById('allBookingsPagination').style.display = 'none';
+                rows.forEach(row => row.style.display = 'none');
+                return;
+            }
+
+            // Reset to first page if current page is out of range
+            allTotalPages = Math.ceil(totalRows / ITEMS_PER_PAGE);
+            if (allCurrentPage > allTotalPages) {
+                allCurrentPage = 1;
+            }
+
+            document.getElementById('allBookingsPagination').style.display = 'flex';
+
+            const start = (allCurrentPage - 1) * ITEMS_PER_PAGE;
+            const end = Math.min(start + ITEMS_PER_PAGE, totalRows);
+
+            // Hide all rows first
+            rows.forEach(row => row.style.display = 'none');
+
+            // Show only filtered rows for current page
+            visibleRows.forEach((row, index) => {
+                row.style.display = (index >= start && index < end) ? '' : 'none';
+            });
+
+            document.getElementById('allShowingStart').textContent = totalRows > 0 ? start + 1 : 0;
+            document.getElementById('allShowingEnd').textContent = end;
+            document.getElementById('allTotalItems').textContent = totalRows;
+
+            document.getElementById('allPrevBtn').disabled = allCurrentPage === 1;
+            document.getElementById('allPrevBtn').style.opacity = allCurrentPage === 1 ? '0.5' : '1';
+            document.getElementById('allNextBtn').disabled = allCurrentPage >= allTotalPages;
+            document.getElementById('allNextBtn').style.opacity = allCurrentPage >= allTotalPages ? '0.5' : '1';
+
+            document.getElementById('allPageInfo').textContent = `${allCurrentPage} / ${allTotalPages}`;
+        }
+
+        function allBookingsPrevPage() {
+            if (allCurrentPage > 1) {
+                allCurrentPage--;
+                updateAllBookingsPagination();
+            }
+        }
+
+        function allBookingsNextPage() {
+            if (allCurrentPage < allTotalPages) {
+                allCurrentPage++;
+                updateAllBookingsPagination();
+            }
+        }
+
+        // Override filterBookings to work with pagination
+        const originalFilterBookings = window.filterBookings || function() {};
+        window.filterBookings = function() {
+            allCurrentPage = 1; // Reset to first page on filter change
+            updateAllBookingsPagination();
+        };
+
         // Switch time tab function
         function switchTimeTab(event, tabId) {
             // Update active tab
@@ -15807,328 +16245,7 @@ University of the Philippines Cebu
             if (selectedContent) {
                 selectedContent.style.display = 'block';
             }
-            
-            // Initialize pagination when switching to attendance history
-            if (tabId === 'attendance-history') {
-                filterAttendanceHistory();
-            }
         }
-
-        // Attendance History Data and Pagination
-        const attendanceHistoryData = @json($attendanceHistory ?? []);
-        let filteredHistoryData = [...attendanceHistoryData];
-        let historyCurrentPage = 1;
-
-        function filterAttendanceHistory() {
-            const schoolFilter = document.getElementById('historySchoolFilter').value;
-            const statusFilter = document.getElementById('historyStatusFilter').value;
-            const searchTerm = document.getElementById('historySearchInput').value.toLowerCase();
-            const perPage = parseInt(document.getElementById('historyPerPage').value);
-            
-            // Filter data
-            filteredHistoryData = attendanceHistoryData.filter(attendance => {
-                const internName = (attendance.intern?.name || '').toLowerCase();
-                const internSchool = attendance.intern?.school || '';
-                const status = attendance.status || '';
-                
-                const matchesSchool = schoolFilter === 'all' || internSchool === schoolFilter;
-                const matchesStatus = statusFilter === 'all' || status === statusFilter;
-                const matchesSearch = searchTerm === '' || internName.includes(searchTerm);
-                
-                return matchesSchool && matchesStatus && matchesSearch;
-            });
-            
-            // Reset to first page when filtering
-            historyCurrentPage = 1;
-            renderAttendanceHistory(perPage);
-        }
-
-        function renderAttendanceHistory(perPage) {
-            const tbody = document.getElementById('attendanceHistoryBody');
-            const totalRecords = filteredHistoryData.length;
-            const totalPages = Math.ceil(totalRecords / perPage);
-            
-            const startIndex = (historyCurrentPage - 1) * perPage;
-            const endIndex = Math.min(startIndex + perPage, totalRecords);
-            const pageData = filteredHistoryData.slice(startIndex, endIndex);
-            
-            // Update record count
-            document.getElementById('historyRecordCount').textContent = `${totalRecords} Records`;
-            
-            // Clear existing rows (except empty row)
-            const rows = tbody.querySelectorAll('tr:not(.attendance-history-empty)');
-            rows.forEach(row => row.remove());
-            
-            // Hide empty message if we have data
-            const emptyRow = tbody.querySelector('.attendance-history-empty');
-            if (emptyRow) {
-                emptyRow.style.display = pageData.length > 0 ? 'none' : '';
-            }
-            
-            // Render rows
-            if (pageData.length > 0) {
-                pageData.forEach(attendance => {
-                    const row = createHistoryRow(attendance);
-                    if (emptyRow) {
-                        tbody.insertBefore(row, emptyRow);
-                    } else {
-                        tbody.appendChild(row);
-                    }
-                });
-            }
-            
-            // Update pagination info
-            document.getElementById('historyShowingFrom').textContent = totalRecords > 0 ? startIndex + 1 : 0;
-            document.getElementById('historyShowingTo').textContent = endIndex;
-            document.getElementById('historyTotalRecords').textContent = totalRecords;
-            
-            // Update pagination buttons
-            document.getElementById('historyFirstBtn').disabled = historyCurrentPage === 1;
-            document.getElementById('historyPrevBtn').disabled = historyCurrentPage === 1;
-            document.getElementById('historyNextBtn').disabled = historyCurrentPage >= totalPages;
-            document.getElementById('historyLastBtn').disabled = historyCurrentPage >= totalPages;
-            
-            // Render page numbers
-            renderHistoryPageNumbers(totalPages);
-        }
-
-        function createHistoryRow(attendance) {
-            const row = document.createElement('tr');
-            const date = attendance.date ? new Date(attendance.date) : null;
-            const dateStr = date ? date.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) : 'N/A';
-            const dayStr = date ? date.toLocaleDateString('en-US', { weekday: 'long' }) : '';
-            const intern = attendance.intern || {};
-            const profilePic = intern.profile_picture ? `{{ asset('storage') }}/${intern.profile_picture}` : null;
-            
-            let overUnderHtml = '<span style="color: #9CA3AF; font-size: 12px;">--</span>';
-            if (attendance.time_out) {
-                if (attendance.undertime_hours > 0) {
-                    overUnderHtml = `<span style="background: #FEE2E2; color: #991B1B; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;">
-                        <i class="fas fa-arrow-down"></i> -${parseFloat(attendance.undertime_hours || 0).toFixed(2)} hrs
-                    </span>`;
-                } else if (attendance.overtime_hours > 0) {
-                    if (attendance.overtime_approved) {
-                        overUnderHtml = `<span style="background: #D1FAE5; color: #065F46; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;">
-                            <i class="fas fa-check-circle"></i> +${parseFloat(attendance.overtime_hours || 0).toFixed(2)} hrs
-                        </span>`;
-                    } else {
-                        overUnderHtml = `<span style="background: #FEF3C7; color: #92400E; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;">
-                            <i class="fas fa-clock"></i> +${parseFloat(attendance.overtime_hours || 0).toFixed(2)} hrs
-                        </span>`;
-                    }
-                } else {
-                    overUnderHtml = `<span style="background: #DBEAFE; color: #1E40AF; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;">
-                        <i class="fas fa-check"></i> On Target
-                    </span>`;
-                }
-            }
-            
-            let statusClass = '';
-            if (attendance.status === 'Present') statusClass = 'background: #D1FAE5; color: #065F46;';
-            else if (attendance.status === 'Late') statusClass = 'background: #FEF3C7; color: #92400E;';
-            else statusClass = 'background: #FEE2E2; color: #991B1B;';
-            
-            // School color badges
-            const schoolColors = {
-                'University of the Philippines': { bg: '#7B1D3A', text: '#FFFFFF' },
-                'UP': { bg: '#7B1D3A', text: '#FFFFFF' },
-                'Technological University of the Philippines': { bg: '#1E40AF', text: '#FFFFFF' },
-                'TUP': { bg: '#1E40AF', text: '#FFFFFF' },
-                'Polytechnic University of the Philippines': { bg: '#DC2626', text: '#FFFFFF' },
-                'PUP': { bg: '#DC2626', text: '#FFFFFF' },
-                'University of Santo Tomas': { bg: '#FBBF24', text: '#1F2937' },
-                'UST': { bg: '#FBBF24', text: '#1F2937' },
-                'FEU': { bg: '#059669', text: '#FFFFFF' },
-                'default': { bg: '#6B7280', text: '#FFFFFF' }
-            };
-            const internSchool = intern.school || 'N/A';
-            const schoolColor = schoolColors[internSchool] || schoolColors['default'];
-            
-            row.innerHTML = `
-                <td>
-                    <div style="font-weight: 600;">${dateStr}</div>
-                    <div style="font-size: 12px; color: #6B7280;">${dayStr}</div>
-                </td>
-                <td>
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #FFBF00, #FFA500); display: flex; align-items: center; justify-content: center; color: #7B1D3A; font-weight: 700; overflow: hidden;">
-                            ${profilePic ? `<img src="${profilePic}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">` : (intern.name ? intern.name.charAt(0).toUpperCase() : 'U')}
-                        </div>
-                        <div>
-                            <span style="font-weight: 600;">${intern.name || 'Unknown'}</span>
-                            <div style="font-size: 12px; color: #6B7280;">${intern.reference_code || ''}</div>
-                        </div>
-                    </div>
-                </td>
-                <td>
-                    <span style="background: ${schoolColor.bg}; color: ${schoolColor.text}; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; white-space: nowrap;">
-                        <i class="fas fa-university" style="margin-right: 4px;"></i>${internSchool}
-                    </span>
-                </td>
-                <td>
-                    <span style="background: #D1FAE5; color: #065F46; padding: 4px 10px; border-radius: 6px; font-size: 13px; font-weight: 500;">
-                        <i class="fas fa-sign-in-alt" style="margin-right: 4px;"></i>${attendance.formatted_time_in || ''}
-                    </span>
-                </td>
-                <td>
-                    ${attendance.time_out ? `<span style="background: #FEE2E2; color: #991B1B; padding: 4px 10px; border-radius: 6px; font-size: 13px; font-weight: 500;">
-                        <i class="fas fa-sign-out-alt" style="margin-right: 4px;"></i>${attendance.formatted_time_out || ''}
-                    </span>` : '<span style="color: #9CA3AF; font-style: italic;">Not yet</span>'}
-                </td>
-                <td><strong style="color: #7B1D3A;">${parseFloat(attendance.hours_worked || 0).toFixed(2)} hrs</strong></td>
-                <td>${overUnderHtml}</td>
-                <td>
-                    <span style="padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; ${statusClass}">
-                        ${attendance.status || 'N/A'}
-                    </span>
-                </td>
-                <td>
-                    ${getHistoryActionHtml(attendance)}
-                </td>
-            `;
-            return row;
-        }
-
-        function getHistoryActionHtml(attendance) {
-            const hasOT = attendance.time_out && attendance.overtime_hours > 0;
-            const isPending = hasOT && !attendance.overtime_approved;
-            const isApproved = hasOT && attendance.overtime_approved;
-            
-            if (isPending) {
-                return `
-                    <div class="action-dropdown" style="position: relative;">
-                        <button onclick="toggleHistoryActionMenu(this)" style="background: #F3F4F6; border: 1px solid #E5E7EB; padding: 8px 12px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; color: #374151;">
-                            <i class="fas fa-clock" style="color: #F59E0B;"></i> OT Pending
-                            <i class="fas fa-chevron-down" style="font-size: 10px;"></i>
-                        </button>
-                        <div class="action-menu" style="display: none; position: absolute; top: 100%; right: 0; margin-top: 4px; background: white; border: 1px solid #E5E7EB; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 100; min-width: 140px; overflow: hidden;">
-                            <button onclick="approveOvertime(${attendance.id}); closeAllActionMenus();" style="width: 100%; padding: 10px 14px; border: none; background: white; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 13px; color: #059669; transition: background 0.2s;" onmouseover="this.style.background='#F0FDF4'" onmouseout="this.style.background='white'">
-                                <i class="fas fa-check-circle"></i> Approve OT
-                            </button>
-                            <button onclick="declineOvertime(${attendance.id}); closeAllActionMenus();" style="width: 100%; padding: 10px 14px; border: none; background: white; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 13px; color: #DC2626; border-top: 1px solid #F3F4F6; transition: background 0.2s;" onmouseover="this.style.background='#FEF2F2'" onmouseout="this.style.background='white'">
-                                <i class="fas fa-times-circle"></i> Decline OT
-                            </button>
-                        </div>
-                    </div>
-                `;
-            } else if (isApproved) {
-                return '<span style="color: #059669; font-size: 12px; font-weight: 500;"><i class="fas fa-check-circle"></i> Approved</span>';
-            } else {
-                return '<span style="color: #9CA3AF;">--</span>';
-            }
-        }
-
-        // Decline overtime function
-        function declineOvertime(attendanceId) {
-            if (!confirm('Are you sure you want to decline this overtime? This action cannot be undone.')) {
-                return;
-            }
-
-            fetch(`/admin/attendance/${attendanceId}/decline-overtime`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Overtime declined successfully!');
-                    window.location.reload();
-                } else {
-                    alert(data.message || 'Failed to decline overtime.');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred while declining overtime.');
-            });
-        }
-
-        // Action menu dropdown functions
-        function toggleHistoryActionMenu(button) {
-            const menu = button.nextElementSibling;
-            const isVisible = menu.style.display === 'block';
-            
-            // Close all other menus first
-            closeAllActionMenus();
-            
-            // Toggle this menu
-            if (!isVisible) {
-                menu.style.display = 'block';
-            }
-        }
-
-        function closeAllActionMenus() {
-            document.querySelectorAll('.action-menu').forEach(menu => {
-                menu.style.display = 'none';
-            });
-        }
-
-        // Close menus when clicking outside
-        document.addEventListener('click', function(event) {
-            if (!event.target.closest('.action-dropdown')) {
-                closeAllActionMenus();
-            }
-        });
-
-        function renderHistoryPageNumbers(totalPages) {
-            const container = document.getElementById('historyPageNumbers');
-            container.innerHTML = '';
-            
-            const maxVisiblePages = 5;
-            let startPage = Math.max(1, historyCurrentPage - Math.floor(maxVisiblePages / 2));
-            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-            
-            if (endPage - startPage + 1 < maxVisiblePages) {
-                startPage = Math.max(1, endPage - maxVisiblePages + 1);
-            }
-            
-            for (let i = startPage; i <= endPage; i++) {
-                const btn = document.createElement('button');
-                btn.textContent = i;
-                btn.onclick = () => goToHistoryPage(i);
-                btn.style.cssText = `
-                    padding: 8px 12px; 
-                    border: 1px solid ${i === historyCurrentPage ? '#7B1D3A' : '#D1D5DB'}; 
-                    background: ${i === historyCurrentPage ? '#7B1D3A' : 'white'}; 
-                    color: ${i === historyCurrentPage ? 'white' : '#374151'};
-                    border-radius: 6px; 
-                    cursor: pointer; 
-                    font-size: 13px;
-                    font-weight: ${i === historyCurrentPage ? '600' : '400'};
-                `;
-                container.appendChild(btn);
-            }
-        }
-
-        function goToHistoryPage(action) {
-            const perPage = parseInt(document.getElementById('historyPerPage').value);
-            const totalPages = Math.ceil(filteredHistoryData.length / perPage);
-            
-            if (typeof action === 'number') {
-                historyCurrentPage = action;
-            } else {
-                switch(action) {
-                    case 'first': historyCurrentPage = 1; break;
-                    case 'prev': historyCurrentPage = Math.max(1, historyCurrentPage - 1); break;
-                    case 'next': historyCurrentPage = Math.min(totalPages, historyCurrentPage + 1); break;
-                    case 'last': historyCurrentPage = totalPages; break;
-                }
-            }
-            
-            renderAttendanceHistory(perPage);
-        }
-
-        // Initialize attendance history on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            // Pre-populate the table with initial data
-            if (attendanceHistoryData.length > 0) {
-                filterAttendanceHistory();
-            }
-        });
 
         // Approve overtime function
         function approveOvertime(attendanceId) {
@@ -17040,13 +17157,9 @@ University of the Philippines Cebu
         }
 
         function closeSchoolManagementModal() {
-            const modal = document.getElementById('schoolManagementModal');
-            modal.classList.add('closing');
-            setTimeout(() => {
-                modal.classList.remove('active', 'closing');
-                document.body.style.overflow = 'auto';
-                cancelSchoolForm();
-            }, 300);
+            document.getElementById('schoolManagementModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+            cancelSchoolForm();
         }
 
         function openAddSchoolForm() {
@@ -17122,71 +17235,7 @@ University of the Philippines Cebu
             }
         });
 
-        async function toggleSchoolStatus(schoolId, schoolName, currentStatus) {
-            // Open confirmation modal
-            document.getElementById('toggleSchoolId').value = schoolId;
-            document.getElementById('toggleSchoolCurrentStatus').value = currentStatus;
-            document.getElementById('toggleSchoolName').textContent = schoolName;
-            
-            const isDeactivating = currentStatus === 'Active';
-            const modal = document.getElementById('toggleSchoolStatusModal');
-            const header = document.getElementById('toggleSchoolStatusHeader');
-            const icon = document.getElementById('toggleSchoolStatusIcon');
-            const title = document.getElementById('toggleSchoolStatusTitle');
-            const warning = document.getElementById('toggleSchoolStatusWarning');
-            const description = document.getElementById('toggleSchoolStatusDescription');
-            const confirmBtn = document.getElementById('toggleSchoolStatusConfirmBtn');
-            const btnText = document.getElementById('toggleSchoolStatusBtnText');
-            
-            if (isDeactivating) {
-                header.style.background = 'linear-gradient(135deg, #DC2626 0%, #B91C1C 100%)';
-                icon.className = 'fas fa-ban';
-                title.textContent = 'Deactivate School';
-                warning.style.background = '#FEE2E2';
-                warning.querySelector('p').style.color = '#991B1B';
-                warning.querySelector('p').innerHTML = '<i class="fas fa-exclamation-triangle" style="margin-right: 8px;"></i>You are about to deactivate <strong>' + schoolName + '</strong>.';
-                description.textContent = 'All interns from this school will be unable to login until the school is reactivated.';
-                confirmBtn.style.background = 'linear-gradient(135deg, #DC2626, #B91C1C)';
-                btnText.textContent = 'Deactivate School';
-                confirmBtn.querySelector('i').className = 'fas fa-ban';
-            } else {
-                header.style.background = 'linear-gradient(135deg, #059669 0%, #047857 100%)';
-                icon.className = 'fas fa-check-circle';
-                title.textContent = 'Activate School';
-                warning.style.background = '#D1FAE5';
-                warning.querySelector('p').style.color = '#065F46';
-                warning.querySelector('p').innerHTML = '<i class="fas fa-check-circle" style="margin-right: 8px;"></i>You are about to activate <strong>' + schoolName + '</strong>.';
-                description.textContent = 'All interns from this school will be able to login again.';
-                confirmBtn.style.background = 'linear-gradient(135deg, #059669, #047857)';
-                btnText.textContent = 'Activate School';
-                confirmBtn.querySelector('i').className = 'fas fa-check-circle';
-            }
-            
-            modal.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeToggleSchoolStatusModal() {
-            const modal = document.getElementById('toggleSchoolStatusModal');
-            modal.classList.add('closing');
-            setTimeout(() => {
-                modal.classList.remove('active', 'closing');
-                document.body.style.overflow = 'auto';
-            }, 300);
-        }
-
-        async function confirmToggleSchoolStatus() {
-            const schoolId = document.getElementById('toggleSchoolId').value;
-            const confirmBtn = document.getElementById('toggleSchoolStatusConfirmBtn');
-            const btnText = document.getElementById('toggleSchoolStatusBtnText');
-            const originalText = btnText.textContent;
-            const originalIcon = confirmBtn.querySelector('i').className;
-            
-            // Set loading state
-            confirmBtn.disabled = true;
-            confirmBtn.querySelector('i').className = 'fas fa-spinner fa-spin';
-            btnText.textContent = 'Processing...';
-            
+        async function toggleSchoolStatus(schoolId) {
             try {
                 const response = await fetch(`/admin/schools/${schoolId}/toggle-status`, {
                     method: 'POST',
@@ -17199,22 +17248,13 @@ University of the Philippines Cebu
                 const result = await response.json();
 
                 if (result.success) {
-                    closeToggleSchoolStatusModal();
                     showToast('success', 'Success', result.message);
                     setTimeout(() => location.reload(), 1000);
                 } else {
-                    // Reset button state
-                    confirmBtn.disabled = false;
-                    confirmBtn.querySelector('i').className = originalIcon;
-                    btnText.textContent = originalText;
                     showToast('error', 'Error', result.message || 'An error occurred');
                 }
             } catch (error) {
                 console.error('Error:', error);
-                // Reset button state
-                confirmBtn.disabled = false;
-                confirmBtn.querySelector('i').className = originalIcon;
-                btnText.textContent = originalText;
                 showToast('error', 'Error', 'An error occurred');
             }
         }
@@ -17244,65 +17284,6 @@ University of the Philippines Cebu
             } catch (error) {
                 console.error('Error:', error);
                 showToast('error', 'Error', 'An error occurred while deleting the school');
-            }
-        }
-
-        async function accomplishSchool(schoolId, schoolName) {
-            // Open confirmation modal
-            document.getElementById('accomplishSchoolId').value = schoolId;
-            document.getElementById('accomplishSchoolName').textContent = schoolName;
-            document.getElementById('accomplishSchoolModal').classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeAccomplishSchoolModal() {
-            const modal = document.getElementById('accomplishSchoolModal');
-            modal.classList.add('closing');
-            setTimeout(() => {
-                modal.classList.remove('active', 'closing');
-                document.body.style.overflow = 'auto';
-            }, 300);
-        }
-
-        async function confirmAccomplishSchool() {
-            const schoolId = document.getElementById('accomplishSchoolId').value;
-            const confirmBtn = document.getElementById('accomplishSchoolConfirmBtn');
-            const btnText = document.getElementById('accomplishSchoolBtnText');
-            
-            // Set loading state
-            confirmBtn.disabled = true;
-            confirmBtn.querySelector('i').className = 'fas fa-spinner fa-spin';
-            btnText.textContent = 'Processing...';
-
-            try {
-                const response = await fetch(`/admin/schools/${schoolId}/accomplish`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                        'Accept': 'application/json'
-                    }
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    closeAccomplishSchoolModal();
-                    showToast('success', 'Success', result.message);
-                    setTimeout(() => location.reload(), 1500);
-                } else {
-                    // Reset button state
-                    confirmBtn.disabled = false;
-                    confirmBtn.querySelector('i').className = 'fas fa-trophy';
-                    btnText.textContent = 'Mark as Completed';
-                    showToast('error', 'Error', result.message || 'An error occurred');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                // Reset button state
-                confirmBtn.disabled = false;
-                confirmBtn.querySelector('i').className = 'fas fa-trophy';
-                btnText.textContent = 'Mark as Completed';
-                showToast('error', 'Error', 'An error occurred while processing the request');
             }
         }
 
