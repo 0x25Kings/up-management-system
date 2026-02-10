@@ -89,9 +89,10 @@
 
         .sidebar-logo h3 {
             color: var(--white);
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 700;
             margin-bottom: 8px;
+            opacity: 0.85;
         }
 
         .sidebar-logo p {
@@ -1263,7 +1264,7 @@
 
         <div class="sidebar-logo">
             <img src="{{ asset('images/UP logo.png') }}" alt="UP Cebu Logo">
-            <h3>UP Cebu Incubator</h3>
+            <h3>University of the Philippines Cebu</h3>
             <p>Team Leader Portal</p>
         </div>
 
@@ -1350,14 +1351,27 @@
 
             <div style="flex-grow: 1;"></div>
 
-            <form action="{{ route('admin.logout') }}" method="POST" id="logoutForm">
+            @php
+                $linkedIntern = \App\Models\Intern::where('name', $user->name)
+                    ->where('reference_code', 'like', 'INT-%')
+                    ->where('approval_status', 'approved')
+                    ->first();
+                if (!$linkedIntern) {
+                    $linkedIntern = \App\Models\Intern::where('email', $user->email)
+                        ->where('reference_code', 'like', 'INT-%')
+                        ->where('approval_status', 'approved')
+                        ->first();
+                }
+            @endphp
+            @if($linkedIntern)
+            <form action="{{ route('team-leader.switch-to-intern') }}" method="POST" id="switchAccountForm">
                 @csrf
-                <input type="hidden" name="redirect_to" value="intern">
             </form>
-            <button type="button" class="logout-btn" onclick="document.getElementById('logoutForm').submit()">
-                <i class="fas fa-sign-out-alt"></i>
-                <span>Logout</span>
+            <button type="button" class="logout-btn" onclick="document.getElementById('switchAccountForm').submit()" style="background: rgba(255, 191, 0, 0.15); border-color: rgba(255, 191, 0, 0.3); color: #FFBF00;">
+                <i class="fas fa-exchange-alt"></i>
+                <span>Switch Account</span>
             </button>
+            @endif
         </div>
     </div>
 
@@ -1401,6 +1415,14 @@
                                 <i class="fas fa-user-circle"></i>
                                 My Profile
                             </a>
+                            <form action="{{ route('admin.logout') }}" method="POST" style="margin: 0;">
+                                @csrf
+                                <input type="hidden" name="redirect_to" value="intern">
+                                <button type="submit" class="tl-profile-menu-item" style="color: #DC2626;">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    Logout
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>

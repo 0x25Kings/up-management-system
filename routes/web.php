@@ -327,4 +327,7 @@ Route::middleware(['maintenance', 'team.leader'])->prefix('team-leader')->name('
     // Blocked Dates Management
     Route::post('/blocked-dates', [BlockedDateController::class, 'store'])->name('blocked-dates.store');
     Route::delete('/blocked-dates/{blockedDate}', [BlockedDateController::class, 'destroy'])->name('blocked-dates.destroy');
+
+    // Switch to Intern Portal
+    Route::post('/switch-to-intern', [TeamLeaderController::class, 'switchToIntern'])->name('switch-to-intern');
 });

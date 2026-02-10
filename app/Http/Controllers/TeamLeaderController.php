@@ -936,4 +936,43 @@ class TeamLeaderController extends Controller
             'image_url' => asset('storage/' . $path)
         ]);
     }
+
+    /**
+     * Switch to intern portal for the linked intern account
+     */
+    public function switchToIntern(Request $request)
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        // Find the linked intern by name (full name match) with reference code starting with INT
+        $intern = Intern::where('name', $user->name)
+            ->where('reference_code', 'like', 'INT-%')
+            ->where('approval_status', 'approved')
+            ->first();
+
+        // If not found by name, try by email
+        if (!$intern) {
+            $intern = Intern::where('email', $user->email)
+                ->where('reference_code', 'like', 'INT-%')
+                ->where('approval_status', 'approved')
+                ->first();
+        }
+
+        if (!$intern) {
+            return redirect()->back()
+                ->with('error', 'No linked intern account found. Please contact the administrator.');
+        }
+
+        // Logout from team leader and set intern session
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        // Set intern session
+        $request->session()->put('intern_id', $intern->id);
+
+        return redirect()->route('intern.portal')
+            ->with('success', 'Switched to Intern Portal. Welcome, ' . $intern->name . '!');
+    }
 }

@@ -1546,6 +1546,13 @@
                                 <i class="fas fa-user-circle"></i>
                                 My Profile
                             </a>
+                            <form action="{{ route('intern.clear') }}" method="POST" style="margin: 0;">
+                                @csrf
+                                <button type="submit" class="intern-profile-menu-item" style="color: #DC2626;">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    Logout
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
