@@ -1959,6 +1959,20 @@
             min-width: max-content;
         }
 
+        /* Table Pagination Styles */
+        .table-pagination button {
+            transition: all 0.2s ease;
+        }
+
+        .table-pagination button:hover:not(:disabled) {
+            background: #E5E7EB !important;
+        }
+
+        .table-pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed !important;
+        }
+
         .table-header {
             padding: 20px 24px;
             border-bottom: 1px solid #E5E7EB;
@@ -3814,6 +3828,16 @@
             animation: none !important;
             transition: none !important;
         }
+
+        /* Pulse animation for email pending badge */
+        @keyframes pulse-amber {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4);
+            }
+            50% {
+                box-shadow: 0 0 0 6px rgba(245, 158, 11, 0);
+            }
+        }
     </style>
 </head>
 <body>
@@ -4458,59 +4482,60 @@
                                 </span>
                             </div>
                         </div>
-                        <table>
+                        <div style="overflow-x: auto;">
+                        <table style="min-width: 1000px;">
                             <thead>
                                 <tr>
-                                    <th>Intern Name</th>
-                                    <th>School</th>
-                                    <th>Time In</th>
-                                    <th>Time Out</th>
-                                    <th>Hours Today</th>
-                                    <th>Over/Under</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
+                                    <th style="min-width: 180px; white-space: nowrap;">Intern Name</th>
+                                    <th style="min-width: 150px; white-space: nowrap;">School</th>
+                                    <th style="min-width: 100px; white-space: nowrap;">Time In</th>
+                                    <th style="min-width: 100px; white-space: nowrap;">Time Out</th>
+                                    <th style="min-width: 100px; white-space: nowrap;">Hours Today</th>
+                                    <th style="min-width: 140px; white-space: nowrap;">Over/Under</th>
+                                    <th style="min-width: 80px; white-space: nowrap;">Status</th>
+                                    <th style="min-width: 120px; white-space: nowrap;">Action</th>
                                 </tr>
                             </thead>
                             <tbody id="dailyHoursTableBody">
                                 @forelse($todayAttendances ?? [] as $attendance)
                                 @php /** @var \App\Models\Attendance $attendance */ @endphp
                                 <tr data-attendance-id="{{ $attendance->id }}" data-time-in="{{ $attendance->raw_time_in }}" data-timed-out="{{ $attendance->time_out ? 'true' : 'false' }}">
-                                    <td>
+                                    <td style="white-space: nowrap;">
                                         <div style="display: flex; align-items: center; gap: 12px;">
-                                            <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #FFBF00, #FFA500); display: flex; align-items: center; justify-content: center; color: #7B1D3A; font-weight: 700; overflow: hidden;">
+                                            <div style="width: 36px; height: 36px; min-width: 36px; border-radius: 50%; background: linear-gradient(135deg, #FFBF00, #FFA500); display: flex; align-items: center; justify-content: center; color: #7B1D3A; font-weight: 700; overflow: hidden;">
                                                 @if($attendance->intern->profile_picture ?? null)
                                                     <img src="{{ asset('storage/' . $attendance->intern->profile_picture) }}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
                                                 @else
                                                     {{ strtoupper(substr($attendance->intern->name ?? 'U', 0, 1)) }}
                                                 @endif
                                             </div>
-                                            <div class="intern-info">
+                                            <div class="intern-info" style="white-space: nowrap;">
                                                 <span class="intern-name" style="font-weight: 600;">{{ $attendance->intern->name ?? 'Unknown' }}</span>
                                                 <span class="intern-school" style="font-size: 12px; color: #6B7280; display: block;">{{ $attendance->intern->reference_code ?? '' }}</span>
                                             </div>
                                         </div>
                                     </td>
-                                    <td>{{ $attendance->intern->school ?? 'N/A' }}</td>
-                                    <td>
-                                        <span class="time-in-out-badge time-in" style="background: #D1FAE5; color: #065F46; padding: 4px 10px; border-radius: 6px; font-size: 13px; font-weight: 600;">
+                                    <td style="white-space: nowrap;">{{ $attendance->intern->school ?? 'N/A' }}</td>
+                                    <td style="white-space: nowrap;">
+                                        <span class="time-in-out-badge time-in" style="background: #D1FAE5; color: #065F46; padding: 4px 10px; border-radius: 6px; font-size: 13px; font-weight: 600; white-space: nowrap;">
                                             <i class="fas fa-sign-in-alt"></i> {{ $attendance->formatted_time_in }}
                                         </span>
                                     </td>
-                                    <td>
+                                    <td style="white-space: nowrap;">
                                         @if($attendance->time_out)
-                                        <span class="time-in-out-badge time-out" style="background: #FEE2E2; color: #991B1B; padding: 4px 10px; border-radius: 6px; font-size: 13px; font-weight: 600;">
+                                        <span class="time-in-out-badge time-out" style="background: #FEE2E2; color: #991B1B; padding: 4px 10px; border-radius: 6px; font-size: 13px; font-weight: 600; white-space: nowrap;">
                                             <i class="fas fa-sign-out-alt"></i> {{ $attendance->formatted_time_out }}
                                         </span>
                                         @else
-                                        <span style="color: #9CA3AF; font-style: italic;">Still working...</span>
+                                        <span style="color: #9CA3AF; font-style: italic; white-space: nowrap;">Still working...</span>
                                         @endif
                                     </td>
-                                    <td>
+                                    <td style="white-space: nowrap;">
                                         <strong style="font-size: 16px;" id="hours-{{ $attendance->id }}">
                                             {{ number_format($attendance->current_hours_worked, 2) }} hrs
                                         </strong>
                                     </td>
-                                    <td>
+                                    <td style="white-space: nowrap;">
                                         @if($attendance->time_out)
                                             @if($attendance->hasUndertime())
                                                 <span style="background: #FEE2E2; color: #991B1B; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
@@ -4535,17 +4560,17 @@
                                             <span style="color: #9CA3AF; font-size: 12px;">--</span>
                                         @endif
                                     </td>
-                                    <td>
-                                        <span class="hours-badge" style="padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
+                                    <td style="white-space: nowrap;">
+                                        <span class="hours-badge" style="padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap;
                                             @if($attendance->status === 'Present') background: #D1FAE5; color: #065F46;
                                             @elseif($attendance->status === 'Late') background: #FEF3C7; color: #92400E;
                                             @else background: #FEE2E2; color: #991B1B; @endif">
                                             {{ $attendance->status }}
                                         </span>
                                     </td>
-                                    <td>
+                                    <td style="white-space: nowrap;">
                                         @if($attendance->isOvertimePending())
-                                            <button onclick="approveOvertime({{ $attendance->id }})" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;">
+                                            <button onclick="approveOvertime({{ $attendance->id }})" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap;">
                                                 <i class="fas fa-check"></i> Approve OT
                                             </button>
                                         @else
@@ -4555,7 +4580,7 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="6" style="text-align: center; padding: 40px; color: #9CA3AF;">
+                                    <td colspan="8" style="text-align: center; padding: 40px; color: #9CA3AF;">
                                         <i class="fas fa-clock" style="font-size: 40px; margin-bottom: 12px; display: block;"></i>
                                         No attendance records for today yet.
                                     </td>
@@ -4563,10 +4588,24 @@
                                 @endforelse
                             </tbody>
                         </table>
+                        </div>
+                        <!-- Pagination for Today's Attendance -->
+                        <div id="dailyHoursPagination" class="table-pagination" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; border-top: 1px solid #E5E7EB;">
+                            <div style="font-size: 14px; color: #6B7280;">
+                                Showing <span id="dailyShowingStart">1</span>-<span id="dailyShowingEnd">8</span> of <span id="dailyTotalRecords">0</span> records
+                            </div>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <button onclick="changeDailyPage('prev')" id="dailyPrevBtn" style="background: #F3F4F6; border: 1px solid #E5E7EB; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 4px;" disabled>
+                                    <i class="fas fa-chevron-left"></i> Previous
+                                </button>
+                                <div id="dailyPageNumbers" style="display: flex; gap: 4px;"></div>
+                                <button onclick="changeDailyPage('next')" id="dailyNextBtn" style="background: #F3F4F6; border: 1px solid #E5E7EB; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 4px;">
+                                    Next <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
-
-                <!-- Time In/Out Records -->
                 <!-- Attendance History -->
                 <div id="attendance-history" class="time-tab-content" style="display: none;">
                     <div class="table-card">
@@ -4576,76 +4615,77 @@
                                 {{ ($attendanceHistory ?? collect())->count() }} Records
                             </span>
                         </div>
-                        <table>
+                        <div style="overflow-x: auto;">
+                        <table style="min-width: 1100px;">
                             <thead>
                                 <tr>
-                                    <th>Date</th>
-                                    <th>Intern Name</th>
-                                    <th>School</th>
-                                    <th>Time In</th>
-                                    <th>Time Out</th>
-                                    <th>Hours Worked</th>
-                                    <th>Over/Under</th>
-                                    <th>Status</th>
+                                    <th style="min-width: 120px; white-space: nowrap;">Date</th>
+                                    <th style="min-width: 180px; white-space: nowrap;">Intern Name</th>
+                                    <th style="min-width: 150px; white-space: nowrap;">School</th>
+                                    <th style="min-width: 100px; white-space: nowrap;">Time In</th>
+                                    <th style="min-width: 100px; white-space: nowrap;">Time Out</th>
+                                    <th style="min-width: 110px; white-space: nowrap;">Hours Worked</th>
+                                    <th style="min-width: 140px; white-space: nowrap;">Over/Under</th>
+                                    <th style="min-width: 80px; white-space: nowrap;">Status</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="historyTableBody">
                                 @forelse($attendanceHistory ?? [] as $attendance)
                                 @php /** @var \App\Models\Attendance $attendance */ @endphp
                                 <tr>
-                                    <td>
+                                    <td style="white-space: nowrap;">
                                         <div style="font-weight: 600;">{{ $attendance->date ? \Carbon\Carbon::parse($attendance->date)->format('M d, Y') : 'N/A' }}</div>
                                         <div style="font-size: 12px; color: #6B7280;">{{ $attendance->date ? \Carbon\Carbon::parse($attendance->date)->format('l') : '' }}</div>
                                     </td>
-                                    <td>
+                                    <td style="white-space: nowrap;">
                                         <div style="display: flex; align-items: center; gap: 12px;">
-                                            <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #FFBF00, #FFA500); display: flex; align-items: center; justify-content: center; color: #7B1D3A; font-weight: 700; overflow: hidden;">
+                                            <div style="width: 36px; height: 36px; min-width: 36px; border-radius: 50%; background: linear-gradient(135deg, #FFBF00, #FFA500); display: flex; align-items: center; justify-content: center; color: #7B1D3A; font-weight: 700; overflow: hidden;">
                                                 @if($attendance->intern->profile_picture ?? null)
                                                     <img src="{{ asset('storage/' . $attendance->intern->profile_picture) }}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
                                                 @else
                                                     {{ strtoupper(substr($attendance->intern->name ?? 'U', 0, 1)) }}
                                                 @endif
                                             </div>
-                                            <div>
+                                            <div style="white-space: nowrap;">
                                                 <span style="font-weight: 600;">{{ $attendance->intern->name ?? 'Unknown' }}</span>
                                                 <div style="font-size: 12px; color: #6B7280;">{{ $attendance->intern->reference_code ?? '' }}</div>
                                             </div>
                                         </div>
                                     </td>
-                                    <td>{{ $attendance->intern->school ?? 'N/A' }}</td>
-                                    <td>
-                                        <span style="background: #D1FAE5; color: #065F46; padding: 4px 10px; border-radius: 6px; font-size: 13px; font-weight: 500;">
+                                    <td style="white-space: nowrap;">{{ $attendance->intern->school ?? 'N/A' }}</td>
+                                    <td style="white-space: nowrap;">
+                                        <span style="background: #D1FAE5; color: #065F46; padding: 4px 10px; border-radius: 6px; font-size: 13px; font-weight: 500; white-space: nowrap;">
                                             <i class="fas fa-sign-in-alt" style="margin-right: 4px;"></i>{{ $attendance->formatted_time_in }}
                                         </span>
                                     </td>
-                                    <td>
+                                    <td style="white-space: nowrap;">
                                         @if($attendance->time_out)
                                         <span style="background: #FEE2E2; color: #991B1B; padding: 4px 10px; border-radius: 6px; font-size: 13px; font-weight: 500;">
                                             <i class="fas fa-sign-out-alt" style="margin-right: 4px;"></i>{{ $attendance->formatted_time_out }}
                                         </span>
                                         @else
-                                        <span style="color: #9CA3AF; font-style: italic;">Not yet</span>
+                                        <span style="color: #9CA3AF; font-style: italic; white-space: nowrap;">Not yet</span>
                                         @endif
                                     </td>
-                                    <td><strong style="color: #7B1D3A;">{{ number_format((float)($attendance->hours_worked ?? 0), 2) }} hrs</strong></td>
-                                    <td>
+                                    <td style="white-space: nowrap;"><strong style="color: #7B1D3A;">{{ number_format((float)($attendance->hours_worked ?? 0), 2) }} hrs</strong></td>
+                                    <td style="white-space: nowrap;">
                                         @if($attendance->time_out)
                                             @if($attendance->hasUndertime())
-                                                <span style="background: #FEE2E2; color: #991B1B; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                                                <span style="background: #FEE2E2; color: #991B1B; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap;">
                                                     <i class="fas fa-arrow-down"></i> -{{ number_format((float)($attendance->undertime_hours ?? 0), 2) }} hrs
                                                 </span>
                                             @elseif($attendance->hasOvertime())
                                                 @if($attendance->overtime_approved)
-                                                    <span style="background: #D1FAE5; color: #065F46; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                                                    <span style="background: #D1FAE5; color: #065F46; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap;">
                                                         <i class="fas fa-check-circle"></i> +{{ number_format((float)($attendance->overtime_hours ?? 0), 2) }} hrs
                                                     </span>
                                                 @else
-                                                    <span style="background: #FEF3C7; color: #92400E; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                                                    <span style="background: #FEF3C7; color: #92400E; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap;">
                                                         <i class="fas fa-clock"></i> +{{ number_format((float)($attendance->overtime_hours ?? 0), 2) }} hrs (Pending)
                                                     </span>
                                                 @endif
                                             @else
-                                                <span style="background: #DBEAFE; color: #1E40AF; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                                                <span style="background: #DBEAFE; color: #1E40AF; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap;">
                                                     <i class="fas fa-check"></i> On Target
                                                 </span>
                                             @endif
@@ -4653,8 +4693,8 @@
                                             <span style="color: #9CA3AF; font-size: 12px;">--</span>
                                         @endif
                                     </td>
-                                    <td>
-                                        <span style="padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
+                                    <td style="white-space: nowrap;">
+                                        <span style="padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap;
                                             @if($attendance->status === 'Present') background: #D1FAE5; color: #065F46;
                                             @elseif($attendance->status === 'Late') background: #FEF3C7; color: #92400E;
                                             @else background: #FEE2E2; color: #991B1B; @endif">
@@ -4672,6 +4712,22 @@
                                 @endforelse
                             </tbody>
                         </table>
+                        </div>
+                        <!-- Pagination for Attendance History -->
+                        <div id="historyPagination" class="table-pagination" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; border-top: 1px solid #E5E7EB;">
+                            <div style="font-size: 14px; color: #6B7280;">
+                                Showing <span id="historyShowingStart">1</span>-<span id="historyShowingEnd">8</span> of <span id="historyTotalRecords">0</span> records
+                            </div>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <button onclick="changeHistoryPage('prev')" id="historyPrevBtn" style="background: #F3F4F6; border: 1px solid #E5E7EB; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 4px;" disabled>
+                                    <i class="fas fa-chevron-left"></i> Previous
+                                </button>
+                                <div id="historyPageNumbers" style="display: flex; gap: 4px;"></div>
+                                <button onclick="changeHistoryPage('next')" id="historyNextBtn" style="background: #F3F4F6; border: 1px solid #E5E7EB; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 4px;">
+                                    Next <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -4681,55 +4737,56 @@
                         <div class="table-header">
                             <h3 class="table-title">Comprehensive Hours Summary - All Interns</h3>
                         </div>
-                        <table>
+                        <div style="overflow-x: auto;">
+                        <table style="min-width: 950px;">
                             <thead>
                                 <tr>
-                                    <th>Intern Name</th>
-                                    <th>School</th>
-                                    <th>Required Hours</th>
-                                    <th>Completed Hours</th>
-                                    <th>Remaining Hours</th>
-                                    <th>Completion %</th>
-                                    <th>Status</th>
+                                    <th style="min-width: 180px; white-space: nowrap;">Intern Name</th>
+                                    <th style="min-width: 150px; white-space: nowrap;">School</th>
+                                    <th style="min-width: 110px; white-space: nowrap;">Required Hours</th>
+                                    <th style="min-width: 120px; white-space: nowrap;">Completed Hours</th>
+                                    <th style="min-width: 120px; white-space: nowrap;">Remaining Hours</th>
+                                    <th style="min-width: 140px; white-space: nowrap;">Completion %</th>
+                                    <th style="min-width: 100px; white-space: nowrap;">Status</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="summaryTableBody">
                                 @forelse($interns ?? [] as $intern)
                                 @php /** @var \App\Models\Intern $intern */ @endphp
                                 <tr>
-                                    <td>
+                                    <td style="white-space: nowrap;">
                                         <div style="display: flex; align-items: center; gap: 12px;">
-                                            <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #FFBF00, #FFA500); display: flex; align-items: center; justify-content: center; color: #7B1D3A; font-weight: 700; overflow: hidden;">
+                                            <div style="width: 36px; height: 36px; min-width: 36px; border-radius: 50%; background: linear-gradient(135deg, #FFBF00, #FFA500); display: flex; align-items: center; justify-content: center; color: #7B1D3A; font-weight: 700; overflow: hidden;">
                                                 @if($intern->profile_picture ?? null)
                                                     <img src="{{ asset('storage/' . $intern->profile_picture) }}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
                                                 @else
                                                     {{ strtoupper(substr($intern->name, 0, 1)) }}
                                                 @endif
                                             </div>
-                                            <span style="font-weight: 600;">{{ $intern->name }}</span>
+                                            <span style="font-weight: 600; white-space: nowrap;">{{ $intern->name }}</span>
                                         </div>
                                     </td>
-                                    <td>{{ $intern->school }}</td>
-                                    <td>{{ $intern->required_hours }} hrs</td>
-                                    <td><strong style="color: #10B981;">{{ $intern->completed_hours }} hrs</strong></td>
-                                    <td style="@if($intern->remaining_hours > 200) color: #EF4444; font-weight: 600; @endif">
+                                    <td style="white-space: nowrap;">{{ $intern->school }}</td>
+                                    <td style="white-space: nowrap;">{{ $intern->required_hours }} hrs</td>
+                                    <td style="white-space: nowrap;"><strong style="color: #10B981;">{{ $intern->completed_hours }} hrs</strong></td>
+                                    <td style="white-space: nowrap; @if($intern->remaining_hours > 200) color: #EF4444; font-weight: 600; @endif">
                                         {{ $intern->remaining_hours }} hrs
                                     </td>
-                                    <td>
+                                    <td style="white-space: nowrap;">
                                         <div style="display: flex; align-items: center; gap: 8px;">
-                                            <div class="progress-bar-container" style="flex: 1; max-width: 80px;">
+                                            <div class="progress-bar-container" style="flex: 1; max-width: 80px; min-width: 60px;">
                                                 <div class="progress-bar" style="width: {{ $intern->progress_percentage }}%; @if($intern->progress_percentage < 50) background: #EF4444; @endif"></div>
                                             </div>
                                             <span style="font-weight: 600;">{{ $intern->progress_percentage }}%</span>
                                         </div>
                                     </td>
-                                    <td>
+                                    <td style="white-space: nowrap;">
                                         @if($intern->progress_percentage >= 75)
-                                        <span class="status-badge status-active">On Track</span>
+                                        <span class="status-badge status-active" style="white-space: nowrap;">On Track</span>
                                         @elseif($intern->progress_percentage >= 50)
-                                        <span class="status-badge status-pending">Moderate</span>
+                                        <span class="status-badge status-pending" style="white-space: nowrap;">Moderate</span>
                                         @else
-                                        <span class="status-badge" style="background: #FEE2E2; color: #991B1B;">At Risk</span>
+                                        <span class="status-badge" style="background: #FEE2E2; color: #991B1B; white-space: nowrap;">At Risk</span>
                                         @endif
                                     </td>
                                 </tr>
@@ -4743,6 +4800,22 @@
                                 @endforelse
                             </tbody>
                         </table>
+                        </div>
+                        <!-- Pagination for Hours Summary -->
+                        <div id="summaryPagination" class="table-pagination" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; border-top: 1px solid #E5E7EB;">
+                            <div style="font-size: 14px; color: #6B7280;">
+                                Showing <span id="summaryShowingStart">1</span>-<span id="summaryShowingEnd">8</span> of <span id="summaryTotalRecords">0</span> records
+                            </div>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <button onclick="changeSummaryPage('prev')" id="summaryPrevBtn" style="background: #F3F4F6; border: 1px solid #E5E7EB; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 4px;" disabled>
+                                    <i class="fas fa-chevron-left"></i> Previous
+                                </button>
+                                <div id="summaryPageNumbers" style="display: flex; gap: 4px;"></div>
+                                <button onclick="changeSummaryPage('next')" id="summaryNextBtn" style="background: #F3F4F6; border: 1px solid #E5E7EB; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 4px;">
+                                    Next <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -6635,18 +6708,18 @@
                     </script>
                     @endif
 
-                    <div class="table-card">
-                        <table>
+                    <div class="table-card" style="overflow-x: auto;">
+                        <table style="min-width: 1000px;">
                             <thead>
                                 <tr>
-                                    <th>Date & Time</th>
-                                    <th>Agency</th>
-                                    <th>Purpose</th>
-                                    <th>Contact Person</th>
-                                    <th>Contact Info</th>
-                                    <th>Notes</th>
-                                    <th>Attachment</th>
-                                    <th>Actions</th>
+                                    <th style="min-width: 130px; white-space: nowrap;">Date & Time</th>
+                                    <th style="min-width: 120px; white-space: nowrap;">Agency</th>
+                                    <th style="min-width: 120px; white-space: nowrap;">Purpose</th>
+                                    <th style="min-width: 120px; white-space: nowrap;">Contact Person</th>
+                                    <th style="min-width: 140px; white-space: nowrap;">Contact Info</th>
+                                    <th style="min-width: 150px; white-space: nowrap;">Notes</th>
+                                    <th style="min-width: 80px; white-space: nowrap;">Attachment</th>
+                                    <th style="min-width: 120px; white-space: nowrap;">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="pendingBookingsBody">
@@ -6685,15 +6758,17 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <button class="btn-action btn-view" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? asset('storage/' . $booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})" title="View Details">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                        <button class="btn-action btn-edit" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? asset('storage/' . $booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})" title="Approve">
-                                            <i class="fas fa-check"></i>
-                                        </button>
-                                        <button class="btn-action btn-delete" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? asset('storage/' . $booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})" title="Reject">
-                                            <i class="fas fa-times"></i>
-                                        </button>
+                                        <div style="display: flex; gap: 4px; align-items: center;">
+                                            <button class="btn-action btn-view" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? asset('storage/' . $booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})" title="View Details">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn-action btn-edit" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? asset('storage/' . $booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})" title="Approve">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                            <button class="btn-action btn-delete" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? asset('storage/' . $booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})" title="Reject">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                                 @empty
@@ -6706,6 +6781,21 @@
                                 @endforelse
                             </tbody>
                         </table>
+                    </div>
+                    <!-- Pagination for Pending Bookings -->
+                    <div id="pendingBookingsPagination" class="pagination-controls" style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding: 12px 16px; background: #F9FAFB; border-radius: 8px;">
+                        <div style="font-size: 14px; color: #6B7280;">
+                            Showing <span id="pendingShowingStart">1</span> to <span id="pendingShowingEnd">8</span> of <span id="pendingTotalItems">0</span> entries
+                        </div>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <button id="pendingPrevBtn" onclick="pendingPrevPage()" style="padding: 8px 12px; border: 1px solid #D1D5DB; border-radius: 6px; background: white; cursor: pointer; font-size: 14px;">
+                                <i class="fas fa-chevron-left"></i> Previous
+                            </button>
+                            <span id="pendingPageInfo" style="padding: 8px 16px; background: #7B1D3A; color: white; border-radius: 6px; font-weight: 600;">1 / 1</span>
+                            <button id="pendingNextBtn" onclick="pendingNextPage()" style="padding: 8px 12px; border: 1px solid #D1D5DB; border-radius: 6px; background: white; cursor: pointer; font-size: 14px;">
+                                Next <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -6809,7 +6899,7 @@
 
                 <!-- All Bookings Tab -->
                 <div id="allBookingsTab" class="booking-tab-content" style="display: none;">
-                    <div class="filter-bar" style="margin-bottom: 16px;">
+                    <div class="filter-bar" style="margin-bottom: 16px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
                         <div class="search-box" style="max-width: 300px;">
                             <i class="fas fa-search"></i>
                             <input type="text" placeholder="Search bookings..." id="searchBookings" onkeyup="filterBookings()">
@@ -6820,31 +6910,32 @@
                             <option value="approved">Approved</option>
                             <option value="rejected">Rejected</option>
                         </select>
+                        <select class="filter-select" id="filterEmailStatus" onchange="filterBookings()" style="min-width: 140px;">
+                            <option value="">All Email Status</option>
+                            <option value="not-sent">Not Sent</option>
+                            <option value="sent">Sent</option>
+                        </select>
                     </div>
-                    <div class="table-card">
-                        <table>
+                    <div class="table-card" style="overflow-x: auto;">
+                        <table style="min-width: 1100px;">
                             <thead>
                                 <tr>
-                                    <th>Date</th>
-                                    <th>Time</th>
-                                    <th>Agency</th>
-                                    <th>Purpose</th>
-                                    <th>Contact</th>
-                                    <th>Status</th>
-                                    <th>Attachment</th>
-                                    <th>Actions</th>
+                                    <th style="min-width: 120px; white-space: nowrap;">Date</th>
+                                    <th style="min-width: 80px; white-space: nowrap;">Time</th>
+                                    <th style="min-width: 120px; white-space: nowrap;">Agency</th>
+                                    <th style="min-width: 120px; white-space: nowrap;">Purpose</th>
+                                    <th style="min-width: 140px; white-space: nowrap;">Contact</th>
+                                    <th style="min-width: 100px; white-space: nowrap;">Status</th>
+                                    <th style="min-width: 100px; white-space: nowrap;">Email Status</th>
+                                    <th style="min-width: 80px; white-space: nowrap;">Attachment</th>
+                                    <th style="min-width: 150px; white-space: nowrap;">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="allBookingsBody">
                                 @forelse($allBookings ?? [] as $booking)
-                                <tr class="booking-row" data-status="{{ $booking->status }}" data-search="{{ strtolower($booking->agency_name . ' ' . $booking->event_name . ' ' . $booking->contact_person) }}">
-                                    <td>
+                                <tr class="booking-row" data-status="{{ $booking->status }}" data-search="{{ strtolower($booking->agency_name . ' ' . $booking->event_name . ' ' . $booking->contact_person) }}" data-emailed="{{ $booking->admin_emailed ? 'yes' : 'no' }}">
+                                    <td style="white-space: nowrap;">
                                         {{ $booking->booking_date->format('M d, Y') }}
-                                        @if($booking->admin_emailed)
-                                        <span style="background: #D1FAE5; color: #059669; font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 4px;" title="Admin Emailed">
-                                            <i class="fas fa-envelope-circle-check"></i>
-                                        </span>
-                                        @endif
                                     </td>
                                     <td>{{ $booking->formatted_time }}</td>
                                     <td>
@@ -6865,6 +6956,21 @@
                                         @endif
                                     </td>
                                     <td>
+                                        @if($booking->status === 'approved')
+                                            @if($booking->admin_emailed)
+                                            <span style="display: inline-flex; align-items: center; gap: 4px; background: #D1FAE5; color: #059669; font-size: 11px; padding: 4px 8px; border-radius: 6px; font-weight: 600;" title="Email notification sent to booker">
+                                                <i class="fas fa-check-circle"></i> Sent
+                                            </span>
+                                            @else
+                                            <span style="display: inline-flex; align-items: center; gap: 4px; background: #FEF3C7; color: #D97706; font-size: 11px; padding: 4px 8px; border-radius: 6px; font-weight: 600; cursor: pointer; animation: pulse-amber 2s infinite;" title="Click to send email notification" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? asset('storage/' . $booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})">
+                                                <i class="fas fa-envelope"></i> Not Sent
+                                            </span>
+                                            @endif
+                                        @else
+                                        <span style="color: #9CA3AF; font-size: 12px;">—</span>
+                                        @endif
+                                    </td>
+                                    <td>
                                         @if($booking->attachment_path)
                                         <a href="{{ asset('storage/' . $booking->attachment_path) }}" target="_blank" class="btn-action btn-view" title="View PDF" style="background: #DBEAFE; color: #2563EB;">
                                             <i class="fas fa-file-pdf"></i>
@@ -6874,32 +6980,34 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <button class="btn-action btn-view" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? asset('storage/' . $booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})" title="View Details">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                        @if($booking->status === 'pending')
-                                        <button class="btn-action btn-edit" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? asset('storage/' . $booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})" title="Approve">
-                                            <i class="fas fa-check"></i>
-                                        </button>
-                                        <button class="btn-action btn-delete" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? asset('storage/' . $booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})" title="Reject">
-                                            <i class="fas fa-times"></i>
-                                        </button>
-                                        @else
-                                        <button class="btn-action" disabled title="Already {{ ucfirst($booking->status) }}">
-                                            <i class="fas fa-check"></i>
-                                        </button>
-                                        <button class="btn-action" disabled title="Already {{ ucfirst($booking->status) }}">
-                                            <i class="fas fa-times"></i>
-                                        </button>
-                                        @endif
-                                        <button class="btn-action btn-delete" onclick="deleteBooking({{ $booking->id }})" title="Delete">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
+                                        <div style="display: flex; gap: 4px; align-items: center; flex-wrap: nowrap;">
+                                            <button class="btn-action btn-view" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? asset('storage/' . $booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})" title="View Details">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            @if($booking->status === 'pending')
+                                            <button class="btn-action btn-edit" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? asset('storage/' . $booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})" title="Approve">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                            <button class="btn-action btn-delete" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? asset('storage/' . $booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})" title="Reject">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                            @else
+                                            <button class="btn-action" disabled title="Already {{ ucfirst($booking->status) }}" style="opacity: 0.5;">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                            <button class="btn-action" disabled title="Already {{ ucfirst($booking->status) }}" style="opacity: 0.5;">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                            @endif
+                                            <button class="btn-action btn-delete" onclick="deleteBooking({{ $booking->id }})" title="Delete">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="8" style="text-align: center; padding: 40px; color: #9CA3AF;">
+                                    <td colspan="9" style="text-align: center; padding: 40px; color: #9CA3AF;">
                                         <i class="fas fa-calendar-times" style="font-size: 40px; margin-bottom: 12px; display: block;"></i>
                                         No bookings found
                                     </td>
@@ -6907,6 +7015,21 @@
                                 @endforelse
                             </tbody>
                         </table>
+                    </div>
+                    <!-- Pagination for All Bookings -->
+                    <div id="allBookingsPagination" class="pagination-controls" style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding: 12px 16px; background: #F9FAFB; border-radius: 8px;">
+                        <div style="font-size: 14px; color: #6B7280;">
+                            Showing <span id="allShowingStart">1</span> to <span id="allShowingEnd">8</span> of <span id="allTotalItems">0</span> entries
+                        </div>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <button id="allPrevBtn" onclick="allBookingsPrevPage()" style="padding: 8px 12px; border: 1px solid #D1D5DB; border-radius: 6px; background: white; cursor: pointer; font-size: 14px;">
+                                <i class="fas fa-chevron-left"></i> Previous
+                            </button>
+                            <span id="allPageInfo" style="padding: 8px 16px; background: #7B1D3A; color: white; border-radius: 6px; font-weight: 600;">1 / 1</span>
+                            <button id="allNextBtn" onclick="allBookingsNextPage()" style="padding: 8px 12px; border: 1px solid #D1D5DB; border-radius: 6px; background: white; cursor: pointer; font-size: 14px;">
+                                Next <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -6995,17 +7118,17 @@
                         </div>
                     </div>
                     <div style="overflow-x: auto;">
-                        <table style="width: 100%; border-collapse: collapse;">
+                        <table style="width: 100%; border-collapse: collapse; min-width: 900px;">
                             <thead>
                                 <tr style="background: #F9FAFB;">
-                                    <th style="padding: 14px 16px; text-align: left; font-weight: 600; color: #374151; font-size: 13px;">Reference Code</th>
-                                    <th style="padding: 14px 16px; text-align: left; font-weight: 600; color: #374151; font-size: 13px;">Name</th>
-                                    <th style="padding: 14px 16px; text-align: left; font-weight: 600; color: #374151; font-size: 13px;">Email</th>
-                                    <th style="padding: 14px 16px; text-align: left; font-weight: 600; color: #374151; font-size: 13px;">School</th>
-                                    <th style="padding: 14px 16px; text-align: center; font-weight: 600; color: #374151; font-size: 13px;">Interns</th>
-                                    <th style="padding: 14px 16px; text-align: center; font-weight: 600; color: #374151; font-size: 13px;">Reports</th>
-                                    <th style="padding: 14px 16px; text-align: center; font-weight: 600; color: #374151; font-size: 13px;">Status</th>
-                                    <th style="padding: 14px 16px; text-align: center; font-weight: 600; color: #374151; font-size: 13px;">Actions</th>
+                                    <th style="padding: 14px 16px; text-align: left; font-weight: 600; color: #374151; font-size: 13px; min-width: 120px; white-space: nowrap;">Reference Code</th>
+                                    <th style="padding: 14px 16px; text-align: left; font-weight: 600; color: #374151; font-size: 13px; min-width: 180px;">Name</th>
+                                    <th style="padding: 14px 16px; text-align: left; font-weight: 600; color: #374151; font-size: 13px; min-width: 180px;">Email</th>
+                                    <th style="padding: 14px 16px; text-align: left; font-weight: 600; color: #374151; font-size: 13px; min-width: 150px; white-space: nowrap;">School</th>
+                                    <th style="padding: 14px 16px; text-align: center; font-weight: 600; color: #374151; font-size: 13px; min-width: 70px; white-space: nowrap;">Interns</th>
+                                    <th style="padding: 14px 16px; text-align: center; font-weight: 600; color: #374151; font-size: 13px; min-width: 70px; white-space: nowrap;">Reports</th>
+                                    <th style="padding: 14px 16px; text-align: center; font-weight: 600; color: #374151; font-size: 13px; min-width: 80px; white-space: nowrap;">Status</th>
+                                    <th style="padding: 14px 16px; text-align: center; font-weight: 600; color: #374151; font-size: 13px; min-width: 120px; white-space: nowrap;">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="teamLeadersTableBody">
@@ -8164,13 +8287,13 @@
                     </div>
                 </div>
             </div>
-            <div class="modal-footer" id="bookingActionFooter">
-                <button class="btn-modal secondary" onclick="closeBookingActionModal()">Close</button>
-                <button class="btn-modal" id="btnRejectBooking" onclick="confirmRejectBooking()" style="background: #EF4444; color: white;">
-                    <i class="fas fa-times"></i> Reject
+            <div class="modal-footer" id="bookingActionFooter" style="display: flex; gap: 10px; justify-content: flex-end; align-items: center;">
+                <button class="btn-modal secondary" onclick="closeBookingActionModal()" style="display: inline-flex; align-items: center; gap: 6px;">Close</button>
+                <button class="btn-modal" id="btnRejectBooking" onclick="confirmRejectBooking()" style="background: #EF4444; color: white; display: inline-flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-times"></i> <span>Reject</span>
                 </button>
-                <button class="btn-modal primary" id="btnApproveBooking" onclick="confirmApproveBooking()" style="background: #10B981;">
-                    <i class="fas fa-check"></i> Approve
+                <button class="btn-modal primary" id="btnApproveBooking" onclick="confirmApproveBooking()" style="background: #10B981; display: inline-flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-check"></i> <span>Approve</span>
                 </button>
             </div>
         </div>
@@ -10930,44 +11053,47 @@
 
             tbody.innerHTML = filtered.map(tl => `
                 <tr style="border-bottom: 1px solid #E5E7EB;">
-                    <td style="padding: 14px 16px;">
+                    <td style="padding: 14px 16px; white-space: nowrap;">
                         <span style="background: #F3F4F6; padding: 4px 10px; border-radius: 6px; font-family: monospace; font-weight: 600; color: #374151;">${tl.reference_code || 'N/A'}</span>
                     </td>
-                    <td style="padding: 14px 16px;">
+                    <td style="padding: 14px 16px; min-width: 180px;">
                         <div style="display: flex; align-items: center; gap: 12px;">
-                            <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #7B1D3A, #5a1428); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600;">
-                                ${tl.name.charAt(0).toUpperCase()}
-                            </div>
-                            <div>
+                            ${tl.profile_picture_url
+                                ? `<img src="${tl.profile_picture_url}" alt="${tl.name}" style="width: 40px; height: 40px; min-width: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #E5E7EB;">`
+                                : `<div style="width: 40px; height: 40px; min-width: 40px; background: linear-gradient(135deg, #7B1D3A, #5a1428); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600;">
+                                    ${tl.name.charAt(0).toUpperCase()}
+                                </div>`
+                            }
+                            <div style="white-space: nowrap;">
                                 <div style="font-weight: 600; color: #1F2937;">${tl.name}</div>
                                 <div style="font-size: 12px; color: #6B7280;">Added ${tl.created_at}</div>
                             </div>
                         </div>
                     </td>
-                    <td style="padding: 14px 16px; color: #4B5563;">${tl.email}</td>
-                    <td style="padding: 14px 16px;">
-                        <span style="background: #DBEAFE; color: #1E40AF; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 500;">${tl.school_name}</span>
+                    <td style="padding: 14px 16px; color: #4B5563; min-width: 180px; word-break: break-word;">${tl.email}</td>
+                    <td style="padding: 14px 16px; white-space: nowrap;">
+                        <span style="background: #DBEAFE; color: #1E40AF; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 500; white-space: nowrap; display: inline-block;">${tl.school_name}</span>
                     </td>
-                    <td style="padding: 14px 16px; text-align: center;">
+                    <td style="padding: 14px 16px; text-align: center; white-space: nowrap;">
                         <span style="font-weight: 600; color: #1F2937;">${tl.interns_count}</span>
                     </td>
-                    <td style="padding: 14px 16px; text-align: center;">
+                    <td style="padding: 14px 16px; text-align: center; white-space: nowrap;">
                         <span style="font-weight: 600; color: #1F2937;">${tl.reports_count}</span>
                     </td>
-                    <td style="padding: 14px 16px; text-align: center;">
-                        <span style="padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; ${tl.is_active ? 'background: #D1FAE5; color: #065F46;' : 'background: #FEE2E2; color: #991B1B;'}">
+                    <td style="padding: 14px 16px; text-align: center; white-space: nowrap;">
+                        <span style="padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap; ${tl.is_active ? 'background: #D1FAE5; color: #065F46;' : 'background: #FEE2E2; color: #991B1B;'}">
                             ${tl.is_active ? 'Active' : 'Inactive'}
                         </span>
                     </td>
-                    <td style="padding: 14px 16px; text-align: center;">
+                    <td style="padding: 14px 16px; text-align: center; white-space: nowrap;">
                         <div style="display: flex; justify-content: center; gap: 6px;">
-                            <button onclick="editTeamLeader(${tl.id})" style="background: #DBEAFE; color: #1E40AF; border: none; width: 32px; height: 32px; border-radius: 6px; cursor: pointer;" title="Edit">
+                            <button onclick="editTeamLeader(${tl.id})" style="background: #DBEAFE; color: #1E40AF; border: none; width: 32px; height: 32px; min-width: 32px; border-radius: 6px; cursor: pointer;" title="Edit">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button onclick="toggleTeamLeaderStatus(${tl.id})" style="background: ${tl.is_active ? '#FEF3C7' : '#D1FAE5'}; color: ${tl.is_active ? '#92400E' : '#065F46'}; border: none; width: 32px; height: 32px; border-radius: 6px; cursor: pointer;" title="${tl.is_active ? 'Deactivate' : 'Activate'}">
+                            <button onclick="toggleTeamLeaderStatus(${tl.id})" style="background: ${tl.is_active ? '#FEF3C7' : '#D1FAE5'}; color: ${tl.is_active ? '#92400E' : '#065F46'}; border: none; width: 32px; height: 32px; min-width: 32px; border-radius: 6px; cursor: pointer;" title="${tl.is_active ? 'Deactivate' : 'Activate'}">
                                 <i class="fas ${tl.is_active ? 'fa-toggle-off' : 'fa-toggle-on'}"></i>
                             </button>
-                            <button onclick="deleteTeamLeader(${tl.id}, '${tl.name.replace(/'/g, "\\'")}')" style="background: #FEE2E2; color: #991B1B; border: none; width: 32px; height: 32px; border-radius: 6px; cursor: pointer;" title="Delete">
+                            <button onclick="deleteTeamLeader(${tl.id}, '${tl.name.replace(/'/g, "\\'")}')" style="background: #FEE2E2; color: #991B1B; border: none; width: 32px; height: 32px; min-width: 32px; border-radius: 6px; cursor: pointer;" title="Delete">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
@@ -14052,8 +14178,18 @@
             document.querySelectorAll('#scheduler .filter-tab').forEach(tab => {
                 tab.classList.remove('active');
             });
-            // Add active to clicked tab
-            event.target.closest('.filter-tab').classList.add('active');
+
+            // Find and activate the correct tab
+            const tabs = document.querySelectorAll('#scheduler .filter-tab');
+            tabs.forEach(tab => {
+                const tabText = tab.textContent.toLowerCase();
+                if ((tabName === 'pending' && tabText.includes('pending')) ||
+                    (tabName === 'calendar' && tabText.includes('calendar')) ||
+                    (tabName === 'events' && tabText.includes('event')) ||
+                    (tabName === 'all' && tabText.includes('all'))) {
+                    tab.classList.add('active');
+                }
+            });
 
             // Hide all tab contents
             document.querySelectorAll('.booking-tab-content').forEach(content => {
@@ -14071,6 +14207,10 @@
                 loadAdminEvents();
             } else if (tabName === 'all') {
                 document.getElementById('allBookingsTab').style.display = 'block';
+                // Initialize pagination for all bookings
+                if (typeof initAllBookingsPagination === 'function') {
+                    initAllBookingsPagination();
+                }
             }
         }
 
@@ -15579,6 +15719,408 @@ University of the Philippines Cebu
             // In a real application, this would filter the data
             console.log('Filtering by:', filterType);
         }
+
+        // ===== TIME & ATTENDANCE PAGINATION =====
+        const ITEMS_PER_PAGE = 8;
+
+        // Daily Hours Pagination
+        let dailyCurrentPage = 1;
+        let dailyTotalPages = 1;
+
+        function initDailyPagination() {
+            const tbody = document.getElementById('dailyHoursTableBody');
+            if (!tbody) return;
+
+            const rows = tbody.querySelectorAll('tr:not(:only-child)');
+            const totalRows = rows.length;
+
+            // Check if only empty state row exists
+            if (totalRows === 0 || (totalRows === 1 && rows[0].querySelector('td[colspan]'))) {
+                document.getElementById('dailyHoursPagination').style.display = 'none';
+                return;
+            }
+
+            dailyTotalPages = Math.ceil(totalRows / ITEMS_PER_PAGE);
+            document.getElementById('dailyTotalRecords').textContent = totalRows;
+            updateDailyPagination();
+        }
+
+        function updateDailyPagination() {
+            const tbody = document.getElementById('dailyHoursTableBody');
+            const rows = Array.from(tbody.querySelectorAll('tr:not(:only-child)'));
+            const totalRows = rows.filter(r => !r.querySelector('td[colspan]')).length;
+
+            if (totalRows === 0) {
+                document.getElementById('dailyHoursPagination').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('dailyHoursPagination').style.display = 'flex';
+
+            const start = (dailyCurrentPage - 1) * ITEMS_PER_PAGE;
+            const end = Math.min(start + ITEMS_PER_PAGE, totalRows);
+
+            // Hide all rows, show only current page
+            rows.forEach((row, index) => {
+                if (row.querySelector('td[colspan]')) return;
+                row.style.display = (index >= start && index < end) ? '' : 'none';
+            });
+
+            // Update showing text
+            document.getElementById('dailyShowingStart').textContent = totalRows > 0 ? start + 1 : 0;
+            document.getElementById('dailyShowingEnd').textContent = end;
+            document.getElementById('dailyTotalRecords').textContent = totalRows;
+
+            // Update buttons
+            document.getElementById('dailyPrevBtn').disabled = dailyCurrentPage === 1;
+            document.getElementById('dailyNextBtn').disabled = dailyCurrentPage >= dailyTotalPages;
+
+            // Update page numbers
+            updatePageNumbers('daily', dailyCurrentPage, dailyTotalPages);
+        }
+
+        function changeDailyPage(direction) {
+            if (direction === 'prev' && dailyCurrentPage > 1) {
+                dailyCurrentPage--;
+            } else if (direction === 'next' && dailyCurrentPage < dailyTotalPages) {
+                dailyCurrentPage++;
+            } else if (typeof direction === 'number') {
+                dailyCurrentPage = direction;
+            }
+            updateDailyPagination();
+        }
+
+        // History Pagination
+        let historyCurrentPage = 1;
+        let historyTotalPages = 1;
+
+        function initHistoryPagination() {
+            const tbody = document.getElementById('historyTableBody');
+            if (!tbody) return;
+
+            const rows = tbody.querySelectorAll('tr:not(:only-child)');
+            const totalRows = rows.length;
+
+            if (totalRows === 0 || (totalRows === 1 && rows[0].querySelector('td[colspan]'))) {
+                document.getElementById('historyPagination').style.display = 'none';
+                return;
+            }
+
+            historyTotalPages = Math.ceil(totalRows / ITEMS_PER_PAGE);
+            document.getElementById('historyTotalRecords').textContent = totalRows;
+            updateHistoryPagination();
+        }
+
+        function updateHistoryPagination() {
+            const tbody = document.getElementById('historyTableBody');
+            const rows = Array.from(tbody.querySelectorAll('tr:not(:only-child)'));
+            const totalRows = rows.filter(r => !r.querySelector('td[colspan]')).length;
+
+            if (totalRows === 0) {
+                document.getElementById('historyPagination').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('historyPagination').style.display = 'flex';
+
+            const start = (historyCurrentPage - 1) * ITEMS_PER_PAGE;
+            const end = Math.min(start + ITEMS_PER_PAGE, totalRows);
+
+            rows.forEach((row, index) => {
+                if (row.querySelector('td[colspan]')) return;
+                row.style.display = (index >= start && index < end) ? '' : 'none';
+            });
+
+            document.getElementById('historyShowingStart').textContent = totalRows > 0 ? start + 1 : 0;
+            document.getElementById('historyShowingEnd').textContent = end;
+            document.getElementById('historyTotalRecords').textContent = totalRows;
+
+            document.getElementById('historyPrevBtn').disabled = historyCurrentPage === 1;
+            document.getElementById('historyNextBtn').disabled = historyCurrentPage >= historyTotalPages;
+
+            updatePageNumbers('history', historyCurrentPage, historyTotalPages);
+        }
+
+        function changeHistoryPage(direction) {
+            if (direction === 'prev' && historyCurrentPage > 1) {
+                historyCurrentPage--;
+            } else if (direction === 'next' && historyCurrentPage < historyTotalPages) {
+                historyCurrentPage++;
+            } else if (typeof direction === 'number') {
+                historyCurrentPage = direction;
+            }
+            updateHistoryPagination();
+        }
+
+        // Summary Pagination
+        let summaryCurrentPage = 1;
+        let summaryTotalPages = 1;
+
+        function initSummaryPagination() {
+            const tbody = document.getElementById('summaryTableBody');
+            if (!tbody) return;
+
+            const rows = tbody.querySelectorAll('tr:not(:only-child)');
+            const totalRows = rows.length;
+
+            if (totalRows === 0 || (totalRows === 1 && rows[0].querySelector('td[colspan]'))) {
+                document.getElementById('summaryPagination').style.display = 'none';
+                return;
+            }
+
+            summaryTotalPages = Math.ceil(totalRows / ITEMS_PER_PAGE);
+            document.getElementById('summaryTotalRecords').textContent = totalRows;
+            updateSummaryPagination();
+        }
+
+        function updateSummaryPagination() {
+            const tbody = document.getElementById('summaryTableBody');
+            const rows = Array.from(tbody.querySelectorAll('tr:not(:only-child)'));
+            const totalRows = rows.filter(r => !r.querySelector('td[colspan]')).length;
+
+            if (totalRows === 0) {
+                document.getElementById('summaryPagination').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('summaryPagination').style.display = 'flex';
+
+            const start = (summaryCurrentPage - 1) * ITEMS_PER_PAGE;
+            const end = Math.min(start + ITEMS_PER_PAGE, totalRows);
+
+            rows.forEach((row, index) => {
+                if (row.querySelector('td[colspan]')) return;
+                row.style.display = (index >= start && index < end) ? '' : 'none';
+            });
+
+            document.getElementById('summaryShowingStart').textContent = totalRows > 0 ? start + 1 : 0;
+            document.getElementById('summaryShowingEnd').textContent = end;
+            document.getElementById('summaryTotalRecords').textContent = totalRows;
+
+            document.getElementById('summaryPrevBtn').disabled = summaryCurrentPage === 1;
+            document.getElementById('summaryNextBtn').disabled = summaryCurrentPage >= summaryTotalPages;
+
+            updatePageNumbers('summary', summaryCurrentPage, summaryTotalPages);
+        }
+
+        function changeSummaryPage(direction) {
+            if (direction === 'prev' && summaryCurrentPage > 1) {
+                summaryCurrentPage--;
+            } else if (direction === 'next' && summaryCurrentPage < summaryTotalPages) {
+                summaryCurrentPage++;
+            } else if (typeof direction === 'number') {
+                summaryCurrentPage = direction;
+            }
+            updateSummaryPagination();
+        }
+
+        // Shared page numbers renderer
+        function updatePageNumbers(prefix, currentPage, totalPages) {
+            const container = document.getElementById(`${prefix}PageNumbers`);
+            if (!container) return;
+
+            container.innerHTML = '';
+
+            const maxButtons = 5;
+            let startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+            let endPage = Math.min(totalPages, startPage + maxButtons - 1);
+
+            if (endPage - startPage < maxButtons - 1) {
+                startPage = Math.max(1, endPage - maxButtons + 1);
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                const btn = document.createElement('button');
+                btn.textContent = i;
+                btn.style.cssText = `
+                    min-width: 32px; height: 32px; border-radius: 6px; border: 1px solid #E5E7EB;
+                    cursor: pointer; font-size: 13px; font-weight: 500;
+                    ${i === currentPage ? 'background: #7B1D3A; color: white; border-color: #7B1D3A;' : 'background: #F3F4F6; color: #374151;'}
+                `;
+                btn.onclick = () => {
+                    if (prefix === 'daily') changeDailyPage(i);
+                    else if (prefix === 'history') changeHistoryPage(i);
+                    else if (prefix === 'summary') changeSummaryPage(i);
+                };
+                container.appendChild(btn);
+            }
+        }
+
+        // Initialize pagination on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initDailyPagination();
+            initHistoryPagination();
+            initSummaryPagination();
+            initPendingBookingsPagination();
+            initAllBookingsPagination();
+        });
+
+        // ===== SCHEDULER PAGINATION =====
+
+        // Pending Bookings Pagination
+        let pendingCurrentPage = 1;
+        let pendingTotalPages = 1;
+
+        function initPendingBookingsPagination() {
+            const tbody = document.getElementById('pendingBookingsBody');
+            if (!tbody) return;
+
+            const rows = tbody.querySelectorAll('tr:not(#noPendingRow)');
+            const totalRows = rows.length;
+
+            if (totalRows === 0) {
+                document.getElementById('pendingBookingsPagination').style.display = 'none';
+                return;
+            }
+
+            pendingTotalPages = Math.ceil(totalRows / ITEMS_PER_PAGE);
+            updatePendingBookingsPagination();
+        }
+
+        function updatePendingBookingsPagination() {
+            const tbody = document.getElementById('pendingBookingsBody');
+            const rows = Array.from(tbody.querySelectorAll('tr:not(#noPendingRow)'));
+            const totalRows = rows.length;
+
+            if (totalRows === 0) {
+                document.getElementById('pendingBookingsPagination').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('pendingBookingsPagination').style.display = 'flex';
+
+            const start = (pendingCurrentPage - 1) * ITEMS_PER_PAGE;
+            const end = Math.min(start + ITEMS_PER_PAGE, totalRows);
+
+            rows.forEach((row, index) => {
+                row.style.display = (index >= start && index < end) ? '' : 'none';
+            });
+
+            document.getElementById('pendingShowingStart').textContent = totalRows > 0 ? start + 1 : 0;
+            document.getElementById('pendingShowingEnd').textContent = end;
+            document.getElementById('pendingTotalItems').textContent = totalRows;
+
+            document.getElementById('pendingPrevBtn').disabled = pendingCurrentPage === 1;
+            document.getElementById('pendingPrevBtn').style.opacity = pendingCurrentPage === 1 ? '0.5' : '1';
+            document.getElementById('pendingNextBtn').disabled = pendingCurrentPage >= pendingTotalPages;
+            document.getElementById('pendingNextBtn').style.opacity = pendingCurrentPage >= pendingTotalPages ? '0.5' : '1';
+
+            document.getElementById('pendingPageInfo').textContent = `${pendingCurrentPage} / ${pendingTotalPages}`;
+        }
+
+        function pendingPrevPage() {
+            if (pendingCurrentPage > 1) {
+                pendingCurrentPage--;
+                updatePendingBookingsPagination();
+            }
+        }
+
+        function pendingNextPage() {
+            if (pendingCurrentPage < pendingTotalPages) {
+                pendingCurrentPage++;
+                updatePendingBookingsPagination();
+            }
+        }
+
+        // All Bookings Pagination
+        let allCurrentPage = 1;
+        let allTotalPages = 1;
+
+        function initAllBookingsPagination() {
+            const tbody = document.getElementById('allBookingsBody');
+            if (!tbody) return;
+
+            const rows = tbody.querySelectorAll('tr.booking-row');
+            const totalRows = rows.length;
+
+            if (totalRows === 0) {
+                document.getElementById('allBookingsPagination').style.display = 'none';
+                return;
+            }
+
+            allTotalPages = Math.ceil(totalRows / ITEMS_PER_PAGE);
+            updateAllBookingsPagination();
+        }
+
+        function updateAllBookingsPagination() {
+            const tbody = document.getElementById('allBookingsBody');
+            const rows = Array.from(tbody.querySelectorAll('tr.booking-row'));
+            // Apply filters first
+            const searchTerm = document.getElementById('searchBookings')?.value?.toLowerCase() || '';
+            const statusFilter = document.getElementById('filterBookingStatus')?.value || '';
+            const emailFilter = document.getElementById('filterEmailStatus')?.value || '';
+
+            const visibleRows = rows.filter(row => {
+                const matchesSearch = !searchTerm || row.dataset.search.includes(searchTerm);
+                const matchesStatus = !statusFilter || row.dataset.status === statusFilter;
+                let matchesEmail = true;
+                if (emailFilter === 'sent') {
+                    matchesEmail = row.dataset.emailed === 'yes';
+                } else if (emailFilter === 'not-sent') {
+                    matchesEmail = row.dataset.emailed === 'no' && row.dataset.status === 'approved';
+                }
+                return matchesSearch && matchesStatus && matchesEmail;
+            });
+
+            const totalRows = visibleRows.length;
+
+            if (totalRows === 0) {
+                document.getElementById('allBookingsPagination').style.display = 'none';
+                rows.forEach(row => row.style.display = 'none');
+                return;
+            }
+
+            // Reset to first page if current page is out of range
+            allTotalPages = Math.ceil(totalRows / ITEMS_PER_PAGE);
+            if (allCurrentPage > allTotalPages) {
+                allCurrentPage = 1;
+            }
+
+            document.getElementById('allBookingsPagination').style.display = 'flex';
+
+            const start = (allCurrentPage - 1) * ITEMS_PER_PAGE;
+            const end = Math.min(start + ITEMS_PER_PAGE, totalRows);
+
+            // Hide all rows first
+            rows.forEach(row => row.style.display = 'none');
+
+            // Show only filtered rows for current page
+            visibleRows.forEach((row, index) => {
+                row.style.display = (index >= start && index < end) ? '' : 'none';
+            });
+
+            document.getElementById('allShowingStart').textContent = totalRows > 0 ? start + 1 : 0;
+            document.getElementById('allShowingEnd').textContent = end;
+            document.getElementById('allTotalItems').textContent = totalRows;
+
+            document.getElementById('allPrevBtn').disabled = allCurrentPage === 1;
+            document.getElementById('allPrevBtn').style.opacity = allCurrentPage === 1 ? '0.5' : '1';
+            document.getElementById('allNextBtn').disabled = allCurrentPage >= allTotalPages;
+            document.getElementById('allNextBtn').style.opacity = allCurrentPage >= allTotalPages ? '0.5' : '1';
+
+            document.getElementById('allPageInfo').textContent = `${allCurrentPage} / ${allTotalPages}`;
+        }
+
+        function allBookingsPrevPage() {
+            if (allCurrentPage > 1) {
+                allCurrentPage--;
+                updateAllBookingsPagination();
+            }
+        }
+
+        function allBookingsNextPage() {
+            if (allCurrentPage < allTotalPages) {
+                allCurrentPage++;
+                updateAllBookingsPagination();
+            }
+        }
+
+        // Override filterBookings to work with pagination
+        const originalFilterBookings = window.filterBookings || function() {};
+        window.filterBookings = function() {
+            allCurrentPage = 1; // Reset to first page on filter change
+            updateAllBookingsPagination();
+        };
 
         // Switch time tab function
         function switchTimeTab(event, tabId) {

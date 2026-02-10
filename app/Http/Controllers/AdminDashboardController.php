@@ -372,7 +372,16 @@ class AdminDashboardController extends Controller
             ->with('school')
             ->orderBy('name')
             ->get()
-            ->map(function (\App\Models\User $tl) {
+            ->map(function (User $tl) {
+                // Get profile picture - check User first, then check linked Intern by email
+                $profilePicture = $tl->profile_picture;
+                if (!$profilePicture) {
+                    $linkedIntern = Intern::where('email', $tl->email)->first();
+                    if ($linkedIntern && $linkedIntern->profile_picture) {
+                        $profilePicture = $linkedIntern->profile_picture;
+                    }
+                }
+
                 return [
                     'id' => $tl->id,
                     'name' => $tl->name,
@@ -381,9 +390,11 @@ class AdminDashboardController extends Controller
                     'school_id' => $tl->school_id,
                     'school_name' => $tl->school->name ?? 'Not assigned',
                     'is_active' => $tl->is_active,
-                    'interns_count' => \App\Models\Intern::where('school_id', $tl->school_id)->count(),
+                    'interns_count' => Intern::where('school_id', $tl->school_id)->count(),
                     'reports_count' => $tl->teamLeaderReports()->count(),
                     'created_at' => $tl->created_at->format('M d, Y'),
+                    'profile_picture' => $profilePicture,
+                    'profile_picture_url' => $profilePicture ? asset('storage/' . $profilePicture) : null,
                 ];
             });
 
