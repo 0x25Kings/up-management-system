@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use App\Models\Intern;
 use App\Models\Attendance;
 use App\Models\Task;
@@ -567,6 +569,38 @@ class AdminDashboardController extends Controller
         $user->delete();
 
         return response()->json(['success' => true, 'message' => 'Team Leader deleted successfully.']);
+    }
+
+    /**
+     * Reset team leader password via AJAX - generates a reset token/link
+     */
+    public function resetTeamLeaderPassword(User $user)
+    {
+        if ($user->role !== User::ROLE_TEAM_LEADER) {
+            return response()->json(['error' => 'Invalid team leader.'], 422);
+        }
+
+        // Generate a unique reset token
+        $token = Str::random(64);
+
+        // Store the token in password_reset_tokens table
+        DB::table('password_reset_tokens')->updateOrInsert(
+            ['email' => $user->email],
+            [
+                'token' => Hash::make($token),
+                'created_at' => now()
+            ]
+        );
+
+        // Generate the reset link
+        $resetLink = url('/team-leader/reset-password?token=' . $token . '&email=' . urlencode($user->email));
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Password reset link generated.',
+            'reset_link' => $resetLink,
+            'email' => $user->email
+        ]);
     }
 
     /**

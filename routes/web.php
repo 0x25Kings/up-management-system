@@ -143,6 +143,10 @@ Route::get('/login', [AdminAuthController::class, 'showLoginForm'])->name('login
 Route::post('/admin/login', [AdminAuthController::class, 'login'])->name('admin.login.submit');
 Route::post('/admin/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
 
+// Team Leader Password Reset (Public - no auth required)
+Route::get('/team-leader/reset-password', [TeamLeaderController::class, 'showResetPasswordForm'])->name('team-leader.reset-password');
+Route::post('/team-leader/reset-password', [TeamLeaderController::class, 'resetPassword'])->name('team-leader.reset-password.submit');
+
 // Protected Admin Routes
 Route::middleware(['admin'])->group(function () {
     Route::get('/admin', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
@@ -262,6 +266,7 @@ Route::middleware(['admin'])->group(function () {
     Route::put('/admin/api/team-leaders/{user}', [AdminDashboardController::class, 'updateTeamLeaderAjax'])->name('admin.api.team-leaders.update');
     Route::patch('/admin/api/team-leaders/{user}/toggle-status', [AdminDashboardController::class, 'toggleTeamLeaderStatusAjax'])->name('admin.api.team-leaders.toggle-status');
     Route::delete('/admin/api/team-leaders/{user}', [AdminDashboardController::class, 'deleteTeamLeaderAjax'])->name('admin.api.team-leaders.destroy');
+    Route::post('/admin/api/team-leaders/{user}/reset-password', [AdminDashboardController::class, 'resetTeamLeaderPassword'])->name('admin.api.team-leaders.reset-password');
     Route::post('/admin/api/team-reports/{report}/review', [AdminDashboardController::class, 'reviewTeamLeaderReportAjax'])->name('admin.api.team-reports.review');
 
     // Team Leader Permissions

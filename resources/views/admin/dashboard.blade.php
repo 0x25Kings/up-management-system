@@ -11128,6 +11128,9 @@
                             <button onclick="editTeamLeader(${tl.id})" style="background: #DBEAFE; color: #1E40AF; border: none; width: 32px; height: 32px; min-width: 32px; border-radius: 6px; cursor: pointer;" title="Edit">
                                 <i class="fas fa-edit"></i>
                             </button>
+                            <button onclick="resetTeamLeaderPassword(${tl.id}, '${tl.name.replace(/'/g, "\\'")}')" style="background: #E0E7FF; color: #4338CA; border: none; width: 32px; height: 32px; min-width: 32px; border-radius: 6px; cursor: pointer;" title="Reset Password">
+                                <i class="fas fa-key"></i>
+                            </button>
                             <button onclick="toggleTeamLeaderStatus(${tl.id})" style="background: ${tl.is_active ? '#FEF3C7' : '#D1FAE5'}; color: ${tl.is_active ? '#92400E' : '#065F46'}; border: none; width: 32px; height: 32px; min-width: 32px; border-radius: 6px; cursor: pointer;" title="${tl.is_active ? 'Deactivate' : 'Activate'}">
                                 <i class="fas ${tl.is_active ? 'fa-toggle-off' : 'fa-toggle-on'}"></i>
                             </button>
@@ -11674,6 +11677,87 @@
                 console.error('Error deleting team leader:', error);
                 showToast('error', 'Error', 'Failed to delete team leader');
             }
+        }
+
+        async function resetTeamLeaderPassword(id, name) {
+            if (!confirm(`Are you sure you want to generate a password reset link for "${name}"? They will be able to set their own password.`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/admin/api/team-leaders/${id}/reset-password`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    // Show the reset link in a modal so admin can share it
+                    const resetLink = result.reset_link;
+                    const email = result.email;
+
+                    // Create a custom alert with copy functionality
+                    const alertHtml = `
+                        <div style="text-align: center;">
+                            <div style="font-size: 14px; color: #374151; margin-bottom: 16px;">
+                                Password reset link for <strong>${name}</strong>:
+                            </div>
+                            <div style="background: #F3F4F6; padding: 16px; border-radius: 8px; margin-bottom: 16px; word-break: break-all;">
+                                <input type="text" value="${resetLink}" id="resetLinkInput" readonly
+                                    style="width: 100%; background: transparent; border: none; font-size: 12px; color: #374151; text-align: center; cursor: text;">
+                            </div>
+                            <button onclick="navigator.clipboard.writeText('${resetLink}'); this.innerHTML='<i class=\\'fas fa-check\\'></i> Copied!'; this.style.background='#10B981';"
+                                style="background: #7B1D3A; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                                <i class="fas fa-copy"></i> Copy Link
+                            </button>
+                            <p style="font-size: 12px; color: #6B7280; margin-top: 12px;">
+                                Share this link with the team leader. They can use it to set their own password.<br>
+                                <strong>Link expires in 24 hours.</strong>
+                            </p>
+                        </div>
+                    `;
+
+                    showCustomAlert('Password Reset Link Generated', alertHtml);
+                    showToast('success', 'Success', 'Password reset link has been generated');
+                } else {
+                    showToast('error', 'Error', result.error || 'Failed to generate reset link');
+                }
+            } catch (error) {
+                console.error('Error generating reset link:', error);
+                showToast('error', 'Error', 'Failed to generate reset link');
+            }
+        }
+
+        function showCustomAlert(title, content) {
+            // Create overlay
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 10000;';
+
+            // Create modal
+            overlay.innerHTML = `
+                <div style="background: white; border-radius: 16px; padding: 24px; max-width: 400px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h3 style="font-size: 18px; font-weight: 700; color: #1F2937; margin: 0;">
+                            <i class="fas fa-check-circle" style="color: #10B981; margin-right: 8px;"></i>${title}
+                        </h3>
+                        <button onclick="this.closest('div').parentElement.remove()" style="background: #F3F4F6; border: none; width: 32px; height: 32px; border-radius: 8px; cursor: pointer;">
+                            <i class="fas fa-times" style="color: #6B7280;"></i>
+                        </button>
+                    </div>
+                    ${content}
+                </div>
+            `;
+
+            document.body.appendChild(overlay);
+
+            // Close on overlay click
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) overlay.remove();
+            });
         }
 
         // ===== TEAM REPORTS FUNCTIONS =====

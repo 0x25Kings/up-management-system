@@ -13,9 +13,12 @@ use App\Models\StartupSubmission;
 use App\Models\RoomIssue;
 use App\Models\Event;
 use App\Models\UserPermission;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
 
 class TeamLeaderController extends Controller
@@ -935,5 +938,93 @@ class TeamLeaderController extends Controller
             'message' => 'Profile picture updated successfully',
             'image_url' => asset('storage/' . $path)
         ]);
+    }
+
+    /**
+     * Show the password reset form for team leaders
+     */
+    public function showResetPasswordForm(Request $request)
+    {
+        $token = $request->query('token');
+        $email = $request->query('email');
+
+        if (!$token || !$email) {
+            return redirect()->route('admin.login')->with('error', 'Invalid password reset link.');
+        }
+
+        // Check if token exists and is valid
+        $resetRecord = DB::table('password_reset_tokens')
+            ->where('email', $email)
+            ->first();
+
+        if (!$resetRecord) {
+            return redirect()->route('admin.login')->with('error', 'Invalid or expired password reset link.');
+        }
+
+        // Check if token matches
+        if (!Hash::check($token, $resetRecord->token)) {
+            return redirect()->route('admin.login')->with('error', 'Invalid password reset link.');
+        }
+
+        // Check if token is not expired (24 hours)
+        if (Carbon::parse($resetRecord->created_at)->addHours(24)->isPast()) {
+            DB::table('password_reset_tokens')->where('email', $email)->delete();
+            return redirect()->route('admin.login')->with('error', 'Password reset link has expired. Please request a new one.');
+        }
+
+        return view('team-leader.reset-password', [
+            'token' => $token,
+            'email' => $email
+        ]);
+    }
+
+    /**
+     * Handle password reset for team leaders
+     */
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'token' => 'required|string',
+            'email' => 'required|email',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        // Find the reset token record
+        $resetRecord = DB::table('password_reset_tokens')
+            ->where('email', $request->email)
+            ->first();
+
+        if (!$resetRecord) {
+            return back()->withErrors(['email' => 'Invalid or expired password reset link.']);
+        }
+
+        // Verify token
+        if (!Hash::check($request->token, $resetRecord->token)) {
+            return back()->withErrors(['token' => 'Invalid password reset link.']);
+        }
+
+        // Check expiration (24 hours)
+        if (Carbon::parse($resetRecord->created_at)->addHours(24)->isPast()) {
+            DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+            return back()->withErrors(['token' => 'Password reset link has expired.']);
+        }
+
+        // Update the user's password
+        $user = User::where('email', $request->email)
+            ->where('role', User::ROLE_TEAM_LEADER)
+            ->first();
+
+        if (!$user) {
+            return back()->withErrors(['email' => 'No team leader account found with this email.']);
+        }
+
+        $user->update([
+            'password' => Hash::make($request->password)
+        ]);
+
+        // Delete the reset token
+        DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+
+        return redirect()->route('admin.login')->with('success', 'Password has been reset successfully. You can now log in with your new password.');
     }
 }
