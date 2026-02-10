@@ -124,7 +124,7 @@
         }
 
         .sidebar-logo p {
-            color: #FFBF00;
+            color: var(--accent-color);
             font-size: 11px;
             text-align: center;
             font-weight: 600;
@@ -165,14 +165,14 @@
 
         .menu-item:hover i:first-child {
             transform: scale(1.1);
-            color: #FFBF00;
+            color: var(--accent-color);
         }
 
         .menu-item.active {
-            background: linear-gradient(135deg, #FFBF00 0%, #FFD54F 100%);
+            background: linear-gradient(135deg, var(--accent-color) 0%, color-mix(in srgb, var(--accent-color) 70%, white) 100%);
             color: #7B1D3A;
             font-weight: 600;
-            box-shadow: 0 4px 15px rgba(255, 191, 0, 0.3);
+            box-shadow: 0 4px 15px color-mix(in srgb, var(--accent-color) 30%, transparent);
         }
 
         .menu-item.active i:first-child {
@@ -232,13 +232,13 @@
         }
 
         .submenu-item:hover {
-            background: rgba(255, 191, 0, 0.1);
-            color: #FFBF00;
+            background: color-mix(in srgb, var(--accent-color) 10%, transparent);
+            color: var(--accent-color);
         }
 
         .submenu-item:hover::before {
-            background: #FFBF00;
-            box-shadow: 0 0 8px rgba(255, 191, 0, 0.5);
+            background: var(--accent-color);
+            box-shadow: 0 0 8px color-mix(in srgb, var(--accent-color) 50%, transparent);
         }
 
         .submenu-item i {
@@ -277,13 +277,13 @@
         }
 
         .filter-tab.active {
-            background: linear-gradient(135deg, #FFBF00 0%, #FFA500 100%);
-            color: #7B1D3A;
-            border-color: #FFBF00;
+            background: linear-gradient(135deg, var(--accent-color) 0%, color-mix(in srgb, var(--accent-color) 80%, #FFA500) 100%);
+            color: var(--primary-color);
+            border-color: var(--accent-color);
         }
 
         .filter-tab:hover {
-            border-color: #FFBF00;
+            border-color: var(--accent-color);
         }
 
         .intern-table-wrapper {
@@ -318,8 +318,8 @@
         }
 
         .school-badge {
-            background: rgba(255, 191, 0, 0.2);
-            color: #FFBF00;
+            background: color-mix(in srgb, var(--accent-color) 20%, transparent);
+            color: var(--accent-color);
             padding: 4px 12px;
             border-radius: 12px;
             font-size: 12px;
@@ -336,7 +336,7 @@
 
         .progress-bar {
             height: 100%;
-            background: linear-gradient(135deg, #FFBF00 0%, #FFA500 100%);
+            background: linear-gradient(135deg, var(--accent-color) 0%, color-mix(in srgb, var(--accent-color) 80%, #FFA500) 100%);
             transition: width 0.3s ease;
         }
 
@@ -363,7 +363,7 @@
 
         .time-stat-card.required { border-left-color: #3B82F6; }
         .time-stat-card.completed { border-left-color: #10B981; }
-        .time-stat-card.remaining { border-left-color: #FFBF00; }
+        .time-stat-card.remaining { border-left-color: var(--accent-color); }
         .time-stat-card.overtime { border-left-color: #7B1D3A; }
 
         .time-stat-label {
@@ -1256,11 +1256,11 @@
             width: 32px;
             height: 32px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #FFBF00, #FFA500);
+            background: linear-gradient(135deg, var(--accent-color), color-mix(in srgb, var(--accent-color) 80%, #FFA500));
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #7B1D3A;
+            color: var(--primary-color);
             font-weight: 700;
             font-size: 12px;
             border: 2px solid white;
@@ -1708,11 +1708,11 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #FFBF00 0%, #FFA500 100%);
+            background: linear-gradient(135deg, var(--accent-color) 0%, color-mix(in srgb, var(--accent-color) 80%, #FFA500) 100%);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #7B1D3A;
+            color: var(--primary-color);
             font-weight: 700;
         }
 
@@ -1784,7 +1784,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #FFBF00;
+            color: var(--accent-color);
             font-weight: 700;
             font-size: 18px;
             margin: 0 auto 10px;
@@ -1885,12 +1885,12 @@
             width: 56px;
             height: 56px;
             border-radius: 12px;
-            background: linear-gradient(135deg, #FFBF00 0%, #FFA500 100%);
+            background: linear-gradient(135deg, var(--accent-color) 0%, color-mix(in srgb, var(--accent-color) 80%, #FFA500) 100%);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 28px;
-            color: #7B1D3A;
+            color: var(--primary-color);
             margin-bottom: 16px;
         }
 
@@ -1996,7 +1996,7 @@
         }
 
         .view-all-btn:hover {
-            color: #FFBF00;
+            color: var(--accent-color);
         }
 
         table {
@@ -2072,18 +2072,18 @@
             width: 56px;
             height: 56px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #FFBF00 0%, #FFA500 100%);
-            color: #7B1D3A;
+            background: linear-gradient(135deg, var(--accent-color) 0%, color-mix(in srgb, var(--accent-color) 80%, #FFA500) 100%);
+            color: var(--primary-color);
             border: none;
             font-size: 24px;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(255, 191, 0, 0.4);
+            box-shadow: 0 4px 12px color-mix(in srgb, var(--accent-color) 40%, transparent);
             transition: all 0.3s ease;
         }
 
         .fab-button:hover {
             transform: scale(1.1);
-            box-shadow: 0 8px 20px rgba(255, 191, 0, 0.6);
+            box-shadow: 0 8px 20px color-mix(in srgb, var(--accent-color) 60%, transparent);
         }
 
         /* Calendar Styles */
@@ -2196,7 +2196,7 @@
             transform: translateX(-50%);
             width: 4px;
             height: 4px;
-            background: #FFBF00;
+            background: var(--accent-color);
             border-radius: 50%;
         }
 
@@ -2585,7 +2585,7 @@
 
         .folder-icon {
             background: none !important;
-            color: #FFBF00;
+            color: var(--accent-color);
             font-size: 48px;
         }
 
@@ -2666,8 +2666,8 @@
         }
 
         .mobile-menu-btn.active {
-            background: linear-gradient(135deg, #FFBF00 0%, #FFA500 100%);
-            color: #7B1D3A;
+            background: linear-gradient(135deg, var(--accent-color) 0%, color-mix(in srgb, var(--accent-color) 80%, #FFA500) 100%);
+            color: var(--primary-color);
         }
 
         /* Mobile Overlay */
@@ -7935,11 +7935,11 @@
 
     <!-- Team Leader Modal (Manual Entry - for external coordinators) -->
     <div id="teamLeaderModal" class="modal-overlay">
-        <div class="modal-content" style="max-width: 600px;">
+        <div class="modal-content" style="max-width: 600px; overflow: hidden;">
             <div class="modal-header">
                 <h3 class="modal-title" id="teamLeaderModalTitle"><i class="fas fa-user-tie" style="margin-right: 8px;"></i>Add Team Leader</h3>
             </div>
-            <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+            <div class="modal-body" style="max-height: calc(90vh - 140px); overflow-y: auto;">
                 <form id="teamLeaderForm">
                     <input type="hidden" id="teamLeaderId">
 
@@ -7957,13 +7957,6 @@
                         <label class="form-label" id="passwordLabel">Password</label>
                         <input type="password" id="teamLeaderPassword" class="form-input" placeholder="Enter password (min 8 characters)" minlength="8">
                         <small id="passwordHint" style="color: #6B7280; font-size: 12px; margin-top: 4px; display: block;">Leave blank when editing to keep current password</small>
-                    </div>
-
-                    <div class="form-group" id="schoolGroup">
-                        <label class="form-label required">Assigned School</label>
-                        <select id="teamLeaderSchool" class="form-input" required>
-                            <option value="">-- Select School --</option>
-                        </select>
                     </div>
 
                     <!-- Module Permissions Section -->
@@ -10896,7 +10889,8 @@
         async function resetSettingsForm() {
             const defaults = getDefaultSettings();
             populateSettingsForm(defaults);
-            showToast('info', 'Form Reset', 'Settings form has been reset to defaults. Click Save to apply.');
+            applySettings(defaults);
+            showToast('info', 'Form Reset', 'Settings form has been reset to defaults. Click Save to apply permanently.');
         }
 
         async function resetSettings() {
@@ -10913,7 +10907,9 @@
                     const data = await response.json();
 
                     if (data.success) {
-                        await loadSettingsFromStorage();
+                        const defaults = getDefaultSettings();
+                        populateSettingsForm(defaults);
+                        applySettings(defaults);
                         showToast('success', 'Settings Reset', data.message);
                     } else {
                         showToast('error', 'Error', 'Failed to reset settings');
@@ -11149,15 +11145,7 @@
         }
 
         function populateSchoolsDropdown() {
-            const select = document.getElementById('teamLeaderSchool');
-            select.innerHTML = '<option value="">-- Select School --</option>';
-
-            schoolsData.forEach(school => {
-                const option = document.createElement('option');
-                option.value = school.id;
-                option.textContent = school.name;
-                select.appendChild(option);
-            });
+            // School dropdown removed from team leader modal
         }
 
         function openTeamLeaderModal(id = null) {
@@ -11165,7 +11153,6 @@
             const title = document.getElementById('teamLeaderModalTitle');
             const form = document.getElementById('teamLeaderForm');
             const passwordGroup = document.getElementById('passwordGroup');
-            const schoolGroup = document.getElementById('schoolGroup');
             const refCodeDisplay = document.getElementById('referenceCodeDisplay');
             const passwordLabel = document.getElementById('passwordLabel');
             const passwordInput = document.getElementById('teamLeaderPassword');
@@ -11186,9 +11173,6 @@
                     document.getElementById('teamLeaderName').value = tl.name;
                     document.getElementById('teamLeaderEmail').value = tl.email;
 
-                    // Hide school field during edit - school cannot be changed
-                    schoolGroup.style.display = 'none';
-
                     // Make password optional for editing
                     passwordInput.removeAttribute('required');
                     passwordLabel.classList.remove('required');
@@ -11205,9 +11189,6 @@
                 }
             } else {
                 title.innerHTML = '<i class="fas fa-user-tie" style="margin-right: 8px;"></i>Add Team Leader';
-
-                // Show school field for new team leaders
-                schoolGroup.style.display = 'block';
 
                 // Make password required for new team leaders
                 passwordInput.setAttribute('required', 'required');
@@ -11581,7 +11562,6 @@
             const name = document.getElementById('teamLeaderName').value;
             const email = document.getElementById('teamLeaderEmail').value;
             const password = document.getElementById('teamLeaderPassword').value;
-            const school_id = document.getElementById('teamLeaderSchool').value;
             const permissions = getPermissionsFromForm();
 
             // Validate name and email (always required)
@@ -11590,23 +11570,16 @@
                 return;
             }
 
-            // For new team leaders, school_id and password are required
+            // For new team leaders, password is required
             if (!id) {
-                if (!school_id) {
-                    showToast('error', 'Validation Error', 'Please select a school');
-                    return;
-                }
                 if (!password) {
                     showToast('error', 'Validation Error', 'Password is required for new team leaders');
                     return;
                 }
             }
 
-            // Build data object - only include school_id for new team leaders
+            // Build data object
             const data = { name, email, permissions };
-            if (!id && school_id) {
-                data.school_id = school_id;
-            }
             if (password) data.password = password;
 
             try {
