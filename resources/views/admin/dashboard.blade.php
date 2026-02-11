@@ -8833,7 +8833,7 @@
                             </div>
                             <div class="form-group">
                                 <label class="form-label required">MOA Purpose</label>
-                                <select id="moaPurpose" class="form-select" required>
+                                <select id="moaPurpose" class="form-select" required onchange="toggleOtherPurpose()">
                                     <option value="">-- Select Purpose --</option>
                                     <option value="incubation">Business Incubation Program</option>
                                     <option value="coworking">Co-working Space Usage</option>
@@ -8841,6 +8841,10 @@
                                     <option value="partnership">Partnership Agreement</option>
                                     <option value="other">Other</option>
                                 </select>
+                            </div>
+                            <div class="form-group" id="otherPurposeGroup" style="display: none;">
+                                <label class="form-label required">Specify Purpose</label>
+                                <input type="text" id="moaOtherPurpose" class="form-input" placeholder="Enter specific MOA purpose...">
                             </div>
                             <div class="form-group">
                                 <label class="form-label required">Duration</label>
@@ -8858,6 +8862,23 @@
                             <div class="form-group">
                                 <label class="form-label">Monthly Fee (if applicable)</label>
                                 <input type="number" id="moaFee" class="form-input" placeholder="0.00" step="0.01" min="0">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Work Arrangement</label>
+                                <div style="display: flex; gap: 16px; margin-top: 8px;">
+                                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 14px;">
+                                        <input type="radio" name="moaWorkArrangement" value="onsite" id="moaOnsite" style="width: 16px; height: 16px; accent-color: #7B1D3A;">
+                                        <i class="fas fa-building" style="color: #7B1D3A;"></i> Onsite
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 14px;">
+                                        <input type="radio" name="moaWorkArrangement" value="virtual" id="moaVirtual" style="width: 16px; height: 16px; accent-color: #7B1D3A;">
+                                        <i class="fas fa-laptop-house" style="color: #3B82F6;"></i> Virtual
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 14px;">
+                                        <input type="radio" name="moaWorkArrangement" value="hybrid" id="moaHybrid" style="width: 16px; height: 16px; accent-color: #7B1D3A;">
+                                        <i class="fas fa-sync-alt" style="color: #10B981;"></i> Hybrid
+                                    </label>
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Special Terms/Conditions</label>
@@ -13136,7 +13157,16 @@
                     'Mentorship': 'mentorship',
                     'Partnership': 'partnership'
                 };
-                document.getElementById('moaPurpose').value = purposeMap[moa.moa_purpose] || 'other';
+                const mappedPurpose = purposeMap[moa.moa_purpose] || 'other';
+                document.getElementById('moaPurpose').value = mappedPurpose;
+                
+                // Handle "other" purpose case
+                if (mappedPurpose === 'other' && moa.moa_purpose) {
+                    document.getElementById('moaOtherPurpose').value = moa.moa_purpose;
+                    document.getElementById('otherPurposeGroup').style.display = 'block';
+                } else {
+                    document.getElementById('otherPurposeGroup').style.display = 'none';
+                }
             }
 
             document.getElementById('moaTemplateModal').style.display = 'flex';
@@ -13155,13 +13185,32 @@
             document.getElementById('moaPosition').value = '';
             document.getElementById('moaAddress').value = '';
             document.getElementById('moaPurpose').value = '';
+            document.getElementById('moaOtherPurpose').value = '';
+            document.getElementById('otherPurposeGroup').style.display = 'none';
             document.getElementById('moaStartDate').value = '';
             document.getElementById('moaEndDate').value = '';
             document.getElementById('moaFee').value = '';
             document.getElementById('moaTerms').value = '';
+            // Reset work arrangement radio buttons
+            document.querySelectorAll('input[name="moaWorkArrangement"]').forEach(radio => radio.checked = false);
             document.getElementById('moaPreviewContent').innerHTML = '<p style="color: #6B7280; font-style: italic;">Fill in the form and click "Generate Preview" to see the MOA document.</p>';
 
             document.getElementById('moaTemplateModal').style.display = 'flex';
+        }
+
+        function toggleOtherPurpose() {
+            const purposeSelect = document.getElementById('moaPurpose');
+            const otherPurposeGroup = document.getElementById('otherPurposeGroup');
+            const otherPurposeInput = document.getElementById('moaOtherPurpose');
+            
+            if (purposeSelect.value === 'other') {
+                otherPurposeGroup.style.display = 'block';
+                otherPurposeInput.setAttribute('required', 'required');
+            } else {
+                otherPurposeGroup.style.display = 'none';
+                otherPurposeInput.removeAttribute('required');
+                otherPurposeInput.value = '';
+            }
         }
 
         function generateMoaPreview() {
@@ -13170,13 +13219,20 @@
             const position = document.getElementById('moaPosition').value;
             const address = document.getElementById('moaAddress').value;
             const purpose = document.getElementById('moaPurpose').value;
+            const otherPurpose = document.getElementById('moaOtherPurpose').value;
             const startDate = document.getElementById('moaStartDate').value;
             const endDate = document.getElementById('moaEndDate').value;
             const fee = document.getElementById('moaFee').value;
             const terms = document.getElementById('moaTerms').value;
+            const workArrangement = document.querySelector('input[name="moaWorkArrangement"]:checked')?.value || '';
 
             if (!companyName || !representative || !position || !address || !purpose || !startDate || !endDate) {
                 alert('Please fill in all required fields');
+                return;
+            }
+
+            if (purpose === 'other' && !otherPurpose) {
+                alert('Please specify the MOA purpose');
                 return;
             }
 
@@ -13185,7 +13241,13 @@
                 'coworking': 'Co-working Space Usage',
                 'mentorship': 'Mentorship Program',
                 'partnership': 'Partnership Agreement',
-                'other': 'Other Services'
+                'other': otherPurpose || 'Other Services'
+            };
+
+            const workArrangementLabels = {
+                'onsite': 'Onsite (Physical workspace at UP Cebu TBI)',
+                'virtual': 'Virtual (Remote access to services)',
+                'hybrid': 'Hybrid (Combination of onsite and virtual)'
             };
 
             const formatDate = (dateStr) => {
@@ -13233,22 +13295,27 @@
                     <p><strong>ARTICLE I - PURPOSE</strong></p>
                     <p>This MOA is entered into for the purpose of: <strong>${purposeLabels[purpose]}</strong></p>
 
-                    <p><strong>ARTICLE II - TERM</strong></p>
+                    ${workArrangement ? `
+                    <p><strong>ARTICLE II - WORK ARRANGEMENT</strong></p>
+                    <p>The PARTNER shall operate under the following arrangement: <strong>${workArrangementLabels[workArrangement]}</strong></p>
+                    ` : ''}
+
+                    <p><strong>ARTICLE ${workArrangement ? 'III' : 'II'} - TERM</strong></p>
                     <p>This Agreement shall be effective from <strong>${formatDate(startDate)}</strong> to <strong>${formatDate(endDate)}</strong>,
                     unless sooner terminated by either party upon thirty (30) days prior written notice.</p>
 
                     ${fee ? `
-                    <p><strong>ARTICLE III - FEES</strong></p>
+                    <p><strong>ARTICLE ${workArrangement ? 'IV' : 'III'} - FEES</strong></p>
                     <p>The PARTNER agrees to pay a monthly fee of <strong>₱${parseFloat(fee).toLocaleString('en-US', {minimumFractionDigits: 2})}</strong>
                     for the duration of this agreement, payable on or before the 5th day of each month.</p>
                     ` : ''}
 
-                    <p><strong>ARTICLE IV - OBLIGATIONS</strong></p>
+                    <p><strong>ARTICLE ${workArrangement && fee ? 'V' : (workArrangement || fee ? 'IV' : 'III')} - OBLIGATIONS</strong></p>
                     <p>Both parties shall comply with all applicable laws, rules, and regulations, and shall perform their
                     respective obligations under this Agreement in good faith.</p>
 
                     ${terms ? `
-                    <p><strong>ARTICLE V - SPECIAL TERMS</strong></p>
+                    <p><strong>ARTICLE ${workArrangement && fee ? 'VI' : (workArrangement || fee ? 'V' : 'IV')} - SPECIAL TERMS</strong></p>
                     <p>${terms}</p>
                     ` : ''}
 
