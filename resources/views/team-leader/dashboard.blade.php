@@ -3324,6 +3324,7 @@
         <div class="modal modal-lg">
             <div class="modal-header">
                 <h3><i class="fas fa-user"></i> Intern Details</h3>
+                <button onclick="closeModal('viewInternModal')" style="background: rgba(255,255,255,0.2); border: none; width: 32px; height: 32px; border-radius: 8px; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px;" title="Close"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body" id="viewInternContent">
                 <div style="text-align: center; padding: 40px;">
@@ -3472,6 +3473,7 @@
         <div class="modal modal-lg">
             <div class="modal-header">
                 <h3><i class="fas fa-file-alt"></i> Report Details</h3>
+                <button onclick="closeModal('viewReportModal')" style="background: rgba(255,255,255,0.2); border: none; width: 32px; height: 32px; border-radius: 8px; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px;" title="Close"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body" id="viewReportContent">
                 <div style="text-align: center; padding: 40px;">

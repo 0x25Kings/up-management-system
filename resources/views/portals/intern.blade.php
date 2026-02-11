@@ -1333,6 +1333,7 @@
                     <h2><i class="fas fa-user-plus" style="margin-right: 8px;"></i>New Intern Registration</h2>
                     <p style="font-size: 13px; opacity: 0.8; margin-top: 4px;">University of the Philippines Cebu</p>
                 </div>
+                <button onclick="closeRegistrationModal()" style="background: rgba(255,255,255,0.2); border: none; width: 32px; height: 32px; border-radius: 8px; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px;" title="Close"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body">
                 <form action="{{ route('intern.register') }}" method="POST">
