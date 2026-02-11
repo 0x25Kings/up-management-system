@@ -1499,15 +1499,17 @@
             </a>
         </nav>
 
+        @if(isset($isTeamLeader) && $isTeamLeader)
         <div style="padding: 20px; margin-top: auto; border-top: 1px solid rgba(255,255,255,0.1);">
-            <form action="{{ route('intern.clear') }}" method="POST">
+            <form action="{{ route('intern.switch-to-team-leader') }}" method="POST">
                 @csrf
                 <button type="submit" class="menu-item" style="width: 100%; background: none; border: none; text-align: left; color: rgba(255,255,255,0.6);">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span>Switch Account</span>
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>Switch to Team Leader</span>
                 </button>
             </form>
         </div>
+        @endif
     </aside>
 
     <main class="main-content">

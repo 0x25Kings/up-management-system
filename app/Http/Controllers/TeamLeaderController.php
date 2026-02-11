@@ -1027,7 +1027,9 @@ class TeamLeaderController extends Controller
         DB::table('password_reset_tokens')->where('email', $request->email)->delete();
 
         return redirect()->route('admin.login')->with('success', 'Password has been reset successfully. You can now log in with your new password.');
-=======
+    }
+
+    /**
      * Switch to intern portal for the linked intern account
      */
     public function switchToIntern(Request $request)
@@ -1064,6 +1066,5 @@ class TeamLeaderController extends Controller
 
         return redirect()->route('intern.portal')
             ->with('success', 'Switched to Intern Portal. Welcome, ' . $intern->name . '!');
->>>>>>> 871e7d1199944416b3db8690eac6e38f049fd7f4
     }
 }
