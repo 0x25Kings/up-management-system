@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="icon" type="image/png" href="{{ asset('images/upLogo.png') }}">
+    <link rel="icon" type="image/jpeg" href="{{ asset('images/upinit.jpg') }}">
     <title>Team Leader Dashboard - {{ $school->name }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -71,7 +71,8 @@
 
         .sidebar::-webkit-scrollbar { width: 6px; }
         .sidebar::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); }
-        .sidebar::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 3px; }
+        .sidebar::-webkit-scrollbar-thumb { background: rgba(255, 215, 0, 0.3); border-radius: 3px; }
+        .sidebar::-webkit-scrollbar-thumb:hover { background: rgba(255, 215, 0, 0.5); }
 
         .sidebar-logo {
             padding: 32px 24px;

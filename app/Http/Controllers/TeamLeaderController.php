@@ -1056,13 +1056,12 @@ class TeamLeaderController extends Controller
                 ->with('error', 'No linked intern account found. Please contact the administrator.');
         }
 
-        // Logout from team leader and set intern session
+        // Logout from team leader auth but keep the session alive for intern portal
         Auth::logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
 
-        // Set intern session
+        // Set intern session (intern portal uses session-based access, not Auth)
         $request->session()->put('intern_id', $intern->id);
+        $request->session()->regenerateToken();
 
         return redirect()->route('intern.portal')
             ->with('success', 'Switched to Intern Portal. Welcome, ' . $intern->name . '!');
