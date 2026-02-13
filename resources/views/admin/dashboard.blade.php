@@ -9043,189 +9043,149 @@
     <!-- ========== SCHOOL MANAGEMENT MODALS ========== -->
 
     <!-- School Management Modal -->
-    <div id="schoolManagementModal" class="modal-overlay">
-        <div class="modal-content" style="max-width: 900px; max-height: 90vh;">
-            <div class="modal-header">
+    <div id="schoolManagementModal" class="modal-overlay" onclick="if(event.target === this) closeSchoolManagementModal()">
+        <div class="modal-content" style="max-width: 700px; width: 95%; margin: 20px auto; max-height: calc(100vh - 40px); display: flex; flex-direction: column;">
+            <div class="modal-header" style="flex-shrink: 0;">
                 <h3 class="modal-title"><i class="fas fa-university" style="margin-right: 8px;"></i>School Management</h3>
             </div>
-            <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+            <div class="modal-body" style="flex: 1; overflow-y: auto; padding: 20px;">
                 <!-- Add New School Button -->
-                <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
-                    <h4 style="margin: 0; color: #1F2937; font-size: 16px;">
-                        <i class="fas fa-list" style="color: #7B1D3A; margin-right: 8px;"></i>Registered Schools
+                <div style="margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                    <h4 style="margin: 0; color: #1F2937; font-size: 15px;">
+                        <i class="fas fa-list" style="color: #7B1D3A; margin-right: 8px;"></i>Registered Schools ({{ ($schools ?? collect())->count() }})
                     </h4>
-                    <button onclick="openAddSchoolForm()" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; border: none; padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
-                        <i class="fas fa-plus"></i> Add New School
+                    <button onclick="openAddSchoolForm()" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; border: none; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-plus"></i> Add School
                     </button>
                 </div>
 
                 <!-- Add/Edit School Form (Hidden by default) -->
-                <div id="schoolFormContainer" style="display: none; background: #F9FAFB; border-radius: 12px; padding: 20px; margin-bottom: 20px; border: 2px solid #E5E7EB;">
-                    <h5 style="margin: 0 0 16px 0; color: #1F2937;" id="schoolFormTitle">
-                        <i class="fas fa-plus-circle" style="color: #10B981; margin-right: 8px;"></i>Add New School
-                    </h5>
+                <div id="schoolFormContainer" style="display: none; background: #f8fafc; border-radius: 12px; padding: 20px; margin-bottom: 16px; border: 2px solid #7B1D3A;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <h5 style="margin: 0; color: #1F2937; font-size: 16px; font-weight: 700;" id="schoolFormTitle">
+                            <i class="fas fa-plus-circle" style="color: #10B981; margin-right: 8px;"></i>Add New School
+                        </h5>
+                        <button type="button" onclick="cancelSchoolForm()" style="width: 28px; height: 28px; border-radius: 6px; border: none; background: #E5E7EB; color: #6B7280; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
                     <form id="schoolForm">
                         <input type="hidden" id="schoolFormId">
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                            <div class="form-group" style="margin-bottom: 12px;">
-                                <label class="form-label required">School Name</label>
-                                <input type="text" id="schoolFormName" class="form-input" placeholder="e.g., University of the Philippines Cebu" required>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label required" style="font-size: 12px; margin-bottom: 4px;">School Name</label>
+                                <input type="text" id="schoolFormName" class="form-input" placeholder="University name" required style="padding: 10px 12px; font-size: 13px;">
                             </div>
-                            <div class="form-group" style="margin-bottom: 12px;">
-                                <label class="form-label required">Required Hours</label>
-                                <input type="number" id="schoolFormHours" class="form-input" placeholder="e.g., 500" min="1" max="2000" required>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label required" style="font-size: 12px; margin-bottom: 4px;">Required Hours</label>
+                                <input type="number" id="schoolFormHours" class="form-input" placeholder="e.g., 500" min="1" max="2000" required style="padding: 10px 12px; font-size: 13px;">
                             </div>
-                            <div class="form-group" style="margin-bottom: 12px;">
-                                <label class="form-label">Max Interns</label>
-                                <input type="number" id="schoolFormMaxInterns" class="form-input" placeholder="Leave empty for unlimited" min="1">
-                                <small style="color: #6B7280; font-size: 11px;">Maximum number of interns allowed (leave empty for no limit)</small>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label" style="font-size: 12px; margin-bottom: 4px;">Max Interns</label>
+                                <input type="number" id="schoolFormMaxInterns" class="form-input" placeholder="Unlimited" min="1" style="padding: 10px 12px; font-size: 13px;">
                             </div>
-                            <div class="form-group" style="margin-bottom: 12px;">
-                                <label class="form-label">Contact Person</label>
-                                <input type="text" id="schoolFormContactPerson" class="form-input" placeholder="e.g., Dr. Juan Dela Cruz">
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label" style="font-size: 12px; margin-bottom: 4px;">Contact Person</label>
+                                <input type="text" id="schoolFormContactPerson" class="form-input" placeholder="Name" style="padding: 10px 12px; font-size: 13px;">
                             </div>
-                            <div class="form-group" style="margin-bottom: 12px;">
-                                <label class="form-label">Contact Email</label>
-                                <input type="email" id="schoolFormContactEmail" class="form-input" placeholder="e.g., contact@school.edu.ph">
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label" style="font-size: 12px; margin-bottom: 4px;">Contact Email</label>
+                                <input type="email" id="schoolFormContactEmail" class="form-input" placeholder="email@school.edu" style="padding: 10px 12px; font-size: 13px;">
                             </div>
-                            <div class="form-group" style="margin-bottom: 12px;">
-                                <label class="form-label">Contact Phone</label>
-                                <input type="text" id="schoolFormContactPhone" class="form-input" placeholder="e.g., 09XX XXX XXXX">
-                            </div>
-                            <div class="form-group" style="margin-bottom: 12px;">
-                                <label class="form-label">Notes</label>
-                                <input type="text" id="schoolFormNotes" class="form-input" placeholder="Any additional notes...">
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label" style="font-size: 12px; margin-bottom: 4px;">Contact Phone</label>
+                                <input type="text" id="schoolFormContactPhone" class="form-input" placeholder="Phone number" style="padding: 10px 12px; font-size: 13px;">
                             </div>
                         </div>
-                        <div style="display: flex; gap: 12px; margin-top: 16px;">
-                            <button type="button" onclick="cancelSchoolForm()" style="background: #E5E7EB; color: #374151; border: none; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;">
+                        <div class="form-group" style="margin: 12px 0 0 0;">
+                            <label class="form-label" style="font-size: 12px; margin-bottom: 4px;">Notes</label>
+                            <input type="text" id="schoolFormNotes" class="form-input" placeholder="Additional notes..." style="padding: 10px 12px; font-size: 13px;">
+                        </div>
+                        <div style="display: flex; gap: 10px; margin-top: 16px; justify-content: flex-end;">
+                            <button type="button" onclick="cancelSchoolForm()" style="background: #E5E7EB; color: #374151; border: none; padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;">
                                 Cancel
                             </button>
-                            <button type="submit" style="background: linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;">
-                                <i class="fas fa-save" style="margin-right: 6px;"></i><span id="schoolFormSubmitText">Save School</span>
+                            <button type="submit" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; border: none; padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;">
+                                <i class="fas fa-save" style="margin-right: 6px;"></i><span id="schoolFormSubmitText">Save</span>
                             </button>
                         </div>
                     </form>
                 </div>
 
-                <!-- Schools Table -->
-                <div id="schoolsTableContainer">
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <thead>
-                            <tr style="background: #F3F4F6;">
-                                <th style="padding: 12px 16px; text-align: left; font-size: 13px; font-weight: 600; color: #6B7280;">School Name</th>
-                                <th style="padding: 12px 16px; text-align: center; font-size: 13px; font-weight: 600; color: #6B7280;">Req. Hours</th>
-                                <th style="padding: 12px 16px; text-align: center; font-size: 13px; font-weight: 600; color: #6B7280;">Interns</th>
-                                <th style="padding: 12px 16px; text-align: center; font-size: 13px; font-weight: 600; color: #6B7280;">Capacity</th>
-                                <th style="padding: 12px 16px; text-align: center; font-size: 13px; font-weight: 600; color: #6B7280;">Total Rendered</th>
-                                <th style="padding: 12px 16px; text-align: left; font-size: 13px; font-weight: 600; color: #6B7280;">Contact Person</th>
-                                <th style="padding: 12px 16px; text-align: center; font-size: 13px; font-weight: 600; color: #6B7280;">Status</th>
-                                <th style="padding: 12px 16px; text-align: center; font-size: 13px; font-weight: 600; color: #6B7280;">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="schoolsTableBody">
-                            @forelse($schools ?? [] as $school)
-                            <tr id="school-row-{{ $school->id }}" style="border-bottom: 1px solid #E5E7EB;">
-                                <td style="padding: 14px 16px;">
-                                    <div style="display: flex; align-items: center; gap: 12px;">
-                                        <div style="width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, #7B1D3A, #5a1428); display: flex; align-items: center; justify-content: center;">
-                                            <i class="fas fa-university" style="color: #FFBF00; font-size: 16px;"></i>
-                                        </div>
-                                        <div>
-                                            <div style="font-weight: 600; color: #1F2937;">{{ $school->name }}</div>
-                                            @if($school->contact_email)
-                                            <div style="font-size: 12px; color: #6B7280;">{{ $school->contact_email }}</div>
-                                            @endif
-                                        </div>
+                <!-- Schools Cards -->
+                <div id="schoolsTableContainer" style="display: flex; flex-direction: column; gap: 12px;">
+                    @forelse($schools ?? [] as $school)
+                    <div id="school-row-{{ $school->id }}" style="background: white; border: 1px solid #E5E7EB; border-radius: 12px; padding: 16px; transition: box-shadow 0.2s;" onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.08)'" onmouseout="this.style.boxShadow='none'">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap;">
+                            <!-- School Info -->
+                            <div style="display: flex; align-items: center; gap: 12px; flex: 1; min-width: 200px;">
+                                <div style="width: 44px; height: 44px; border-radius: 10px; background: linear-gradient(135deg, #7B1D3A, #5a1428); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                    <i class="fas fa-university" style="color: #FFBF00; font-size: 18px;"></i>
+                                </div>
+                                <div style="min-width: 0;">
+                                    <div style="font-weight: 600; color: #1F2937; font-size: 15px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                        {{ $school->name }}
+                                        <span style="padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; {{ $school->status === 'Active' ? 'background: #D1FAE5; color: #065F46;' : 'background: #FEE2E2; color: #991B1B;' }}">
+                                            {{ $school->status }}
+                                        </span>
                                     </div>
-                                </td>
-                                <td style="padding: 14px 16px; text-align: center; vertical-align: middle;">
-                                    <div style="display: flex; justify-content: center; align-items: center;">
-                                        <span style="background: #DBEAFE; color: #1E40AF; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; white-space: nowrap;">{{ $school->required_hours }} hrs</span>
-                                    </div>
-                                </td>
-                                <td style="padding: 14px 16px; text-align: center;">
-                                    <div style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
-                                        <span style="font-weight: 700; color: #1F2937; font-size: 18px;">{{ $school->total_interns ?? 0 }}</span>
-                                        @if(($school->pending_interns ?? 0) > 0)
-                                        <span style="background: #FEF3C7; color: #92400E; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600;">+{{ $school->pending_interns }} pending</span>
-                                        @endif
-                                    </div>
-                                </td>
-                                <td style="padding: 14px 16px; text-align: center;">
-                                    @if($school->max_interns)
-                                        @php
-                                            $currentInterns = $school->total_interns ?? 0;
-                                            $maxInterns = $school->max_interns;
-                                            $percentage = ($currentInterns / $maxInterns) * 100;
-                                            $isFull = $currentInterns >= $maxInterns;
-                                            $isNearFull = $percentage >= 80;
-                                        @endphp
-                                        <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
-                                            <span style="font-weight: 600; font-size: 13px; {{ $isFull ? 'color: #DC2626;' : ($isNearFull ? 'color: #D97706;' : 'color: #059669;') }}">
-                                                {{ $currentInterns }}/{{ $maxInterns }}
-                                            </span>
-                                            <div style="width: 60px; height: 6px; background: #E5E7EB; border-radius: 3px; overflow: hidden;">
-                                                <div style="width: {{ min($percentage, 100) }}%; height: 100%; background: {{ $isFull ? '#DC2626' : ($isNearFull ? '#D97706' : '#059669') }}; border-radius: 3px;"></div>
-                                            </div>
-                                            @if($isFull)
-                                            <span style="background: #FEE2E2; color: #DC2626; padding: 2px 6px; border-radius: 8px; font-size: 9px; font-weight: 600;">FULL</span>
-                                            @endif
-                                        </div>
-                                    @else
-                                        <span style="color: #9CA3AF; font-style: italic; font-size: 12px;">Unlimited</span>
-                                    @endif
-                                </td>
-                                <td style="padding: 14px 16px; text-align: center;">
-                                    <span style="font-weight: 600; color: #059669;">{{ number_format($school->total_rendered_hours ?? 0) }} hrs</span>
-                                </td>
-                                <td style="padding: 14px 16px;">
                                     @if($school->contact_person)
-                                    <div style="font-weight: 500; color: #1F2937;">{{ $school->contact_person }}</div>
-                                    @if($school->contact_phone)
-                                    <div style="font-size: 12px; color: #6B7280;">{{ $school->contact_phone }}</div>
+                                    <div style="font-size: 12px; color: #6B7280; margin-top: 2px;">{{ $school->contact_person }} @if($school->contact_email)• {{ $school->contact_email }}@endif</div>
                                     @endif
-                                    @else
-                                    <span style="color: #9CA3AF; font-style: italic;">Not set</span>
-                                    @endif
-                                </td>
-                                <td style="padding: 14px 16px; text-align: center;">
-                                    <span style="padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; {{ $school->status === 'Active' ? 'background: #D1FAE5; color: #065F46;' : 'background: #FEE2E2; color: #991B1B;' }}">
-                                        {{ $school->status }}
-                                    </span>
-                                </td>
-                                <td style="padding: 14px 16px; text-align: center;">
-                                    <div style="display: flex; justify-content: center; gap: 6px;">
-                                        <button onclick="editSchool({{ $school->id }}, '{{ addslashes($school->name) }}', {{ $school->required_hours }}, {{ $school->max_interns ?? 'null' }}, '{{ addslashes($school->contact_person ?? '') }}', '{{ addslashes($school->contact_email ?? '') }}', '{{ addslashes($school->contact_phone ?? '') }}', '{{ addslashes($school->notes ?? '') }}')" class="school-action-btn school-action-edit" title="Edit School">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button onclick="toggleSchoolStatus({{ $school->id }}, '{{ addslashes($school->name) }}', '{{ $school->status }}')" class="school-action-btn {{ $school->status === 'Active' ? 'school-action-deactivate' : 'school-action-activate' }}" title="{{ $school->status === 'Active' ? 'Deactivate School' : 'Activate School' }}">
-                                            <i class="fas {{ $school->status === 'Active' ? 'fa-ban' : 'fa-check-circle' }}"></i>
-                                        </button>
-                                        <button onclick="accomplishSchool({{ $school->id }}, '{{ addslashes($school->name) }}')" class="school-action-btn school-action-accomplish" title="Mark Eligible Interns as Completed">
-                                            <i class="fas fa-trophy"></i>
-                                        </button>
-                                        @if(($school->total_interns ?? 0) == 0)
-                                        <button onclick="deleteSchool({{ $school->id }}, '{{ addslashes($school->name) }}')" class="school-action-btn school-action-delete" title="Delete School">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                        @endif
-                                    </div>
-                                </td>
-                            </tr>
-                            @empty
-                            <tr id="noSchoolsRow">
-                                <td colspan="8" style="padding: 40px; text-align: center; color: #9CA3AF;">
-                                    <i class="fas fa-university" style="font-size: 40px; margin-bottom: 12px; display: block;"></i>
-                                    No schools registered yet. Click "Add New School" to get started.
-                                </td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                                </div>
+                            </div>
+                            <!-- Actions -->
+                            <div style="display: flex; gap: 6px; flex-shrink: 0;">
+                                <button onclick="editSchool({{ $school->id }}, '{{ addslashes($school->name) }}', {{ $school->required_hours }}, {{ $school->max_interns ?? 'null' }}, '{{ addslashes($school->contact_person ?? '') }}', '{{ addslashes($school->contact_email ?? '') }}', '{{ addslashes($school->contact_phone ?? '') }}', '{{ addslashes($school->notes ?? '') }}')" style="width: 32px; height: 32px; border-radius: 6px; border: none; background: #EEF2FF; color: #4F46E5; cursor: pointer; display: flex; align-items: center; justify-content: center;" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button onclick="toggleSchoolStatus({{ $school->id }}, '{{ addslashes($school->name) }}', '{{ $school->status }}')" style="width: 32px; height: 32px; border-radius: 6px; border: none; {{ $school->status === 'Active' ? 'background: #FEE2E2; color: #DC2626;' : 'background: #D1FAE5; color: #059669;' }} cursor: pointer; display: flex; align-items: center; justify-content: center;" title="{{ $school->status === 'Active' ? 'Deactivate' : 'Activate' }}">
+                                    <i class="fas {{ $school->status === 'Active' ? 'fa-ban' : 'fa-check-circle' }}"></i>
+                                </button>
+                                <button onclick="accomplishSchool({{ $school->id }}, '{{ addslashes($school->name) }}')" style="width: 32px; height: 32px; border-radius: 6px; border: none; background: #FEF3C7; color: #D97706; cursor: pointer; display: flex; align-items: center; justify-content: center;" title="Mark Completed">
+                                    <i class="fas fa-trophy"></i>
+                                </button>
+                                @if(($school->total_interns ?? 0) == 0)
+                                <button onclick="deleteSchool({{ $school->id }}, '{{ addslashes($school->name) }}')" style="width: 32px; height: 32px; border-radius: 6px; border: none; background: #FEE2E2; color: #DC2626; cursor: pointer; display: flex; align-items: center; justify-content: center;" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                                @endif
+                            </div>
+                        </div>
+                        <!-- Stats Row -->
+                        <div style="display: flex; gap: 16px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #F3F4F6; flex-wrap: wrap;">
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <i class="fas fa-clock" style="color: #6B7280; font-size: 12px;"></i>
+                                <span style="font-size: 13px; color: #374151;"><strong>{{ $school->required_hours }}</strong> hrs required</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <i class="fas fa-users" style="color: #6B7280; font-size: 12px;"></i>
+                                <span style="font-size: 13px; color: #374151;"><strong>{{ $school->total_interns ?? 0 }}</strong> interns</span>
+                                @if(($school->pending_interns ?? 0) > 0)
+                                <span style="background: #FEF3C7; color: #92400E; padding: 2px 6px; border-radius: 8px; font-size: 10px; font-weight: 600;">+{{ $school->pending_interns }} pending</span>
+                                @endif
+                            </div>
+                            @if($school->max_interns)
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <i class="fas fa-user-check" style="color: #6B7280; font-size: 12px;"></i>
+                                <span style="font-size: 13px; color: #374151;">Capacity: <strong>{{ $school->total_interns ?? 0 }}/{{ $school->max_interns }}</strong></span>
+                            </div>
+                            @endif
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <i class="fas fa-hourglass-half" style="color: #059669; font-size: 12px;"></i>
+                                <span style="font-size: 13px; color: #059669; font-weight: 600;">{{ number_format($school->total_rendered_hours ?? 0) }} hrs rendered</span>
+                            </div>
+                        </div>
+                    </div>
+                    @empty
+                    <div id="noSchoolsRow" style="padding: 40px; text-align: center; color: #9CA3AF; background: #F9FAFB; border-radius: 12px;">
+                        <i class="fas fa-university" style="font-size: 36px; margin-bottom: 12px; display: block;"></i>
+                        No schools registered yet. Click "Add School" to get started.
+                    </div>
+                    @endforelse
                 </div>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer" style="flex-shrink: 0; padding: 12px 20px; border-top: 1px solid #E5E7EB;">
                 <button class="btn-modal secondary" onclick="closeSchoolManagementModal()">Close</button>
             </div>
         </div>
@@ -13159,7 +13119,7 @@
                 };
                 const mappedPurpose = purposeMap[moa.moa_purpose] || 'other';
                 document.getElementById('moaPurpose').value = mappedPurpose;
-                
+
                 // Handle "other" purpose case
                 if (mappedPurpose === 'other' && moa.moa_purpose) {
                     document.getElementById('moaOtherPurpose').value = moa.moa_purpose;
@@ -13202,7 +13162,7 @@
             const purposeSelect = document.getElementById('moaPurpose');
             const otherPurposeGroup = document.getElementById('otherPurposeGroup');
             const otherPurposeInput = document.getElementById('moaOtherPurpose');
-            
+
             if (purposeSelect.value === 'other') {
                 otherPurposeGroup.style.display = 'block';
                 otherPurposeInput.setAttribute('required', 'required');
@@ -16669,14 +16629,14 @@ University of the Philippines Cebu
         // Toggle OT dropdown menu
         function toggleOTDropdown(event, attendanceId) {
             event.stopPropagation();
-            
+
             // Close all other dropdowns first
             document.querySelectorAll('.ot-dropdown.show').forEach(dropdown => {
                 if (dropdown.id !== `ot-dropdown-${attendanceId}`) {
                     dropdown.classList.remove('show');
                 }
             });
-            
+
             const dropdown = document.getElementById(`ot-dropdown-${attendanceId}`);
             if (dropdown) {
                 dropdown.classList.toggle('show');
@@ -17722,7 +17682,7 @@ University of the Philippines Cebu
             document.getElementById('toggleSchoolId').value = schoolId;
             document.getElementById('toggleSchoolCurrentStatus').value = currentStatus;
             document.getElementById('toggleSchoolName').textContent = schoolName;
-            
+
             const isDeactivating = currentStatus === 'Active';
             const modal = document.getElementById('toggleSchoolStatusModal');
             const header = document.getElementById('toggleSchoolStatusHeader');
@@ -17732,7 +17692,7 @@ University of the Philippines Cebu
             const description = document.getElementById('toggleSchoolStatusDescription');
             const confirmBtn = document.getElementById('toggleSchoolStatusConfirmBtn');
             const btnText = document.getElementById('toggleSchoolStatusBtnText');
-            
+
             if (isDeactivating) {
                 header.style.background = 'linear-gradient(135deg, #DC2626 0%, #B91C1C 100%)';
                 icon.className = 'fas fa-ban';
@@ -17756,7 +17716,7 @@ University of the Philippines Cebu
                 btnText.textContent = 'Activate School';
                 confirmBtn.querySelector('i').className = 'fas fa-check-circle';
             }
-            
+
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
         }
@@ -17776,12 +17736,12 @@ University of the Philippines Cebu
             const btnText = document.getElementById('toggleSchoolStatusBtnText');
             const originalText = btnText.textContent;
             const originalIcon = confirmBtn.querySelector('i').className;
-            
+
             // Set loading state
             confirmBtn.disabled = true;
             confirmBtn.querySelector('i').className = 'fas fa-spinner fa-spin';
             btnText.textContent = 'Processing...';
-            
+
             try {
                 const response = await fetch(`/admin/schools/${schoolId}/toggle-status`, {
                     method: 'POST',
@@ -17863,7 +17823,7 @@ University of the Philippines Cebu
             const schoolId = document.getElementById('accomplishSchoolId').value;
             const confirmBtn = document.getElementById('accomplishSchoolConfirmBtn');
             const btnText = document.getElementById('accomplishSchoolBtnText');
-            
+
             // Set loading state
             confirmBtn.disabled = true;
             confirmBtn.querySelector('i').className = 'fas fa-spinner fa-spin';
