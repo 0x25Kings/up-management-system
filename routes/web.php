@@ -26,6 +26,7 @@ Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.ind
 Route::get('/bookings/date/{date}', [BookingController::class, 'getByDate'])->name('bookings.byDate');
 Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
 Route::get('/bookings/check-availability', [BookingController::class, 'checkAvailability'])->name('bookings.checkAvailability');
+Route::get('/bookings/settings', [BookingController::class, 'getBookingSettings'])->name('bookings.settings');
 Route::get('/blocked-dates/check/{date}', [BlockedDateController::class, 'check'])->name('blocked.check');
 Route::get('/blocked-dates', [BlockedDateController::class, 'index'])->name('blocked.index');
 
