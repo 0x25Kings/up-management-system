@@ -13,7 +13,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="icon" type="image/png" href="{{ asset('images/upLogo.png') }}">
+    <link rel="icon" type="image/jpeg" href="{{ asset('images/upinit.jpg') }}">
     <title>Admin Dashboard - UP Cebu Management System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -514,6 +514,105 @@
             background: #DC2626;
         }
 
+        /* OT Action Dropdown Styles */
+        .ot-action-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .ot-action-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #6B7280;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .ot-action-btn:hover {
+            background: #F3F4F6;
+            border-color: #E5E7EB;
+            color: #374151;
+        }
+
+        .ot-action-btn.has-overtime {
+            color: #92400E;
+        }
+
+        .ot-action-btn.has-overtime:hover {
+            background: #FEF3C7;
+            border-color: #F59E0B;
+        }
+
+        .ot-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border: 1px solid #E5E7EB;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            z-index: 100;
+            min-width: 160px;
+            display: none;
+            overflow: hidden;
+        }
+
+        .ot-dropdown.show {
+            display: block;
+            animation: dropdownFadeIn 0.15s ease;
+        }
+
+        @keyframes dropdownFadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .ot-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+        }
+
+        .ot-dropdown-item:hover {
+            background: #F9FAFB;
+        }
+
+        .ot-dropdown-item.approve {
+            color: #065F46;
+        }
+
+        .ot-dropdown-item.approve:hover {
+            background: #D1FAE5;
+        }
+
+        .ot-dropdown-item.decline {
+            color: #991B1B;
+        }
+
+        .ot-dropdown-item.decline:hover {
+            background: #FEE2E2;
+        }
+
+        .ot-dropdown-item i {
+            width: 16px;
+            text-align: center;
+        }
+
         .time-in-out-badge {
             display: inline-flex;
             align-items: center;
@@ -918,6 +1017,73 @@
 
         .btn-modal.secondary:hover {
             background: #E5E7EB;
+        }
+
+        /* School Action Buttons */
+        .school-action-btn {
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .school-action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .school-action-edit {
+            background: #DBEAFE;
+            color: #1E40AF;
+        }
+
+        .school-action-edit:hover {
+            background: #BFDBFE;
+        }
+
+        .school-action-deactivate {
+            background: #FEE2E2;
+            color: #991B1B;
+        }
+
+        .school-action-deactivate:hover {
+            background: #FECACA;
+            color: #7F1D1D;
+        }
+
+        .school-action-activate {
+            background: #D1FAE5;
+            color: #065F46;
+        }
+
+        .school-action-activate:hover {
+            background: #A7F3D0;
+            color: #064E3B;
+        }
+
+        .school-action-accomplish {
+            background: #D1FAE5;
+            color: #065F46;
+        }
+
+        .school-action-accomplish:hover {
+            background: #A7F3D0;
+            color: #064E3B;
+        }
+
+        .school-action-delete {
+            background: #FEE2E2;
+            color: #991B1B;
+        }
+
+        .school-action-delete:hover {
+            background: #FECACA;
+            color: #7F1D1D;
         }
 
         /* Responsive Modal Styles for Small Laptops */
@@ -4295,13 +4461,15 @@
                             ->first();
                     @endphp
                     <div class="school-group" style="margin-bottom: 16px;">
-                        <div class="school-header" style="background: linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%); color: white; padding: 16px 20px; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s ease;">
+                        <div class="school-header" style="background: {{ $school->status !== 'Active' ? 'linear-gradient(135deg, #6B7280 0%, #4B5563 100%)' : 'linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%)' }}; color: white; padding: 16px 20px; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s ease;">
                             <div onclick="toggleSchoolGroup('school-{{ $school->id }}')" style="cursor: pointer; flex: 1; display: flex; align-items: center; gap: 12px;">
                                 <h4 style="margin: 0; font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 12px;">
                                     <i class="fas fa-university"></i>
                                     {{ $school->name }}
                                     @if($school->status !== 'Active')
-                                    <span style="background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 10px; font-size: 10px;">Inactive</span>
+                                    <span style="background: #EF4444; color: white; padding: 4px 10px; border-radius: 10px; font-size: 11px; font-weight: 600; display: flex; align-items: center; gap: 4px;">
+                                        <i class="fas fa-ban" style="font-size: 10px;"></i> Inactive
+                                    </span>
                                     @endif
                                 </h4>
                             </div>
@@ -4585,9 +4753,19 @@
                                     </td>
                                     <td style="white-space: nowrap;">
                                         @if($attendance->isOvertimePending())
-                                            <button onclick="approveOvertime({{ $attendance->id }})" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap;">
-                                                <i class="fas fa-check"></i> Approve OT
-                                            </button>
+                                            <div class="ot-action-wrapper">
+                                                <button class="ot-action-btn has-overtime" onclick="toggleOTDropdown(event, {{ $attendance->id }})" title="Overtime Actions">
+                                                    <i class="fas fa-ellipsis-v"></i>
+                                                </button>
+                                                <div id="ot-dropdown-{{ $attendance->id }}" class="ot-dropdown">
+                                                    <button class="ot-dropdown-item approve" onclick="approveOvertime({{ $attendance->id }})">
+                                                        <i class="fas fa-check-circle"></i> Approve OT
+                                                    </button>
+                                                    <button class="ot-dropdown-item decline" onclick="declineOvertime({{ $attendance->id }})">
+                                                        <i class="fas fa-times-circle"></i> Decline OT
+                                                    </button>
+                                                </div>
+                                            </div>
                                         @else
                                             <span style="color: #9CA3AF;">--</span>
                                         @endif
@@ -4710,6 +4888,7 @@
                                     <th style="min-width: 110px; white-space: nowrap;">Hours Worked</th>
                                     <th style="min-width: 140px; white-space: nowrap;">Over/Under</th>
                                     <th style="min-width: 80px; white-space: nowrap;">Status</th>
+                                    <th style="min-width: 100px; white-space: nowrap;">Action</th>
                                 </tr>
                             </thead>
                             <tbody id="historyTableBody">
@@ -4784,10 +4963,29 @@
                                             {{ $attendance->status }}
                                         </span>
                                     </td>
+                                    <td style="white-space: nowrap;">
+                                        @if($attendance->isOvertimePending())
+                                            <div class="ot-action-wrapper">
+                                                <button class="ot-action-btn has-overtime" onclick="toggleOTDropdown(event, {{ $attendance->id }})" title="Overtime Actions">
+                                                    <i class="fas fa-ellipsis-v"></i>
+                                                </button>
+                                                <div id="ot-dropdown-{{ $attendance->id }}" class="ot-dropdown">
+                                                    <button class="ot-dropdown-item approve" onclick="approveOvertime({{ $attendance->id }})">
+                                                        <i class="fas fa-check-circle"></i> Approve OT
+                                                    </button>
+                                                    <button class="ot-dropdown-item decline" onclick="declineOvertime({{ $attendance->id }})">
+                                                        <i class="fas fa-times-circle"></i> Decline OT
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        @else
+                                            <span style="color: #9CA3AF;">--</span>
+                                        @endif
+                                    </td>
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="8" style="text-align: center; padding: 40px; color: #9CA3AF;">
+                                    <td colspan="9" style="text-align: center; padding: 40px; color: #9CA3AF;">
                                         <i class="fas fa-history" style="font-size: 40px; margin-bottom: 12px; display: block;"></i>
                                         No attendance history yet. Records will appear here once interns start timing in.
                                     </td>
@@ -8635,7 +8833,7 @@
                             </div>
                             <div class="form-group">
                                 <label class="form-label required">MOA Purpose</label>
-                                <select id="moaPurpose" class="form-select" required>
+                                <select id="moaPurpose" class="form-select" required onchange="toggleOtherPurpose()">
                                     <option value="">-- Select Purpose --</option>
                                     <option value="incubation">Business Incubation Program</option>
                                     <option value="coworking">Co-working Space Usage</option>
@@ -8643,6 +8841,10 @@
                                     <option value="partnership">Partnership Agreement</option>
                                     <option value="other">Other</option>
                                 </select>
+                            </div>
+                            <div class="form-group" id="otherPurposeGroup" style="display: none;">
+                                <label class="form-label required">Specify Purpose</label>
+                                <input type="text" id="moaOtherPurpose" class="form-input" placeholder="Enter specific MOA purpose...">
                             </div>
                             <div class="form-group">
                                 <label class="form-label required">Duration</label>
@@ -8660,6 +8862,23 @@
                             <div class="form-group">
                                 <label class="form-label">Monthly Fee (if applicable)</label>
                                 <input type="number" id="moaFee" class="form-input" placeholder="0.00" step="0.01" min="0">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Work Arrangement</label>
+                                <div style="display: flex; gap: 16px; margin-top: 8px;">
+                                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 14px;">
+                                        <input type="radio" name="moaWorkArrangement" value="onsite" id="moaOnsite" style="width: 16px; height: 16px; accent-color: #7B1D3A;">
+                                        <i class="fas fa-building" style="color: #7B1D3A;"></i> Onsite
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 14px;">
+                                        <input type="radio" name="moaWorkArrangement" value="virtual" id="moaVirtual" style="width: 16px; height: 16px; accent-color: #7B1D3A;">
+                                        <i class="fas fa-laptop-house" style="color: #3B82F6;"></i> Virtual
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 14px;">
+                                        <input type="radio" name="moaWorkArrangement" value="hybrid" id="moaHybrid" style="width: 16px; height: 16px; accent-color: #7B1D3A;">
+                                        <i class="fas fa-sync-alt" style="color: #10B981;"></i> Hybrid
+                                    </label>
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Special Terms/Conditions</label>
@@ -8920,8 +9139,10 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td style="padding: 14px 16px; text-align: center;">
-                                    <span style="background: #DBEAFE; color: #1E40AF; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 600;">{{ $school->required_hours }} hrs</span>
+                                <td style="padding: 14px 16px; text-align: center; vertical-align: middle;">
+                                    <div style="display: flex; justify-content: center; align-items: center;">
+                                        <span style="background: #DBEAFE; color: #1E40AF; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; white-space: nowrap;">{{ $school->required_hours }} hrs</span>
+                                    </div>
                                 </td>
                                 <td style="padding: 14px 16px; text-align: center;">
                                     <div style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
@@ -8975,14 +9196,17 @@
                                 </td>
                                 <td style="padding: 14px 16px; text-align: center;">
                                     <div style="display: flex; justify-content: center; gap: 6px;">
-                                        <button onclick="editSchool({{ $school->id }}, '{{ addslashes($school->name) }}', {{ $school->required_hours }}, {{ $school->max_interns ?? 'null' }}, '{{ addslashes($school->contact_person ?? '') }}', '{{ addslashes($school->contact_email ?? '') }}', '{{ addslashes($school->contact_phone ?? '') }}', '{{ addslashes($school->notes ?? '') }}')" style="background: #DBEAFE; color: #1E40AF; border: none; width: 32px; height: 32px; border-radius: 6px; cursor: pointer;" title="Edit">
+                                        <button onclick="editSchool({{ $school->id }}, '{{ addslashes($school->name) }}', {{ $school->required_hours }}, {{ $school->max_interns ?? 'null' }}, '{{ addslashes($school->contact_person ?? '') }}', '{{ addslashes($school->contact_email ?? '') }}', '{{ addslashes($school->contact_phone ?? '') }}', '{{ addslashes($school->notes ?? '') }}')" class="school-action-btn school-action-edit" title="Edit School">
                                             <i class="fas fa-edit"></i>
                                         </button>
-                                        <button onclick="toggleSchoolStatus({{ $school->id }})" style="background: {{ $school->status === 'Active' ? '#FEF3C7' : '#D1FAE5' }}; color: {{ $school->status === 'Active' ? '#92400E' : '#065F46' }}; border: none; width: 32px; height: 32px; border-radius: 6px; cursor: pointer;" title="{{ $school->status === 'Active' ? 'Deactivate' : 'Activate' }}">
-                                            <i class="fas {{ $school->status === 'Active' ? 'fa-toggle-off' : 'fa-toggle-on' }}"></i>
+                                        <button onclick="toggleSchoolStatus({{ $school->id }}, '{{ addslashes($school->name) }}', '{{ $school->status }}')" class="school-action-btn {{ $school->status === 'Active' ? 'school-action-deactivate' : 'school-action-activate' }}" title="{{ $school->status === 'Active' ? 'Deactivate School' : 'Activate School' }}">
+                                            <i class="fas {{ $school->status === 'Active' ? 'fa-ban' : 'fa-check-circle' }}"></i>
+                                        </button>
+                                        <button onclick="accomplishSchool({{ $school->id }}, '{{ addslashes($school->name) }}')" class="school-action-btn school-action-accomplish" title="Mark Eligible Interns as Completed">
+                                            <i class="fas fa-trophy"></i>
                                         </button>
                                         @if(($school->total_interns ?? 0) == 0)
-                                        <button onclick="deleteSchool({{ $school->id }}, '{{ addslashes($school->name) }}')" style="background: #FEE2E2; color: #991B1B; border: none; width: 32px; height: 32px; border-radius: 6px; cursor: pointer;" title="Delete">
+                                        <button onclick="deleteSchool({{ $school->id }}, '{{ addslashes($school->name) }}')" class="school-action-btn school-action-delete" title="Delete School">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                         @endif
@@ -9003,6 +9227,71 @@
             </div>
             <div class="modal-footer">
                 <button class="btn-modal secondary" onclick="closeSchoolManagementModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toggle School Status Confirmation Modal -->
+    <div id="toggleSchoolStatusModal" class="modal-overlay" onclick="if(event.target === this) closeToggleSchoolStatusModal()">
+        <div class="modal-content" style="max-width: 450px;">
+            <div class="modal-header" id="toggleSchoolStatusHeader" style="background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%); color: white; transition: background 0.3s ease;">
+                <h3 class="modal-title" style="color: white;"><i class="fas fa-ban" style="margin-right: 8px;" id="toggleSchoolStatusIcon"></i><span id="toggleSchoolStatusTitle">Deactivate School</span></h3>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="toggleSchoolId">
+                <input type="hidden" id="toggleSchoolCurrentStatus">
+                <div id="toggleSchoolStatusWarning" style="background: #FEE2E2; border-radius: 8px; padding: 16px; margin-bottom: 20px; transition: background 0.3s ease;">
+                    <p style="margin: 0; color: #991B1B; font-size: 14px; transition: color 0.3s ease;">
+                        <i class="fas fa-exclamation-triangle" style="margin-right: 8px;"></i>
+                        You are about to deactivate <strong id="toggleSchoolName"></strong>.
+                    </p>
+                </div>
+                <div id="toggleSchoolStatusMessage" style="background: #F3F4F6; border-radius: 8px; padding: 16px;">
+                    <p style="margin: 0; color: #374151; font-size: 14px;">
+                        <i class="fas fa-info-circle" style="margin-right: 8px; color: #6B7280;"></i>
+                        <span id="toggleSchoolStatusDescription">All interns from this school will be unable to login until the school is reactivated.</span>
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal secondary" onclick="closeToggleSchoolStatusModal()">Cancel</button>
+                <button class="btn-modal primary" id="toggleSchoolStatusConfirmBtn" onclick="confirmToggleSchoolStatus()" style="background: linear-gradient(135deg, #DC2626, #B91C1C); transition: all 0.3s ease;">
+                    <i class="fas fa-ban"></i> <span id="toggleSchoolStatusBtnText">Deactivate School</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Accomplish School Confirmation Modal -->
+    <div id="accomplishSchoolModal" class="modal-overlay" onclick="if(event.target === this) closeAccomplishSchoolModal()">
+        <div class="modal-content" style="max-width: 450px;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white;">
+                <h3 class="modal-title" style="color: white;"><i class="fas fa-trophy" style="margin-right: 8px;"></i>Mark Interns as Completed</h3>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="accomplishSchoolId">
+                <div style="background: #D1FAE5; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+                    <p style="margin: 0; color: #065F46; font-size: 14px;">
+                        <i class="fas fa-check-circle" style="margin-right: 8px;"></i>
+                        Mark eligible interns from <strong id="accomplishSchoolName"></strong> as completed.
+                    </p>
+                </div>
+                <div style="background: #F3F4F6; border-radius: 8px; padding: 16px;">
+                    <p style="margin: 0 0 12px 0; color: #374151; font-size: 14px;">
+                        <i class="fas fa-info-circle" style="margin-right: 8px; color: #6B7280;"></i>
+                        This action will mark the following interns as "Completed":
+                    </p>
+                    <ul style="margin: 0; padding-left: 20px; color: #6B7280; font-size: 13px;">
+                        <li>Interns who have completed their required hours</li>
+                        <li>Only active interns will be affected</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal secondary" onclick="closeAccomplishSchoolModal()">Cancel</button>
+                <button class="btn-modal primary" id="accomplishSchoolConfirmBtn" onclick="confirmAccomplishSchool()" style="background: linear-gradient(135deg, #059669, #047857); transition: all 0.3s ease;">
+                    <i class="fas fa-trophy"></i> <span id="accomplishSchoolBtnText">Mark as Completed</span>
+                </button>
             </div>
         </div>
     </div>
@@ -12868,7 +13157,16 @@
                     'Mentorship': 'mentorship',
                     'Partnership': 'partnership'
                 };
-                document.getElementById('moaPurpose').value = purposeMap[moa.moa_purpose] || 'other';
+                const mappedPurpose = purposeMap[moa.moa_purpose] || 'other';
+                document.getElementById('moaPurpose').value = mappedPurpose;
+                
+                // Handle "other" purpose case
+                if (mappedPurpose === 'other' && moa.moa_purpose) {
+                    document.getElementById('moaOtherPurpose').value = moa.moa_purpose;
+                    document.getElementById('otherPurposeGroup').style.display = 'block';
+                } else {
+                    document.getElementById('otherPurposeGroup').style.display = 'none';
+                }
             }
 
             document.getElementById('moaTemplateModal').style.display = 'flex';
@@ -12887,13 +13185,32 @@
             document.getElementById('moaPosition').value = '';
             document.getElementById('moaAddress').value = '';
             document.getElementById('moaPurpose').value = '';
+            document.getElementById('moaOtherPurpose').value = '';
+            document.getElementById('otherPurposeGroup').style.display = 'none';
             document.getElementById('moaStartDate').value = '';
             document.getElementById('moaEndDate').value = '';
             document.getElementById('moaFee').value = '';
             document.getElementById('moaTerms').value = '';
+            // Reset work arrangement radio buttons
+            document.querySelectorAll('input[name="moaWorkArrangement"]').forEach(radio => radio.checked = false);
             document.getElementById('moaPreviewContent').innerHTML = '<p style="color: #6B7280; font-style: italic;">Fill in the form and click "Generate Preview" to see the MOA document.</p>';
 
             document.getElementById('moaTemplateModal').style.display = 'flex';
+        }
+
+        function toggleOtherPurpose() {
+            const purposeSelect = document.getElementById('moaPurpose');
+            const otherPurposeGroup = document.getElementById('otherPurposeGroup');
+            const otherPurposeInput = document.getElementById('moaOtherPurpose');
+            
+            if (purposeSelect.value === 'other') {
+                otherPurposeGroup.style.display = 'block';
+                otherPurposeInput.setAttribute('required', 'required');
+            } else {
+                otherPurposeGroup.style.display = 'none';
+                otherPurposeInput.removeAttribute('required');
+                otherPurposeInput.value = '';
+            }
         }
 
         function generateMoaPreview() {
@@ -12902,13 +13219,20 @@
             const position = document.getElementById('moaPosition').value;
             const address = document.getElementById('moaAddress').value;
             const purpose = document.getElementById('moaPurpose').value;
+            const otherPurpose = document.getElementById('moaOtherPurpose').value;
             const startDate = document.getElementById('moaStartDate').value;
             const endDate = document.getElementById('moaEndDate').value;
             const fee = document.getElementById('moaFee').value;
             const terms = document.getElementById('moaTerms').value;
+            const workArrangement = document.querySelector('input[name="moaWorkArrangement"]:checked')?.value || '';
 
             if (!companyName || !representative || !position || !address || !purpose || !startDate || !endDate) {
                 alert('Please fill in all required fields');
+                return;
+            }
+
+            if (purpose === 'other' && !otherPurpose) {
+                alert('Please specify the MOA purpose');
                 return;
             }
 
@@ -12917,7 +13241,13 @@
                 'coworking': 'Co-working Space Usage',
                 'mentorship': 'Mentorship Program',
                 'partnership': 'Partnership Agreement',
-                'other': 'Other Services'
+                'other': otherPurpose || 'Other Services'
+            };
+
+            const workArrangementLabels = {
+                'onsite': 'Onsite (Physical workspace at UP Cebu TBI)',
+                'virtual': 'Virtual (Remote access to services)',
+                'hybrid': 'Hybrid (Combination of onsite and virtual)'
             };
 
             const formatDate = (dateStr) => {
@@ -12965,22 +13295,27 @@
                     <p><strong>ARTICLE I - PURPOSE</strong></p>
                     <p>This MOA is entered into for the purpose of: <strong>${purposeLabels[purpose]}</strong></p>
 
-                    <p><strong>ARTICLE II - TERM</strong></p>
+                    ${workArrangement ? `
+                    <p><strong>ARTICLE II - WORK ARRANGEMENT</strong></p>
+                    <p>The PARTNER shall operate under the following arrangement: <strong>${workArrangementLabels[workArrangement]}</strong></p>
+                    ` : ''}
+
+                    <p><strong>ARTICLE ${workArrangement ? 'III' : 'II'} - TERM</strong></p>
                     <p>This Agreement shall be effective from <strong>${formatDate(startDate)}</strong> to <strong>${formatDate(endDate)}</strong>,
                     unless sooner terminated by either party upon thirty (30) days prior written notice.</p>
 
                     ${fee ? `
-                    <p><strong>ARTICLE III - FEES</strong></p>
+                    <p><strong>ARTICLE ${workArrangement ? 'IV' : 'III'} - FEES</strong></p>
                     <p>The PARTNER agrees to pay a monthly fee of <strong>₱${parseFloat(fee).toLocaleString('en-US', {minimumFractionDigits: 2})}</strong>
                     for the duration of this agreement, payable on or before the 5th day of each month.</p>
                     ` : ''}
 
-                    <p><strong>ARTICLE IV - OBLIGATIONS</strong></p>
+                    <p><strong>ARTICLE ${workArrangement && fee ? 'V' : (workArrangement || fee ? 'IV' : 'III')} - OBLIGATIONS</strong></p>
                     <p>Both parties shall comply with all applicable laws, rules, and regulations, and shall perform their
                     respective obligations under this Agreement in good faith.</p>
 
                     ${terms ? `
-                    <p><strong>ARTICLE V - SPECIAL TERMS</strong></p>
+                    <p><strong>ARTICLE ${workArrangement && fee ? 'VI' : (workArrangement || fee ? 'V' : 'IV')} - SPECIAL TERMS</strong></p>
                     <p>${terms}</p>
                     ` : ''}
 
@@ -16331,8 +16666,38 @@ University of the Philippines Cebu
             }
         }
 
+        // Toggle OT dropdown menu
+        function toggleOTDropdown(event, attendanceId) {
+            event.stopPropagation();
+            
+            // Close all other dropdowns first
+            document.querySelectorAll('.ot-dropdown.show').forEach(dropdown => {
+                if (dropdown.id !== `ot-dropdown-${attendanceId}`) {
+                    dropdown.classList.remove('show');
+                }
+            });
+            
+            const dropdown = document.getElementById(`ot-dropdown-${attendanceId}`);
+            if (dropdown) {
+                dropdown.classList.toggle('show');
+            }
+        }
+
+        // Close OT dropdowns when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.ot-action-wrapper')) {
+                document.querySelectorAll('.ot-dropdown.show').forEach(dropdown => {
+                    dropdown.classList.remove('show');
+                });
+            }
+        });
+
         // Approve overtime function
         function approveOvertime(attendanceId) {
+            // Close dropdown first
+            const dropdown = document.getElementById(`ot-dropdown-${attendanceId}`);
+            if (dropdown) dropdown.classList.remove('show');
+
             if (!confirm('Are you sure you want to approve this overtime?')) {
                 return;
             }
@@ -16357,6 +16722,39 @@ University of the Philippines Cebu
             .catch(error => {
                 console.error('Error:', error);
                 alert('An error occurred while approving overtime.');
+            });
+        }
+
+        // Decline overtime function
+        function declineOvertime(attendanceId) {
+            // Close dropdown first
+            const dropdown = document.getElementById(`ot-dropdown-${attendanceId}`);
+            if (dropdown) dropdown.classList.remove('show');
+
+            if (!confirm('Are you sure you want to decline this overtime? The excess hours will not be counted.')) {
+                return;
+            }
+
+            fetch(`/admin/attendance/${attendanceId}/decline-overtime`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Overtime declined successfully!');
+                    window.location.reload();
+                } else {
+                    alert(data.message || 'Failed to decline overtime.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while declining overtime.');
             });
         }
 
@@ -17319,7 +17717,71 @@ University of the Philippines Cebu
             }
         });
 
-        async function toggleSchoolStatus(schoolId) {
+        async function toggleSchoolStatus(schoolId, schoolName, currentStatus) {
+            // Open confirmation modal
+            document.getElementById('toggleSchoolId').value = schoolId;
+            document.getElementById('toggleSchoolCurrentStatus').value = currentStatus;
+            document.getElementById('toggleSchoolName').textContent = schoolName;
+            
+            const isDeactivating = currentStatus === 'Active';
+            const modal = document.getElementById('toggleSchoolStatusModal');
+            const header = document.getElementById('toggleSchoolStatusHeader');
+            const icon = document.getElementById('toggleSchoolStatusIcon');
+            const title = document.getElementById('toggleSchoolStatusTitle');
+            const warning = document.getElementById('toggleSchoolStatusWarning');
+            const description = document.getElementById('toggleSchoolStatusDescription');
+            const confirmBtn = document.getElementById('toggleSchoolStatusConfirmBtn');
+            const btnText = document.getElementById('toggleSchoolStatusBtnText');
+            
+            if (isDeactivating) {
+                header.style.background = 'linear-gradient(135deg, #DC2626 0%, #B91C1C 100%)';
+                icon.className = 'fas fa-ban';
+                title.textContent = 'Deactivate School';
+                warning.style.background = '#FEE2E2';
+                warning.querySelector('p').style.color = '#991B1B';
+                warning.querySelector('p').innerHTML = '<i class="fas fa-exclamation-triangle" style="margin-right: 8px;"></i>You are about to deactivate <strong>' + schoolName + '</strong>.';
+                description.textContent = 'All interns from this school will be unable to login until the school is reactivated.';
+                confirmBtn.style.background = 'linear-gradient(135deg, #DC2626, #B91C1C)';
+                btnText.textContent = 'Deactivate School';
+                confirmBtn.querySelector('i').className = 'fas fa-ban';
+            } else {
+                header.style.background = 'linear-gradient(135deg, #059669 0%, #047857 100%)';
+                icon.className = 'fas fa-check-circle';
+                title.textContent = 'Activate School';
+                warning.style.background = '#D1FAE5';
+                warning.querySelector('p').style.color = '#065F46';
+                warning.querySelector('p').innerHTML = '<i class="fas fa-check-circle" style="margin-right: 8px;"></i>You are about to activate <strong>' + schoolName + '</strong>.';
+                description.textContent = 'All interns from this school will be able to login again.';
+                confirmBtn.style.background = 'linear-gradient(135deg, #059669, #047857)';
+                btnText.textContent = 'Activate School';
+                confirmBtn.querySelector('i').className = 'fas fa-check-circle';
+            }
+            
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeToggleSchoolStatusModal() {
+            const modal = document.getElementById('toggleSchoolStatusModal');
+            modal.classList.add('closing');
+            setTimeout(() => {
+                modal.classList.remove('active', 'closing');
+                document.body.style.overflow = 'auto';
+            }, 300);
+        }
+
+        async function confirmToggleSchoolStatus() {
+            const schoolId = document.getElementById('toggleSchoolId').value;
+            const confirmBtn = document.getElementById('toggleSchoolStatusConfirmBtn');
+            const btnText = document.getElementById('toggleSchoolStatusBtnText');
+            const originalText = btnText.textContent;
+            const originalIcon = confirmBtn.querySelector('i').className;
+            
+            // Set loading state
+            confirmBtn.disabled = true;
+            confirmBtn.querySelector('i').className = 'fas fa-spinner fa-spin';
+            btnText.textContent = 'Processing...';
+            
             try {
                 const response = await fetch(`/admin/schools/${schoolId}/toggle-status`, {
                     method: 'POST',
@@ -17332,13 +17794,22 @@ University of the Philippines Cebu
                 const result = await response.json();
 
                 if (result.success) {
+                    closeToggleSchoolStatusModal();
                     showToast('success', 'Success', result.message);
                     setTimeout(() => location.reload(), 1000);
                 } else {
+                    // Reset button state
+                    confirmBtn.disabled = false;
+                    confirmBtn.querySelector('i').className = originalIcon;
+                    btnText.textContent = originalText;
                     showToast('error', 'Error', result.message || 'An error occurred');
                 }
             } catch (error) {
                 console.error('Error:', error);
+                // Reset button state
+                confirmBtn.disabled = false;
+                confirmBtn.querySelector('i').className = originalIcon;
+                btnText.textContent = originalText;
                 showToast('error', 'Error', 'An error occurred');
             }
         }
@@ -17368,6 +17839,65 @@ University of the Philippines Cebu
             } catch (error) {
                 console.error('Error:', error);
                 showToast('error', 'Error', 'An error occurred while deleting the school');
+            }
+        }
+
+        function accomplishSchool(schoolId, schoolName) {
+            // Open confirmation modal
+            document.getElementById('accomplishSchoolId').value = schoolId;
+            document.getElementById('accomplishSchoolName').textContent = schoolName;
+            document.getElementById('accomplishSchoolModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeAccomplishSchoolModal() {
+            const modal = document.getElementById('accomplishSchoolModal');
+            modal.classList.add('closing');
+            setTimeout(() => {
+                modal.classList.remove('active', 'closing');
+                document.body.style.overflow = 'auto';
+            }, 300);
+        }
+
+        async function confirmAccomplishSchool() {
+            const schoolId = document.getElementById('accomplishSchoolId').value;
+            const confirmBtn = document.getElementById('accomplishSchoolConfirmBtn');
+            const btnText = document.getElementById('accomplishSchoolBtnText');
+            
+            // Set loading state
+            confirmBtn.disabled = true;
+            confirmBtn.querySelector('i').className = 'fas fa-spinner fa-spin';
+            btnText.textContent = 'Processing...';
+
+            try {
+                const response = await fetch(`/admin/schools/${schoolId}/accomplish`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    closeAccomplishSchoolModal();
+                    showToast('success', 'Success', result.message);
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    // Reset button state
+                    confirmBtn.disabled = false;
+                    confirmBtn.querySelector('i').className = 'fas fa-trophy';
+                    btnText.textContent = 'Mark as Completed';
+                    showToast('error', 'Error', result.message || 'An error occurred');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                // Reset button state
+                confirmBtn.disabled = false;
+                confirmBtn.querySelector('i').className = 'fas fa-trophy';
+                btnText.textContent = 'Mark as Completed';
+                showToast('error', 'Error', 'An error occurred while processing the request');
             }
         }
 

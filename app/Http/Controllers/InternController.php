@@ -61,6 +61,12 @@ class InternController extends Controller
                 $attendanceHistory = $intern->attendances()->orderBy('date', 'desc')->limit(10)->get();
                 $tasks = $intern->tasks()->orderBy('due_date', 'asc')->get();
 
+                // Check if this intern has been appointed as a Team Leader
+                $isTeamLeader = User::where('email', $intern->email)
+                    ->where('role', User::ROLE_TEAM_LEADER)
+                    ->where('is_active', true)
+                    ->exists();
+
                 return view('portals.intern', [
                     'intern' => $intern,
                     'showDashboard' => true,
@@ -68,6 +74,7 @@ class InternController extends Controller
                     'attendanceHistory' => $attendanceHistory,
                     'tasks' => $tasks,
                     'schools' => $schools,
+                    'isTeamLeader' => $isTeamLeader,
                 ]);
             }
         }
@@ -237,6 +244,43 @@ class InternController extends Controller
     {
         $request->session()->forget('intern_id');
         return redirect()->route('intern.portal');
+    }
+
+    /**
+     * Switch from intern portal to team leader portal
+     */
+    public function switchToTeamLeader(Request $request)
+    {
+        $internId = $request->session()->get('intern_id');
+
+        if (!$internId) {
+            return redirect()->route('intern.portal');
+        }
+
+        $intern = Intern::find($internId);
+
+        if (!$intern) {
+            $request->session()->forget('intern_id');
+            return redirect()->route('intern.portal');
+        }
+
+        // Find the team leader User account matching this intern's email
+        $teamLeader = User::where('email', $intern->email)
+            ->where('role', User::ROLE_TEAM_LEADER)
+            ->where('is_active', true)
+            ->first();
+
+        if (!$teamLeader) {
+            return redirect()->route('intern.portal')
+                ->with('error', 'You do not have a Team Leader account.');
+        }
+
+        // Log in as the team leader
+        \Illuminate\Support\Facades\Auth::login($teamLeader);
+        $request->session()->regenerate();
+
+        return redirect()->route('team-leader.dashboard')
+            ->with('success', 'Switched to Team Leader portal.');
     }
 
     /**

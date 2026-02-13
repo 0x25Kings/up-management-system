@@ -38,6 +38,7 @@ Route::middleware(['maintenance'])->group(function () {
 Route::post('/intern/register', [InternController::class, 'register'])->name('intern.register');
 Route::post('/intern/access', [InternController::class, 'accessWithCode'])->name('intern.access');
 Route::post('/intern/clear-session', [InternController::class, 'clearSession'])->name('intern.clear');
+Route::post('/intern/switch-to-team-leader', [InternController::class, 'switchToTeamLeader'])->name('intern.switch-to-team-leader');
 Route::post('/intern/update-profile', [InternController::class, 'updateProfile'])->name('intern.update');
 Route::post('/intern/update-profile-picture', [InternController::class, 'updateProfilePicture'])->name('intern.update.picture');
 Route::post('/intern/time-in', [InternController::class, 'timeIn'])->name('intern.timein');

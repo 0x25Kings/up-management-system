@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="icon" type="image/png" href="{{ asset('images/upLogo.png') }}">
+    <link rel="icon" type="image/jpeg" href="{{ asset('images/upinit.jpg') }}">
     <title>Intern Portal - UP Cebu Management System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -1333,6 +1333,7 @@
                     <h2><i class="fas fa-user-plus" style="margin-right: 8px;"></i>New Intern Registration</h2>
                     <p style="font-size: 13px; opacity: 0.8; margin-top: 4px;">University of the Philippines Cebu</p>
                 </div>
+                <button onclick="closeRegistrationModal()" style="background: rgba(255,255,255,0.2); border: none; width: 32px; height: 32px; border-radius: 8px; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px;" title="Close"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body">
                 <form action="{{ route('intern.register') }}" method="POST">
@@ -1499,15 +1500,17 @@
             </a>
         </nav>
 
+        @if(isset($isTeamLeader) && $isTeamLeader)
         <div style="padding: 20px; margin-top: auto; border-top: 1px solid rgba(255,255,255,0.1);">
-            <form action="{{ route('intern.clear') }}" method="POST">
+            <form action="{{ route('intern.switch-to-team-leader') }}" method="POST">
                 @csrf
                 <button type="submit" class="menu-item" style="width: 100%; background: none; border: none; text-align: left; color: rgba(255,255,255,0.6);">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span>Switch Account</span>
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>Switch to Team Leader</span>
                 </button>
             </form>
         </div>
+        @endif
     </aside>
 
     <main class="main-content">
