@@ -2962,6 +2962,7 @@
         <div class="modal" style="max-width: 650px;">
             <div class="modal-header">
                 <h3><i class="fas fa-file-contract"></i> MOA Request Details</h3>
+                <button class="modal-close" onclick="tlCloseMoaDetailsModal()">&times;</button>
             </div>
             <div class="modal-body" id="tlMoaDetailsContent">
                 <!-- MOA details will be loaded here -->
@@ -2983,6 +2984,7 @@
         <div class="modal" style="max-width: 500px;">
             <div class="modal-header">
                 <h3><i class="fas fa-clipboard-check"></i> Review MOA Request</h3>
+                <button class="modal-close" onclick="tlCloseReviewMoaModal()">&times;</button>
             </div>
             <div class="modal-body">
                 <form id="tlReviewMoaForm">
@@ -3024,6 +3026,7 @@
         <div class="modal" style="max-width: 900px;">
             <div class="modal-header">
                 <h3><i class="fas fa-credit-card"></i> Payment Submission Details</h3>
+                <button class="modal-close" onclick="tlClosePaymentDetailsModal()">&times;</button>
             </div>
             <div class="modal-body" id="tlPaymentDetailsContent">
                 <!-- Payment details will be loaded here -->
@@ -3045,6 +3048,7 @@
         <div class="modal" style="max-width: 500px;">
             <div class="modal-header">
                 <h3><i class="fas fa-clipboard-check"></i> Review Payment</h3>
+                <button class="modal-close" onclick="tlCloseReviewPaymentModal()">&times;</button>
             </div>
             <div class="modal-body">
                 <form id="tlReviewPaymentForm">
@@ -3090,6 +3094,7 @@
         <div class="modal" style="max-width: 580px;">
             <div class="modal-header">
                 <h3><i class="fas fa-exclamation-circle"></i> Room Issue Details</h3>
+                <button class="modal-close" onclick="tlCloseIssueDetailsModal()">&times;</button>
             </div>
             <div class="modal-body" id="tlIssueDetailsContent" style="max-height: 60vh; overflow-y: auto;">
                 <!-- Issue details will be loaded here -->
@@ -3111,6 +3116,7 @@
         <div class="modal" style="max-width: 450px;">
             <div class="modal-header">
                 <h3><i class="fas fa-edit"></i> Update Issue Status</h3>
+                <button class="modal-close" onclick="tlCloseUpdateIssueStatusModal()">&times;</button>
             </div>
             <div class="modal-body">
                 <form id="tlUpdateIssueStatusForm">
@@ -3154,6 +3160,7 @@
         <div class="modal">
             <div class="modal-header">
                 <h3><i class="fas fa-folder-plus"></i> Create Shared Folder</h3>
+                <button class="modal-close" onclick="closeModal('tlCreateFolderModal')">&times;</button>
             </div>
             <form onsubmit="tlSubmitCreateFolder(event)">
                 <div class="modal-body">
@@ -3199,6 +3206,7 @@
         <div class="modal">
             <div class="modal-header">
                 <h3><i class="fas fa-plus-circle"></i> Create New Task</h3>
+                <button class="modal-close" onclick="closeModal('createTaskModal')">&times;</button>
             </div>
             <form id="createTaskForm" action="{{ route('team-leader.tasks.store') }}" method="POST">
                 @csrf
@@ -3252,6 +3260,7 @@
         <div class="modal">
             <div class="modal-header">
                 <h3><i class="fas fa-edit"></i> Edit Task</h3>
+                <button class="modal-close" onclick="closeModal('editTaskModal')">&times;</button>
             </div>
             <form id="editTaskForm" method="POST">
                 @csrf
@@ -3324,6 +3333,7 @@
         <div class="modal modal-lg">
             <div class="modal-header">
                 <h3><i class="fas fa-user"></i> Intern Details</h3>
+                <button class="modal-close" onclick="closeModal('viewInternModal')">&times;</button>
             </div>
             <div class="modal-body" id="viewInternContent">
                 <div style="text-align: center; padding: 40px;">
@@ -3339,6 +3349,7 @@
         <div class="modal modal-lg">
             <div class="modal-header">
                 <h3><i class="fas fa-user-edit"></i> Edit Intern</h3>
+                <button class="modal-close" onclick="closeModal('editInternModal')">&times;</button>
             </div>
             <form id="editInternForm" onsubmit="submitEditIntern(event)">
                 <input type="hidden" id="editInternId">
@@ -3405,6 +3416,7 @@
         <div class="modal modal-lg">
             <div class="modal-header">
                 <h3><i class="fas fa-file-alt"></i> Create New Report</h3>
+                <button class="modal-close" onclick="closeModal('createReportModal')">&times;</button>
             </div>
             <form id="createReportForm" onsubmit="submitCreateReport(event)">
                 @csrf
@@ -3472,6 +3484,7 @@
         <div class="modal modal-lg">
             <div class="modal-header">
                 <h3><i class="fas fa-file-alt"></i> Report Details</h3>
+                <button class="modal-close" onclick="closeModal('viewReportModal')">&times;</button>
             </div>
             <div class="modal-body" id="viewReportContent">
                 <div style="text-align: center; padding: 40px;">
@@ -3487,6 +3500,7 @@
         <div class="modal modal-lg">
             <div class="modal-header">
                 <h3><i class="fas fa-edit"></i> Edit Report</h3>
+                <button class="modal-close" onclick="closeModal('editReportModal')">&times;</button>
             </div>
             <form id="editReportForm" onsubmit="submitEditReport(event)">
                 <input type="hidden" id="editReportId" name="report_id" value="">
@@ -3554,6 +3568,7 @@
         <div class="modal" style="max-width: 400px;">
             <div class="modal-header" style="background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);">
                 <h3><i class="fas fa-archive"></i> Confirm Archive</h3>
+                <button class="modal-close" onclick="closeModal('archiveConfirmModal')">&times;</button>
             </div>
             <form id="archiveForm" method="POST">
                 @csrf
@@ -5097,9 +5112,10 @@
 
             document.getElementById('viewInternContent').innerHTML = `
                 <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid rgba(0,0,0,0.08);">
-                    <div class="list-item-avatar" style="width: 80px; height: 80px; font-size: 28px; margin: 0;">
-                        ${intern.name.charAt(0).toUpperCase()}
-                    </div>
+                    ${intern.profile_picture_url
+                        ? `<img src="${intern.profile_picture_url}" alt="${intern.name}" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid var(--maroon);">`
+                        : `<div class="list-item-avatar" style="width: 80px; height: 80px; font-size: 28px; margin: 0;">${intern.name.charAt(0).toUpperCase()}</div>`
+                    }
                     <div>
                         <h2 style="font-size: 22px; font-weight: 700; color: #1F2937; margin-bottom: 4px;">${intern.name}</h2>
                         <p style="color: #6B7280;">${intern.email}</p>
@@ -5705,9 +5721,10 @@
                     <tr>
                         <td>
                             <div style="display: flex; align-items: center; gap: 12px;">
-                                <div class="list-item-avatar" style="width: 36px; height: 36px; font-size: 12px; margin: 0;">
-                                    ${intern.initial}
-                                </div>
+                                ${intern.profile_picture_url
+                                    ? `<img src="${intern.profile_picture_url}" alt="${escapeHtml(intern.name)}" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid var(--maroon);">`
+                                    : `<div class="list-item-avatar" style="width: 36px; height: 36px; font-size: 12px; margin: 0;">${intern.initial}</div>`
+                                }
                                 <div>
                                     <div style="font-weight: 600;">${escapeHtml(intern.name)}</div>
                                     <div style="font-size: 12px; color: #6B7280;">${escapeHtml(intern.email)}</div>

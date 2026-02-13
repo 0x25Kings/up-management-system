@@ -762,12 +762,17 @@ class TeamLeaderController extends Controller
                     'id' => $intern->id,
                     'name' => $intern->name,
                     'email' => $intern->email,
+                    'phone' => $intern->phone,
                     'course' => $intern->course ?? 'N/A',
+                    'year_level' => $intern->year_level,
                     'completed_hours' => number_format($intern->completed_hours, 1),
                     'required_hours' => $intern->required_hours,
                     'progress' => $progress,
                     'status' => $intern->status,
+                    'start_date' => $intern->start_date ? Carbon::parse($intern->start_date)->format('M d, Y') : null,
+                    'end_date' => $intern->end_date ? Carbon::parse($intern->end_date)->format('M d, Y') : null,
                     'initial' => strtoupper(substr($intern->name, 0, 1)),
+                    'profile_picture_url' => $intern->profile_picture ? asset('storage/' . $intern->profile_picture) : null,
                 ];
             });
 
@@ -1027,9 +1032,9 @@ class TeamLeaderController extends Controller
         DB::table('password_reset_tokens')->where('email', $request->email)->delete();
 
         return redirect()->route('admin.login')->with('success', 'Password has been reset successfully. You can now log in with your new password.');
-=======
-     * Switch to intern portal for the linked intern account
-     */
+    }
+
+
     public function switchToIntern(Request $request)
     {
         /** @var \App\Models\User $user */
@@ -1064,6 +1069,6 @@ class TeamLeaderController extends Controller
 
         return redirect()->route('intern.portal')
             ->with('success', 'Switched to Intern Portal. Welcome, ' . $intern->name . '!');
->>>>>>> 871e7d1199944416b3db8690eac6e38f049fd7f4
+
     }
 }
