@@ -829,30 +829,12 @@
                             <label class="form-label">Start Time <span class="required">*</span></label>
                             <select class="form-input" id="timeStart" name="time_start" required>
                                 <option value="">Select time</option>
-                                <option value="08:00">8:00 AM</option>
-                                <option value="09:00">9:00 AM</option>
-                                <option value="10:00">10:00 AM</option>
-                                <option value="11:00">11:00 AM</option>
-                                <option value="12:00">12:00 PM</option>
-                                <option value="13:00">1:00 PM</option>
-                                <option value="14:00">2:00 PM</option>
-                                <option value="15:00">3:00 PM</option>
-                                <option value="16:00">4:00 PM</option>
                             </select>
                         </div>
                         <div class="form-group">
                             <label class="form-label">End Time <span class="required">*</span></label>
                             <select class="form-input" id="timeEnd" name="time_end" required>
                                 <option value="">Select time</option>
-                                <option value="09:00">9:00 AM</option>
-                                <option value="10:00">10:00 AM</option>
-                                <option value="11:00">11:00 AM</option>
-                                <option value="12:00">12:00 PM</option>
-                                <option value="13:00">1:00 PM</option>
-                                <option value="14:00">2:00 PM</option>
-                                <option value="15:00">3:00 PM</option>
-                                <option value="16:00">4:00 PM</option>
-                                <option value="17:00">5:00 PM</option>
                             </select>
                         </div>
                     </div>
@@ -973,6 +955,15 @@
         let selectedDate = null;
         let bookings = [];
         let events = [];
+        let bookingSettings = {
+            booking_duration: 2,
+            min_advance_booking: 1,
+            max_advance_booking: 90,
+            auto_approve_booking: false,
+            weekend_bookings: false,
+            booking_start: '08:00',
+            booking_end: '17:00'
+        };
         const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -982,6 +973,13 @@
 
         async function loadBookings() {
             try {
+                // Load booking settings
+                const settingsResponse = await fetch('/bookings/settings');
+                if (settingsResponse.ok) {
+                    bookingSettings = await settingsResponse.json();
+                    populateTimeDropdowns();
+                }
+
                 // Load bookings
                 const bookingsResponse = await fetch('/bookings');
                 bookings = await bookingsResponse.json();
@@ -1013,6 +1011,37 @@
         // Blocked dates array
         let blockedDates = [];
 
+        function formatTimeLabel(hour) {
+            const period = hour >= 12 ? 'PM' : 'AM';
+            const displayHour = hour > 12 ? hour - 12 : (hour === 0 ? 12 : hour);
+            return `${displayHour}:00 ${period}`;
+        }
+
+        function populateTimeDropdowns() {
+            const startSelect = document.getElementById('timeStart');
+            const endSelect = document.getElementById('timeEnd');
+
+            const startHour = parseInt(bookingSettings.booking_start.split(':')[0]);
+            const endHour = parseInt(bookingSettings.booking_end.split(':')[0]);
+
+            // Populate start time (from booking_start to booking_end - 1)
+            startSelect.innerHTML = '<option value="">Select time</option>';
+            for (let h = startHour; h < endHour; h++) {
+                const val = String(h).padStart(2, '0') + ':00';
+                startSelect.innerHTML += `<option value="${val}">${formatTimeLabel(h)}</option>`;
+            }
+
+            // Populate end time (from booking_start + 1 to booking_end)
+            endSelect.innerHTML = '<option value="">Select time</option>';
+            for (let h = startHour + 1; h <= endHour; h++) {
+                const val = String(h).padStart(2, '0') + ':00';
+                endSelect.innerHTML += `<option value="${val}">${formatTimeLabel(h)}</option>`;
+            }
+        }
+
+        // Initialize time dropdowns with defaults
+        populateTimeDropdowns();
+
         function renderCalendar() {
             const calendarDays = document.getElementById('calendarDays');
             const monthDisplay = document.getElementById('currentMonth');
@@ -1024,10 +1053,20 @@
             const today = new Date();
             const todayString = today.toISOString().split('T')[0];
 
+            // Calculate min and max allowed dates
+            const minDate = new Date(today);
+            minDate.setDate(minDate.getDate() + bookingSettings.min_advance_booking);
+            const minDateString = minDate.toISOString().split('T')[0];
+
+            const maxDate = new Date(today);
+            maxDate.setDate(maxDate.getDate() + bookingSettings.max_advance_booking);
+            const maxDateString = maxDate.toISOString().split('T')[0];
+
             let html = '';
             for (let i = firstDay - 1; i >= 0; i--) { html += `<div class="calendar-day other-month">${daysInPrevMonth - i}</div>`; }
             for (let day = 1; day <= daysInMonth; day++) {
                 const dateString = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const dateObj = new Date(dateString + 'T00:00:00');
                 const isToday = dateString === todayString;
                 const isPast = new Date(dateString) < new Date(todayString);
                 const hasBooking = bookings.some(b => b.date === dateString);
@@ -1039,15 +1078,36 @@
                 const blockedInfo = blockedDates.find(b => b.date === dateString);
                 const isBlocked = !!blockedInfo;
 
+                // Check weekend restriction
+                const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
+                const weekendBlocked = isWeekend && !bookingSettings.weekend_bookings;
+
+                // Check advance booking range
+                const tooSoon = dateString < minDateString;
+                const tooFar = dateString > maxDateString;
+
                 let classes = 'calendar-day';
                 if (isToday) classes += ' today';
                 if (hasBooking || hasEvent) classes += ' has-booking';
                 if (isPast && !isToday) classes += ' disabled';
                 if (isBlocked) classes += ' blocked';
+                if (weekendBlocked && !isPast) classes += ' disabled';
+                if ((tooSoon || tooFar) && !isPast && !isBlocked) classes += ' disabled';
 
-                // Don't allow clicking on blocked or past dates
-                const isClickable = !isPast && !isBlocked;
-                const onclick = isClickable ? `onclick="selectDate('${dateString}')"` : isBlocked ? `onclick="showBlockedMessage('${blockedInfo.reason_label}')"` : '';
+                // Don't allow clicking on blocked, past, weekend-blocked, or out-of-range dates
+                const isClickable = !isPast && !isBlocked && !weekendBlocked && !tooSoon && !tooFar;
+                let onclick = '';
+                if (isClickable) {
+                    onclick = `onclick="selectDate('${dateString}')"`;
+                } else if (isBlocked) {
+                    onclick = `onclick="showBlockedMessage('${blockedInfo.reason_label}')"`;
+                } else if (weekendBlocked) {
+                    onclick = `onclick="showToast('error', 'Not Available', 'Weekend bookings are not allowed.')"`;
+                } else if (tooSoon && !isPast) {
+                    onclick = `onclick="showToast('error', 'Too Soon', 'Bookings must be made at least ${bookingSettings.min_advance_booking} day(s) in advance.')"`;
+                } else if (tooFar) {
+                    onclick = `onclick="showToast('error', 'Too Far', 'Bookings cannot be made more than ${bookingSettings.max_advance_booking} days in advance.')"`;
+                }
 
                 // Style for blocked dates
                 let style = isBlocked ? `style="background: ${blockedInfo.reason_color}15; color: ${blockedInfo.reason_color}; border: 1px solid ${blockedInfo.reason_color}40;"` : '';
@@ -1119,26 +1179,25 @@
         function openQuickBooking() {
             const today = new Date();
             let nextAvailable = new Date(today);
-            nextAvailable.setDate(nextAvailable.getDate() + 1); // Start from tomorrow
+            nextAvailable.setDate(nextAvailable.getDate() + Math.max(1, bookingSettings.min_advance_booking));
             
-            // Find next available weekday (skip weekends if needed)
-            while (nextAvailable.getDay() === 0 || nextAvailable.getDay() === 6) {
-                nextAvailable.setDate(nextAvailable.getDate() + 1);
-            }
-            
-            // Check if date is blocked
-            const dateString = nextAvailable.toISOString().split('T')[0];
-            const isBlocked = blockedDates.some(b => b.date === dateString);
-            
-            if (isBlocked) {
-                // Find next non-blocked date
-                for (let i = 0; i < 30; i++) {
+            // Find next available weekday (skip weekends if not allowed)
+            const maxTries = 60;
+            for (let i = 0; i < maxTries; i++) {
+                const isWeekend = nextAvailable.getDay() === 0 || nextAvailable.getDay() === 6;
+                if (isWeekend && !bookingSettings.weekend_bookings) {
                     nextAvailable.setDate(nextAvailable.getDate() + 1);
-                    const checkDate = nextAvailable.toISOString().split('T')[0];
-                    if (!blockedDates.some(b => b.date === checkDate) && nextAvailable.getDay() !== 0 && nextAvailable.getDay() !== 6) {
-                        break;
-                    }
+                    continue;
                 }
+                
+                const dateString = nextAvailable.toISOString().split('T')[0];
+                const isBlocked = blockedDates.some(b => b.date === dateString);
+                if (isBlocked) {
+                    nextAvailable.setDate(nextAvailable.getDate() + 1);
+                    continue;
+                }
+                
+                break;
             }
             
             const finalDate = nextAvailable.toISOString().split('T')[0];

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Booking;
 use App\Models\BlockedDate;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -54,6 +55,22 @@ class BookingController extends Controller
     }
 
     /**
+     * Get public booking settings for frontend
+     */
+    public function getBookingSettings()
+    {
+        return response()->json([
+            'booking_duration' => Setting::get('booking_duration', 2),
+            'min_advance_booking' => Setting::get('min_advance_booking', 1),
+            'max_advance_booking' => Setting::get('max_advance_booking', 90),
+            'auto_approve_booking' => Setting::get('auto_approve_booking', false),
+            'weekend_bookings' => Setting::get('weekend_bookings', false),
+            'booking_start' => Setting::get('booking_start', '08:00'),
+            'booking_end' => Setting::get('booking_end', '17:00'),
+        ]);
+    }
+
+    /**
      * Store a new booking request
      */
     public function store(Request $request)
@@ -70,6 +87,67 @@ class BookingController extends Controller
             'purpose' => 'nullable|string|max:1000',
             'attachment' => 'nullable|file|mimes:pdf|max:5120',
         ]);
+
+        // Load scheduler settings
+        $minAdvance = Setting::get('min_advance_booking', 1);
+        $maxAdvance = Setting::get('max_advance_booking', 90);
+        $allowWeekends = Setting::get('weekend_bookings', false);
+        $autoApprove = Setting::get('auto_approve_booking', false);
+        $bookingStart = Setting::get('booking_start', '08:00');
+        $bookingEnd = Setting::get('booking_end', '17:00');
+        $defaultDuration = Setting::get('booking_duration', 2);
+
+        $bookingDate = Carbon::parse($validated['booking_date']);
+        $today = Carbon::today('Asia/Manila');
+
+        // Enforce minimum advance booking days
+        $daysFromNow = $today->diffInDays($bookingDate, false);
+        if ($daysFromNow < $minAdvance) {
+            return response()->json([
+                'success' => false,
+                'message' => "Bookings must be made at least {$minAdvance} day(s) in advance."
+            ], 422);
+        }
+
+        // Enforce maximum advance booking days
+        if ($daysFromNow > $maxAdvance) {
+            return response()->json([
+                'success' => false,
+                'message' => "Bookings cannot be made more than {$maxAdvance} days in advance."
+            ], 422);
+        }
+
+        // Check weekend bookings
+        if (!$allowWeekends && $bookingDate->isWeekend()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Weekend bookings are not allowed.'
+            ], 422);
+        }
+
+        // Enforce booking hours
+        $requestedStart = Carbon::parse($validated['time_start']);
+        $requestedEnd = Carbon::parse($validated['time_end']);
+        $allowedStart = Carbon::parse($bookingStart);
+        $allowedEnd = Carbon::parse($bookingEnd);
+
+        if ($requestedStart->lt($allowedStart) || $requestedEnd->gt($allowedEnd)) {
+            $startFormatted = $allowedStart->format('g:i A');
+            $endFormatted = $allowedEnd->format('g:i A');
+            return response()->json([
+                'success' => false,
+                'message' => "Bookings are only allowed between {$startFormatted} and {$endFormatted}."
+            ], 422);
+        }
+
+        // Enforce maximum booking duration
+        $durationHours = $requestedStart->diffInHours($requestedEnd);
+        if ($durationHours > $defaultDuration) {
+            return response()->json([
+                'success' => false,
+                'message' => "Booking duration cannot exceed {$defaultDuration} hour(s)."
+            ], 422);
+        }
 
         // Check if the date is blocked
         if (BlockedDate::isBlocked($validated['booking_date'])) {
@@ -106,11 +184,21 @@ class BookingController extends Controller
         // Remove the attachment key as it's not a database field
         unset($validated['attachment']);
 
+        // Auto-approve if setting is enabled
+        if ($autoApprove) {
+            $validated['status'] = 'approved';
+            $validated['approved_at'] = now('Asia/Manila');
+        }
+
         $booking = Booking::create($validated);
+
+        $message = $autoApprove
+            ? 'Booking has been automatically approved!'
+            : 'Booking request submitted successfully! Please wait for admin approval.';
 
         return response()->json([
             'success' => true,
-            'message' => 'Booking request submitted successfully! Please wait for admin approval.',
+            'message' => $message,
             'booking' => $booking
         ]);
     }
