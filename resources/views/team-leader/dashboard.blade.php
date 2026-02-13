@@ -1447,13 +1447,6 @@
                     <div class="stat-value">{{ $totalInterns }}</div>
                     <div class="stat-label">Total Interns</div>
                 </div>
-                <div class="stat-card green">
-                    <div class="stat-header">
-                        <div class="stat-icon green"><i class="fas fa-user-check"></i></div>
-                    </div>
-                    <div class="stat-value">{{ $allInterns->where('status', 'Active')->count() }}</div>
-                    <div class="stat-label">Active Interns</div>
-                </div>
                 <div class="stat-card gold">
                     <div class="stat-header">
                         <div class="stat-icon gold"><i class="fas fa-tasks"></i></div>
@@ -1475,13 +1468,6 @@
                     <div class="stat-value">{{ $overdueTasks }}</div>
                     <div class="stat-label">Overdue Tasks</div>
                 </div>
-                <div class="stat-card maroon">
-                    <div class="stat-header">
-                        <div class="stat-icon maroon"><i class="fas fa-clock"></i></div>
-                    </div>
-                    <div class="stat-value">{{ $presentToday }}</div>
-                    <div class="stat-label">Present Today</div>
-                </div>
             </div>
 
             @if($overdueTasks > 0)
@@ -1501,15 +1487,15 @@
             </div>
 
             <div class="grid-2">
-                <!-- Recent Tasks -->
-                <div class="card">
+                <!-- Recent Tasks (Today Only) -->
+                <div class="card" style="display: flex; flex-direction: column;">
                     <div class="card-header">
-                        <h3 class="card-title"><i class="fas fa-clipboard-list"></i> Recent Tasks</h3>
+                        <h3 class="card-title"><i class="fas fa-clipboard-list"></i> Today's Tasks</h3>
                     </div>
-                    <div class="card-body" style="padding: 0;">
-                        @forelse($recentTasks as $task)
+                    <div class="card-body" style="padding: 0; flex: 1; overflow-y: auto;">
+                        @forelse($recentTasks as $index => $task)
                             @php $isPendingAdminApproval = $task->status === 'Completed' && empty($task->completed_date); @endphp
-                            <div class="list-item" style="cursor: pointer;" onclick="editTask({{ $task->id }})">
+                            <div class="recent-task-item list-item" data-task-index="{{ $index }}" style="cursor: pointer; {{ $index >= 3 ? 'display: none;' : '' }}" onclick="editTask({{ $task->id }})">
                                 <div class="list-item-avatar"><i class="fas fa-clipboard-list"></i></div>
                                 <div class="list-item-content">
                                     <div class="list-item-title">{{ $task->title }}</div>
@@ -1524,22 +1510,35 @@
                         @empty
                             <div class="empty-state">
                                 <i class="fas fa-clipboard-list"></i>
-                                <h4>No tasks yet</h4>
-                                <p>Create your first task to get started</p>
+                                <h4>No tasks for today</h4>
+                                <p>No tasks have been created today</p>
                             </div>
                         @endforelse
                     </div>
+                    @if($recentTasks->count() > 3)
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-top: 1px solid #E5E7EB; background: white; border-radius: 0 0 16px 16px;">
+                            <span id="recentTaskPageInfo" style="font-size: 13px; color: #6B7280;">Page 1 of {{ ceil($recentTasks->count() / 3) }}</span>
+                            <div style="display: flex; gap: 8px;">
+                                <button id="recentTaskPrev" onclick="changeRecentTaskPage(-1)" class="btn btn-sm btn-secondary" disabled style="padding: 4px 10px; font-size: 12px;">
+                                    <i class="fas fa-chevron-left"></i> Prev
+                                </button>
+                                <button id="recentTaskNext" onclick="changeRecentTaskPage(1)" class="btn btn-sm btn-secondary" style="padding: 4px 10px; font-size: 12px;">
+                                    Next <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    @endif
                 </div>
 
                 <!-- Interns Needing Attention -->
-                <div class="card">
+                <div class="card" style="display: flex; flex-direction: column;">
                     <div class="card-header">
                         <h3 class="card-title"><i class="fas fa-user-clock"></i> Interns Needing Attention</h3>
                     </div>
-                    <div class="card-body" style="padding: 0;">
-                        @forelse($internsNeedingAttention as $intern)
+                    <div class="card-body" style="padding: 0; flex: 1; overflow-y: auto;">
+                        @forelse($internsNeedingAttention as $index => $intern)
                             @php $progress = $intern->required_hours > 0 ? round(($intern->completed_hours / $intern->required_hours) * 100, 1) : 0; @endphp
-                            <div class="list-item" style="cursor: pointer;" onclick="viewIntern({{ $intern->id }})">
+                            <div class="attention-intern-item list-item" data-intern-index="{{ $index }}" style="cursor: pointer; {{ $index >= 3 ? 'display: none;' : '' }}" onclick="viewIntern({{ $intern->id }})">
                                 <div class="list-item-avatar">{{ strtoupper(substr($intern->name, 0, 1)) }}</div>
                                 <div class="list-item-content">
                                     <div class="list-item-title">{{ $intern->name }}</div>
@@ -1558,6 +1557,19 @@
                             </div>
                         @endforelse
                     </div>
+                    @if($internsNeedingAttention->count() > 3)
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-top: 1px solid #E5E7EB; background: white; border-radius: 0 0 16px 16px;">
+                            <span id="attentionInternPageInfo" style="font-size: 13px; color: #6B7280;">Page 1 of {{ ceil($internsNeedingAttention->count() / 3) }}</span>
+                            <div style="display: flex; gap: 8px;">
+                                <button id="attentionInternPrev" onclick="changeAttentionInternPage(-1)" class="btn btn-sm btn-secondary" disabled style="padding: 4px 10px; font-size: 12px;">
+                                    <i class="fas fa-chevron-left"></i> Prev
+                                </button>
+                                <button id="attentionInternNext" onclick="changeAttentionInternPage(1)" class="btn btn-sm btn-secondary" style="padding: 4px 10px; font-size: 12px;">
+                                    Next <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
 
@@ -5063,6 +5075,60 @@
                 '"': '&quot;',
                 "'": '&#39;'
             }[c]));
+        }
+
+        // ========== RECENT TASKS PAGINATION ==========
+        let recentTaskCurrentPage = 1;
+        const recentTaskPerPage = 3;
+        const recentTaskItems = document.querySelectorAll('.recent-task-item');
+        const recentTaskTotalPages = Math.ceil(recentTaskItems.length / recentTaskPerPage);
+
+        function changeRecentTaskPage(direction) {
+            recentTaskCurrentPage += direction;
+            if (recentTaskCurrentPage < 1) recentTaskCurrentPage = 1;
+            if (recentTaskCurrentPage > recentTaskTotalPages) recentTaskCurrentPage = recentTaskTotalPages;
+
+            const start = (recentTaskCurrentPage - 1) * recentTaskPerPage;
+            const end = start + recentTaskPerPage;
+
+            recentTaskItems.forEach((item, index) => {
+                item.style.display = (index >= start && index < end) ? '' : 'none';
+            });
+
+            const pageInfo = document.getElementById('recentTaskPageInfo');
+            const prevBtn = document.getElementById('recentTaskPrev');
+            const nextBtn = document.getElementById('recentTaskNext');
+
+            if (pageInfo) pageInfo.textContent = `Page ${recentTaskCurrentPage} of ${recentTaskTotalPages}`;
+            if (prevBtn) prevBtn.disabled = recentTaskCurrentPage === 1;
+            if (nextBtn) nextBtn.disabled = recentTaskCurrentPage === recentTaskTotalPages;
+        }
+
+        // ========== INTERNS NEEDING ATTENTION PAGINATION ==========
+        let attentionInternCurrentPage = 1;
+        const attentionInternPerPage = 3;
+        const attentionInternItems = document.querySelectorAll('.attention-intern-item');
+        const attentionInternTotalPages = Math.ceil(attentionInternItems.length / attentionInternPerPage);
+
+        function changeAttentionInternPage(direction) {
+            attentionInternCurrentPage += direction;
+            if (attentionInternCurrentPage < 1) attentionInternCurrentPage = 1;
+            if (attentionInternCurrentPage > attentionInternTotalPages) attentionInternCurrentPage = attentionInternTotalPages;
+
+            const start = (attentionInternCurrentPage - 1) * attentionInternPerPage;
+            const end = start + attentionInternPerPage;
+
+            attentionInternItems.forEach((item, index) => {
+                item.style.display = (index >= start && index < end) ? '' : 'none';
+            });
+
+            const pageInfo = document.getElementById('attentionInternPageInfo');
+            const prevBtn = document.getElementById('attentionInternPrev');
+            const nextBtn = document.getElementById('attentionInternNext');
+
+            if (pageInfo) pageInfo.textContent = `Page ${attentionInternCurrentPage} of ${attentionInternTotalPages}`;
+            if (prevBtn) prevBtn.disabled = attentionInternCurrentPage === 1;
+            if (nextBtn) nextBtn.disabled = attentionInternCurrentPage === attentionInternTotalPages;
         }
 
         // ========== TASK FUNCTIONS ==========

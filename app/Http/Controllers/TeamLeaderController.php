@@ -82,11 +82,11 @@ class TeamLeaderController extends Controller
             ->where('status', 'Present')
             ->count();
 
-        // Recent tasks
+        // Today's tasks only (resets each day)
         $recentTasks = Task::whereIn('intern_id', $internIds)
             ->with('intern')
+            ->whereDate('created_at', Carbon::today('Asia/Manila'))
             ->orderBy('created_at', 'desc')
-            ->limit(5)
             ->get();
 
         // Interns with low progress
