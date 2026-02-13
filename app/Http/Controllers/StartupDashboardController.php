@@ -6,6 +6,8 @@ use App\Models\RoomIssue;
 use App\Models\Startup;
 use App\Models\StartupProgress;
 use App\Models\StartupSubmission;
+use App\Models\StartupNotification;
+use App\Models\StartupActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -136,6 +138,8 @@ class StartupDashboardController extends Controller
             'status' => 'pending',
         ]);
 
+        StartupActivityLog::log($startup->id, 'document_submit', 'Submitted document: ' . $validated['title'] . ' (Type: ' . $validated['document_type'] . ')', ['tracking_code' => $submission->tracking_code]);
+
         return redirect()->route('startup.dashboard')
             ->with('success', 'Document submitted successfully! Tracking code: ' . $submission->tracking_code);
     }
@@ -185,6 +189,8 @@ class StartupDashboardController extends Controller
             'priority' => $validated['priority'] ?? 'medium',
             'status' => 'pending',
         ]);
+
+        StartupActivityLog::log($startup->id, 'issue_submit', 'Reported room issue: ' . $validated['issue_type'] . ' in Room ' . $validated['room_number'], ['tracking_code' => $issue->tracking_code]);
 
         return redirect()->route('startup.dashboard')
             ->with('success', 'Room issue reported successfully! Tracking code: ' . $issue->tracking_code);
@@ -241,6 +247,8 @@ class StartupDashboardController extends Controller
 
         // Update startup MOA status
         $startup->update(['moa_status' => 'pending']);
+
+        StartupActivityLog::log($startup->id, 'moa_submit', 'Submitted MOA request: ' . $validated['moa_purpose'], ['tracking_code' => $submission->tracking_code]);
 
         return redirect()->route('startup.dashboard')
             ->with('success', 'MOA request submitted successfully! Tracking code: ' . $submission->tracking_code);
@@ -317,6 +325,8 @@ class StartupDashboardController extends Controller
             'status' => 'pending',
         ]);
 
+        StartupActivityLog::log($startup->id, 'payment_submit', 'Submitted payment proof: ₱' . number_format($validated['amount'], 2) . ' via ' . $validated['payment_method'], ['tracking_code' => $submission->tracking_code, 'amount' => $validated['amount']]);
+
         return redirect()->route('startup.dashboard')
             ->with('success', 'Payment proof submitted successfully! Tracking code: ' . $submission->tracking_code);
     }
@@ -347,8 +357,38 @@ class StartupDashboardController extends Controller
 
         $startup->update($validated);
 
+        StartupActivityLog::log($startup->id, 'profile_update', 'Updated company profile information.');
+
         return redirect()->route('startup.profile')
             ->with('success', 'Profile updated successfully!');
+    }
+
+    /**
+     * Upload startup profile photo
+     */
+    public function uploadProfilePhoto(Request $request)
+    {
+        $startup = $this->getStartup();
+
+        $request->validate([
+            'profile_photo' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
+        ]);
+
+        // Delete old photo if exists
+        if ($startup->profile_photo && \Storage::disk('public')->exists($startup->profile_photo)) {
+            \Storage::disk('public')->delete($startup->profile_photo);
+        }
+
+        $file = $request->file('profile_photo');
+        $filename = 'startup_' . $startup->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+        $path = $file->storeAs('startup-photos', $filename, 'public');
+
+        $startup->update(['profile_photo' => $path]);
+
+        StartupActivityLog::log($startup->id, 'photo_upload', 'Updated profile photo.');
+
+        return redirect()->route('startup.profile')
+            ->with('success', 'Profile photo updated successfully!');
     }
 
     /**
@@ -435,7 +475,14 @@ class StartupDashboardController extends Controller
             $submissionsQuery->where('status', $status);
         }
         if ($search) {
-            $submissionsQuery->where('tracking_code', 'like', "%{$search}%");
+            $submissionsQuery->where(function ($q) use ($search) {
+                $q->where('tracking_code', 'like', "%{$search}%")
+                  ->orWhere('document_type', 'like', "%{$search}%")
+                  ->orWhere('notes', 'like', "%{$search}%")
+                  ->orWhere('moa_purpose', 'like', "%{$search}%")
+                  ->orWhere('type', 'like', "%{$search}%")
+                  ->orWhere('invoice_number', 'like', "%{$search}%");
+            });
         }
         $submissions = $submissionsQuery->get();
 
@@ -445,7 +492,12 @@ class StartupDashboardController extends Controller
             $roomIssuesQuery->where('status', $status);
         }
         if ($search) {
-            $roomIssuesQuery->where('tracking_code', 'like', "%{$search}%");
+            $roomIssuesQuery->where(function ($q) use ($search) {
+                $q->where('tracking_code', 'like', "%{$search}%")
+                  ->orWhere('issue_type', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%")
+                  ->orWhere('room_number', 'like', "%{$search}%");
+            });
         }
         $roomIssues = ($type === 'all' || $type === 'room_issue') ? $roomIssuesQuery->get() : collect();
 
@@ -499,7 +551,7 @@ class StartupDashboardController extends Controller
 
         // Manual pagination for combined collection
         $page = $request->get('page', 1);
-        $perPage = 10;
+        $perPage = 50;
         $paginatedItems = new \Illuminate\Pagination\LengthAwarePaginator(
             $allItems->forPage($page, $perPage),
             $allItems->count(),
@@ -533,5 +585,158 @@ class StartupDashboardController extends Controller
         }
 
         return view('startup.track-details', compact('startup', 'item', 'itemType'));
+    }
+
+    // ==========================================
+    // NOTIFICATIONS
+    // ==========================================
+
+    /**
+     * Show notifications page
+     */
+    public function notifications()
+    {
+        $startup = $this->getStartup();
+        $notifications = $startup->notifications()->latest()->paginate(20);
+
+        return view('startup.notifications', compact('startup', 'notifications'));
+    }
+
+    /**
+     * Mark a notification as read
+     */
+    public function markNotificationRead($id)
+    {
+        $startup = $this->getStartup();
+        $notification = $startup->notifications()->findOrFail($id);
+        $notification->markAsRead();
+
+        if ($notification->link) {
+            return redirect($notification->link);
+        }
+
+        return back();
+    }
+
+    /**
+     * Mark all notifications as read
+     */
+    public function markAllNotificationsRead()
+    {
+        $startup = $this->getStartup();
+        $startup->notifications()->unread()->update([
+            'is_read' => true,
+            'read_at' => now(),
+        ]);
+
+        return back()->with('success', 'All notifications marked as read.');
+    }
+
+    /**
+     * Get unread notification count (for AJAX)
+     */
+    public function unreadNotificationCount()
+    {
+        $startup = $this->getStartup();
+        return response()->json([
+            'count' => $startup->notifications()->unread()->count()
+        ]);
+    }
+
+    // ==========================================
+    // CHANGE PASSWORD
+    // ==========================================
+
+    /**
+     * Show change password form
+     */
+    public function showChangePassword()
+    {
+        $startup = $this->getStartup();
+        return view('startup.change-password', compact('startup'));
+    }
+
+    /**
+     * Process password change
+     */
+    public function changePassword(Request $request)
+    {
+        $startup = $this->getStartup();
+
+        $request->validate([
+            'current_password' => 'required',
+            'password' => 'required|min:8|confirmed',
+        ]);
+
+        if (!$startup->checkPassword($request->current_password)) {
+            return back()->withErrors(['current_password' => 'Current password is incorrect.']);
+        }
+
+        $startup->update(['password' => $request->password]);
+
+        StartupActivityLog::log($startup->id, 'password_change', 'Password changed successfully.');
+        StartupNotification::notify(
+            $startup->id, 'system', 'Password Changed',
+            'Your password was changed successfully. If you did not make this change, please contact the administrator immediately.',
+            null, 'fa-key', '#F59E0B'
+        );
+
+        return redirect()->route('startup.profile')->with('success', 'Password changed successfully!');
+    }
+
+    // ==========================================
+    // MOA VIEWER
+    // ==========================================
+
+    /**
+     * Show MOA documents viewer
+     */
+    public function moaViewer()
+    {
+        $startup = $this->getStartup();
+        $moaSubmissions = $startup->submissions()
+            ->where('type', 'moa')
+            ->latest()
+            ->get();
+
+        return view('startup.moa-viewer', compact('startup', 'moaSubmissions'));
+    }
+
+    // ==========================================
+    // BILLING / PAYMENT HISTORY
+    // ==========================================
+
+    /**
+     * Show billing and payment history
+     */
+    public function billingHistory(Request $request)
+    {
+        $startup = $this->getStartup();
+
+        $query = $startup->submissions()->where('type', 'finance')->latest();
+
+        $statusFilter = $request->get('status', 'all');
+        if ($statusFilter !== 'all') {
+            $query->where('status', $statusFilter);
+        }
+
+        $payments = $query->paginate(20);
+
+        return view('startup.billing', compact('startup', 'payments', 'statusFilter'));
+    }
+
+    // ==========================================
+    // ACTIVITY LOG
+    // ==========================================
+
+    /**
+     * Show activity log
+     */
+    public function activityLog()
+    {
+        $startup = $this->getStartup();
+        $logs = $startup->activityLogs()->latest()->paginate(30);
+
+        return view('startup.activity-log', compact('startup', 'logs'));
     }
 }

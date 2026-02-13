@@ -114,6 +114,7 @@ Route::middleware(['maintenance', 'startup.auth'])->prefix('startup')->name('sta
     // Profile
     Route::get('/profile', [StartupDashboardController::class, 'profile'])->name('profile');
     Route::post('/profile', [StartupDashboardController::class, 'updateProfile'])->name('profile.update');
+    Route::post('/profile/upload-photo', [StartupDashboardController::class, 'uploadProfilePhoto'])->name('profile.upload-photo');
 
     // Project Progress
     Route::get('/progress', [StartupDashboardController::class, 'progress'])->name('progress');
@@ -122,6 +123,25 @@ Route::middleware(['maintenance', 'startup.auth'])->prefix('startup')->name('sta
     // Track Submissions
     Route::get('/track', [StartupDashboardController::class, 'trackSubmissions'])->name('track');
     Route::get('/track/{trackingCode}', [StartupDashboardController::class, 'trackSubmissionDetails'])->name('track.details');
+
+    // Notifications
+    Route::get('/notifications', [StartupDashboardController::class, 'notifications'])->name('notifications');
+    Route::post('/notifications/{id}/read', [StartupDashboardController::class, 'markNotificationRead'])->name('notifications.read');
+    Route::post('/notifications/read-all', [StartupDashboardController::class, 'markAllNotificationsRead'])->name('notifications.read-all');
+    Route::get('/notifications/unread-count', [StartupDashboardController::class, 'unreadNotificationCount'])->name('notifications.unread-count');
+
+    // Change Password
+    Route::get('/change-password', [StartupDashboardController::class, 'showChangePassword'])->name('change-password');
+    Route::post('/change-password', [StartupDashboardController::class, 'changePassword'])->name('change-password.submit');
+
+    // MOA Viewer
+    Route::get('/moa-documents', [StartupDashboardController::class, 'moaViewer'])->name('moa-documents');
+
+    // Billing & Payment History
+    Route::get('/billing', [StartupDashboardController::class, 'billingHistory'])->name('billing');
+
+    // Activity Log
+    Route::get('/activity-log', [StartupDashboardController::class, 'activityLog'])->name('activity-log');
 });
 
 Route::get('/agency', function () {

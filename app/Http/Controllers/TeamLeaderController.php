@@ -1033,7 +1033,9 @@ class TeamLeaderController extends Controller
         return redirect()->route('admin.login')->with('success', 'Password has been reset successfully. You can now log in with your new password.');
     }
 
-
+    /**
+     * Switch to intern portal for the linked intern account
+     */
     public function switchToIntern(Request $request)
     {
         /** @var \App\Models\User $user */

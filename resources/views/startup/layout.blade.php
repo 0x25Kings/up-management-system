@@ -6,6 +6,12 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="icon" type="image/jpeg" href="{{ asset('images/upinit.jpg') }}">
     <title>@yield('title') - {{ ucwords(strtolower($startup->company_name)) }} - UP Cebu Startup Portal</title>
+    <script>
+        // Apply sidebar state immediately to prevent flash
+        if (localStorage.getItem('sidebarCollapsed') === 'true') {
+            document.documentElement.classList.add('sidebar-is-collapsed');
+        }
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -15,6 +21,59 @@
             font-family: 'Segoe UI', Arial, sans-serif; 
             background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
             min-height: 100vh; 
+        }
+
+        /* Prevent transition on initial load */
+        .no-transition,
+        .no-transition * {
+            transition: none !important;
+        }
+
+        /* Apply collapsed state from html class (before JS runs) */
+        html.sidebar-is-collapsed .sidebar {
+            width: 80px;
+        }
+
+        html.sidebar-is-collapsed .main-content {
+            margin-left: 80px;
+        }
+
+        html.sidebar-is-collapsed .sidebar-header h3,
+        html.sidebar-is-collapsed .sidebar-header p,
+        html.sidebar-is-collapsed .nav-section,
+        html.sidebar-is-collapsed .nav-item span {
+            opacity: 0;
+            width: 0;
+            overflow: hidden;
+        }
+
+        html.sidebar-is-collapsed .sidebar-header {
+            padding: 20px 10px;
+        }
+
+        html.sidebar-is-collapsed .sidebar-header img {
+            height: 40px;
+            margin-bottom: 0;
+        }
+
+        html.sidebar-is-collapsed .nav-item {
+            padding: 14px 0;
+            margin: 2px 8px;
+            justify-content: center;
+            gap: 0;
+        }
+
+        html.sidebar-is-collapsed .nav-item i {
+            margin-right: 0;
+            font-size: 20px;
+        }
+
+        html.sidebar-is-collapsed .sidebar-toggle i {
+            transform: rotate(180deg);
+        }
+
+        html.sidebar-is-collapsed .sidebar-toggle-wrapper {
+            left: 80px;
         }
 
         :root {
@@ -36,33 +95,167 @@
             color: white;
             z-index: 1000;
             overflow-y: auto;
+            overflow-x: visible;
             box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+            transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Custom Scrollbar for Sidebar */
+        /* Hide scrollbar but keep functionality */
         .sidebar::-webkit-scrollbar {
-            width: 6px;
+            width: 0;
+            display: none;
         }
 
-        .sidebar::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
-        }
-
-        .sidebar::-webkit-scrollbar-thumb {
-            background: linear-gradient(180deg, var(--gold) 0%, #D4A500 100%);
-            border-radius: 10px;
-            transition: background 0.3s;
-        }
-
-        .sidebar::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(180deg, #FFD700 0%, var(--gold) 100%);
-        }
-
-        /* Firefox scrollbar */
         .sidebar {
-            scrollbar-width: thin;
-            scrollbar-color: var(--gold) rgba(0, 0, 0, 0.2);
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Collapsed sidebar */
+        .sidebar.collapsed {
+            width: 80px;
+        }
+
+        .sidebar.collapsed .sidebar-header h3,
+        .sidebar.collapsed .sidebar-header p,
+        .sidebar.collapsed .nav-section,
+        .sidebar.collapsed .nav-item span {
+            opacity: 0;
+            width: 0;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .sidebar-header h3,
+        .sidebar-header p,
+        .nav-section,
+        .nav-item span {
+            transition: opacity 0.25s ease, width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sidebar.collapsed .sidebar-header {
+            padding: 20px 10px;
+        }
+
+        .sidebar.collapsed .sidebar-header img {
+            height: 40px;
+            margin-bottom: 0;
+        }
+
+        .sidebar.collapsed .nav-item {
+            padding: 14px 0;
+            margin: 2px 8px;
+            justify-content: center;
+            gap: 0;
+        }
+
+        .sidebar.collapsed .nav-item i {
+            margin-right: 0;
+            font-size: 20px;
+        }
+
+        .sidebar.collapsed .nav-item:hover {
+            transform: none;
+        }
+
+        .sidebar.collapsed .nav-item::before {
+            display: none;
+        }
+
+        /* Tooltip for collapsed menu items */
+        .sidebar.collapsed .nav-item {
+            position: relative;
+        }
+
+        .sidebar.collapsed .nav-item::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            left: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            margin-left: 12px;
+            padding: 8px 12px;
+            background: #1F2937;
+            color: white;
+            font-size: 13px;
+            font-weight: 500;
+            white-space: nowrap;
+            border-radius: 6px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s ease;
+            z-index: 1002;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .sidebar.collapsed .nav-item:hover::after {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Sidebar toggle button with bump effect */
+        .sidebar-toggle-wrapper {
+            position: fixed;
+            top: 50%;
+            left: 280px;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 70px;
+            z-index: 1001;
+            transition: left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sidebar-toggle-wrapper.collapsed {
+            left: 80px;
+        }
+
+        .sidebar-toggle-wrapper::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, #5a1428 0%, #4a1020 100%);
+            border-radius: 0 12px 12px 0;
+            box-shadow: 3px 0 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .sidebar-toggle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            border: none;
+            border-radius: 0 12px 12px 0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1002;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sidebar-toggle:hover i {
+            color: #FFBF00;
+            transform: scale(1.2);
+        }
+
+        .sidebar-toggle i {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sidebar.collapsed .sidebar-toggle i {
+            transform: rotate(180deg);
+        }
+
+        .sidebar.collapsed .sidebar-toggle:hover i {
+            transform: rotate(180deg) scale(1.2);
         }
 
         .sidebar-header {
@@ -70,14 +263,14 @@
             text-align: center;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             background: rgba(0, 0, 0, 0.1);
-            transition: all 0.4s ease;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .sidebar-header img {
             height: 52px;
             margin: 0 auto 14px;
             filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .sidebar-header:hover img {
@@ -239,74 +432,30 @@
             width: 20px; 
             text-align: center; 
             font-size: 16px; 
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .sidebar-footer {
-            padding: 20px 16px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .logout-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            width: 100%;
-            padding: 14px;
-            background: rgba(255, 255, 255, 0.08);
-            color: rgba(255, 255, 255, 0.8);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .logout-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(239, 68, 68, 0.3), transparent);
-            transition: left 0.5s ease;
-        }
-
-        .logout-btn:hover::before {
-            left: 100%;
-        }
-
-        .logout-btn:hover {
-            background: rgba(239, 68, 68, 0.2);
-            border-color: rgba(239, 68, 68, 0.3);
-            color: #FCA5A5;
-            transform: scale(1.02);
-        }
-
-        .logout-btn:active {
-            transform: scale(0.98);
-        }
-
-        .logout-btn:hover {
-            background: rgba(239, 68, 68, 0.2);
-            border-color: rgba(239, 68, 68, 0.3);
-            color: #FCA5A5;
-        }
-
-        /* Top Header Bar */
+        /* Top Header Bar - Sticky Navbar */
         .top-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            padding: 0;
-            position: relative;
+            margin: -28px -28px 20px -28px;
+            padding: 16px 28px;
+            position: sticky;
+            top: 0;
             z-index: 100;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(229, 231, 235, 0.8);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            transition: all 0.4s ease;
+        }
+
+        .top-header.scrolled {
+            background: rgba(255, 255, 255, 0.4);
+            box-shadow: none;
+            border-bottom-color: transparent;
         }
 
         .top-header-left {
@@ -473,14 +622,14 @@
         }
 
         .profile-menu-items {
-            padding: 8px;
+            padding: 4px;
         }
 
         .profile-menu-item {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 12px 14px;
+            padding: 8px 14px;
             color: #374151;
             text-decoration: none;
             border-radius: 8px;
@@ -521,6 +670,11 @@
             margin-left: 280px;
             padding: 28px;
             min-height: 100vh;
+            transition: margin-left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sidebar.collapsed ~ .main-content {
+            margin-left: 80px;
         }
 
         /* Page Header */
@@ -1074,8 +1228,14 @@
         <i class="fas fa-bars"></i>
     </button>
 
+    <div class="sidebar-toggle-wrapper" id="sidebarToggleWrapper">
+        <button class="sidebar-toggle" onclick="toggleSidebar()" title="Toggle Sidebar">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+    </div>
+
     <!-- Sidebar -->
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <img src="{{ asset('images/upLogo.png') }}" alt="UP Logo">
             <h3>Startup Portal</h3>
@@ -1084,58 +1244,65 @@
 
         <nav class="nav-menu">
             <div class="nav-section">Main Menu</div>
-            <a href="{{ route('startup.dashboard') }}" class="nav-item {{ request()->routeIs('startup.dashboard') ? 'active' : '' }}">
+            <a href="{{ route('startup.dashboard') }}" class="nav-item {{ request()->routeIs('startup.dashboard') ? 'active' : '' }}" data-tooltip="Dashboard">
                 <i class="fas fa-th-large"></i>
-                Dashboard
+                <span>Dashboard</span>
             </a>
-            <a href="{{ route('startup.upload-document') }}" class="nav-item {{ request()->routeIs('startup.upload-document') ? 'active' : '' }}">
+            <a href="{{ route('startup.upload-document') }}" class="nav-item {{ request()->routeIs('startup.upload-document') ? 'active' : '' }}" data-tooltip="Upload Document">
                 <i class="fas fa-cloud-upload-alt"></i>
-                Upload Document
+                <span>Upload Document</span>
             </a>
-            <a href="{{ route('startup.report-issue') }}" class="nav-item {{ request()->routeIs('startup.report-issue') ? 'active' : '' }}">
+            <a href="{{ route('startup.report-issue') }}" class="nav-item {{ request()->routeIs('startup.report-issue') ? 'active' : '' }}" data-tooltip="Report Issue">
                 <i class="fas fa-exclamation-triangle"></i>
-                Report Issue
+                <span>Report Issue</span>
             </a>
-            <a href="{{ route('startup.request-moa') }}" class="nav-item {{ request()->routeIs('startup.request-moa') ? 'active' : '' }}">
+            <a href="{{ route('startup.request-moa') }}" class="nav-item {{ request()->routeIs('startup.request-moa') ? 'active' : '' }}" data-tooltip="Request MOA">
                 <i class="fas fa-file-signature"></i>
-                Request MOA
+                <span>Request MOA</span>
             </a>
-            <a href="{{ route('startup.submit-payment') }}" class="nav-item {{ request()->routeIs('startup.submit-payment') ? 'active' : '' }}">
+            <a href="{{ route('startup.submit-payment') }}" class="nav-item {{ request()->routeIs('startup.submit-payment') ? 'active' : '' }}" data-tooltip="Submit Payment">
                 <i class="fas fa-credit-card"></i>
-                Submit Payment
+                <span>Submit Payment</span>
             </a>
 
             <div class="nav-section">History & Records</div>
-            <a href="{{ route('startup.track') }}" class="nav-item {{ request()->routeIs('startup.track*') ? 'active' : '' }}">
+            <a href="{{ route('startup.track') }}" class="nav-item {{ request()->routeIs('startup.track*') ? 'active' : '' }}" data-tooltip="Track Submissions">
                 <i class="fas fa-search-location"></i>
-                Track Submissions
+                <span>Track Submissions</span>
             </a>
-            <a href="{{ route('startup.submissions') }}" class="nav-item {{ request()->routeIs('startup.submissions') ? 'active' : '' }}">
+            <a href="{{ route('startup.submissions') }}" class="nav-item {{ request()->routeIs('startup.submissions') ? 'active' : '' }}" data-tooltip="My Submissions">
                 <i class="fas fa-folder-open"></i>
-                My Submissions
+                <span>My Submissions</span>
             </a>
-            <a href="{{ route('startup.progress') }}" class="nav-item {{ request()->routeIs('startup.progress') ? 'active' : '' }}">
+            <a href="{{ route('startup.progress') }}" class="nav-item {{ request()->routeIs('startup.progress') ? 'active' : '' }}" data-tooltip="Project Progress">
                 <i class="fas fa-chart-line"></i>
-                Project Progress
+                <span>Project Progress</span>
             </a>
-            <a href="{{ route('startup.room-issues') }}" class="nav-item {{ request()->routeIs('startup.room-issues') ? 'active' : '' }}">
+            <a href="{{ route('startup.room-issues') }}" class="nav-item {{ request()->routeIs('startup.room-issues') ? 'active' : '' }}" data-tooltip="Room Issues">
                 <i class="fas fa-tools"></i>
-                Room Issues
+                <span>Room Issues</span>
+            </a>
+            <a href="{{ route('startup.moa-documents') }}" class="nav-item {{ request()->routeIs('startup.moa-documents') ? 'active' : '' }}" data-tooltip="MOA Documents">
+                <i class="fas fa-file-contract"></i>
+                <span>MOA Documents</span>
+            </a>
+            <a href="{{ route('startup.billing') }}" class="nav-item {{ request()->routeIs('startup.billing') ? 'active' : '' }}" data-tooltip="Payment History">
+                <i class="fas fa-receipt"></i>
+                <span>Payment History</span>
+            </a>
+
+            <div class="nav-section">Account</div>
+            <a href="{{ route('startup.activity-log') }}" class="nav-item {{ request()->routeIs('startup.activity-log') ? 'active' : '' }}" data-tooltip="Activity Log">
+                <i class="fas fa-history"></i>
+                <span>Activity Log</span>
             </a>
         </nav>
-
-        <div class="sidebar-footer">
-            <button type="button" class="logout-btn" onclick="showLogoutModal()">
-                <i class="fas fa-sign-out-alt"></i>
-                Sign Out
-            </button>
-        </div>
     </aside>
 
     <!-- Main Content -->
     <main class="main-content">
         <!-- Top Header with Profile -->
-        <div class="top-header">
+        <div class="top-header" id="topNavbar">
             <!-- Navbar Breadcrumb -->
             <div class="top-header-left">
                 <div class="navbar-breadcrumb">
@@ -1147,30 +1314,69 @@
                 </div>
             </div>
             
-            <div class="profile-dropdown" id="profileDropdown">
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <!-- Notification Bell Dropdown -->
+                @php
+                    $unreadNotifCount = $startup->notifications()->unread()->count();
+                    $recentNotifs = $startup->notifications()->latest()->take(5)->get();
+                @endphp
+                <div class="notif-dropdown" id="notifDropdown" style="position: relative;">
+                    <button type="button" id="notifBtn" style="position: relative; width: 42px; height: 42px; background: white; border: 1px solid #E5E7EB; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #6B7280; cursor: pointer; transition: all 0.3s; font-size: 18px; outline: none;" title="Notifications">
+                        <i class="fas fa-bell"></i>
+                        @if($unreadNotifCount > 0)
+                            <span style="position: absolute; top: -4px; right: -4px; background: #EF4444; color: white; font-size: 10px; font-weight: 700; min-width: 18px; height: 18px; border-radius: 9px; display: flex; align-items: center; justify-content: center; padding: 0 4px; border: 2px solid white;">
+                                {{ $unreadNotifCount > 99 ? '99+' : $unreadNotifCount }}
+                            </span>
+                        @endif
+                    </button>
+                    <div class="notif-panel" id="notifPanel" style="position: absolute; top: calc(100% + 10px); right: 0; width: 380px; background: white; border: 1px solid #E5E7EB; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.12); opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.3s; z-index: 1000; overflow: hidden;">
+                        <div style="padding: 16px 20px; border-bottom: 1px solid #E5E7EB; display: flex; justify-content: space-between; align-items: center;">
+                            <div style="font-size: 15px; font-weight: 700; color: #1F2937;">Notifications</div>
+                            @if($unreadNotifCount > 0)
+                                <form action="{{ route('startup.notifications.read-all') }}" method="POST" style="margin: 0;">
+                                    @csrf
+                                    <button type="submit" style="background: none; border: none; color: #7B1D3A; font-size: 12px; font-weight: 600; cursor: pointer; padding: 4px 8px; border-radius: 6px; transition: all 0.2s;" onmouseover="this.style.background='rgba(123,29,58,0.08)'" onmouseout="this.style.background='none'">Mark all read</button>
+                                </form>
+                            @endif
+                        </div>
+                        <div style="max-height: 340px; overflow-y: auto;">
+                            @forelse($recentNotifs as $notif)
+                                <a href="{{ $notif->link ? route('startup.notifications.read', $notif->id) : '#' }}" 
+                                   @if($notif->link) onclick="event.preventDefault(); document.getElementById('notif-form-{{ $notif->id }}').submit();" @endif
+                                   style="display: flex; gap: 12px; padding: 14px 20px; text-decoration: none; transition: background 0.2s; border-bottom: 1px solid #F3F4F6; {{ !$notif->is_read ? 'background: #FFFBEB;' : '' }}"
+                                   onmouseover="this.style.background='{{ !$notif->is_read ? '#FEF3C7' : '#F9FAFB' }}'" onmouseout="this.style.background='{{ !$notif->is_read ? '#FFFBEB' : 'white' }}'">
+                                    <div style="width: 36px; height: 36px; min-width: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 14px; color: {{ $notif->color ?? '#7B1D3A' }}; background: {{ $notif->color ?? '#7B1D3A' }}12;">
+                                        <i class="fas {{ $notif->icon ?? 'fa-bell' }}"></i>
+                                    </div>
+                                    <div style="flex: 1; min-width: 0;">
+                                        <div style="font-size: 13px; font-weight: {{ $notif->is_read ? '500' : '700' }}; color: #1F2937; margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ $notif->title }}</div>
+                                        <div style="font-size: 12px; color: #6B7280; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ Str::limit($notif->message, 50) }}</div>
+                                        <div style="font-size: 11px; color: #9CA3AF; margin-top: 4px;">{{ $notif->created_at->diffForHumans() }}</div>
+                                    </div>
+                                    @if(!$notif->is_read)
+                                        <div style="width: 8px; height: 8px; min-width: 8px; border-radius: 50%; background: #EF4444; margin-top: 6px;"></div>
+                                    @endif
+                                </a>
+                                @if($notif->link)
+                                    <form id="notif-form-{{ $notif->id }}" action="{{ route('startup.notifications.read', $notif->id) }}" method="POST" style="display:none;">@csrf</form>
+                                @endif
+                            @empty
+                                <div style="text-align: center; padding: 40px 20px;">
+                                    <div style="font-size: 28px; color: #D1D5DB; margin-bottom: 8px;"><i class="fas fa-bell-slash"></i></div>
+                                    <div style="font-size: 13px; color: #9CA3AF;">No notifications yet</div>
+                                </div>
+                            @endforelse
+                        </div>
+                        <a href="{{ route('startup.notifications') }}" style="display: block; text-align: center; padding: 12px; font-size: 13px; font-weight: 600; color: #7B1D3A; text-decoration: none; border-top: 1px solid #E5E7EB; transition: background 0.2s;" onmouseover="this.style.background='#F9FAFB'" onmouseout="this.style.background='white'">View All Notifications</a>
+                    </div>
+                </div>
+
+                <div class="profile-dropdown" id="profileDropdown">
                 <button type="button" class="profile-btn" id="profileBtn">
                     <div class="avatar">
-                        @php
-                            $words = explode(' ', $startup->company_name);
-                            $initials = '';
-                            foreach ($words as $word) {
-                                if (!empty($word)) {
-                                    $initials .= strtoupper(substr($word, 0, 1));
-                                }
-                                if (strlen($initials) >= 2) break;
-                            }
-                            echo $initials ?: strtoupper(substr($startup->company_name, 0, 2));
-                        @endphp
-                    </div>
-                    <div class="info">
-                        <div class="name">{{ Str::limit(ucwords(strtolower($startup->company_name)), 20) }}</div>
-                        <div class="role">{{ $startup->startup_code }}</div>
-                    </div>
-                    <i class="fas fa-chevron-down"></i>
-                </button>
-                <div class="profile-menu">
-                    <div class="profile-menu-header">
-                        <div class="avatar">
+                        @if($startup->profile_photo)
+                            <img src="{{ asset('storage/' . $startup->profile_photo) }}" alt="Profile" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                        @else
                             @php
                                 $words = explode(' ', $startup->company_name);
                                 $initials = '';
@@ -1182,6 +1388,32 @@
                                 }
                                 echo $initials ?: strtoupper(substr($startup->company_name, 0, 2));
                             @endphp
+                        @endif
+                    </div>
+                    <div class="info">
+                        <div class="name">{{ Str::limit(ucwords(strtolower($startup->company_name)), 20) }}</div>
+                        <div class="role">{{ $startup->startup_code }}</div>
+                    </div>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="profile-menu">
+                    <div class="profile-menu-header">
+                        <div class="avatar">
+                            @if($startup->profile_photo)
+                                <img src="{{ asset('storage/' . $startup->profile_photo) }}" alt="Profile" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                            @else
+                                @php
+                                    $words = explode(' ', $startup->company_name);
+                                    $initials = '';
+                                    foreach ($words as $word) {
+                                        if (!empty($word)) {
+                                            $initials .= strtoupper(substr($word, 0, 1));
+                                        }
+                                        if (strlen($initials) >= 2) break;
+                                    }
+                                    echo $initials ?: strtoupper(substr($startup->company_name, 0, 2));
+                                @endphp
+                            @endif
                         </div>
                         <div class="name">{{ ucwords(strtolower($startup->company_name)) }}</div>
                         <div class="email">{{ $startup->email }}</div>
@@ -1191,9 +1423,9 @@
                             <i class="fas fa-user-circle"></i>
                             Company Profile
                         </a>
-                        <a href="{{ route('startup.profile') }}" class="profile-menu-item">
-                            <i class="fas fa-cog"></i>
-                            Settings
+                        <a href="{{ route('startup.change-password') }}" class="profile-menu-item">
+                            <i class="fas fa-key"></i>
+                            Change Password
                         </a>
                         <button type="button" class="profile-menu-item danger" style="width: 100%; border: none; background: none; cursor: pointer;" onclick="showLogoutModal()">
                             <i class="fas fa-sign-out-alt"></i>
@@ -1201,6 +1433,7 @@
                         </button>
                     </div>
                 </div>
+            </div>
             </div>
         </div>
 
@@ -1222,8 +1455,32 @@
     </main>
 
     <script>
+        // Sidebar toggle functionality
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const toggleWrapper = document.getElementById('sidebarToggleWrapper');
+            sidebar.classList.toggle('collapsed');
+            toggleWrapper.classList.toggle('collapsed');
+            
+            // Update html class for consistent state
+            document.documentElement.classList.toggle('sidebar-is-collapsed');
+            
+            // Save state to localStorage
+            const isCollapsed = sidebar.classList.contains('collapsed');
+            localStorage.setItem('sidebarCollapsed', isCollapsed);
+        }
+
         // Profile dropdown toggle
         document.addEventListener('DOMContentLoaded', function() {
+            // Sync sidebar state - html class was set before render, now add to sidebar element
+            const sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+            const sidebar = document.getElementById('sidebar');
+            const toggleWrapper = document.getElementById('sidebarToggleWrapper');
+            if (sidebarCollapsed) {
+                if (sidebar) sidebar.classList.add('collapsed');
+                if (toggleWrapper) toggleWrapper.classList.add('collapsed');
+            }
+
             const profileBtn = document.getElementById('profileBtn');
             const profileDropdown = document.getElementById('profileDropdown');
             
@@ -1232,13 +1489,37 @@
                     e.preventDefault();
                     e.stopPropagation();
                     profileDropdown.classList.toggle('active');
+                    // Close notif dropdown
+                    const notifPanel = document.getElementById('notifPanel');
+                    if (notifPanel) { notifPanel.style.opacity='0'; notifPanel.style.visibility='hidden'; notifPanel.style.transform='translateY(-10px)'; }
+                });
+            }
+
+            // Notification dropdown toggle
+            const notifBtn = document.getElementById('notifBtn');
+            const notifPanel = document.getElementById('notifPanel');
+            if (notifBtn && notifPanel) {
+                notifBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const isOpen = notifPanel.style.visibility === 'visible';
+                    if (isOpen) {
+                        notifPanel.style.opacity='0'; notifPanel.style.visibility='hidden'; notifPanel.style.transform='translateY(-10px)';
+                    } else {
+                        notifPanel.style.opacity='1'; notifPanel.style.visibility='visible'; notifPanel.style.transform='translateY(0)';
+                        profileDropdown.classList.remove('active');
+                    }
                 });
             }
             
-            // Close dropdown when clicking outside
+            // Close dropdowns when clicking outside
             document.addEventListener('click', function(event) {
                 if (profileDropdown && !profileDropdown.contains(event.target)) {
                     profileDropdown.classList.remove('active');
+                }
+                const notifDd = document.getElementById('notifDropdown');
+                if (notifPanel && notifDd && !notifDd.contains(event.target)) {
+                    notifPanel.style.opacity='0'; notifPanel.style.visibility='hidden'; notifPanel.style.transform='translateY(-10px)';
                 }
             });
         });
@@ -1267,6 +1548,20 @@
                 });
             }
         });
+
+        // Sticky navbar scroll transparency
+        (function() {
+            const topNavbar = document.getElementById('topNavbar');
+            if (topNavbar) {
+                window.addEventListener('scroll', function() {
+                    if (window.scrollY > 60) {
+                        topNavbar.classList.add('scrolled');
+                    } else {
+                        topNavbar.classList.remove('scrolled');
+                    }
+                });
+            }
+        })();
     </script>
 
     <!-- Logout Confirmation Modal -->

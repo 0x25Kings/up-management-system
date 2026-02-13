@@ -120,6 +120,48 @@
         outline: none;
     }
 
+    .search-btn {
+        background: #7B1D3A;
+        color: white;
+        border: none;
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        transition: all 0.2s;
+        flex-shrink: 0;
+    }
+
+    .search-btn:hover {
+        background: #5a1428;
+        transform: scale(1.05);
+    }
+
+    .clear-filters-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 10px 16px;
+        background: #FEE2E2;
+        color: #DC2626;
+        border: 1px solid #FECACA;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s;
+        white-space: nowrap;
+    }
+
+    .clear-filters-btn:hover {
+        background: #DC2626;
+        color: white;
+    }
+
     .timeline-container {
         background: white;
         border-radius: 16px;
@@ -349,9 +391,18 @@
     /* Pagination Styles */
     .pagination-wrapper {
         display: flex;
-        justify-content: center;
-        padding: 20px;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 24px;
         border-top: 1px solid #E5E7EB;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .pagination-info {
+        font-size: 14px;
+        color: #6B7280;
+        font-weight: 500;
     }
 
     .pagination-wrapper nav {
@@ -486,8 +537,14 @@
     </div>
     <div class="search-box">
         <i class="fas fa-search"></i>
-        <input type="text" name="search" placeholder="Search by tracking code..." value="{{ $search }}">
+        <input type="text" name="search" placeholder="Search by tracking code, type, or description..." value="{{ $search }}">
+        <button type="submit" class="search-btn"><i class="fas fa-arrow-right"></i></button>
     </div>
+    @if($search || $type !== 'all' || $status !== 'all')
+        <a href="{{ route('startup.track') }}" class="clear-filters-btn" title="Clear all filters">
+            <i class="fas fa-times"></i> Clear
+        </a>
+    @endif
 </form>
 
 <!-- Timeline -->
@@ -538,10 +595,15 @@
         @endforelse
     </div>
 
-    @if($paginatedItems->hasPages())
-        <div class="pagination-wrapper">
-            {{ $paginatedItems->links() }}
+    <div class="pagination-wrapper">
+        <div class="pagination-info">
+            Showing {{ $paginatedItems->firstItem() ?? 0 }}–{{ $paginatedItems->lastItem() ?? 0 }} of {{ $paginatedItems->total() }} items
         </div>
-    @endif
+        @if($paginatedItems->hasPages())
+            <div class="pagination-links">
+                {{ $paginatedItems->links() }}
+            </div>
+        @endif
+    </div>
 </div>
 @endsection

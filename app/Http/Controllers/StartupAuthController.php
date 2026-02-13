@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Startup;
+use App\Models\StartupActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -147,6 +148,8 @@ class StartupAuthController extends Controller
         session()->forget('startup_setup_id');
         session(['startup_id' => $startup->id]);
 
+        StartupActivityLog::log($startup->id, 'login', 'First-time login and password setup completed.');
+
         return redirect()->route('startup.dashboard')
             ->with('success', 'Password created successfully! Welcome to your dashboard, ' . $startup->company_name . '!');
     }
@@ -189,6 +192,8 @@ class StartupAuthController extends Controller
         // Store startup ID in session
         session(['startup_id' => $startup->id]);
 
+        StartupActivityLog::log($startup->id, 'login', 'Logged in successfully.');
+
         return redirect()->route('startup.dashboard')
             ->with('success', 'Welcome back, ' . $startup->company_name . '!');
     }
@@ -198,6 +203,11 @@ class StartupAuthController extends Controller
      */
     public function logout(Request $request)
     {
+        $startupId = session('startup_id');
+        if ($startupId) {
+            StartupActivityLog::log($startupId, 'logout', 'Logged out.');
+        }
+
         session()->forget('startup_id');
         session()->forget('startup_setup_id');
 

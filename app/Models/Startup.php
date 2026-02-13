@@ -29,6 +29,7 @@ class Startup extends Model
         'room_number',
         'address',
         'description',
+        'profile_photo',
         'status',
         'moa_status',
         'moa_expiry',
@@ -185,5 +186,21 @@ class Startup extends Model
     public function progressUpdates(): HasMany
     {
         return $this->hasMany(StartupProgress::class);
+    }
+
+    /**
+     * Get all notifications for this startup
+     */
+    public function notifications(): HasMany
+    {
+        return $this->hasMany(StartupNotification::class);
+    }
+
+    /**
+     * Get all activity logs for this startup
+     */
+    public function activityLogs(): HasMany
+    {
+        return $this->hasMany(StartupActivityLog::class);
     }
 }

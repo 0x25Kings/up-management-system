@@ -269,15 +269,113 @@
             color: #7B1D3A;
         }
 
+        /* Navbar styles */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 40px;
+            background: rgba(90, 20, 40, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.15);
+            transition: all 0.4s ease;
+        }
+
+        .navbar.scrolled {
+            background: rgba(90, 20, 40, 0.3);
+            box-shadow: none;
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .navbar-brand img {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+        }
+
+        .navbar-brand span {
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 0.5px;
+        }
+
+        .navbar-links {
+            display: flex;
+            align-items: center;
+            gap: 28px;
+        }
+
+        .navbar-links a {
+            color: rgba(255, 255, 255, 0.85);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .navbar-links a:hover {
+            color: #FFBF00;
+        }
+
+        .navbar-links .btn-login {
+            background: rgba(255, 191, 0, 0.9);
+            color: #5a1428;
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .navbar-links .btn-login:hover {
+            background: #FFBF00;
+            transform: translateY(-1px);
+        }
+
         @media (max-width: 768px) {
             .login-card {
                 padding: 24px;
+            }
+            .navbar {
+                padding: 12px 20px;
+            }
+            .navbar-brand span {
+                font-size: 15px;
+            }
+            .navbar-links {
+                gap: 16px;
+            }
+            .navbar-links a {
+                font-size: 13px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="login-page">
+    <!-- Sticky Navbar -->
+    <nav class="navbar" id="navbar">
+        <a href="{{ route('startup.login') }}" class="navbar-brand">
+            <img src="{{ asset('images/upLogo.png') }}" alt="UP Logo">
+            <span>UP Startup Portal</span>
+        </a>
+        <div class="navbar-links">
+            <a href="{{ route('startup.login') }}">Home</a>
+            <a href="{{ route('startup.login') }}" class="btn-login">Login</a>
+        </div>
+    </nav>
+
+    <div class="login-page" style="padding-top: 80px;">
         <div class="login-container">
             <div class="login-card">
                 <div class="form-header">
@@ -410,6 +508,16 @@
                 reqLength.classList.remove('valid');
                 reqLength.querySelector('i').classList.remove('fa-check-circle');
                 reqLength.querySelector('i').classList.add('fa-circle');
+            }
+        });
+
+        // Navbar scroll transparency
+        window.addEventListener('scroll', function() {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
             }
         });
 

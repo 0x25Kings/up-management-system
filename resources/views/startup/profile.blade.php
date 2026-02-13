@@ -21,18 +21,31 @@
     <div class="profile-container">
         <!-- Profile Header Card -->
         <div class="profile-header-card">
-            <div class="profile-avatar">
-                @php
-                    $words = explode(' ', $startup->company_name);
-                    $initials = '';
-                    foreach ($words as $word) {
-                        if (!empty($word)) {
-                            $initials .= strtoupper(substr($word, 0, 1));
-                        }
-                        if (strlen($initials) >= 2) break;
-                    }
-                    echo $initials ?: strtoupper(substr($startup->company_name, 0, 2));
-                @endphp
+            <div class="profile-avatar-wrapper">
+                <div class="profile-avatar" id="profileAvatar">
+                    @if($startup->profile_photo)
+                        <img src="{{ asset('storage/' . $startup->profile_photo) }}" alt="Profile Photo" class="avatar-img">
+                    @else
+                        @php
+                            $words = explode(' ', $startup->company_name);
+                            $initials = '';
+                            foreach ($words as $word) {
+                                if (!empty($word)) {
+                                    $initials .= strtoupper(substr($word, 0, 1));
+                                }
+                                if (strlen($initials) >= 2) break;
+                            }
+                            echo $initials ?: strtoupper(substr($startup->company_name, 0, 2));
+                        @endphp
+                    @endif
+                </div>
+                <button type="button" class="avatar-upload-btn" onclick="document.getElementById('photoInput').click()" title="Change profile photo">
+                    <i class="fas fa-camera"></i>
+                </button>
+                <form id="photoForm" action="{{ route('startup.profile.upload-photo') }}" method="POST" enctype="multipart/form-data" style="display: none;">
+                    @csrf
+                    <input type="file" id="photoInput" name="profile_photo" accept="image/jpeg,image/png,image/webp" onchange="previewAndSubmitPhoto(this)">
+                </form>
             </div>
             <div class="profile-header-info">
                 <h2>{{ ucwords(strtolower($startup->company_name)) }}</h2>
@@ -283,6 +296,11 @@
         border: 1px solid #E5E7EB;
     }
 
+    .profile-avatar-wrapper {
+        position: relative;
+        flex-shrink: 0;
+    }
+
     .profile-avatar {
         width: 90px;
         height: 90px;
@@ -296,6 +314,37 @@
         color: white;
         flex-shrink: 0;
         box-shadow: 0 6px 20px rgba(123, 29, 58, 0.3);
+        overflow: hidden;
+    }
+
+    .profile-avatar .avatar-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .avatar-upload-btn {
+        position: absolute;
+        bottom: -4px;
+        right: -4px;
+        width: 32px;
+        height: 32px;
+        background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+        border: 3px solid white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: #7B1D3A;
+        font-size: 13px;
+        transition: all 0.3s;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .avatar-upload-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 4px 12px rgba(255, 191, 0, 0.4);
     }
 
     .profile-header-info h2 {
@@ -627,5 +676,36 @@
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
     });
+
+    function previewAndSubmitPhoto(input) {
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            
+            // Validate file size (2MB)
+            if (file.size > 2 * 1024 * 1024) {
+                alert('File size must be less than 2MB');
+                input.value = '';
+                return;
+            }
+
+            // Validate file type
+            if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+                alert('Only JPG, PNG, and WebP images are allowed');
+                input.value = '';
+                return;
+            }
+
+            // Preview the image
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const avatar = document.getElementById('profileAvatar');
+                avatar.innerHTML = '<img src="' + e.target.result + '" alt="Profile Photo" class="avatar-img">';
+            };
+            reader.readAsDataURL(file);
+
+            // Submit the form
+            document.getElementById('photoForm').submit();
+        }
+    }
 </script>
 @endpush
