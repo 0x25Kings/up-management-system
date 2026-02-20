@@ -4004,6 +4004,126 @@
                 box-shadow: 0 0 0 6px rgba(245, 158, 11, 0);
             }
         }
+
+        /* Progress Action Button Styles */
+        .progress-action-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: linear-gradient(135deg, #7B1D3A 0%, #A62450 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 6px rgba(123, 29, 58, 0.25);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-action-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .progress-action-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(123, 29, 58, 0.3);
+            background: linear-gradient(135deg, #8B2344 0%, #B62D5A 100%);
+        }
+
+        .progress-action-btn:hover::before {
+            left: 100%;
+        }
+
+        .progress-action-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 6px rgba(123, 29, 58, 0.25);
+        }
+
+        .progress-action-btn i {
+            font-size: 11px;
+        }
+
+        .progress-attachment-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
+            border: 1px solid #BFDBFE;
+            border-radius: 6px;
+            color: #2563EB;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .progress-attachment-btn:hover {
+            background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%);
+            border-color: #93C5FD;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(37, 99, 235, 0.2);
+        }
+
+        .progress-attachment-btn:active {
+            transform: translateY(0);
+        }
+
+        .progress-attachment-btn i {
+            font-size: 12px;
+        }
+
+        /* Bulk Overtime Action Buttons */
+        .bulk-ot-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .bulk-ot-btn.approve {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            color: white;
+            box-shadow: 0 2px 4px rgba(5, 150, 105, 0.2);
+        }
+
+        .bulk-ot-btn.approve:hover {
+            background: linear-gradient(135deg, #047857 0%, #065F46 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(5, 150, 105, 0.3);
+        }
+
+        .bulk-ot-btn.reject {
+            background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
+            color: white;
+            box-shadow: 0 2px 4px rgba(220, 38, 38, 0.2);
+        }
+
+        .bulk-ot-btn.reject:hover {
+            background: linear-gradient(135deg, #B91C1C 0%, #991B1B 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(220, 38, 38, 0.3);
+        }
+
+        .bulk-ot-btn:active {
+            transform: translateY(0);
+        }
     </style>
 </head>
 <body>
@@ -4651,10 +4771,26 @@
                         $absentCount = $absentInterns->count();
                         $presentCount = $todayAttendances->count();
                     @endphp
+                    @php
+                        $pendingOvertimeToday = $todayAttendances->filter(function($att) {
+                            return $att->isOvertimePending();
+                        });
+                        $pendingOvertimeTodayCount = $pendingOvertimeToday->count();
+                    @endphp
                     <div class="table-card">
                         <div class="table-header">
                             <h3 class="table-title">Today's Attendance - {{ now()->timezone('Asia/Manila')->format('F d, Y') }}</h3>
-                            <div style="display: flex; gap: 8px;">
+                            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                                @if($pendingOvertimeTodayCount > 0)
+                                <div style="display: flex; gap: 6px; margin-right: 8px;">
+                                    <button onclick="approveAllOvertime('daily')" class="bulk-ot-btn approve" title="Approve all pending overtime">
+                                        <i class="fas fa-check-double"></i> Approve All OT ({{ $pendingOvertimeTodayCount }})
+                                    </button>
+                                    <button onclick="rejectAllOvertime('daily')" class="bulk-ot-btn reject" title="Reject all pending overtime">
+                                        <i class="fas fa-times"></i> Reject All OT
+                                    </button>
+                                </div>
+                                @endif
                                 <span style="background: #D1FAE5; color: #065F46; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
                                     <i class="fas fa-user-check"></i> {{ $presentCount }} Present
                                 </span>
@@ -4869,12 +5005,30 @@
                             <input type="text" placeholder="Search by intern name..." id="historySearchInput" onkeyup="filterHistoryAttendance()">
                         </div>
                     </div>
+                    @php
+                        $pendingOvertimeHistory = ($attendanceHistory ?? collect())->filter(function($att) {
+                            return $att->isOvertimePending();
+                        });
+                        $pendingOvertimeHistoryCount = $pendingOvertimeHistory->count();
+                    @endphp
                     <div class="table-card">
                         <div class="table-header">
                             <h3 class="table-title">Attendance History - All Records</h3>
-                            <span style="background: #DBEAFE; color: #1E40AF; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
-                                {{ ($attendanceHistory ?? collect())->count() }} Records
-                            </span>
+                            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                                @if($pendingOvertimeHistoryCount > 0)
+                                <div style="display: flex; gap: 6px; margin-right: 8px;">
+                                    <button onclick="approveAllOvertime('history')" class="bulk-ot-btn approve" title="Approve all pending overtime">
+                                        <i class="fas fa-check-double"></i> Approve All OT ({{ $pendingOvertimeHistoryCount }})
+                                    </button>
+                                    <button onclick="rejectAllOvertime('history')" class="bulk-ot-btn reject" title="Reject all pending overtime">
+                                        <i class="fas fa-times"></i> Reject All OT
+                                    </button>
+                                </div>
+                                @endif
+                                <span style="background: #DBEAFE; color: #1E40AF; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                                    {{ ($attendanceHistory ?? collect())->count() }} Records
+                                </span>
+                            </div>
                         </div>
                         <div style="overflow-x: auto;">
                         <table style="min-width: 1100px;">
@@ -6250,16 +6404,14 @@
                                         <div style="font-size: 11px; color: #9CA3AF;">{{ $progress->created_at->diffForHumans() }}</div>
                                     </td>
                                     <td style="padding: 16px; text-align: center;">
-                                        <div style="display: flex; gap: 8px; justify-content: center;">
-                                            <button onclick="viewProgressDetails({{ $progress->id }})" style="width: 32px; height: 32px; background: #F3F4F6; border: none; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" title="View Details">
-                                                <i class="fas fa-eye" style="color: #6B7280;"></i>
-                                            </button>
-                                            <button onclick="respondToProgress({{ $progress->id }})" style="width: 32px; height: 32px; background: #EDE9FE; border: none; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" title="Respond">
-                                                <i class="fas fa-comment-dots" style="color: #7C3AED;"></i>
+                                        <div style="display: flex; gap: 10px; justify-content: center; align-items: center;">
+                                            <button onclick="viewAndRespondProgress({{ $progress->id }})" class="progress-action-btn" title="View & Respond">
+                                                <i class="fas fa-eye"></i>
+                                                <span>View & Respond</span>
                                             </button>
                                             @if($progress->file_path)
-                                            <a href="{{ Storage::url($progress->file_path) }}" target="_blank" style="width: 32px; height: 32px; background: #DBEAFE; border: none; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; text-decoration: none;" title="Download Attachment">
-                                                <i class="fas fa-paperclip" style="color: #2563EB;"></i>
+                                            <a href="{{ Storage::url($progress->file_path) }}" target="_blank" class="progress-attachment-btn" title="Download Attachment">
+                                                <i class="fas fa-paperclip"></i>
                                             </a>
                                             @endif
                                         </div>
@@ -6280,48 +6432,46 @@
                 </div>
             </div>
 
-            <!-- Progress Detail Modal -->
-            <div id="progressDetailModal" class="modal" style="display: none;">
-                <div class="modal-content" style="max-width: 600px;">
-                    <div class="modal-header" style="background: linear-gradient(135deg, #7B1D3A.0%, #A62450 100%); color: white; padding: 20px 24px;">
+            <!-- Progress View & Respond Modal (Combined) -->
+            <div id="progressCombinedModal" class="modal" style="display: none;" onclick="if(event.target === this) closeModal('progressCombinedModal')">
+                <div class="modal-content" style="max-width: 650px;">
+                    <div class="modal-header" style="background: linear-gradient(135deg, #7B1D3A 0%, #A62450 100%); color: white; padding: 20px 24px;">
                         <h3 style="font-size: 18px; font-weight: 700; margin: 0;"><i class="fas fa-chart-line" style="margin-right: 10px;"></i>Progress Update Details</h3>
-                        <button onclick="closeModal('progressDetailModal')" style="background: rgba(255,255,255,0.2); border: none; width: 32px; height: 32px; border-radius: 8px; color: white; cursor: pointer;"><i class="fas fa-times"></i></button>
-                    </div>
-                    <div class="modal-body" id="progressDetailContent" style="padding: 24px;">
-                        <!-- Content will be loaded dynamically -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- Progress Respond Modal -->
-            <div id="progressRespondModal" class="modal" style="display: none;">
-                <div class="modal-content" style="max-width: 500px;">
-                    <div class="modal-header" style="background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%); color: white; padding: 20px 24px;">
-                        <h3 style="font-size: 18px; font-weight: 700; margin: 0;"><i class="fas fa-comment-dots" style="margin-right: 10px;"></i>Respond to Progress</h3>
-                        <button onclick="closeModal('progressRespondModal')" style="background: rgba(255,255,255,0.2); border: none; width: 32px; height: 32px; border-radius: 8px; color: white; cursor: pointer;"><i class="fas fa-times"></i></button>
+                        <button onclick="closeModal('progressCombinedModal')" style="background: rgba(255,255,255,0.2); border: none; width: 32px; height: 32px; border-radius: 8px; color: white; cursor: pointer;"><i class="fas fa-times"></i></button>
                     </div>
                     <div class="modal-body" style="padding: 24px;">
-                        <form id="progressRespondForm" onsubmit="submitProgressResponse(event)">
-                            <input type="hidden" id="respondProgressId" name="progress_id">
-                            <div style="margin-bottom: 20px;">
-                                <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #374151;">Update Status</label>
-                                <select id="respondProgressStatus" name="status" style="width: 100%; padding: 12px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px;">
-                                    <option value="submitted">Pending Review</option>
-                                    <option value="reviewed">Reviewed</option>
-                                    <option value="acknowledged">Acknowledged</option>
-                                </select>
-                            </div>
-                            <div style="margin-bottom: 20px;">
-                                <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #374151;">Admin Comment</label>
-                                <textarea id="respondProgressComment" name="admin_comment" rows="4" style="width: 100%; padding: 12px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px; resize: vertical;" placeholder="Add your feedback or comment..."></textarea>
-                            </div>
-                            <div style="display: flex; gap: 12px; justify-content: flex-end;">
-                                <button type="button" onclick="closeModal('progressRespondModal')" style="padding: 12px 24px; background: #F3F4F6; color: #374151; border: none; border-radius: 10px; font-weight: 600; cursor: pointer;">Cancel</button>
-                                <button type="submit" style="padding: 12px 24px; background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer;">
-                                    <i class="fas fa-paper-plane" style="margin-right: 8px;"></i>Submit Response
-                                </button>
-                            </div>
-                        </form>
+                        <!-- Progress Details Section -->
+                        <div id="progressDetailContent" style="margin-bottom: 24px;">
+                            <!-- Content will be loaded dynamically -->
+                        </div>
+
+                        <!-- Divider -->
+                        <div style="border-top: 2px solid #E5E7EB; margin: 20px 0; padding-top: 20px;">
+                            <h4 style="font-size: 16px; font-weight: 700; color: #374151; margin-bottom: 16px;"><i class="fas fa-comment-dots" style="margin-right: 8px; color: #7C3AED;"></i>Admin Response</h4>
+
+                            <!-- Response Form -->
+                            <form id="progressRespondForm" onsubmit="submitProgressResponse(event)">
+                                <input type="hidden" id="respondProgressId" name="progress_id">
+                                <div style="margin-bottom: 16px;">
+                                    <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #374151; font-size: 14px;">Update Status</label>
+                                    <select id="respondProgressStatus" name="status" style="width: 100%; padding: 12px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px;">
+                                        <option value="submitted">Pending Review</option>
+                                        <option value="reviewed">Reviewed</option>
+                                        <option value="acknowledged">Acknowledged</option>
+                                    </select>
+                                </div>
+                                <div style="margin-bottom: 20px;">
+                                    <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #374151; font-size: 14px;">Admin Comment</label>
+                                    <textarea id="respondProgressComment" name="admin_comment" rows="3" style="width: 100%; padding: 12px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px; resize: vertical;" placeholder="Add your feedback or comment..."></textarea>
+                                </div>
+                                <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                                    <button type="button" onclick="closeModal('progressCombinedModal')" style="padding: 12px 24px; background: #F3F4F6; color: #374151; border: none; border-radius: 10px; font-weight: 600; cursor: pointer;">Cancel</button>
+                                    <button type="submit" style="padding: 12px 24px; background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer;">
+                                        <i class="fas fa-paper-plane" style="margin-right: 8px;"></i>Submit Response
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -13786,6 +13936,13 @@
 
         // ===== PROJECT PROGRESS FUNCTIONS =====
 
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
         function filterProgress() {
             const statusFilter = document.getElementById('progressStatusFilter').value;
             const typeFilter = document.getElementById('progressTypeFilter').value;
@@ -13803,6 +13960,10 @@
         }
 
         function viewProgressDetails(progressId) {
+            viewAndRespondProgress(progressId);
+        }
+
+        function viewAndRespondProgress(progressId) {
             fetch(`/admin/progress/${progressId}`, {
                 headers: {
                     'Accept': 'application/json',
@@ -13845,7 +14006,7 @@
                             </div>
 
                             <div>
-                                <div style="font-size: 20px; font-weight: 700; color: #1F2937; margin-bottom: 8px;">${progress.title}</div>
+                                <div style="font-size: 18px; font-weight: 700; color: #1F2937; margin-bottom: 8px;">${progress.title}</div>
                                 <div style="background: #F9FAFB; padding: 16px; border-radius: 10px; line-height: 1.6; color: #374151;">${progress.description}</div>
                             </div>
 
@@ -13861,7 +14022,7 @@
 
                             ${progress.admin_comment ? `
                             <div>
-                                <div style="font-size: 12px; color: #6B7280; margin-bottom: 8px;">Admin Response</div>
+                                <div style="font-size: 12px; color: #6B7280; margin-bottom: 8px;">Previous Admin Response</div>
                                 <div style="background: #F0F9FF; border-left: 3px solid #0284C7; padding: 12px 16px; border-radius: 0 8px 8px 0; color: #0C4A6E;">
                                     ${progress.admin_comment}
                                 </div>
@@ -13878,7 +14039,10 @@
                     `;
 
                     document.getElementById('progressDetailContent').innerHTML = content;
-                    document.getElementById('progressDetailModal').style.display = 'flex';
+                    document.getElementById('respondProgressId').value = progressId;
+                    document.getElementById('respondProgressStatus').value = progress.status || 'reviewed';
+                    document.getElementById('respondProgressComment').value = progress.admin_comment || '';
+                    document.getElementById('progressCombinedModal').style.display = 'flex';
                 }
             })
             .catch(error => {
@@ -13888,10 +14052,7 @@
         }
 
         function respondToProgress(progressId) {
-            document.getElementById('respondProgressId').value = progressId;
-            document.getElementById('respondProgressStatus').value = 'reviewed';
-            document.getElementById('respondProgressComment').value = '';
-            document.getElementById('progressRespondModal').style.display = 'flex';
+            viewAndRespondProgress(progressId);
         }
 
         function submitProgressResponse(event) {
@@ -13914,7 +14075,7 @@
             .then(data => {
                 if (data.success) {
                     alert('Response submitted successfully!');
-                    closeModal('progressRespondModal');
+                    closeModal('progressCombinedModal');
                     location.reload();
                 } else {
                     alert(data.message || 'Failed to submit response');
@@ -13925,6 +14086,7 @@
                 alert('An error occurred while submitting the response');
             });
         }
+
 
         // ===== STARTUP MANAGEMENT FUNCTIONS =====
 
@@ -16651,6 +16813,122 @@ University of the Philippines Cebu
                 });
             }
         });
+
+        // Bulk approve all pending overtime
+        function approveAllOvertime(tableType) {
+            const pendingIds = [];
+            const tableId = tableType === 'daily' ? 'dailyHoursTableBody' : 'historyTableBody';
+            const rows = document.querySelectorAll(`#${tableId} tr[data-attendance-id]`);
+
+            rows.forEach(row => {
+                const otBtn = row.querySelector('.ot-action-btn.has-overtime');
+                if (otBtn) {
+                    const attendanceId = row.getAttribute('data-attendance-id');
+                    if (attendanceId && !attendanceId.startsWith('absent-')) {
+                        pendingIds.push(attendanceId);
+                    }
+                }
+            });
+
+            if (pendingIds.length === 0) {
+                alert('No pending overtime requests to approve.');
+                return;
+            }
+
+            if (!confirm(`Are you sure you want to approve all ${pendingIds.length} pending overtime request(s)?`)) {
+                return;
+            }
+
+            // Process approvals sequentially
+            let processed = 0;
+            let failed = 0;
+
+            pendingIds.forEach((id, index) => {
+                fetch(`/admin/attendance/${id}/approve-overtime`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) processed++;
+                    else failed++;
+
+                    if (index === pendingIds.length - 1) {
+                        alert(`Overtime approval complete: ${processed} approved, ${failed} failed.`);
+                        window.location.reload();
+                    }
+                })
+                .catch(() => {
+                    failed++;
+                    if (index === pendingIds.length - 1) {
+                        alert(`Overtime approval complete: ${processed} approved, ${failed} failed.`);
+                        window.location.reload();
+                    }
+                });
+            });
+        }
+
+        // Bulk reject all pending overtime
+        function rejectAllOvertime(tableType) {
+            const pendingIds = [];
+            const tableId = tableType === 'daily' ? 'dailyHoursTableBody' : 'historyTableBody';
+            const rows = document.querySelectorAll(`#${tableId} tr[data-attendance-id]`);
+
+            rows.forEach(row => {
+                const otBtn = row.querySelector('.ot-action-btn.has-overtime');
+                if (otBtn) {
+                    const attendanceId = row.getAttribute('data-attendance-id');
+                    if (attendanceId && !attendanceId.startsWith('absent-')) {
+                        pendingIds.push(attendanceId);
+                    }
+                }
+            });
+
+            if (pendingIds.length === 0) {
+                alert('No pending overtime requests to reject.');
+                return;
+            }
+
+            if (!confirm(`Are you sure you want to reject all ${pendingIds.length} pending overtime request(s)? The excess hours will not be counted.`)) {
+                return;
+            }
+
+            // Process rejections sequentially
+            let processed = 0;
+            let failed = 0;
+
+            pendingIds.forEach((id, index) => {
+                fetch(`/admin/attendance/${id}/decline-overtime`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) processed++;
+                    else failed++;
+
+                    if (index === pendingIds.length - 1) {
+                        alert(`Overtime rejection complete: ${processed} rejected, ${failed} failed.`);
+                        window.location.reload();
+                    }
+                })
+                .catch(() => {
+                    failed++;
+                    if (index === pendingIds.length - 1) {
+                        alert(`Overtime rejection complete: ${processed} rejected, ${failed} failed.`);
+                        window.location.reload();
+                    }
+                });
+            });
+        }
 
         // Approve overtime function
         function approveOvertime(attendanceId) {
