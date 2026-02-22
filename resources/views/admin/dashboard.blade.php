@@ -6411,19 +6411,10 @@
                                         <div style="font-size: 11px; color: #9CA3AF;">{{ $progress->created_at->diffForHumans() }}</div>
                                     </td>
                                     <td style="padding: 16px; text-align: center;">
-<<<<<<< HEAD
-                                        <div style="display: flex; gap: 8px; justify-content: center;">
-                                            <button onclick="viewProgressDetails({{ $progress->id }})" style="width: 32px; height: 32px; background: #3B82F6; border: none; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" title="View Details">
-                                                <i class="fas fa-eye" style="color: white;"></i>
-                                            </button>
-                                            <button onclick="respondToProgress({{ $progress->id }})" style="width: 32px; height: 32px; background: #EDE9FE; border: none; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" title="Respond">
-                                                <i class="fas fa-comment-dots" style="color: #7C3AED;"></i>
-=======
                                         <div style="display: flex; gap: 10px; justify-content: center; align-items: center;">
                                             <button onclick="viewAndRespondProgress({{ $progress->id }})" class="progress-action-btn" title="View & Respond">
                                                 <i class="fas fa-eye"></i>
                                                 <span>View & Respond</span>
->>>>>>> 2d03dd87d08abeb81d9b551ecd2fc9dc25784d24
                                             </button>
                                             @if($progress->file_path)
                                             <a href="{{ Storage::url($progress->file_path) }}" target="_blank" class="progress-attachment-btn" title="Download Attachment">
@@ -6448,34 +6439,12 @@
                 </div>
             </div>
 
-<<<<<<< HEAD
-            <!-- Progress Detail Modal -->
-            <div id="progressDetailModal" class="modal" style="display: none;" onclick="if(event.target === this) closeModal('progressDetailModal')">
-                <div class="modal-content" style="max-width: 600px;">
-                    <div class="modal-header" style="background: linear-gradient(135deg, #7B1D3A 0%, #A62450 100%); color: white; padding: 20px 24px;">
-                        <h3 style="font-size: 18px; font-weight: 700; margin: 0;"><i class="fas fa-chart-line" style="margin-right: 10px;"></i>Progress Update Details</h3>
-                        <button onclick="closeModal('progressDetailModal')" style="background: rgba(255,255,255,0.2); border: none; width: 32px; height: 32px; border-radius: 8px; color: white; cursor: pointer;"><i class="fas fa-times"></i></button>
-                    </div>
-                    <div class="modal-body" id="progressDetailContent" style="padding: 24px;">
-                        <!-- Content will be loaded dynamically -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- Progress Respond Modal -->
-            <div id="progressRespondModal" class="modal" style="display: none;" onclick="if(event.target === this) closeModal('progressRespondModal')">
-                <div class="modal-content" style="max-width: 500px;">
-                    <div class="modal-header" style="background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%); color: white; padding: 20px 24px;">
-                        <h3 style="font-size: 18px; font-weight: 700; margin: 0;"><i class="fas fa-comment-dots" style="margin-right: 10px;"></i>Respond to Progress</h3>
-                        <button onclick="closeModal('progressRespondModal')" style="background: rgba(255,255,255,0.2); border: none; width: 32px; height: 32px; border-radius: 8px; color: white; cursor: pointer;"><i class="fas fa-times"></i></button>
-=======
             <!-- Progress View & Respond Modal (Combined) -->
             <div id="progressCombinedModal" class="modal" style="display: none;" onclick="if(event.target === this) closeModal('progressCombinedModal')">
                 <div class="modal-content" style="max-width: 650px;">
                     <div class="modal-header" style="background: linear-gradient(135deg, #7B1D3A 0%, #A62450 100%); color: white; padding: 20px 24px;">
                         <h3 style="font-size: 18px; font-weight: 700; margin: 0;"><i class="fas fa-chart-line" style="margin-right: 10px;"></i>Progress Update Details</h3>
                         <button onclick="closeModal('progressCombinedModal')" style="background: rgba(255,255,255,0.2); border: none; width: 32px; height: 32px; border-radius: 8px; color: white; cursor: pointer;"><i class="fas fa-times"></i></button>
->>>>>>> 2d03dd87d08abeb81d9b551ecd2fc9dc25784d24
                     </div>
                     <div class="modal-body" style="padding: 24px;">
                         <!-- Progress Details Section -->
@@ -14006,10 +13975,7 @@
 
         // ===== PROJECT PROGRESS FUNCTIONS =====
 
-<<<<<<< HEAD
         // Generic modal close function
-=======
->>>>>>> 2d03dd87d08abeb81d9b551ecd2fc9dc25784d24
         function closeModal(modalId) {
             const modal = document.getElementById(modalId);
             if (modal) {
@@ -14170,17 +14136,11 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-<<<<<<< HEAD
-                    closeModal('progressRespondModal');
+                    closeModal('progressCombinedModal');
                     showToast('success', 'Response Submitted!', 'Your response has been saved successfully.');
                     setTimeout(() => {
                         location.reload();
                     }, 1500);
-=======
-                    alert('Response submitted successfully!');
-                    closeModal('progressCombinedModal');
-                    location.reload();
->>>>>>> 2d03dd87d08abeb81d9b551ecd2fc9dc25784d24
                 } else {
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalBtnText;
