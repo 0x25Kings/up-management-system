@@ -18,6 +18,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
             --primary-color: #7B1D3A;
@@ -4499,6 +4500,12 @@
                                 @endif
                                 <span style="background: rgba(255,255,255,0.2); color: white; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;">{{ $school->required_hours }} hrs required</span>
                                 <span onclick="event.stopPropagation(); toggleSchoolGroup('school-{{ $school->id }}')" style="background: rgba(255,191,0,0.9); color: #7B1D3A; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer;">{{ $schoolInterns->count() }} {{ $schoolInterns->count() == 1 ? 'Intern' : 'Interns' }}</span>
+                                @if($schoolInterns->count() > 0)
+                                <button onclick="event.stopPropagation(); exportSchoolInternsPDF({{ $school->id }}, '{{ addslashes($school->name) }}', '{{ $teamLeader ? addslashes($teamLeader->name) : 'Not Assigned' }}', {{ $school->required_hours }})" style="display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.9); color: #7B1D3A; padding: 6px 12px; border-radius: 8px; border: none; cursor: pointer; font-size: 11px; font-weight: 600; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,1)'" onmouseout="this.style.background='rgba(255,255,255,0.9)'" title="Export to PDF">
+                                    <i class="fas fa-file-pdf"></i>
+                                    Export PDF
+                                </button>
+                                @endif
                                 @if(($school->pending_interns ?? 0) > 0)
                                 <span style="background: #FEE2E2; color: #991B1B; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;">+{{ $school->pending_interns }} pending</span>
                                 @endif
@@ -6251,8 +6258,8 @@
                                     </td>
                                     <td style="padding: 16px; text-align: center;">
                                         <div style="display: flex; gap: 8px; justify-content: center;">
-                                            <button onclick="viewProgressDetails({{ $progress->id }})" style="width: 32px; height: 32px; background: #F3F4F6; border: none; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" title="View Details">
-                                                <i class="fas fa-eye" style="color: #6B7280;"></i>
+                                            <button onclick="viewProgressDetails({{ $progress->id }})" style="width: 32px; height: 32px; background: #3B82F6; border: none; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" title="View Details">
+                                                <i class="fas fa-eye" style="color: white;"></i>
                                             </button>
                                             <button onclick="respondToProgress({{ $progress->id }})" style="width: 32px; height: 32px; background: #EDE9FE; border: none; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" title="Respond">
                                                 <i class="fas fa-comment-dots" style="color: #7C3AED;"></i>
@@ -6281,9 +6288,9 @@
             </div>
 
             <!-- Progress Detail Modal -->
-            <div id="progressDetailModal" class="modal" style="display: none;">
+            <div id="progressDetailModal" class="modal" style="display: none;" onclick="if(event.target === this) closeModal('progressDetailModal')">
                 <div class="modal-content" style="max-width: 600px;">
-                    <div class="modal-header" style="background: linear-gradient(135deg, #7B1D3A.0%, #A62450 100%); color: white; padding: 20px 24px;">
+                    <div class="modal-header" style="background: linear-gradient(135deg, #7B1D3A 0%, #A62450 100%); color: white; padding: 20px 24px;">
                         <h3 style="font-size: 18px; font-weight: 700; margin: 0;"><i class="fas fa-chart-line" style="margin-right: 10px;"></i>Progress Update Details</h3>
                         <button onclick="closeModal('progressDetailModal')" style="background: rgba(255,255,255,0.2); border: none; width: 32px; height: 32px; border-radius: 8px; color: white; cursor: pointer;"><i class="fas fa-times"></i></button>
                     </div>
@@ -6294,7 +6301,7 @@
             </div>
 
             <!-- Progress Respond Modal -->
-            <div id="progressRespondModal" class="modal" style="display: none;">
+            <div id="progressRespondModal" class="modal" style="display: none;" onclick="if(event.target === this) closeModal('progressRespondModal')">
                 <div class="modal-content" style="max-width: 500px;">
                     <div class="modal-header" style="background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%); color: white; padding: 20px 24px;">
                         <h3 style="font-size: 18px; font-weight: 700; margin: 0;"><i class="fas fa-comment-dots" style="margin-right: 10px;"></i>Respond to Progress</h3>
@@ -12596,6 +12603,38 @@
         const paymentSubmissionsData = @json($paymentSubmissionsData);
         const roomIssuesData = @json($roomIssuesData);
 
+        // ========== SCHOOL INTERNS DATA FOR PDF EXPORT ==========
+        @php
+            $schoolInternsForPdf = [];
+            if (isset($schools) && isset($interns)) {
+                foreach ($schools as $school) {
+                    $schoolInternsList = $interns->where('school_id', $school->id);
+                    $teamLeader = \App\Models\User::where('role', \App\Models\User::ROLE_TEAM_LEADER)
+                        ->where('school_id', $school->id)
+                        ->first();
+                    
+                    $schoolInternsForPdf[$school->id] = [
+                        'school_name' => $school->name,
+                        'required_hours' => $school->required_hours,
+                        'team_leader' => $teamLeader ? $teamLeader->name : 'Not Assigned',
+                        'interns' => $schoolInternsList->map(function($intern) {
+                            return [
+                                'id' => $intern->id,
+                                'reference_code' => $intern->reference_code,
+                                'name' => $intern->name,
+                                'course' => $intern->course,
+                                'completed_hours' => $intern->completed_hours,
+                                'required_hours' => $intern->required_hours,
+                                'progress_percentage' => $intern->progress_percentage,
+                                'status' => $intern->status,
+                            ];
+                        })->values()->toArray()
+                    ];
+                }
+            }
+        @endphp
+        const schoolInternsForPdf = @json($schoolInternsForPdf);
+
         let currentDocId = null;
         let currentMoaId = null;
         let currentPaymentId = null;
@@ -13786,6 +13825,14 @@
 
         // ===== PROJECT PROGRESS FUNCTIONS =====
 
+        // Generic modal close function
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
         function filterProgress() {
             const statusFilter = document.getElementById('progressStatusFilter').value;
             const typeFilter = document.getElementById('progressTypeFilter').value;
@@ -13827,6 +13874,9 @@
                         'acknowledged': 'Acknowledged'
                     };
 
+                    // Check if file is an image
+                    const isImage = progress.file_path && /\.(jpg|jpeg|png|gif|webp|bmp)$/i.test(progress.file_path);
+
                     const content = `
                         <div style="display: grid; gap: 16px;">
                             <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid #E5E7EB;">
@@ -13849,7 +13899,20 @@
                                 <div style="background: #F9FAFB; padding: 16px; border-radius: 10px; line-height: 1.6; color: #374151;">${progress.description}</div>
                             </div>
 
-                            ${progress.file_path ? `
+                            ${isImage ? `
+                            <div>
+                                <div style="font-size: 12px; color: #6B7280; margin-bottom: 8px;">Attached Image</div>
+                                <div style="border: 1px solid #E5E7EB; border-radius: 12px; overflow: hidden; background: #F9FAFB;">
+                                    <img src="${progress.file_url}" alt="Progress Image" style="width: 100%; max-height: 400px; object-fit: contain; cursor: pointer;" onclick="window.open('${progress.file_url}', '_blank')">
+                                </div>
+                                <div style="margin-top: 8px;">
+                                    <a href="${progress.file_url}" target="_blank" style="display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; background: #DBEAFE; color: #1E40AF; border-radius: 8px; text-decoration: none; font-weight: 500; font-size: 13px;">
+                                        <i class="fas fa-external-link-alt"></i>
+                                        Open Full Size
+                                    </a>
+                                </div>
+                            </div>
+                            ` : (progress.file_path ? `
                             <div>
                                 <div style="font-size: 12px; color: #6B7280; margin-bottom: 8px;">Attached File</div>
                                 <a href="${progress.file_url}" target="_blank" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; background: #DBEAFE; color: #1E40AF; border-radius: 8px; text-decoration: none; font-weight: 500;">
@@ -13857,7 +13920,7 @@
                                     ${progress.original_filename}
                                 </a>
                             </div>
-                            ` : ''}
+                            ` : '')}
 
                             ${progress.admin_comment ? `
                             <div>
@@ -13883,7 +13946,7 @@
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Failed to load progress details');
+                showToast('error', 'Error', 'Failed to load progress details');
             });
         }
 
@@ -13901,6 +13964,12 @@
             const status = document.getElementById('respondProgressStatus').value;
             const comment = document.getElementById('respondProgressComment').value;
 
+            // Get submit button and show loading state
+            const submitBtn = document.querySelector('#progressRespondForm button[type="submit"]');
+            const originalBtnText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i>Submitting...';
+
             fetch(`/admin/progress/${progressId}/respond`, {
                 method: 'POST',
                 headers: {
@@ -13913,16 +13982,22 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('Response submitted successfully!');
                     closeModal('progressRespondModal');
-                    location.reload();
+                    showToast('success', 'Response Submitted!', 'Your response has been saved successfully.');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
                 } else {
-                    alert(data.message || 'Failed to submit response');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnText;
+                    showToast('error', 'Failed', data.message || 'Failed to submit response');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('An error occurred while submitting the response');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
+                showToast('error', 'Error', 'An error occurred while submitting the response');
             });
         }
 
@@ -14389,6 +14464,219 @@
             a.download = 'startups_export.csv';
             a.click();
             window.URL.revokeObjectURL(url);
+        }
+
+        // ===== EXPORT SCHOOL INTERNS TO PDF =====
+        function exportSchoolInternsPDF(schoolId, schoolName, teamLeaderName, requiredHours) {
+            const schoolData = schoolInternsForPdf[schoolId];
+            
+            if (!schoolData || !schoolData.interns || schoolData.interns.length === 0) {
+                showToast('warning', 'No Data', 'No interns found for this school.');
+                return;
+            }
+
+            const interns = schoolData.interns;
+            const currentDate = new Date().toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+
+            // Generate table rows (without status column)
+            let tableRows = '';
+            interns.forEach((intern, index) => {
+                tableRows += `
+                    <tr style="${index % 2 === 1 ? 'background: #F9FAFB;' : ''}">
+                        <td style="padding: 12px 15px; border-bottom: 1px solid #E5E7EB; text-align: center; font-weight: 600; color: #374151;">${index + 1}</td>
+                        <td style="padding: 12px 15px; border-bottom: 1px solid #E5E7EB; font-family: 'Courier New', monospace; font-weight: 600; color: #7B1D3A; background: #FDF2F8;">${intern.reference_code || 'N/A'}</td>
+                        <td style="padding: 12px 15px; border-bottom: 1px solid #E5E7EB; font-weight: 600; color: #1F2937;">${intern.name}</td>
+                        <td style="padding: 12px 15px; border-bottom: 1px solid #E5E7EB; color: #6B7280;">${intern.course || 'N/A'}</td>
+                        <td style="padding: 12px 15px; border-bottom: 1px solid #E5E7EB; text-align: center;">
+                            <strong style="color: #7B1D3A;">${intern.completed_hours}</strong> / ${intern.required_hours} hrs
+                        </td>
+                    </tr>
+                `;
+            });
+
+            const safeSchoolName = schoolName.replace(/[^a-zA-Z0-9 ]/g, '').replace(/\s+/g, '_');
+
+            const pdfContent = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>${schoolName} - Intern List</title>
+                    <style>
+                        @page {
+                            margin: 0.5in;
+                            size: A4 landscape;
+                        }
+                        @media print {
+                            body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+                            .no-print { display: none !important; }
+                        }
+                        * {
+                            margin: 0;
+                            padding: 0;
+                            box-sizing: border-box;
+                        }
+                        body {
+                            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                            padding: 30px;
+                            color: #1F2937;
+                            line-height: 1.5;
+                            background: white;
+                        }
+                        .header {
+                            text-align: center;
+                            margin-bottom: 25px;
+                            border-bottom: 3px solid #7B1D3A;
+                            padding-bottom: 20px;
+                        }
+                        .logo-placeholder {
+                            width: 70px;
+                            height: 70px;
+                            background: #7B1D3A;
+                            border-radius: 14px;
+                            margin: 0 auto 12px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            color: white;
+                            font-size: 28px;
+                            font-weight: bold;
+                        }
+                        .header h1 {
+                            color: #7B1D3A;
+                            margin: 0 0 6px 0;
+                            font-size: 22px;
+                        }
+                        .header h2 {
+                            color: #374151;
+                            margin: 0 0 4px 0;
+                            font-size: 16px;
+                            font-weight: 500;
+                        }
+                        .header p {
+                            color: #6B7280;
+                            margin: 0;
+                            font-size: 12px;
+                        }
+                        .info-section {
+                            display: flex;
+                            justify-content: center;
+                            gap: 50px;
+                            margin-bottom: 20px;
+                            background: #F9FAFB;
+                            padding: 12px 20px;
+                            border-radius: 8px;
+                            border: 1px solid #E5E7EB;
+                        }
+                        .info-item {
+                            text-align: center;
+                        }
+                        .info-label {
+                            font-size: 10px;
+                            color: #6B7280;
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                            margin-bottom: 3px;
+                        }
+                        .info-value {
+                            font-size: 14px;
+                            font-weight: 700;
+                            color: #7B1D3A;
+                        }
+                        table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            background: white;
+                            border: 1px solid #E5E7EB;
+                        }
+                        th {
+                            background: #7B1D3A !important;
+                            color: white !important;
+                            padding: 12px 15px;
+                            text-align: left;
+                            font-weight: 600;
+                            font-size: 11px;
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                        }
+                        th:first-child {
+                            text-align: center;
+                            width: 40px;
+                        }
+                        th:last-child {
+                            text-align: center;
+                        }
+                        td {
+                            border-bottom: 1px solid #E5E7EB;
+                        }
+                        .footer {
+                            margin-top: 25px;
+                            padding-top: 15px;
+                            border-top: 1px solid #E5E7EB;
+                            display: flex;
+                            justify-content: space-between;
+                            font-size: 10px;
+                            color: #6B7280;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <div class="logo-placeholder">UP</div>
+                        <h1>University Partners Management System</h1>
+                        <h2>${schoolName}</h2>
+                        <p>Intern List Report - Generated on ${currentDate}</p>
+                    </div>
+
+                    <div class="info-section">
+                        <div class="info-item">
+                            <div class="info-label">Team Leader</div>
+                            <div class="info-value">${teamLeaderName}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Required Hours</div>
+                            <div class="info-value">${requiredHours} hrs</div>
+                        </div>
+                    </div>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>ID Number</th>
+                                <th>Name</th>
+                                <th>Course</th>
+                                <th>OJT Hours</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${tableRows}
+                        </tbody>
+                    </table>
+
+                    <div class="footer">
+                        <div>UP Management System - Intern List Report</div>
+                        <div>Total: ${interns.length} Intern(s)</div>
+                        <div>Confidential - For Internal Use Only</div>
+                    </div>
+                </body>
+                </html>
+            `;
+
+            // Open new window and trigger print (user can save as PDF)
+            const pdfWindow = window.open('', '_blank');
+            pdfWindow.document.write(pdfContent);
+            pdfWindow.document.close();
+            
+            // Auto-trigger print dialog after content loads
+            pdfWindow.onload = function() {
+                setTimeout(() => {
+                    pdfWindow.print();
+                }, 300);
+            };
         }
 
         // Show/hide MOA expiry field based on status
