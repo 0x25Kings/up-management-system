@@ -2529,6 +2529,13 @@
 
         .calendar-day.blocked-day {
             position: relative;
+            background: #FEE2E2 !important;
+            border: 2px solid #EF4444 !important;
+        }
+
+        .calendar-day.blocked-day .day-number {
+            color: #DC2626 !important;
+            font-weight: 700;
         }
 
         .day-number {
@@ -15648,7 +15655,7 @@ University of the Philippines Cebu
                 // Show blocked status
                 if (blockedInfo) {
                     eventsHtml += `
-                        <div class="calendar-event blocked" style="background: ${blockedInfo.reason_color}20; border-left: 3px solid ${blockedInfo.reason_color}; color: ${blockedInfo.reason_color};">
+                        <div class="calendar-event blocked" style="background: #FEE2E2; border-left: 3px solid #DC2626; color: #DC2626; font-weight: 600;">
                             <div class="event-name"><i class="fas fa-ban" style="margin-right: 4px;"></i>${blockedInfo.reason_label}</div>
                             ${blockedInfo.description ? `<div class="event-time">${blockedInfo.description}</div>` : ''}
                         </div>
@@ -15686,8 +15693,8 @@ University of the Philippines Cebu
                     `;
                 });
 
-                let dayStyle = blockedInfo ? `background: ${blockedInfo.reason_color}08;` : '';
-                mainHtml += `<div class="${classes}" style="${dayStyle}" onclick="openBlockDateModal('${dateString}')"><div class="day-number">${day}</div>${eventsHtml}</div>`;
+                let dayStyle = blockedInfo ? `background: #FEE2E2; border: 2px solid #EF4444;` : '';
+                mainHtml += `<div class="${classes}" style="${dayStyle}" onclick="openBlockDateModal('${dateString}')"><div class="day-number" ${blockedInfo ? 'style="color: #DC2626; font-weight: 700;"' : ''}>${day}</div>${eventsHtml}</div>`;
             }
             const remainingMain = 42 - (firstDay + daysInMonth);
             for (let i = 1; i <= remainingMain; i++) {

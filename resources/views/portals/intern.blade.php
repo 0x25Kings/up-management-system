@@ -3038,6 +3038,7 @@
         let currentYear = new Date().getFullYear();
         let allEvents = [];
         let allBookings = [];
+        let allBlockedDates = [];
 
         function showPage(pageId, updateMenu = true) {
             // Hide all pages
@@ -3080,6 +3081,7 @@
             if (pageId === 'schedule') {
                 loadEvents();
                 loadBookings();
+                loadBlockedDates();
             }
         }
 
@@ -3116,6 +3118,24 @@
             })
             .catch(error => {
                 console.error('Error loading bookings:', error);
+            });
+        }
+
+        // Load blocked dates
+        function loadBlockedDates() {
+            fetch('/blocked-dates', {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            })
+            .then(response => response.json())
+            .then(blockedDates => {
+                allBlockedDates = blockedDates || [];
+                renderCalendar();
+            })
+            .catch(error => {
+                console.error('Error loading blocked dates:', error);
             });
         }
 
@@ -3160,10 +3180,22 @@
                     return booking.date === dateString;
                 });
 
+                // Check if this day is blocked
+                const blockedInfo = allBlockedDates.find(b => b.date === dateString);
+
                 let itemsHtml = '';
                 let totalItems = dayEvents.length + dayBookings.length;
                 let displayCount = 0;
                 const maxDisplay = 2;
+
+                // Display blocked date first (always visible)
+                if (blockedInfo) {
+                    itemsHtml += `
+                        <div style="background: #FEE2E2; border-left: 3px solid #DC2626; color: #DC2626; padding: 3px 5px; margin-bottom: 3px; border-radius: 4px; font-size: 10px; font-weight: 700; line-height: 1.3;">
+                            <i class="fas fa-ban" style="font-size: 8px; margin-right: 2px;"></i>${blockedInfo.reason_label}
+                        </div>
+                    `;
+                }
 
                 // Display events
                 dayEvents.slice(0, maxDisplay - displayCount).forEach(event => {
@@ -3195,11 +3227,22 @@
                     itemsHtml += `<div style="font-size: 9px; color: #6B7280; padding: 2px 5px; text-align: center; background: #F3F4F6; border-radius: 3px; margin-top: 2px; cursor: pointer;" onclick="showDayDetails('${dateString}')">+${totalItems - maxDisplay} more</div>`;
                 }
 
-                const bgColor = isToday ? '#FEF3C7' : 'white';
-                const dayColor = isToday ? '#7B1D3A' : '#1F2937';
+                // Set background color based on blocked status, then today
+                let bgColor = 'white';
+                let borderStyle = '1px solid #E5E7EB';
+                let dayColor = '#1F2937';
 
-                html += `<div style="min-height: 120px; padding: 8px; border: 1px solid #E5E7EB; background: ${bgColor}; cursor: pointer; transition: background 0.2s; display: flex; flex-direction: column;" onmouseover="this.style.background='#F9FAFB'" onmouseout="this.style.background='${bgColor}'">
-                    <div style="font-size: 14px; font-weight: ${isToday ? '700' : '600'}; color: ${dayColor}; margin-bottom: 6px; flex-shrink: 0;">${day}</div>
+                if (blockedInfo) {
+                    bgColor = '#FEE2E2';
+                    borderStyle = '2px solid #EF4444';
+                    dayColor = '#DC2626';
+                } else if (isToday) {
+                    bgColor = '#FEF3C7';
+                    dayColor = '#7B1D3A';
+                }
+
+                html += `<div style="min-height: 120px; padding: 8px; border: ${borderStyle}; background: ${bgColor}; cursor: pointer; transition: background 0.2s; display: flex; flex-direction: column;" onmouseover="this.style.background='${blockedInfo ? '#FECACA' : '#F9FAFB'}'" onmouseout="this.style.background='${bgColor}'">
+                    <div style="font-size: 14px; font-weight: ${isToday || blockedInfo ? '700' : '600'}; color: ${dayColor}; margin-bottom: 6px; flex-shrink: 0;">${day}</div>
                     <div style="flex: 1; overflow-y: auto; overflow-x: hidden;">
                         ${itemsHtml}
                     </div>

@@ -6030,13 +6030,13 @@
 
                 let dayStyle = 'background: white; padding: 12px; min-height: 100px; border: 2px solid transparent;';
                 if (isToday) dayStyle = 'background: #FEF3C7; padding: 12px; min-height: 100px; border: 2px solid var(--gold);';
-                if (blockedInfo) dayStyle += ` background: ${blockedInfo.reason_color}08;`;
+                if (blockedInfo) dayStyle += ` background: #FEE2E2; border: 2px solid #EF4444;`;
 
                 let eventsHtml = '';
 
                 // Show blocked status
                 if (blockedInfo) {
-                    eventsHtml += `<div style="background: ${blockedInfo.reason_color}20; border-left: 3px solid ${blockedInfo.reason_color}; color: ${blockedInfo.reason_color}; padding: 4px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><i class="fas fa-ban" style="margin-right: 4px;"></i>${blockedInfo.reason_label}</div>`;
+                    eventsHtml += `<div style="background: #FEE2E2; border-left: 3px solid #DC2626; color: #DC2626; padding: 4px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><i class="fas fa-ban" style="margin-right: 4px;"></i>${blockedInfo.reason_label}</div>`;
                 }
 
                 // Show bookings
