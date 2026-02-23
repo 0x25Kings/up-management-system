@@ -109,7 +109,7 @@ class AdminDashboardController extends Controller
             ->whereNull('archived_at')
             ->orderBy('booking_date', 'desc')
             ->get();
-        
+
         $archivedBookings = Booking::with('approvedBy')
             ->whereNotNull('archived_at')
             ->orderBy('archived_at', 'desc')
@@ -1468,14 +1468,26 @@ class AdminDashboardController extends Controller
         $today = Carbon::now($timezone)->toDateString();
 
         // Get today's absent interns (Active interns without time-in today)
+        // Exclude interns who just registered/started today - they shouldn't be marked absent on their first day
         $activeInterns = Intern::approved()->where('status', 'Active')->get();
         $presentTodayIds = Attendance::where('date', $today)
             ->whereNotNull('time_in')
             ->pluck('intern_id')
             ->toArray();
 
-        $absentInterns = $activeInterns->filter(function($intern) use ($presentTodayIds) {
-            return !in_array($intern->id, $presentTodayIds);
+        $absentInterns = $activeInterns->filter(function($intern) use ($presentTodayIds, $today) {
+            // Skip if intern already has attendance today
+            if (in_array($intern->id, $presentTodayIds)) {
+                return false;
+            }
+            // Don't count as absent if intern was just approved/started today
+            if ($intern->start_date && $intern->start_date->toDateString() === $today) {
+                return false;
+            }
+            if ($intern->approved_at && $intern->approved_at->toDateString() === $today) {
+                return false;
+            }
+            return true;
         })->map(function($intern) {
             return [
                 'id' => $intern->id,
@@ -1561,6 +1573,17 @@ class AdminDashboardController extends Controller
             'document_uploads' => $recentDocuments,
             'progress_updates' => $progressUpdates,
             'team_leader_activities' => $teamLeaderActivities,
+        ]);
+    }
+
+    /**
+     * Refresh CSRF token to keep session alive
+     */
+    public function refreshCsrfToken()
+    {
+        return response()->json([
+            'token' => csrf_token(),
+            'expires_at' => now()->addMinutes(config('session.lifetime'))->toISOString(),
         ]);
     }
 }
