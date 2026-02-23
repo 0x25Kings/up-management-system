@@ -18,7 +18,7 @@
     </div>
 
     <!-- Password Change Form -->
-    <div class="form-card" style="max-width: 600px;">
+    <div class="form-card" style="max-width: 600px; margin: 0 auto;">
         <div class="form-card-header">
             <h2><i class="fas fa-lock"></i> Update Password</h2>
             <p>Enter your current password and choose a new one</p>

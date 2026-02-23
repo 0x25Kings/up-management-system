@@ -2369,10 +2369,6 @@
         <!-- Documents Page -->
         <div id="documents" class="page-content">
             <div style="display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 20px;">
-                <button class="btn-primary" onclick="showCreateFolderModal()">
-                    <i class="fas fa-folder-plus" style="margin-right: 6px;"></i>
-                    New Folder
-                </button>
                 <button class="btn-primary" onclick="document.getElementById('fileUpload').click()">
                     <i class="fas fa-upload" style="margin-right: 6px;"></i>
                     Upload Document
@@ -2391,28 +2387,7 @@
             </div>
         </div>
 
-        <!-- Create Folder Modal -->
-        <div id="createFolderModal" class="modal" style="display: none;">
-            <div class="modal-content" style="width: 90%; max-width: 500px; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
-                <div class="modal-header" style="padding: 20px; border-bottom: 1px solid #E5E7EB; display: flex; justify-content: space-between; align-items: center;">
-                    <h2 style="margin: 0; font-size: 18px; font-weight: 600;">Create New Folder</h2>
-                </div>
-                <div class="modal-body" style="padding: 20px;">
-                    <div class="form-group">
-                        <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">Folder Name</label>
-                        <input type="text" id="folderName" style="width: 100%; padding: 10px 12px; border: 1px solid #E5E7EB; border-radius: 6px; font-size: 14px;" placeholder="Enter folder name">
-                    </div>
-                    <div class="form-group">
-                        <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">Description (Optional)</label>
-                        <textarea id="folderDescription" style="width: 100%; padding: 10px 12px; border: 1px solid #E5E7EB; border-radius: 6px; font-size: 14px; resize: vertical; min-height: 80px;" placeholder="Add a description..."></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer" style="padding: 15px 20px; border-top: 1px solid #E5E7EB; display: flex; justify-content: flex-end; gap: 10px;">
-                    <button onclick="closeCreateFolderModal()" style="padding: 10px 20px; background-color: #E5E7EB; color: #374151; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">Cancel</button>
-                    <button onclick="createFolder()" style="padding: 10px 20px; background-color: #7B1D3A; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">Create Folder</button>
-                </div>
-            </div>
-        </div>
+
 
         <style>
             .folder-grid {
@@ -2607,64 +2582,7 @@
                 });
             }
 
-            function showCreateFolderModal() {
-                document.getElementById('createFolderModal').style.display = 'flex';
-            }
 
-            function closeCreateFolderModal() {
-                document.getElementById('createFolderModal').style.display = 'none';
-                document.getElementById('folderName').value = '';
-                document.getElementById('folderDescription').value = '';
-            }
-
-            function createFolder() {
-                const name = document.getElementById('folderName').value.trim();
-                const description = document.getElementById('folderDescription').value.trim();
-
-                if (!name) {
-                    alert('Please enter a folder name');
-                    return;
-                }
-
-                console.log('Creating folder:', { name, description, currentFolderId });
-
-                fetch('{{ route("documents.folder.create") }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                    },
-                    body: JSON.stringify({
-                        name: name,
-                        description: description,
-                        parent_folder_id: currentFolderId
-                    })
-                })
-                .then(response => {
-                    console.log('Response status:', response.status);
-                    if (!response.ok) {
-                        return response.text().then(text => {
-                            console.error('Error response:', text);
-                            throw new Error(`HTTP error! status: ${response.status}, body: ${text}`);
-                        });
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Response data:', data);
-                    if (data.success) {
-                        closeCreateFolderModal();
-                        loadDocuments();
-                        showNotification('Folder created successfully', 'success');
-                    } else {
-                        showNotification(data.message || 'Failed to create folder', 'error');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showNotification('Error creating folder: ' + error.message, 'error');
-                });
-            }
 
             function handleFileUpload(event) {
                 const files = event.target.files;
