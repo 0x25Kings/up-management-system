@@ -925,6 +925,267 @@
             font-size: 14px;
         }
 
+        /* Status Chart */
+        .chart-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 28px;
+            padding: 24px;
+        }
+
+        .donut-chart {
+            position: relative;
+            width: 140px;
+            height: 140px;
+            flex-shrink: 0;
+        }
+
+        .donut-chart svg {
+            width: 140px;
+            height: 140px;
+            transform: rotate(-90deg);
+        }
+
+        .donut-chart .center-label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .donut-chart .center-label .count {
+            font-size: 28px;
+            font-weight: 800;
+            color: #1F2937;
+            line-height: 1;
+        }
+
+        .donut-chart .center-label .label {
+            font-size: 11px;
+            color: #9CA3AF;
+            margin-top: 2px;
+        }
+
+        .chart-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            color: #4B5563;
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .legend-count {
+            font-weight: 700;
+            color: #1F2937;
+            margin-left: auto;
+            min-width: 20px;
+            text-align: right;
+        }
+
+        /* Three Column Grid */
+        .three-col-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 28px;
+        }
+
+        /* Progress Timeline */
+        .progress-timeline {
+            padding: 16px 24px;
+        }
+
+        .progress-item {
+            display: flex;
+            gap: 14px;
+            padding: 14px 0;
+            border-bottom: 1px solid #F3F4F6;
+            position: relative;
+        }
+
+        .progress-item:last-child {
+            border-bottom: none;
+        }
+
+        .progress-dot {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .progress-dot.development { background: linear-gradient(135deg, #DBEAFE, #BFDBFE); color: #2563EB; }
+        .progress-dot.funding { background: linear-gradient(135deg, #D1FAE5, #A7F3D0); color: #059669; }
+        .progress-dot.partnership { background: linear-gradient(135deg, #FEF3C7, #FDE68A); color: #D97706; }
+        .progress-dot.launch { background: linear-gradient(135deg, #EDE9FE, #DDD6FE); color: #7C3AED; }
+        .progress-dot.achievement { background: linear-gradient(135deg, #FCE7F3, #FBCFE8); color: #DB2777; }
+        .progress-dot.other { background: linear-gradient(135deg, #F3F4F6, #E5E7EB); color: #6B7280; }
+
+        .progress-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .progress-info h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1F2937;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .progress-info p {
+            font-size: 12px;
+            color: #9CA3AF;
+        }
+
+        .progress-badge {
+            font-size: 10px;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+            flex-shrink: 0;
+            align-self: center;
+        }
+
+        /* Onboarding Checklist */
+        .onboarding-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            border: 1px solid #E5E7EB;
+            overflow: hidden;
+            margin-bottom: 28px;
+        }
+
+        .onboarding-header {
+            padding: 20px 24px;
+            background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
+            border-bottom: 1px solid #FDE68A;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .onboarding-header h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #92400E;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .onboarding-progress-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .onboarding-progress-bar .bar {
+            width: 120px;
+            height: 6px;
+            background: #FDE68A;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .onboarding-progress-bar .bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #F59E0B, #D97706);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        .onboarding-progress-bar span {
+            font-size: 12px;
+            font-weight: 700;
+            color: #92400E;
+        }
+
+        .onboarding-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0;
+        }
+
+        .onboarding-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 16px 24px;
+            border-bottom: 1px solid #F3F4F6;
+            border-right: 1px solid #F3F4F6;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .onboarding-item:hover {
+            background: #F9FAFB;
+        }
+
+        .onboarding-check {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            flex-shrink: 0;
+            transition: all 0.3s;
+        }
+
+        .onboarding-check.done {
+            background: linear-gradient(135deg, #D1FAE5, #A7F3D0);
+            color: #059669;
+        }
+
+        .onboarding-check.pending {
+            background: #F3F4F6;
+            color: #9CA3AF;
+            border: 2px dashed #D1D5DB;
+        }
+
+        .onboarding-item-text h4 {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1F2937;
+        }
+
+        .onboarding-item-text p {
+            font-size: 11px;
+            color: #9CA3AF;
+            margin-top: 1px;
+        }
+
+        .onboarding-item.completed .onboarding-item-text h4 {
+            color: #6B7280;
+            text-decoration: line-through;
+        }
+
         /* Buttons */
         .btn-primary {
             background: linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%);
@@ -978,6 +1239,10 @@
 
             .actions-grid {
                 grid-template-columns: repeat(2, 1fr);
+            }
+
+            .three-col-grid {
+                grid-template-columns: 1fr;
             }
         }
 
@@ -1833,7 +2098,13 @@
         <div class="welcome-banner">
             <div class="welcome-content">
                 <div class="welcome-text">
-                    <h1>Welcome back, {{ ucwords(strtolower($startup->company_name)) }}! 👋</h1>
+                    @php
+                        $hour = now()->hour;
+                        if ($hour < 12) $greeting = 'Good morning';
+                        elseif ($hour < 17) $greeting = 'Good afternoon';
+                        else $greeting = 'Good evening';
+                    @endphp
+                    <h1>{{ $greeting }}, {{ ucwords(strtolower($startup->company_name)) }}! 👋</h1>
                     <p>Here's your startup dashboard overview. Manage your documents, track issues, and stay updated.</p>
                     
                     <!-- Insight Badges -->
@@ -1899,6 +2170,22 @@
                 @if($startup->moa_status === 'active')
                     <h4><i class="fas fa-check-circle" style="color: #10B981; margin-right: 8px;"></i>MOA Status: Active</h4>
                     <p>Your Memorandum of Agreement is active{{ $startup->moa_expiry ? ' until ' . $startup->moa_expiry->format('F d, Y') : '' }}</p>
+                    @if($moaDaysRemaining !== null && $moaDaysRemaining <= 30 && $moaDaysRemaining > 0)
+                        <div style="margin-top: 10px; display: flex; align-items: center; gap: 10px;">
+                            <div style="background: linear-gradient(135deg, #FEF3C7, #FDE68A); color: #92400E; padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
+                                <i class="fas fa-hourglass-half"></i> {{ $moaDaysRemaining }} {{ Str::plural('day', $moaDaysRemaining) }} remaining
+                            </div>
+                            <div style="flex: 1; max-width: 200px; height: 6px; background: #E5E7EB; border-radius: 3px; overflow: hidden;">
+                                <div style="width: {{ max(5, ($moaDaysRemaining / 30) * 100) }}%; height: 100%; background: {{ $moaDaysRemaining <= 7 ? '#EF4444' : ($moaDaysRemaining <= 14 ? '#F59E0B' : '#10B981') }}; border-radius: 3px; transition: width 0.5s;"></div>
+                            </div>
+                        </div>
+                    @elseif($moaDaysRemaining !== null && $moaDaysRemaining <= 0)
+                        <div style="margin-top: 10px;">
+                            <span style="background: linear-gradient(135deg, #FEE2E2, #FECACA); color: #991B1B; padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
+                                <i class="fas fa-exclamation-triangle"></i> MOA has expired — please renew immediately
+                            </span>
+                        </div>
+                    @endif
                 @elseif($startup->moa_status === 'pending')
                     <h4><i class="fas fa-clock" style="color: #F59E0B; margin-right: 8px;"></i>MOA Status: Pending Review</h4>
                     <p>Your MOA request is currently being reviewed by the administration</p>
@@ -1911,14 +2198,87 @@
                 @endif
             </div>
             <div class="moa-action">
-                @if($startup->moa_status !== 'active')
+                @if($startup->moa_status === 'pending')
+                    <a href="{{ route('startup.moa-documents') }}" class="btn-primary" style="background: linear-gradient(135deg, #F59E0B, #D97706);">
+                        <i class="fas fa-eye"></i> View Status
+                    </a>
+                @elseif($startup->moa_status !== 'active')
                     <a href="{{ route('startup.request-moa') }}" class="btn-primary">
                         <i class="fas fa-plus"></i>
-                        {{ $startup->moa_status === 'expired' ? 'Renew MOA' : ($startup->moa_status === 'pending' ? 'View Status' : 'Request MOA') }}
+                        {{ $startup->moa_status === 'expired' ? 'Renew MOA' : 'Request MOA' }}
+                    </a>
+                @elseif($moaDaysRemaining !== null && $moaDaysRemaining <= 30)
+                    <a href="{{ route('startup.request-moa') }}" class="btn-primary" style="background: linear-gradient(135deg, #F59E0B, #D97706);">
+                        <i class="fas fa-sync-alt"></i> Renew Now
                     </a>
                 @endif
             </div>
         </div>
+
+        <!-- Getting Started Checklist (for new startups) -->
+        @php
+            $completedSteps = ($hasProfile ? 1 : 0) + ($hasDocuments ? 1 : 0) + ($hasMoa ? 1 : 0) + ($hasPayment ? 1 : 0) + ($hasProgress ? 1 : 0);
+            $totalSteps = 5;
+            $progressPercent = round(($completedSteps / $totalSteps) * 100);
+        @endphp
+        @if($completedSteps < $totalSteps)
+        <div class="onboarding-card">
+            <div class="onboarding-header">
+                <h3><i class="fas fa-rocket"></i> Getting Started</h3>
+                <div class="onboarding-progress-bar">
+                    <div class="bar"><div class="bar-fill" style="width: {{ $progressPercent }}%;"></div></div>
+                    <span>{{ $completedSteps }}/{{ $totalSteps }}</span>
+                </div>
+            </div>
+            <div class="onboarding-items">
+                <a href="{{ route('startup.profile') }}" class="onboarding-item {{ $hasProfile ? 'completed' : '' }}">
+                    <div class="onboarding-check {{ $hasProfile ? 'done' : 'pending' }}">
+                        <i class="fas {{ $hasProfile ? 'fa-check' : 'fa-user' }}"></i>
+                    </div>
+                    <div class="onboarding-item-text">
+                        <h4>Complete Profile</h4>
+                        <p>{{ $hasProfile ? 'Done' : 'Add description or photo' }}</p>
+                    </div>
+                </a>
+                <a href="{{ route('startup.upload-document') }}" class="onboarding-item {{ $hasDocuments ? 'completed' : '' }}">
+                    <div class="onboarding-check {{ $hasDocuments ? 'done' : 'pending' }}">
+                        <i class="fas {{ $hasDocuments ? 'fa-check' : 'fa-file-alt' }}"></i>
+                    </div>
+                    <div class="onboarding-item-text">
+                        <h4>Upload Document</h4>
+                        <p>{{ $hasDocuments ? 'Done' : 'Submit your first document' }}</p>
+                    </div>
+                </a>
+                <a href="{{ route('startup.request-moa') }}" class="onboarding-item {{ $hasMoa ? 'completed' : '' }}">
+                    <div class="onboarding-check {{ $hasMoa ? 'done' : 'pending' }}">
+                        <i class="fas {{ $hasMoa ? 'fa-check' : 'fa-file-signature' }}"></i>
+                    </div>
+                    <div class="onboarding-item-text">
+                        <h4>Request MOA</h4>
+                        <p>{{ $hasMoa ? 'Done' : 'Formalize your incubation' }}</p>
+                    </div>
+                </a>
+                <a href="{{ route('startup.submit-payment') }}" class="onboarding-item {{ $hasPayment ? 'completed' : '' }}">
+                    <div class="onboarding-check {{ $hasPayment ? 'done' : 'pending' }}">
+                        <i class="fas {{ $hasPayment ? 'fa-check' : 'fa-credit-card' }}"></i>
+                    </div>
+                    <div class="onboarding-item-text">
+                        <h4>Submit Payment</h4>
+                        <p>{{ $hasPayment ? 'Done' : 'Record your first payment' }}</p>
+                    </div>
+                </a>
+                <a href="{{ route('startup.progress') }}" class="onboarding-item {{ $hasProgress ? 'completed' : '' }}">
+                    <div class="onboarding-check {{ $hasProgress ? 'done' : 'pending' }}">
+                        <i class="fas {{ $hasProgress ? 'fa-check' : 'fa-chart-line' }}"></i>
+                    </div>
+                    <div class="onboarding-item-text">
+                        <h4>Post Progress</h4>
+                        <p>{{ $hasProgress ? 'Done' : 'Share a milestone update' }}</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+        @endif
 
         <!-- Stats Grid -->
         <div class="stats-grid">
@@ -2047,6 +2407,131 @@
                             </div>
                         @endforelse
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Submission Status Chart & Progress Overview -->
+        <div class="three-col-grid">
+            <!-- Submission Status Chart -->
+            <div class="content-card">
+                <div class="content-card-header">
+                    <h3 class="content-card-title"><i class="fas fa-chart-pie"></i> Submission Status</h3>
+                </div>
+                <div class="content-card-body">
+                    @php
+                        $totalSubmissions = array_sum($statusBreakdown);
+                    @endphp
+                    @if($totalSubmissions > 0)
+                    <div class="chart-container">
+                        <div class="donut-chart">
+                            @php
+                                $radius = 54;
+                                $circumference = 2 * M_PI * $radius;
+                                $colors = ['pending' => '#F59E0B', 'under_review' => '#3B82F6', 'approved' => '#10B981', 'rejected' => '#EF4444'];
+                                $offset = 0;
+                            @endphp
+                            <svg viewBox="0 0 140 140">
+                                <circle cx="70" cy="70" r="{{ $radius }}" fill="none" stroke="#F3F4F6" stroke-width="14" />
+                                @foreach($statusBreakdown as $status => $count)
+                                    @if($count > 0)
+                                        @php
+                                            $pct = $count / $totalSubmissions;
+                                            $dash = $pct * $circumference;
+                                            $gap = $circumference - $dash;
+                                        @endphp
+                                        <circle cx="70" cy="70" r="{{ $radius }}" fill="none" stroke="{{ $colors[$status] }}" stroke-width="14" stroke-dasharray="{{ $dash }} {{ $gap }}" stroke-dashoffset="{{ -$offset }}" stroke-linecap="round" style="transition: all 0.5s ease;" />
+                                        @php $offset += $dash; @endphp
+                                    @endif
+                                @endforeach
+                            </svg>
+                            <div class="center-label">
+                                <div class="count">{{ $totalSubmissions }}</div>
+                                <div class="label">Total</div>
+                            </div>
+                        </div>
+                        <div class="chart-legend">
+                            <div class="legend-item">
+                                <span class="legend-dot" style="background: #F59E0B;"></span>
+                                Pending
+                                <span class="legend-count">{{ $statusBreakdown['pending'] }}</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-dot" style="background: #3B82F6;"></span>
+                                Under Review
+                                <span class="legend-count">{{ $statusBreakdown['under_review'] }}</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-dot" style="background: #10B981;"></span>
+                                Approved
+                                <span class="legend-count">{{ $statusBreakdown['approved'] }}</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-dot" style="background: #EF4444;"></span>
+                                Rejected
+                                <span class="legend-count">{{ $statusBreakdown['rejected'] }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    @else
+                    <div class="empty-state">
+                        <i class="fas fa-chart-pie"></i>
+                        <p>No submissions yet to display</p>
+                    </div>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Progress Overview -->
+            <div class="content-card" style="grid-column: span 2;">
+                <div class="content-card-header">
+                    <h3 class="content-card-title"><i class="fas fa-chart-line"></i> Project Progress</h3>
+                    <a href="{{ route('startup.progress') }}" class="view-all-link">
+                        View All <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+                <div class="content-card-body">
+                    @if($recentProgress->count() > 0)
+                    <div class="progress-timeline">
+                        @foreach($recentProgress as $progress)
+                        <div class="progress-item">
+                            <div class="progress-dot {{ $progress->milestone_type }}">
+                                <i class="fas {{ match($progress->milestone_type) {
+                                    'development' => 'fa-code',
+                                    'funding' => 'fa-dollar-sign',
+                                    'partnership' => 'fa-handshake',
+                                    'launch' => 'fa-rocket',
+                                    'achievement' => 'fa-trophy',
+                                    default => 'fa-flag'
+                                } }}"></i>
+                            </div>
+                            <div class="progress-info">
+                                <h4>{{ $progress->title }}</h4>
+                                <p>{{ $progress->milestone_type_label }} &middot; {{ $progress->created_at->diffForHumans() }}</p>
+                            </div>
+                            <span class="progress-badge" style="background: {{ match($progress->status) {
+                                'submitted' => 'linear-gradient(135deg, #FEF3C7, #FDE68A)',
+                                'reviewed' => 'linear-gradient(135deg, #DBEAFE, #BFDBFE)',
+                                'acknowledged' => 'linear-gradient(135deg, #D1FAE5, #A7F3D0)',
+                                default => '#F3F4F6'
+                            } }}; color: {{ match($progress->status) {
+                                'submitted' => '#92400E',
+                                'reviewed' => '#1E40AF',
+                                'acknowledged' => '#065F46',
+                                default => '#6B7280'
+                            } }};">{{ ucfirst($progress->status) }}</span>
+                        </div>
+                        @endforeach
+                    </div>
+                    @else
+                    <div class="empty-state">
+                        <i class="fas fa-chart-line"></i>
+                        <p>No progress updates yet. Share your milestones!</p>
+                        <a href="{{ route('startup.progress') }}" class="btn-primary" style="margin-top: 12px; font-size: 13px; padding: 10px 20px;">
+                            <i class="fas fa-plus"></i> Add Progress Update
+                        </a>
+                    </div>
+                    @endif
                 </div>
             </div>
         </div>

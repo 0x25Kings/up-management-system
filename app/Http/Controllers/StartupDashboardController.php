@@ -52,6 +52,27 @@ class StartupDashboardController extends Controller
         $pendingCount = $startup->submissions()->where('status', 'pending')->count()
             + $startup->roomIssues()->where('status', 'pending')->count();
 
+        // Submission status breakdown for chart
+        $statusBreakdown = [
+            'pending' => $startup->submissions()->where('status', 'pending')->count(),
+            'under_review' => $startup->submissions()->where('status', 'under_review')->count(),
+            'approved' => $startup->submissions()->where('status', 'approved')->count(),
+            'rejected' => $startup->submissions()->where('status', 'rejected')->count(),
+        ];
+
+        // MOA expiry days remaining
+        $moaDaysRemaining = null;
+        if ($startup->moa_status === 'active' && $startup->moa_expiry) {
+            $moaDaysRemaining = now()->diffInDays($startup->moa_expiry, false);
+        }
+
+        // Onboarding checklist
+        $hasProfile = !empty($startup->description) || !empty($startup->profile_photo);
+        $hasDocuments = $documentCount > 0;
+        $hasMoa = $moaCount > 0 || $startup->moa_status !== 'none';
+        $hasPayment = $paymentCount > 0;
+        $hasProgress = $startup->progressUpdates()->count() > 0;
+
         return view('startup.dashboard', compact(
             'startup',
             'documentCount',
@@ -61,7 +82,14 @@ class StartupDashboardController extends Controller
             'recentSubmissions',
             'recentRoomIssues',
             'recentProgress',
-            'pendingCount'
+            'pendingCount',
+            'statusBreakdown',
+            'moaDaysRemaining',
+            'hasProfile',
+            'hasDocuments',
+            'hasMoa',
+            'hasPayment',
+            'hasProgress'
         ));
     }
 
