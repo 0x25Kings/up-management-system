@@ -5,7 +5,7 @@
 
 @section('content')
     <!-- Page Header -->
-    <div class="page-header-card">
+    <div class="page-header-card" style="padding: 24px 28px; margin-bottom: 20px;">
         <div class="header-content">
             <div class="header-icon">
                 <i class="fas fa-key"></i>
@@ -18,17 +18,17 @@
     </div>
 
     <!-- Password Change Form -->
-    <div class="form-card" style="max-width: 600px;">
-        <div class="form-card-header">
+    <div class="form-card">
+        <div class="form-card-header" style="padding: 18px 24px;">
             <h2><i class="fas fa-lock"></i> Update Password</h2>
             <p>Enter your current password and choose a new one</p>
         </div>
-        <div class="form-card-body">
+        <div class="form-card-body" style="padding: 24px;">
             <form action="{{ route('startup.change-password.submit') }}" method="POST" id="changePasswordForm">
                 @csrf
 
                 <!-- Current Password -->
-                <div class="form-group">
+                <div class="form-group" style="margin-bottom: 18px;">
                     <label>Current Password <span>*</span></label>
                     <div style="position: relative;">
                         <input type="password" name="current_password" id="currentPassword" class="form-input {{ $errors->has('current_password') ? 'error' : '' }}" placeholder="Enter your current password" required style="padding-right: 48px;">
@@ -42,7 +42,7 @@
                 </div>
 
                 <!-- New Password -->
-                <div class="form-group">
+                <div class="form-group" style="margin-bottom: 18px;">
                     <label>New Password <span>*</span></label>
                     <div style="position: relative;">
                         <input type="password" name="password" id="newPassword" class="form-input {{ $errors->has('password') ? 'error' : '' }}" placeholder="Enter your new password" required minlength="8" style="padding-right: 48px;" oninput="checkPasswordStrength(this.value)">
@@ -67,7 +67,7 @@
                 </div>
 
                 <!-- Confirm Password -->
-                <div class="form-group">
+                <div class="form-group" style="margin-bottom: 18px;">
                     <label>Confirm New Password <span>*</span></label>
                     <div style="position: relative;">
                         <input type="password" name="password_confirmation" id="confirmPassword" class="form-input" placeholder="Re-enter your new password" required style="padding-right: 48px;" oninput="checkPasswordMatch()">
@@ -79,7 +79,7 @@
                 </div>
 
                 <!-- Security Tips -->
-                <div style="background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 12px; padding: 16px; margin-bottom: 24px;">
+                <div style="background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 10px; padding: 14px; margin-bottom: 18px;">
                     <h4 style="font-size: 13px; font-weight: 700; color: #1E40AF; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
                         <i class="fas fa-shield-alt"></i> Password Tips
                     </h4>
@@ -92,11 +92,11 @@
                 </div>
 
                 <!-- Submit -->
-                <div style="display: flex; gap: 12px;">
-                    <button type="submit" class="btn btn-primary" style="flex: 1;">
+                <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                    <a href="{{ route('startup.profile') }}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">
                         <i class="fas fa-key"></i> Update Password
                     </button>
-                    <a href="{{ route('startup.profile') }}" class="btn btn-secondary">Cancel</a>
                 </div>
             </form>
         </div>
