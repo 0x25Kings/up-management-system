@@ -136,6 +136,7 @@ Route::middleware(['maintenance', 'startup.auth'])->prefix('startup')->name('sta
 
     // MOA Viewer
     Route::get('/moa-documents', [StartupDashboardController::class, 'moaViewer'])->name('moa-documents');
+    Route::get('/moa-documents/{submission}/download', [StartupDashboardController::class, 'downloadMoaDocument'])->name('download-moa-document');
 
     // Billing & Payment History
     Route::get('/billing', [StartupDashboardController::class, 'billingHistory'])->name('billing');
@@ -236,6 +237,11 @@ Route::middleware(['admin'])->group(function () {
     Route::put('/admin/submissions/{submission}', [AdminStartupController::class, 'updateSubmission'])->name('admin.submissions.update');
     Route::post('/admin/startup-documents/{submission}/update-status', [AdminStartupController::class, 'updateDocumentStatus'])->name('admin.startup-documents.update-status');
     Route::delete('/admin/submissions/{submission}', [AdminStartupController::class, 'deleteSubmission'])->name('admin.submissions.destroy');
+
+    // MOA Management Routes (Admin)
+    Route::get('/admin/moa-requests', [AdminStartupController::class, 'getMoaRequests'])->name('admin.moa-requests.index');
+    Route::post('/admin/moa-requests/{submission}/upload-document', [AdminStartupController::class, 'uploadMoaDocument'])->name('admin.moa-requests.upload-document');
+    Route::get('/admin/moa-requests/{submission}/download-document', [AdminStartupController::class, 'downloadMoaDocument'])->name('admin.moa-requests.download-document');
 
     // Room Issues Management (Admin)
     Route::get('/admin/room-issues', [AdminStartupController::class, 'getRoomIssues'])->name('admin.room-issues.index');

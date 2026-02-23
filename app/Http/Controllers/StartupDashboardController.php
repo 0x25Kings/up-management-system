@@ -321,7 +321,7 @@ class StartupDashboardController extends Controller
         ]);
 
         $file = $request->file('payment_proof');
-        
+
         // Check image dimensions for quality
         if (in_array($file->getMimeType(), ['image/jpeg', 'image/png', 'image/jpg'])) {
             $imageInfo = getimagesize($file->getPathname());
@@ -331,7 +331,7 @@ class StartupDashboardController extends Controller
                     ->withErrors(['payment_proof' => 'The uploaded image is too small or low quality. Please upload a clearer image (minimum 300x200 pixels).']);
             }
         }
-        
+
         $filename = time() . '_' . $file->getClientOriginalName();
         $path = $file->storeAs('startup-payments', $filename, 'public');
 
@@ -403,8 +403,8 @@ class StartupDashboardController extends Controller
         ]);
 
         // Delete old photo if exists
-        if ($startup->profile_photo && \Storage::disk('public')->exists($startup->profile_photo)) {
-            \Storage::disk('public')->delete($startup->profile_photo);
+        if ($startup->profile_photo && Storage::disk('public')->exists($startup->profile_photo)) {
+            Storage::disk('public')->delete($startup->profile_photo);
         }
 
         $file = $request->file('profile_photo');
@@ -488,7 +488,7 @@ class StartupDashboardController extends Controller
     public function trackSubmissions(Request $request)
     {
         $startup = $this->getStartup();
-        
+
         // Get filter parameters
         $type = $request->get('type', 'all');
         $status = $request->get('status', 'all');
@@ -531,13 +531,13 @@ class StartupDashboardController extends Controller
 
         // Combine and sort by date
         $allItems = collect();
-        
+
         foreach ($submissions as $submission) {
             $allItems->push([
                 'type' => 'submission',
                 'category' => $submission->type,
                 'tracking_code' => $submission->tracking_code,
-                'title' => $submission->type === 'document' ? $submission->document_type : 
+                'title' => $submission->type === 'document' ? $submission->document_type :
                            ($submission->type === 'moa' ? 'MOA Request' : 'Payment Submission'),
                 'description' => $submission->notes ?? $submission->moa_purpose ?? "Amount: ₱" . number_format($submission->amount ?? 0, 2),
                 'status' => $submission->status,
@@ -728,6 +728,38 @@ class StartupDashboardController extends Controller
             ->get();
 
         return view('startup.moa-viewer', compact('startup', 'moaSubmissions'));
+    }
+
+    /**
+     * Download admin-uploaded MOA document
+     */
+    public function downloadMoaDocument(StartupSubmission $submission)
+    {
+        $startup = $this->getStartup();
+
+        // Verify this submission belongs to the startup
+        if ($submission->startup_id !== $startup->id) {
+            abort(403, 'Unauthorized');
+        }
+
+        // Check if this is an MOA submission
+        if ($submission->type !== 'moa') {
+            abort(400, 'This is not an MOA submission');
+        }
+
+        // Check if admin has uploaded a document
+        if (!$submission->admin_moa_document_path) {
+            abort(404, 'MOA document has not been uploaded by admin yet');
+        }
+
+        // Check if file exists
+        if (!Storage::disk('public')->exists($submission->admin_moa_document_path)) {
+            abort(404, 'MOA document file not found');
+        }
+
+        // Use response()->download() to avoid IDE false positive
+        $filePath = Storage::disk('public')->path($submission->admin_moa_document_path);
+        return response()->download($filePath, $submission->admin_moa_document_filename ?? 'moa-document.pdf');
     }
 
     // ==========================================

@@ -18,7 +18,7 @@
     </div>
 
     <!-- Summary Stats -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 28px;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 28px;">
         <div style="background: white; border-radius: 16px; padding: 20px; border: 1px solid #E5E7EB; display: flex; align-items: center; gap: 16px;">
             <div style="width: 48px; height: 48px; background: #EFF6FF; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #3B82F6; font-size: 20px;">
                 <i class="fas fa-file-alt"></i>
@@ -46,6 +46,15 @@
                 <div style="font-size: 12px; color: #6B7280;">Pending</div>
             </div>
         </div>
+        <div style="background: white; border-radius: 16px; padding: 20px; border: 1px solid #E5E7EB; display: flex; align-items: center; gap: 16px;">
+            <div style="width: 48px; height: 48px; background: #E0F2FE; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #0284C7; font-size: 20px;">
+                <i class="fas fa-download"></i>
+            </div>
+            <div>
+                <div style="font-size: 24px; font-weight: 800; color: #1F2937;">{{ $moaSubmissions->where('status', 'approved')->whereNotNull('admin_moa_document_path')->count() }}</div>
+                <div style="font-size: 12px; color: #6B7280;">Ready to Download</div>
+            </div>
+        </div>
     </div>
 
     <!-- MOA Documents List -->
@@ -58,7 +67,7 @@
             @forelse($moaSubmissions as $moa)
                 <div style="padding: 20px 32px; border-bottom: 1px solid #F3F4F6; display: flex; align-items: center; gap: 20px; transition: background 0.2s; cursor: default;"
                      onmouseover="this.style.background='#FAFAFA'" onmouseout="this.style.background='white'">
-                    
+
                     <!-- Document Icon -->
                     <div style="width: 52px; height: 52px; min-width: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px;
                         @if($moa->status === 'approved')
@@ -104,14 +113,22 @@
                     </div>
 
                     <!-- Actions -->
-                    <div style="display: flex; gap: 8px;">
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
                         @if($moa->file_path)
-                            <a href="{{ asset('storage/' . $moa->file_path) }}" target="_blank" title="View Document" style="width: 40px; height: 40px; border: 1px solid #E5E7EB; border-radius: 10px; background: white; display: flex; align-items: center; justify-content: center; color: #7B1D3A; text-decoration: none; transition: all 0.3s; font-size: 16px;">
+                            <a href="{{ asset('storage/' . $moa->file_path) }}" target="_blank" title="View Your Submission" style="width: 40px; height: 40px; border: 1px solid #E5E7EB; border-radius: 10px; background: white; display: flex; align-items: center; justify-content: center; color: #7B1D3A; text-decoration: none; transition: all 0.3s; font-size: 16px;">
                                 <i class="fas fa-eye"></i>
                             </a>
-                            <a href="{{ asset('storage/' . $moa->file_path) }}" download title="Download" style="width: 40px; height: 40px; border: 1px solid #E5E7EB; border-radius: 10px; background: white; display: flex; align-items: center; justify-content: center; color: #3B82F6; text-decoration: none; transition: all 0.3s; font-size: 16px;">
-                                <i class="fas fa-download"></i>
+                        @endif
+
+                        {{-- Admin-uploaded MOA document --}}
+                        @if($moa->admin_moa_document_path)
+                            <a href="{{ route('startup.download-moa-document', $moa->id) }}" title="Download MOA Document" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border: none; border-radius: 10px; background: linear-gradient(135deg, #16A34A, #059669); color: white; text-decoration: none; transition: all 0.3s; font-size: 13px; font-weight: 600;">
+                                <i class="fas fa-download"></i> Download MOA
                             </a>
+                        @elseif($moa->status === 'approved')
+                            <span style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; background: #FEF3C7; color: #92400E; border-radius: 8px; font-size: 11px; font-weight: 500;">
+                                <i class="fas fa-clock"></i> Awaiting upload by admin
+                            </span>
                         @endif
                     </div>
                 </div>

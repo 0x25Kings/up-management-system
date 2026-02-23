@@ -33,6 +33,10 @@ class StartupSubmission extends Model
         'notes',
         'status',
         'admin_notes',
+        'admin_moa_document_path',
+        'admin_moa_document_filename',
+        'admin_moa_uploaded_at',
+        'admin_moa_uploaded_by',
         'reviewed_at',
         'reviewed_by',
     ];
@@ -40,6 +44,7 @@ class StartupSubmission extends Model
     protected $casts = [
         'amount' => 'decimal:2',
         'reviewed_at' => 'datetime',
+        'admin_moa_uploaded_at' => 'datetime',
     ];
 
     /**
@@ -66,6 +71,14 @@ class StartupSubmission extends Model
     public function reviewer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'reviewed_by');
+    }
+
+    /**
+     * Get the admin who uploaded the MOA document
+     */
+    public function moaUploader(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'admin_moa_uploaded_by');
     }
 
     /**

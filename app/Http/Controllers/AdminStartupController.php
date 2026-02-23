@@ -296,4 +296,122 @@ class AdminStartupController extends Controller
             'progress' => $progress
         ]);
     }
+
+    /**
+     * Get all MOA requests for admin management
+     */
+    public function getMoaRequests()
+    {
+        $moaRequests = StartupSubmission::where('type', 'moa')
+            ->orderBy('created_at', 'desc')
+            ->with(['moaUploader'])
+            ->get()
+            ->map(function ($moa) {
+                return [
+                    'id' => $moa->id,
+                    'tracking_code' => $moa->tracking_code,
+                    'company_name' => $moa->company_name,
+                    'contact_person' => $moa->contact_person,
+                    'email' => $moa->email,
+                    'phone' => $moa->phone,
+                    'moa_purpose' => $moa->moa_purpose,
+                    'moa_duration' => $moa->moa_duration,
+                    'moa_details' => $moa->moa_details,
+                    'notes' => $moa->notes,
+                    'status' => $moa->status,
+                    'admin_notes' => $moa->admin_notes,
+                    'admin_moa_document_path' => $moa->admin_moa_document_path,
+                    'admin_moa_document_filename' => $moa->admin_moa_document_filename,
+                    'admin_moa_uploaded_at' => $moa->admin_moa_uploaded_at ? $moa->admin_moa_uploaded_at->format('M d, Y h:i A') : null,
+                    'admin_moa_uploaded_by' => $moa->moaUploader ? $moa->moaUploader->name : null,
+                    'created_at' => $moa->created_at->format('M d, Y h:i A'),
+                    'created_at_iso' => $moa->created_at->toISOString(),
+                    'reviewed_at' => $moa->reviewed_at ? $moa->reviewed_at->format('M d, Y h:i A') : null,
+                ];
+            });
+
+        return response()->json($moaRequests);
+    }
+
+    /**
+     * Upload MOA document for a specific request
+     */
+    public function uploadMoaDocument(Request $request, StartupSubmission $submission)
+    {
+        // Validate that this is an MOA submission
+        if ($submission->type !== 'moa') {
+            return response()->json([
+                'success' => false,
+                'message' => 'This submission is not an MOA request'
+            ], 400);
+        }
+
+        $request->validate([
+            'moa_document' => 'required|file|mimes:pdf,doc,docx|max:10240', // 10MB max
+        ]);
+
+        // Delete old document if exists
+        if ($submission->admin_moa_document_path) {
+            Storage::disk('public')->delete($submission->admin_moa_document_path);
+        }
+
+        // Store new document
+        $file = $request->file('moa_document');
+        $filename = $file->getClientOriginalName();
+        $path = $file->store('moa-documents', 'public');
+
+        // Update submission
+        $submission->update([
+            'admin_moa_document_path' => $path,
+            'admin_moa_document_filename' => $filename,
+            'admin_moa_uploaded_at' => now(),
+            'admin_moa_uploaded_by' => Auth::id(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'MOA document uploaded successfully',
+            'submission' => [
+                'id' => $submission->id,
+                'tracking_code' => $submission->tracking_code,
+                'admin_moa_document_filename' => $filename,
+                'admin_moa_uploaded_at' => $submission->admin_moa_uploaded_at->format('M d, Y h:i A'),
+                'admin_moa_uploaded_by' => Auth::user()->name,
+            ]
+        ]);
+    }
+
+    /**
+     * Download MOA document for a specific request
+     */
+    public function downloadMoaDocument(StartupSubmission $submission)
+    {
+        // Validate that this is an MOA submission
+        if ($submission->type !== 'moa') {
+            return response()->json([
+                'success' => false,
+                'message' => 'This submission is not an MOA request'
+            ], 400);
+        }
+
+        // Check if document exists
+        if (!$submission->admin_moa_document_path) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No MOA document has been uploaded yet'
+            ], 404);
+        }
+
+        // Check if file exists in storage
+        if (!Storage::disk('public')->exists($submission->admin_moa_document_path)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'MOA document file not found'
+            ], 404);
+        }
+
+        // Use response()->download() to avoid IDE false positive
+        $filePath = Storage::disk('public')->path($submission->admin_moa_document_path);
+        return response()->download($filePath, $submission->admin_moa_document_filename);
+    }
 }

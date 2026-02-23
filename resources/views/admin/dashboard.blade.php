@@ -764,10 +764,34 @@
             z-index: 9999;
             justify-content: center;
             align-items: center;
+            padding: 10px;
+            overflow-y: auto;
         }
 
         .modal-overlay.active {
             display: flex;
+        }
+
+        .modal-overlay > .modal-content {
+            margin: auto;
+            max-height: calc(100vh - 20px);
+        }
+
+        @media (max-width: 768px) {
+            .modal-overlay > .modal-content {
+                width: 100% !important;
+                max-width: none !important;
+                margin: 10px;
+            }
+
+            .modal-footer, [style*=\"padding: 16px 24px\"], [style*=\"padding: 12px 16px\"] {
+                flex-wrap: wrap;
+            }
+
+            .modal-footer .btn-modal, .modal-footer button {
+                flex: 1;
+                min-width: 100px;
+            }
         }
 
         .modal-content {
@@ -775,10 +799,29 @@
             border-radius: 12px;
             width: 90%;
             max-width: 700px;
-            max-height: 90vh;
+            max-height: 85vh;
             overflow-y: auto;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             animation: modalSlideIn 0.3s ease;
+            margin: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 95%;
+                max-width: none;
+                max-height: 90vh;
+                margin: 10px;
+                border-radius: 12px;
+            }
+
+            .modal-body {
+                padding: 16px !important;
+            }
+
+            .modal-header, [style*="padding: 24px 28px"] {
+                padding: 16px !important;
+            }
         }
 
         @keyframes modalSlideIn {
@@ -1000,6 +1043,9 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .btn-modal.primary {
@@ -4207,6 +4253,10 @@
                         <i class="fas fa-building"></i>
                         <span>Manage Startups</span>
                     </a>
+                    <a href="#" class="submenu-item" onclick="loadPage(event, 'moa-management')">
+                        <i class="fas fa-file-contract"></i>
+                        <span>MOA Management</span>
+                    </a>
                     <a href="#" class="submenu-item" onclick="loadPage(event, 'project-progress')">
                         <i class="fas fa-tasks"></i>
                         <span>Project Progress</span>
@@ -6839,6 +6889,225 @@
                 </div>
             </div>
 
+            <!-- MOA Management Page -->
+            <div id="moa-management" class="page-content">
+                <div style="margin-bottom: 24px;">
+                    <h2 style="font-size: 28px; font-weight: 700; color: #1F2937; margin-bottom: 8px;">MOA Management</h2>
+                    <p style="color: #6B7280; font-size: 14px;">Manage Memorandum of Agreement requests from startups and upload signed documents</p>
+                </div>
+
+                <!-- Stats Overview -->
+                <div id="moaStatsGrid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
+                    <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #E0E7FF, #A5B4FC); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-file-contract" style="color: #4F46E5; font-size: 20px;"></i>
+                            </div>
+                            <div>
+                                <div id="totalMoaCount" style="font-size: 28px; font-weight: 700; color: #1F2937;">0</div>
+                                <div style="font-size: 13px; color: #6B7280;">Total MOA Requests</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #FEF3C7, #FCD34D); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-clock" style="color: #D97706; font-size: 20px;"></i>
+                            </div>
+                            <div>
+                                <div id="pendingMoaReqCount" style="font-size: 28px; font-weight: 700; color: #D97706;">0</div>
+                                <div style="font-size: 13px; color: #6B7280;">Pending Review</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #D1FAE5, #6EE7B7); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-check-circle" style="color: #059669; font-size: 20px;"></i>
+                            </div>
+                            <div>
+                                <div id="approvedMoaCount" style="font-size: 28px; font-weight: 700; color: #059669;">0</div>
+                                <div style="font-size: 13px; color: #6B7280;">Approved</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #FEE2E2, #FCA5A5); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-upload" style="color: #DC2626; font-size: 20px;"></i>
+                            </div>
+                            <div>
+                                <div id="awaitingUploadCount" style="font-size: 28px; font-weight: 700; color: #DC2626;">0</div>
+                                <div style="font-size: 13px; color: #6B7280;">Awaiting Upload</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filter Bar -->
+                <div class="filter-bar" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                    <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                        <div class="filter-group">
+                            <span class="filter-label">Status:</span>
+                            <select class="filter-select" onchange="filterMoaRequests()" id="moaStatusFilter">
+                                <option value="all">All Status</option>
+                                <option value="pending">Pending</option>
+                                <option value="under_review">Under Review</option>
+                                <option value="approved">Approved</option>
+                                <option value="rejected">Rejected</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <span class="filter-label">Document:</span>
+                            <select class="filter-select" onchange="filterMoaRequests()" id="moaDocumentFilter">
+                                <option value="all">All</option>
+                                <option value="uploaded">Uploaded</option>
+                                <option value="not_uploaded">Not Uploaded</option>
+                            </select>
+                        </div>
+                        <div class="filter-search">
+                            <i class="fas fa-search"></i>
+                            <input type="text" placeholder="Search MOA requests..." onkeyup="searchMoaRequests()" id="moaSearchInput">
+                        </div>
+                    </div>
+                    <button onclick="refreshMoaData()" style="padding: 10px 16px; background: white; color: #7B1D3A; border: 2px solid #7B1D3A; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+
+                <!-- MOA Requests Table -->
+                <div class="table-card">
+                    <div class="table-header">
+                        <h3 class="table-title">MOA Requests</h3>
+                    </div>
+                    <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+                        <table style="width: 100%; border-collapse: collapse; min-width: 1100px;">
+                            <thead>
+                                <tr>
+                                    <th style="width: 140px; text-align: left; padding: 14px 16px; white-space: nowrap;">Tracking Code</th>
+                                    <th style="min-width: 180px; text-align: left; padding: 14px 16px;">Company</th>
+                                    <th style="min-width: 150px; text-align: left; padding: 14px 16px;">MOA Purpose</th>
+                                    <th style="width: 100px; text-align: center; padding: 14px 16px;">Duration</th>
+                                    <th style="width: 110px; text-align: center; padding: 14px 16px;">Status</th>
+                                    <th style="width: 130px; text-align: center; padding: 14px 16px;">MOA Document</th>
+                                    <th style="width: 120px; text-align: center; padding: 14px 16px;">Submitted</th>
+                                    <th style="width: 180px; text-align: center; padding: 14px 16px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="moaRequestsTableBody">
+                                <tr>
+                                    <td colspan="8" style="text-align: center; padding: 40px; color: #6B7280;">
+                                        <i class="fas fa-spinner fa-spin" style="font-size: 24px; margin-bottom: 10px;"></i>
+                                        <p>Loading MOA requests...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MOA Details Modal -->
+            <div id="moaDetailsModal" class="modal" style="display: none;">
+                <div class="modal-content" style="max-width: 700px; border-radius: 16px; overflow: hidden;">
+                    <div style="background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%); padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                        <div style="display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1;">
+                            <div style="width: 40px; height: 40px; min-width: 40px; background: rgba(255,255,255,0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-file-contract" style="font-size: 18px; color: white;"></i>
+                            </div>
+                            <div style="min-width: 0;">
+                                <h3 style="font-size: 18px; font-weight: 700; color: white; margin: 0;">MOA Request Details</h3>
+                                <p id="moaModalTrackingCode" style="font-size: 12px; color: rgba(255,255,255,0.8); margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></p>
+                            </div>
+                        </div>
+                        <button type="button" onclick="closeMoaDetailsModal()" style="width: 32px; height: 32px; min-width: 32px; background: rgba(255,255,255,0.2); border: none; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-times" style="color: white; font-size: 14px;"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body" id="moaDetailsContent" style="padding: 20px;">
+                        <!-- Content loaded dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upload MOA Document Modal -->
+            <div id="uploadMoaModal" class="modal" style="display: none;">
+                <div class="modal-content" style="max-width: 550px; border-radius: 16px; overflow: hidden;">
+                    <div style="background: linear-gradient(135deg, #059669 0%, #10B981 100%); padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                        <div style="display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1;">
+                            <div style="width: 40px; height: 40px; min-width: 40px; background: rgba(255,255,255,0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-cloud-upload-alt" style="font-size: 18px; color: white;"></i>
+                            </div>
+                            <div style="min-width: 0;">
+                                <h3 style="font-size: 18px; font-weight: 700; color: white; margin: 0;">Upload MOA Document</h3>
+                                <p id="uploadMoaCompanyName" style="font-size: 12px; color: rgba(255,255,255,0.8); margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></p>
+                            </div>
+                        </div>
+                        <button type="button" onclick="closeUploadMoaModal()" style="width: 32px; height: 32px; min-width: 32px; background: rgba(255,255,255,0.2); border: none; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-times" style="color: white; font-size: 14px;"></i>
+                        </button>
+                    </div>
+                    <form id="uploadMoaForm" enctype="multipart/form-data">
+                        <input type="hidden" id="uploadMoaId" name="moa_id">
+                        <div class="modal-body" style="padding: 20px;">
+                            <div style="background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 10px; padding: 14px 16px; margin-bottom: 20px;">
+                                <div style="display: flex; align-items: flex-start; gap: 10px;">
+                                    <i class="fas fa-info-circle" style="color: #059669; margin-top: 2px;"></i>
+                                    <div style="font-size: 13px; color: #065F46;">
+                                        Upload the signed MOA document. This will be available for the startup to download from their portal.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="margin-bottom: 20px;">
+                                <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
+                                    <i class="fas fa-file-pdf" style="margin-right: 6px; color: #DC2626;"></i>MOA Document *
+                                </label>
+                                <div id="moaDropZone" style="border: 2px dashed #D1D5DB; border-radius: 12px; padding: 30px; text-align: center; cursor: pointer; transition: all 0.3s; background: #F9FAFB;"
+                                     ondragover="event.preventDefault(); this.style.borderColor='#059669'; this.style.background='#ECFDF5';"
+                                     ondragleave="this.style.borderColor='#D1D5DB'; this.style.background='#F9FAFB';"
+                                     ondrop="handleMoaFileDrop(event)"
+                                     onclick="document.getElementById('moaFileInput').click();">
+                                    <i class="fas fa-cloud-upload-alt" style="font-size: 40px; color: #9CA3AF; margin-bottom: 12px;"></i>
+                                    <p style="font-size: 14px; color: #6B7280; margin-bottom: 6px;">Drag and drop your MOA document here</p>
+                                    <p style="font-size: 12px; color: #9CA3AF;">or click to browse (PDF, DOC, DOCX - Max 10MB)</p>
+                                </div>
+                                <input type="file" id="moaFileInput" name="moa_document" accept=".pdf,.doc,.docx" style="display: none;" onchange="handleMoaFileSelect(event)">
+                                <div id="moaFilePreview" style="display: none; margin-top: 12px; padding: 12px; background: #F3F4F6; border-radius: 8px;">
+                                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                                        <div style="display: flex; align-items: center; gap: 10px;">
+                                            <i class="fas fa-file-pdf" style="font-size: 24px; color: #DC2626;"></i>
+                                            <div>
+                                                <div id="moaFileName" style="font-size: 14px; font-weight: 600; color: #1F2937;"></div>
+                                                <div id="moaFileSize" style="font-size: 12px; color: #6B7280;"></div>
+                                            </div>
+                                        </div>
+                                        <button type="button" onclick="clearMoaFile()" style="padding: 6px 12px; background: #FEE2E2; color: #DC2626; border: none; border-radius: 6px; font-size: 12px; cursor: pointer;">
+                                            <i class="fas fa-times"></i> Remove
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="margin-bottom: 20px;">
+                                <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
+                                    <i class="fas fa-sticky-note" style="margin-right: 6px; color: #6B7280;"></i>Admin Notes (Optional)
+                                </label>
+                                <textarea id="uploadMoaNotes" name="admin_notes" rows="3" placeholder="Add any notes about this MOA document..." style="width: 100%; padding: 12px; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 14px; resize: vertical;"></textarea>
+                            </div>
+                        </div>
+                        <div style="padding: 12px 16px; background: #F9FAFB; border-top: 1px solid #E5E7EB; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px;">
+                            <button type="button" onclick="closeUploadMoaModal()" style="padding: 10px 16px; background: white; color: #6B7280; border: 2px solid #E5E7EB; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">
+                                Cancel
+                            </button>
+                            <button type="submit" id="uploadMoaSubmitBtn" style="padding: 10px 16px; background: linear-gradient(135deg, #059669, #10B981); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 14px;">
+                                <i class="fas fa-upload"></i> <span>Upload</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
             <!-- Digital Records Page -->
             <div id="digital-records" class="page-content">
                 <div style="margin-bottom: 24px;">
@@ -8702,10 +8971,10 @@
             <div class="modal-footer">
                 <button class="btn-modal secondary" onclick="closeBlockDateModal()">Cancel</button>
                 <button class="btn-modal primary" id="blockDateSubmitBtn" onclick="submitBlockDate()" style="background: #EF4444;">
-                    <i class="fas fa-ban"></i> Block Date
+                    <i class="fas fa-ban"></i> <span>Block Date</span>
                 </button>
                 <button class="btn-modal primary" id="unblockDateBtn" onclick="unblockDate()" style="display: none; background: #10B981;">
-                    <i class="fas fa-check"></i> Unblock Date
+                    <i class="fas fa-check"></i> <span>Unblock Date</span>
                 </button>
             </div>
         </div>
@@ -9026,27 +9295,6 @@
     </div>
 
     <!-- ========== INCUBATEE TRACKER MODALS ========== -->
-
-    <!-- View MOA Details Modal -->
-    <div id="moaDetailsModal" class="modal-overlay">
-        <div class="modal-content" style="max-width: 650px;">
-            <div class="modal-header">
-                <h3 class="modal-title"><i class="fas fa-file-contract" style="margin-right: 8px;"></i>MOA Request Details</h3>
-            </div>
-            <div class="modal-body" id="moaDetailsContent">
-                <!-- MOA details will be loaded here -->
-            </div>
-            <div class="modal-footer">
-                <button class="btn-modal secondary" onclick="closeMoaDetailsModal()">Close</button>
-                <button class="btn-modal" style="background: #10B981; color: white;" onclick="openReviewMoaModal()">
-                    <i class="fas fa-clipboard-check"></i> Review MOA
-                </button>
-                <button class="btn-modal primary" onclick="generateMoaFromTemplate()">
-                    <i class="fas fa-file-word"></i> Generate MOA
-                </button>
-            </div>
-        </div>
-    </div>
 
     <!-- Review MOA Modal -->
     <div id="reviewMoaModal" class="modal-overlay">
@@ -11165,6 +11413,9 @@
             } else if (pageId === 'manage-startups') {
                 breadcrumb.innerHTML = 'Dashboard > Startup Management > <span>Manage Startups</span>';
                 loadStartupsData();
+            } else if (pageId === 'moa-management') {
+                breadcrumb.innerHTML = 'Dashboard > Startup Management > <span>MOA Management</span>';
+                loadMoaRequestsData();
             } else if (pageId === 'digital-records') {
                 breadcrumb.innerHTML = 'Dashboard > <span>Digital Records</span>';
             } else if (pageId === 'scheduler') {
@@ -12908,7 +13159,7 @@
         @endphp
 
         const startupDocumentsData = @json($startupDocumentsData);
-        const moaRequestsData = @json($moaRequestsData);
+        const incubateeMoaData = @json($moaRequestsData);
         const paymentSubmissionsData = @json($paymentSubmissionsData);
         const roomIssuesData = @json($roomIssuesData);
 
@@ -13292,98 +13543,10 @@
             });
         }
 
-        // ========== MOA DETAILS MODAL FUNCTIONS ==========
-
-        function viewMoaDetails(moaId) {
-            const moa = moaRequestsData[moaId];
-            if (!moa) {
-                alert('MOA request not found');
-                return;
-            }
-
-            currentMoaId = moaId;
-
-            const statusColors = {
-                'pending': { bg: '#FEF3C7', text: '#92400E' },
-                'under_review': { bg: '#DBEAFE', text: '#1E40AF' },
-                'approved': { bg: '#DCFCE7', text: '#166534' },
-                'rejected': { bg: '#FEE2E2', text: '#991B1B' }
-            };
-            const color = statusColors[moa.status] || { bg: '#E5E7EB', text: '#374151' };
-
-            const content = `
-                <div style="display: grid; gap: 16px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid #E5E7EB;">
-                        <div>
-                            <div style="font-size: 12px; color: #6B7280;">Tracking Code</div>
-                            <div style="font-size: 18px; font-weight: 700; color: #7B1D3A;">${moa.tracking_code}</div>
-                        </div>
-                        <span style="background: ${color.bg}; color: ${color.text}; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
-                            ${moa.status.replace('_', ' ').toUpperCase()}
-                        </span>
-                    </div>
-
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                        <div>
-                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Company/Startup Name</div>
-                            <div style="font-weight: 600;">${moa.company_name}</div>
-                        </div>
-                        <div>
-                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Contact Person</div>
-                            <div style="font-weight: 600;">${moa.contact_person}</div>
-                        </div>
-                        <div>
-                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Email</div>
-                            <div>${moa.email}</div>
-                        </div>
-                        <div>
-                            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Phone</div>
-                            <div>${moa.phone || 'N/A'}</div>
-                        </div>
-                    </div>
-
-                    <div style="background: #F9FAFB; padding: 16px; border-radius: 8px;">
-                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 8px;">MOA Purpose</div>
-                        <div style="font-weight: 600; font-size: 16px; color: #7B1D3A;">${moa.moa_purpose}</div>
-                    </div>
-
-                    <div>
-                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">MOA Details</div>
-                        <div style="background: #F3F4F6; padding: 12px; border-radius: 8px; white-space: pre-wrap;">${moa.moa_details}</div>
-                    </div>
-
-                    ${moa.notes ? `
-                    <div>
-                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Additional Notes</div>
-                        <div style="background: #F3F4F6; padding: 12px; border-radius: 8px;">${moa.notes}</div>
-                    </div>
-                    ` : ''}
-
-                    ${moa.admin_notes ? `
-                    <div>
-                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Admin Notes</div>
-                        <div style="background: #FEF3C7; padding: 12px; border-radius: 8px;">${moa.admin_notes}</div>
-                    </div>
-                    ` : ''}
-
-                    <div style="display: flex; gap: 16px; font-size: 12px; color: #6B7280;">
-                        <div><i class="fas fa-calendar"></i> Submitted: ${moa.created_at}</div>
-                        ${moa.reviewed_at ? `<div><i class="fas fa-check-circle"></i> Reviewed: ${moa.reviewed_at}</div>` : ''}
-                    </div>
-                </div>
-            `;
-
-            document.getElementById('moaDetailsContent').innerHTML = content;
-            document.getElementById('moaDetailsModal').style.display = 'flex';
-        }
-
-        function closeMoaDetailsModal() {
-            document.getElementById('moaDetailsModal').style.display = 'none';
-            currentMoaId = null;
-        }
+        // ========== MOA REVIEW/TEMPLATE MODAL FUNCTIONS ==========
 
         function openReviewMoaModal() {
-            const moa = moaRequestsData[currentMoaId];
+            const moa = moaRequestsData.find(m => m.id === currentMoaId);
             if (!moa) return;
 
             document.getElementById('reviewMoaId').value = currentMoaId;
@@ -13451,7 +13614,7 @@
         }
 
         function generateMoaFromTemplate() {
-            const moa = moaRequestsData[currentMoaId];
+            const moa = moaRequestsData.find(m => m.id === currentMoaId);
             closeMoaDetailsModal();
 
             // Pre-fill the template form with MOA data
@@ -15806,7 +15969,11 @@ University of the Philippines Cebu
             for (let i = 0; i < days; i++) {
                 const currentDate = new Date(startDate);
                 currentDate.setDate(currentDate.getDate() + i);
-                const dateString = currentDate.toISOString().split('T')[0];
+                // Use local date formatting to avoid timezone issues
+                const year = currentDate.getFullYear();
+                const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+                const day = String(currentDate.getDate()).padStart(2, '0');
+                const dateString = `${year}-${month}-${day}`;
                 datesToBlock.push(dateString);
             }
 
@@ -15900,6 +16067,402 @@ University of the Philippines Cebu
             loadDigitalRecords();
             loadDigitalRecordsStats();
         });
+
+        // ===== MOA MANAGEMENT FUNCTIONS =====
+        let moaRequestsData = [];
+
+        function loadMoaRequestsData() {
+            fetch('/admin/moa-requests', {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+            })
+            .then(data => {
+                moaRequestsData = Array.isArray(data) ? data : [];
+                renderMoaRequestsTable();
+                updateMoaStats();
+            })
+            .catch(error => {
+                console.error('Error loading MOA requests:', error);
+                document.getElementById('moaRequestsTableBody').innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 40px; color: #EF4444;">
+                            <i class="fas fa-exclamation-circle" style="font-size: 24px; margin-bottom: 12px; display: block;"></i>
+                            Failed to load MOA requests. Please try again.
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function updateMoaStats() {
+            const total = moaRequestsData.length;
+            const pending = moaRequestsData.filter(m => m.status === 'pending' || m.status === 'under_review').length;
+            const approved = moaRequestsData.filter(m => m.status === 'approved' || m.status === 'completed').length;
+            const awaitingUpload = moaRequestsData.filter(m => (m.status === 'approved' || m.status === 'completed') && !m.admin_moa_document_path).length;
+
+            document.getElementById('totalMoaCount').textContent = total;
+            document.getElementById('pendingMoaReqCount').textContent = pending;
+            document.getElementById('approvedMoaCount').textContent = approved;
+            document.getElementById('awaitingUploadCount').textContent = awaitingUpload;
+        }
+
+        function renderMoaRequestsTable() {
+            const tbody = document.getElementById('moaRequestsTableBody');
+            const statusFilter = document.getElementById('moaStatusFilter').value;
+            const documentFilter = document.getElementById('moaDocumentFilter').value;
+            const searchTerm = document.getElementById('moaSearchInput').value.toLowerCase();
+
+            let filteredData = moaRequestsData;
+
+            // Apply status filter
+            if (statusFilter !== 'all') {
+                filteredData = filteredData.filter(m => m.status === statusFilter);
+            }
+
+            // Apply document filter
+            if (documentFilter === 'uploaded') {
+                filteredData = filteredData.filter(m => m.admin_moa_document_path);
+            } else if (documentFilter === 'not_uploaded') {
+                filteredData = filteredData.filter(m => !m.admin_moa_document_path);
+            }
+
+            // Apply search filter
+            if (searchTerm) {
+                filteredData = filteredData.filter(m =>
+                    (m.tracking_code && m.tracking_code.toLowerCase().includes(searchTerm)) ||
+                    (m.company_name && m.company_name.toLowerCase().includes(searchTerm)) ||
+                    (m.moa_purpose && m.moa_purpose.toLowerCase().includes(searchTerm)) ||
+                    (m.contact_person && m.contact_person.toLowerCase().includes(searchTerm))
+                );
+            }
+
+            if (filteredData.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 60px 40px;">
+                            <i class="fas fa-file-contract" style="font-size: 48px; color: #D1D5DB; margin-bottom: 16px; display: block;"></i>
+                            <h4 style="font-size: 18px; font-weight: 600; color: #6B7280; margin-bottom: 8px;">No MOA Requests Found</h4>
+                            <p style="font-size: 14px; color: #9CA3AF;">No MOA requests match your current filters.</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = filteredData.map(moa => {
+                const statusBadge = getStatusBadge(moa.status);
+                const documentStatus = moa.admin_moa_document_path
+                    ? `<span style="background: #D1FAE5; color: #059669; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;"><i class="fas fa-check-circle" style="margin-right: 4px;"></i>Uploaded</span>`
+                    : `<span style="background: #FEE2E2; color: #DC2626; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;"><i class="fas fa-times-circle" style="margin-right: 4px;"></i>Not Uploaded</span>`;
+
+                const submittedDate = moa.created_at ? new Date(moa.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A';
+
+                return `
+                    <tr class="moa-row" data-status="${moa.status}" data-document="${moa.admin_moa_document_path ? 'uploaded' : 'not_uploaded'}">
+                        <td style="padding: 14px 16px;">
+                            <span style="font-weight: 700; color: #4F46E5;">${escapeHtml(moa.tracking_code || '')}</span>
+                        </td>
+                        <td style="padding: 14px 16px;">
+                            <div style="font-weight: 600; color: #1F2937;">${escapeHtml(moa.company_name || '')}</div>
+                            <div style="font-size: 12px; color: #6B7280;">${escapeHtml(moa.contact_person || '')} • ${escapeHtml(moa.email || '')}</div>
+                        </td>
+                        <td style="padding: 14px 16px;">
+                            <div style="font-weight: 500; color: #374151;">${escapeHtml(moa.moa_purpose || '')}</div>
+                            <div style="font-size: 12px; color: #9CA3AF; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(moa.moa_details || '')}</div>
+                        </td>
+                        <td style="padding: 14px 16px; text-align: center;">
+                            <span style="font-weight: 500; color: #374151;">${escapeHtml(moa.moa_duration || 'N/A')}</span>
+                        </td>
+                        <td style="padding: 14px 16px; text-align: center;">
+                            ${statusBadge}
+                        </td>
+                        <td style="padding: 14px 16px; text-align: center;">
+                            ${documentStatus}
+                        </td>
+                        <td style="padding: 14px 16px; text-align: center;">
+                            <span style="font-size: 13px; color: #6B7280;">${submittedDate}</span>
+                        </td>
+                        <td style="padding: 14px 16px; text-align: center;">
+                            <div style="display: flex; gap: 6px; justify-content: center;">
+                                <button onclick="viewMoaDetails(${moa.id})" style="padding: 8px 12px; background: #EFF6FF; color: #2563EB; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600;" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button onclick="openUploadMoaModal(${moa.id}, '${escapeHtml(moa.company_name || '')}')" style="padding: 8px 12px; background: #ECFDF5; color: #059669; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600;" title="${moa.admin_moa_document_path ? 'Replace' : 'Upload'} MOA Document">
+                                    <i class="fas fa-${moa.admin_moa_document_path ? 'sync-alt' : 'upload'}"></i>
+                                </button>
+                                ${moa.admin_moa_document_path ? `
+                                <button onclick="downloadMoaDocument(${moa.id})" style="padding: 8px 12px; background: #F3E8FF; color: #7C3AED; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600;" title="Download MOA">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                                ` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function getStatusBadge(status) {
+            const badges = {
+                'pending': '<span style="background: #FEF3C7; color: #D97706; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;">Pending</span>',
+                'under_review': '<span style="background: #DBEAFE; color: #2563EB; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;">Under Review</span>',
+                'approved': '<span style="background: #D1FAE5; color: #059669; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;">Approved</span>',
+                'rejected': '<span style="background: #FEE2E2; color: #DC2626; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;">Rejected</span>',
+                'completed': '<span style="background: #D1FAE5; color: #059669; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;">Completed</span>'
+            };
+            return badges[status] || '<span style="background: #F3F4F6; color: #6B7280; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;">Unknown</span>';
+        }
+
+        function filterMoaRequests() {
+            renderMoaRequestsTable();
+        }
+
+        function searchMoaRequests() {
+            renderMoaRequestsTable();
+        }
+
+        function refreshMoaData() {
+            document.getElementById('moaRequestsTableBody').innerHTML = `
+                <tr>
+                    <td colspan="8" style="text-align: center; padding: 40px; color: #6B7280;">
+                        <i class="fas fa-spinner fa-spin" style="font-size: 24px; margin-bottom: 10px;"></i>
+                        <p>Loading MOA requests...</p>
+                    </td>
+                </tr>
+            `;
+            loadMoaRequestsData();
+        }
+
+        function viewMoaDetails(moaId) {
+            const moa = moaRequestsData.find(m => m.id === moaId);
+            if (!moa) return;
+
+            currentMoaId = moaId;
+
+            document.getElementById('moaModalTrackingCode').textContent = moa.tracking_code || '';
+
+            const statusBadge = getStatusBadge(moa.status);
+            const submittedDate = moa.created_at ? new Date(moa.created_at).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : 'N/A';
+            const uploadedDate = moa.admin_moa_uploaded_at ? new Date(moa.admin_moa_uploaded_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' }) : null;
+
+            let documentSection = '';
+            if (moa.admin_moa_document_path) {
+                documentSection = `
+                    <div style="background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 10px; padding: 16px; margin-top: 16px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div style="width: 40px; height: 40px; background: #D1FAE5; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-file-pdf" style="color: #059669; font-size: 18px;"></i>
+                                </div>
+                                <div>
+                                    <div style="font-weight: 600; color: #065F46;">${escapeHtml(moa.admin_moa_document_filename || 'MOA Document')}</div>
+                                    <div style="font-size: 12px; color: #6B7280;">Uploaded: ${uploadedDate}</div>
+                                </div>
+                            </div>
+                            <button onclick="downloadMoaDocument(${moa.id})" style="padding: 8px 16px; background: #059669; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px;">
+                                <i class="fas fa-download" style="margin-right: 6px;"></i>Download
+                            </button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                documentSection = `
+                    <div style="background: #FEF3C7; border: 1px solid #FCD34D; border-radius: 10px; padding: 16px; margin-top: 16px;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 40px; height: 40px; background: #FDE68A; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-exclamation-triangle" style="color: #D97706; font-size: 18px;"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight: 600; color: #92400E;">MOA Document Not Yet Uploaded</div>
+                                <div style="font-size: 12px; color: #B45309;">Admin has not uploaded the signed MOA document yet.</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            document.getElementById('moaDetailsContent').innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                    <div>
+                        <label style="font-size: 12px; color: #6B7280; text-transform: uppercase; font-weight: 600;">Company Name</label>
+                        <div style="font-size: 15px; font-weight: 600; color: #1F2937; margin-top: 4px;">${escapeHtml(moa.company_name || '')}</div>
+                    </div>
+                    <div>
+                        <label style="font-size: 12px; color: #6B7280; text-transform: uppercase; font-weight: 600;">Status</label>
+                        <div style="margin-top: 4px;">${statusBadge}</div>
+                    </div>
+                    <div>
+                        <label style="font-size: 12px; color: #6B7280; text-transform: uppercase; font-weight: 600;">Contact Person</label>
+                        <div style="font-size: 15px; font-weight: 500; color: #1F2937; margin-top: 4px;">${escapeHtml(moa.contact_person || '')}</div>
+                    </div>
+                    <div>
+                        <label style="font-size: 12px; color: #6B7280; text-transform: uppercase; font-weight: 600;">Email</label>
+                        <div style="font-size: 15px; font-weight: 500; color: #1F2937; margin-top: 4px; word-break: break-all;">${escapeHtml(moa.email || '')}</div>
+                    </div>
+                    <div>
+                        <label style="font-size: 12px; color: #6B7280; text-transform: uppercase; font-weight: 600;">MOA Purpose</label>
+                        <div style="font-size: 15px; font-weight: 500; color: #1F2937; margin-top: 4px;">${escapeHtml(moa.moa_purpose || '')}</div>
+                    </div>
+                    <div>
+                        <label style="font-size: 12px; color: #6B7280; text-transform: uppercase; font-weight: 600;">Duration</label>
+                        <div style="font-size: 15px; font-weight: 500; color: #1F2937; margin-top: 4px;">${escapeHtml(moa.moa_duration || 'N/A')}</div>
+                    </div>
+                </div>
+                <div style="margin-top: 20px;">
+                    <label style="font-size: 12px; color: #6B7280; text-transform: uppercase; font-weight: 600;">MOA Details</label>
+                    <div style="font-size: 14px; color: #374151; margin-top: 4px; background: #F9FAFB; padding: 12px; border-radius: 8px; max-height: 150px; overflow-y: auto;">${escapeHtml(moa.moa_details || 'No details provided.')}</div>
+                </div>
+                <div style="margin-top: 16px;">
+                    <label style="font-size: 12px; color: #6B7280; text-transform: uppercase; font-weight: 600;">Submitted On</label>
+                    <div style="font-size: 14px; color: #374151; margin-top: 4px;">${submittedDate}</div>
+                </div>
+                ${documentSection}
+                <div style="margin-top: 20px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end;">
+                    <button onclick="openUploadMoaModal(${moa.id}, '${escapeHtml(moa.company_name || '')}')" style="padding: 10px 16px; background: linear-gradient(135deg, #059669, #10B981); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px; font-size: 14px;">
+                        <i class="fas fa-${moa.admin_moa_document_path ? 'sync-alt' : 'upload'}"></i>
+                        <span>${moa.admin_moa_document_path ? 'Replace MOA' : 'Upload MOA'}</span>
+                    </button>
+                </div>
+            `;
+
+            document.getElementById('moaDetailsModal').style.display = 'flex';
+        }
+
+        function closeMoaDetailsModal() {
+            document.getElementById('moaDetailsModal').style.display = 'none';
+            currentMoaId = null;
+        }
+
+        function openUploadMoaModal(moaId, companyName) {
+            document.getElementById('uploadMoaId').value = moaId;
+            document.getElementById('uploadMoaCompanyName').textContent = companyName;
+            document.getElementById('moaFileInput').value = '';
+            document.getElementById('uploadMoaNotes').value = '';
+            document.getElementById('moaFilePreview').style.display = 'none';
+            document.getElementById('moaDropZone').style.display = 'block';
+            document.getElementById('uploadMoaModal').style.display = 'flex';
+        }
+
+        function closeUploadMoaModal() {
+            document.getElementById('uploadMoaModal').style.display = 'none';
+        }
+
+        function handleMoaFileDrop(event) {
+            event.preventDefault();
+            const file = event.dataTransfer.files[0];
+            if (file) {
+                processMoaFile(file);
+            }
+            document.getElementById('moaDropZone').style.borderColor = '#D1D5DB';
+            document.getElementById('moaDropZone').style.background = '#F9FAFB';
+        }
+
+        function handleMoaFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                processMoaFile(file);
+            }
+        }
+
+        function processMoaFile(file) {
+            const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+            const maxSize = 10 * 1024 * 1024; // 10MB
+
+            if (!allowedTypes.includes(file.type)) {
+                alert('Please upload a PDF, DOC, or DOCX file.');
+                return;
+            }
+
+            if (file.size > maxSize) {
+                alert('File size must be less than 10MB.');
+                return;
+            }
+
+            // Create a DataTransfer to set the file
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            document.getElementById('moaFileInput').files = dataTransfer.files;
+
+            document.getElementById('moaFileName').textContent = file.name;
+            document.getElementById('moaFileSize').textContent = formatFileSize(file.size);
+            document.getElementById('moaDropZone').style.display = 'none';
+            document.getElementById('moaFilePreview').style.display = 'block';
+        }
+
+        function clearMoaFile() {
+            document.getElementById('moaFileInput').value = '';
+            document.getElementById('moaFilePreview').style.display = 'none';
+            document.getElementById('moaDropZone').style.display = 'block';
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        document.getElementById('uploadMoaForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const moaId = document.getElementById('uploadMoaId').value;
+            const fileInput = document.getElementById('moaFileInput');
+            const adminNotes = document.getElementById('uploadMoaNotes').value;
+            const submitBtn = document.getElementById('uploadMoaSubmitBtn');
+
+            if (!fileInput.files[0]) {
+                alert('Please select a file to upload.');
+                return;
+            }
+
+            // Set loading state
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Uploading...</span>';
+
+            const formData = new FormData();
+            formData.append('moa_document', fileInput.files[0]);
+            formData.append('admin_notes', adminNotes);
+            formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
+
+            try {
+                const response = await fetch(`/admin/moa-requests/${moaId}/upload-document`, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert(result.message || 'MOA document uploaded successfully!');
+                    closeUploadMoaModal();
+                    closeMoaDetailsModal();
+                    loadMoaRequestsData();
+                } else {
+                    alert(result.message || 'Failed to upload MOA document.');
+                }
+            } catch (error) {
+                console.error('Error uploading MOA:', error);
+                alert('An error occurred while uploading the document.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-upload"></i> <span>Upload MOA</span>';
+            }
+        });
+
+        function downloadMoaDocument(moaId) {
+            window.open(`/admin/moa-requests/${moaId}/download-document`, '_blank');
+        }
 
         // Digital Records Functions
         let currentFolder = 'root';
