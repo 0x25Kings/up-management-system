@@ -18,6 +18,15 @@ class School extends Model
         'contact_phone',
         'status',
         'notes',
+        'interns_start_date',
+        'is_finished',
+        'finished_at',
+    ];
+
+    protected $casts = [
+        'interns_start_date' => 'date',
+        'finished_at' => 'datetime',
+        'is_finished' => 'boolean',
     ];
 
     /**
@@ -87,11 +96,11 @@ class School extends Model
         if ($interns->isEmpty()) {
             return 0;
         }
-        
+
         $totalProgress = $interns->sum(function ($intern) {
             return $intern->progress_percentage;
         });
-        
+
         return round($totalProgress / $interns->count(), 1);
     }
 
@@ -139,5 +148,46 @@ class School extends Model
     public function getRemainingSlotsAttribute(): ?int
     {
         return $this->getRemainingSlots();
+    }
+
+    /**
+     * Mark school internship program as finished
+     */
+    public function markAsFinished(): void
+    {
+        $this->update([
+            'is_finished' => true,
+            'finished_at' => now(),
+        ]);
+
+        // Optionally mark all active interns from this school as completed
+        $this->activeInterns()->update([
+            'status' => 'Completed',
+            'end_date' => now(),
+        ]);
+    }
+
+    /**
+     * Check if school internship program is finished
+     */
+    public function isFinished(): bool
+    {
+        return $this->is_finished === true;
+    }
+
+    /**
+     * Scope for finished schools
+     */
+    public function scopeFinished($query)
+    {
+        return $query->where('is_finished', true);
+    }
+
+    /**
+     * Scope for ongoing (not finished) schools
+     */
+    public function scopeOngoing($query)
+    {
+        return $query->where('is_finished', false);
     }
 }

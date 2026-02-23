@@ -137,37 +137,36 @@ class SchoolController extends Controller
     }
 
     /**
-     * Mark eligible interns from a school as accomplished/completed
-     * Interns who have completed their required hours will be marked as "Completed"
+     * Mark school internship program as accomplished/completed
+     * All active interns will be marked as "Completed" and the school will be marked as finished
      */
     public function accomplish(School $school)
     {
-        // Get interns who have completed their required hours
-        $eligibleInterns = $school->approvedInterns()
-            ->where('status', 'Active')
-            ->get()
-            ->filter(function ($intern) use ($school) {
-                return $intern->completed_hours >= $school->required_hours;
-            });
-
-        if ($eligibleInterns->isEmpty()) {
+        if ($school->is_finished) {
             return response()->json([
                 'success' => false,
-                'message' => 'No eligible interns found. Interns must have completed their required hours to be marked as completed.'
+                'message' => 'This school has already been marked as finished.'
             ], 400);
         }
 
-        $count = 0;
-        foreach ($eligibleInterns as $intern) {
-            $intern->status = 'Completed';
-            $intern->save();
-            $count++;
-        }
+        // Get active interns count
+        $activeCount = $school->activeInterns()->count();
+
+        // Mark school as finished
+        $school->update([
+            'is_finished' => true,
+            'finished_at' => now(),
+        ]);
+
+        // Mark all active interns from this school as completed
+        $school->activeInterns()->update([
+            'status' => 'Completed',
+            'end_date' => now(),
+        ]);
 
         return response()->json([
             'success' => true,
-            'message' => "{$count} intern(s) from {$school->name} have been marked as Completed!",
-            'count' => $count
+            'message' => "{$school->name} has been marked as completed. {$activeCount} active intern(s) have been marked as finished."
         ]);
     }
 
@@ -310,6 +309,25 @@ class SchoolController extends Controller
         return response()->json([
             'success' => true,
             'message' => "{$pendingCount} intern(s) from {$school->name} have been approved!"
+        ]);
+    }
+
+    /**
+     * Update school's intern start date
+     */
+    public function updateStartDate(Request $request, School $school)
+    {
+        $validated = $request->validate([
+            'interns_start_date' => 'required|date',
+        ]);
+
+        $school->update([
+            'interns_start_date' => $validated['interns_start_date'],
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => "Start date for {$school->name} has been updated."
         ]);
     }
 }

@@ -176,6 +176,9 @@ Route::middleware(['admin'])->group(function () {
     Route::get('/admin/recent-activity', [AdminDashboardController::class, 'getRecentActivity'])->name('admin.recent-activity');
     Route::get('/admin/chart-data', [AdminDashboardController::class, 'getChartData'])->name('admin.chart-data');
 
+    // CSRF Token Refresh Route - prevents session expiration during active use
+    Route::get('/admin/csrf-refresh', [AdminDashboardController::class, 'refreshCsrfToken'])->name('admin.csrf-refresh');
+
     // Export routes
     Route::get('/admin/export/interns', [AdminDashboardController::class, 'exportInterns'])->name('admin.export.interns');
     Route::get('/admin/export/attendance', [AdminDashboardController::class, 'exportAttendance'])->name('admin.export.attendance');
@@ -261,6 +264,7 @@ Route::middleware(['admin'])->group(function () {
     Route::delete('/admin/schools/{school}', [SchoolController::class, 'destroy'])->name('admin.schools.destroy');
     Route::post('/admin/schools/{school}/toggle-status', [SchoolController::class, 'toggleStatus'])->name('admin.schools.toggleStatus');
     Route::post('/admin/schools/{school}/accomplish', [SchoolController::class, 'accomplish'])->name('admin.schools.accomplish');
+    Route::post('/admin/schools/{school}/update-start-date', [SchoolController::class, 'updateStartDate'])->name('admin.schools.updateStartDate');
 
     // Intern Approval Routes (Admin)
     Route::get('/admin/interns/pending', [SchoolController::class, 'getPendingInterns'])->name('admin.interns.pending');

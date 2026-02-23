@@ -26,7 +26,7 @@
         @if($logs->count() > 0)
             <div style="background: white; border: 1px solid #E5E7EB; border-radius: 12px; padding: 12px 20px; display: flex; align-items: center; gap: 10px;">
                 <i class="far fa-calendar" style="color: #6B7280;"></i>
-                <span style="font-size: 14px; color: #374151;">Latest: {{ $logs->first()->created_at->diffForHumans() }}</span>
+                <span style="font-size: 14px; color: #374151;">Latest: {{ $logs->first()->created_at->timezone('Asia/Manila')->diffForHumans() }}</span>
             </div>
         @endif
     </div>
@@ -44,7 +44,7 @@
                     @if(!$loop->last)
                         <div style="position: absolute; left: 23px; top: 48px; bottom: 0; width: 2px; background: #E5E7EB;"></div>
                     @endif
-                    
+
                     <!-- Icon -->
                     <div style="width: 48px; height: 48px; min-width: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; color: white; background: {{ $log->color }}; box-shadow: 0 4px 12px {{ $log->color }}33; z-index: 1;">
                         <i class="fas {{ $log->icon }}"></i>
@@ -62,11 +62,11 @@
                         </div>
                         <p style="font-size: 13px; color: #6B7280; margin: 0 0 8px 0;">{{ $log->description }}</p>
                         <div style="display: flex; align-items: center; gap: 16px; font-size: 12px; color: #9CA3AF; flex-wrap: wrap;">
-                            <span><i class="far fa-clock" style="margin-right: 4px;"></i> {{ $log->created_at->format('M d, Y \a\t h:i A') }}</span>
+                            <span><i class="far fa-clock" style="margin-right: 4px;"></i> {{ $log->created_at->timezone('Asia/Manila')->format('M d, Y \a\t h:i A') }}</span>
                             <span><i class="fas fa-globe" style="margin-right: 4px;"></i> {{ $log->ip_address }}</span>
-                            @if($log->created_at->isToday())
+                            @if($log->created_at->timezone('Asia/Manila')->isToday())
                                 <span style="background: #DCFCE7; color: #166534; padding: 1px 8px; border-radius: 10px; font-weight: 600;">Today</span>
-                            @elseif($log->created_at->isYesterday())
+                            @elseif($log->created_at->timezone('Asia/Manila')->isYesterday())
                                 <span style="background: #EFF6FF; color: #2563EB; padding: 1px 8px; border-radius: 10px; font-weight: 600;">Yesterday</span>
                             @endif
                         </div>
@@ -74,11 +74,11 @@
                 </div>
 
                 {{-- Date separator --}}
-                @if(!$loop->last && !$log->created_at->isSameDay($logs[$index + 1]->created_at ?? $log->created_at))
+                @if(!$loop->last && !$log->created_at->timezone('Asia/Manila')->isSameDay($logs[$index + 1]->created_at->timezone('Asia/Manila') ?? $log->created_at->timezone('Asia/Manila')))
                     <div style="display: flex; align-items: center; gap: 12px; padding: 8px 0 8px 68px; margin-bottom: 4px;">
                         <div style="flex: 1; height: 1px; background: #E5E7EB;"></div>
                         <span style="font-size: 11px; color: #9CA3AF; font-weight: 600; white-space: nowrap;">
-                            {{ $logs[$index + 1]->created_at->format('F d, Y') }}
+                            {{ $logs[$index + 1]->created_at->timezone('Asia/Manila')->format('F d, Y') }}
                         </span>
                         <div style="flex: 1; height: 1px; background: #E5E7EB;"></div>
                     </div>

@@ -4583,17 +4583,34 @@
                             ->first();
                     @endphp
                     <div class="school-group" style="margin-bottom: 16px;">
-                        <div class="school-header" style="background: {{ $school->status !== 'Active' ? 'linear-gradient(135deg, #6B7280 0%, #4B5563 100%)' : 'linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%)' }}; color: white; padding: 16px 20px; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s ease;">
+                        <div class="school-header" style="background: {{ $school->is_finished ? 'linear-gradient(135deg, #059669 0%, #047857 100%)' : ($school->status !== 'Active' ? 'linear-gradient(135deg, #6B7280 0%, #4B5563 100%)' : 'linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%)') }}; color: white; padding: 16px 20px; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s ease;">
                             <div onclick="toggleSchoolGroup('school-{{ $school->id }}')" style="cursor: pointer; flex: 1; display: flex; align-items: center; gap: 12px;">
                                 <h4 style="margin: 0; font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 12px;">
                                     <i class="fas fa-university"></i>
                                     {{ $school->name }}
-                                    @if($school->status !== 'Active')
+                                    @if($school->is_finished)
+                                    <span style="background: #ECFDF5; color: #059669; padding: 4px 10px; border-radius: 10px; font-size: 11px; font-weight: 600; display: flex; align-items: center; gap: 4px;">
+                                        <i class="fas fa-trophy" style="font-size: 10px;"></i> Completed
+                                    </span>
+                                    @elseif($school->status !== 'Active')
                                     <span style="background: #EF4444; color: white; padding: 4px 10px; border-radius: 10px; font-size: 11px; font-weight: 600; display: flex; align-items: center; gap: 4px;">
                                         <i class="fas fa-ban" style="font-size: 10px;"></i> Inactive
                                     </span>
                                     @endif
                                 </h4>
+                                <!-- Start Date Display -->
+                                @if($school->interns_start_date)
+                                <span style="background: rgba(255,255,255,0.15); padding: 4px 10px; border-radius: 8px; font-size: 11px; display: flex; align-items: center; gap: 4px;">
+                                    <i class="fas fa-calendar-alt" style="font-size: 10px;"></i>
+                                    Started: {{ $school->interns_start_date->format('M d, Y') }}
+                                </span>
+                                @endif
+                                @if($school->is_finished && $school->finished_at)
+                                <span style="background: rgba(255,255,255,0.15); padding: 4px 10px; border-radius: 8px; font-size: 11px; display: flex; align-items: center; gap: 4px;">
+                                    <i class="fas fa-flag-checkered" style="font-size: 10px;"></i>
+                                    Finished: {{ $school->finished_at->format('M d, Y') }}
+                                </span>
+                                @endif
                             </div>
                             <div style="display: flex; align-items: center; gap: 12px;">
                                 <!-- Team Leader Status -->
@@ -4629,6 +4646,18 @@
                                 @endif
                                 @if(($school->pending_interns ?? 0) > 0)
                                 <span style="background: #FEE2E2; color: #991B1B; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;">+{{ $school->pending_interns }} pending</span>
+                                @endif
+                                <!-- Set Start Date button (if not finished) -->
+                                @if(!$school->is_finished)
+                                <button onclick="event.stopPropagation(); openSetStartDateModal({{ $school->id }}, '{{ addslashes($school->name) }}', '{{ $school->interns_start_date ? $school->interns_start_date->format('Y-m-d') : '' }}')" style="display: flex; align-items: center; gap: 4px; background: rgba(255,255,255,0.2); color: white; padding: 4px 10px; border-radius: 8px; border: none; cursor: pointer; font-size: 11px; font-weight: 600; transition: all 0.2s;" title="Set/Edit Start Date">
+                                    <i class="fas fa-calendar-plus" style="font-size: 10px;"></i>
+                                    {{ $school->interns_start_date ? 'Edit' : 'Set' }} Start
+                                </button>
+                                <!-- Mark as Finished button -->
+                                <button onclick="event.stopPropagation(); accomplishSchool({{ $school->id }}, '{{ addslashes($school->name) }}')" style="display: flex; align-items: center; gap: 4px; background: rgba(16, 185, 129, 0.9); color: white; padding: 4px 10px; border-radius: 8px; border: none; cursor: pointer; font-size: 11px; font-weight: 600; transition: all 0.2s;" onmouseover="this.style.background='rgba(16, 185, 129, 1)'" onmouseout="this.style.background='rgba(16, 185, 129, 0.9)'" title="Mark this school as finished">
+                                    <i class="fas fa-flag-checkered" style="font-size: 10px;"></i>
+                                    Mark Finished
+                                </button>
                                 @endif
                                 <i onclick="event.stopPropagation(); toggleSchoolGroup('school-{{ $school->id }}')" class="fas fa-chevron-down school-toggle-icon" id="icon-school-{{ $school->id }}" style="transition: transform 0.3s ease; cursor: pointer;"></i>
                             </div>
@@ -4772,9 +4801,22 @@
                     @php
                         // Get IDs of interns who have attendance today
                         $attendingInternIds = $todayAttendances->pluck('intern_id')->toArray();
+                        $today = \Carbon\Carbon::now('Asia/Manila')->toDateString();
                         // Get active interns who don't have attendance today (absent)
-                        $absentInterns = $interns->where('status', 'Active')->filter(function($intern) use ($attendingInternIds) {
-                            return !in_array($intern->id, $attendingInternIds);
+                        // Exclude interns who just registered/started today - they shouldn't be marked absent on their first day
+                        $absentInterns = $interns->where('status', 'Active')->filter(function($intern) use ($attendingInternIds, $today) {
+                            // Skip if intern already has time in today
+                            if (in_array($intern->id, $attendingInternIds)) {
+                                return false;
+                            }
+                            // Don't count as absent if intern was just approved/started today
+                            if ($intern->start_date && $intern->start_date->toDateString() === $today) {
+                                return false;
+                            }
+                            if ($intern->approved_at && $intern->approved_at->toDateString() === $today) {
+                                return false;
+                            }
+                            return true;
                         });
                         $absentCount = $absentInterns->count();
                         $presentCount = $todayAttendances->count();
@@ -9464,24 +9506,25 @@
     <div id="accomplishSchoolModal" class="modal-overlay" onclick="if(event.target === this) closeAccomplishSchoolModal()">
         <div class="modal-content" style="max-width: 450px;">
             <div class="modal-header" style="background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white;">
-                <h3 class="modal-title" style="color: white;"><i class="fas fa-trophy" style="margin-right: 8px;"></i>Mark Interns as Completed</h3>
+                <h3 class="modal-title" style="color: white;"><i class="fas fa-trophy" style="margin-right: 8px;"></i>Mark School as Completed</h3>
             </div>
             <div class="modal-body">
                 <input type="hidden" id="accomplishSchoolId">
                 <div style="background: #D1FAE5; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
                     <p style="margin: 0; color: #065F46; font-size: 14px;">
                         <i class="fas fa-check-circle" style="margin-right: 8px;"></i>
-                        Mark eligible interns from <strong id="accomplishSchoolName"></strong> as completed.
+                        Mark <strong id="accomplishSchoolName"></strong> internship program as completed.
                     </p>
                 </div>
                 <div style="background: #F3F4F6; border-radius: 8px; padding: 16px;">
                     <p style="margin: 0 0 12px 0; color: #374151; font-size: 14px;">
                         <i class="fas fa-info-circle" style="margin-right: 8px; color: #6B7280;"></i>
-                        This action will mark the following interns as "Completed":
+                        This action will:
                     </p>
                     <ul style="margin: 0; padding-left: 20px; color: #6B7280; font-size: 13px;">
-                        <li>Interns who have completed their required hours</li>
-                        <li>Only active interns will be affected</li>
+                        <li>Mark all active interns from this school as "Completed"</li>
+                        <li>Set the school status as finished</li>
+                        <li>This action cannot be undone</li>
                     </ul>
                 </div>
             </div>
@@ -9489,6 +9532,34 @@
                 <button class="btn-modal secondary" onclick="closeAccomplishSchoolModal()">Cancel</button>
                 <button class="btn-modal primary" id="accomplishSchoolConfirmBtn" onclick="confirmAccomplishSchool()" style="background: linear-gradient(135deg, #059669, #047857); transition: all 0.3s ease;">
                     <i class="fas fa-trophy"></i> <span id="accomplishSchoolBtnText">Mark as Completed</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Set Start Date Modal -->
+    <div id="setStartDateModal" class="modal-overlay" onclick="if(event.target === this) closeSetStartDateModal()">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); color: white;">
+                <h3 class="modal-title" style="color: white;"><i class="fas fa-calendar-alt" style="margin-right: 8px;"></i>Set Intern Start Date</h3>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="startDateSchoolId">
+                <div style="background: #DBEAFE; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+                    <p style="margin: 0; color: #1E40AF; font-size: 14px;">
+                        <i class="fas fa-info-circle" style="margin-right: 8px;"></i>
+                        Set the start date for <strong id="startDateSchoolName"></strong> interns.
+                    </p>
+                </div>
+                <div class="form-group">
+                    <label class="form-label required">Start Date</label>
+                    <input type="date" id="schoolStartDateInput" class="form-input" style="padding: 12px 16px;" required>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal secondary" onclick="closeSetStartDateModal()">Cancel</button>
+                <button class="btn-modal primary" id="setStartDateConfirmBtn" onclick="confirmSetStartDate()" style="background: linear-gradient(135deg, #3B82F6, #2563EB); transition: all 0.3s ease;">
+                    <i class="fas fa-save"></i> <span id="setStartDateBtnText">Save Start Date</span>
                 </button>
             </div>
         </div>
@@ -12098,7 +12169,7 @@
                             location.reload();
                         }, 2000);
                     } else {
-                        showToast('success', 'Success', result.message);
+                        showToast('success', 'Success', result.message || 'Team Leader saved successfully');
                     }
                 } else {
                     showToast('error', 'Error', result.error || 'Failed to save team leader');
@@ -12129,7 +12200,7 @@
 
                 if (response.ok) {
                     loadTeamLeadersData();
-                    showToast('success', 'Success', result.message);
+                    showToast('success', 'Success', result.message || 'Status updated successfully');
                 } else {
                     showToast('error', 'Error', result.error || 'Failed to update status');
                 }
@@ -12156,7 +12227,7 @@
 
                 if (response.ok) {
                     loadTeamLeadersData();
-                    showToast('success', 'Success', result.message);
+                    showToast('success', 'Success', result.message || 'Team Leader deleted successfully');
                 } else {
                     showToast('error', 'Error', result.error || 'Failed to delete team leader');
                 }
@@ -12649,7 +12720,7 @@
                 if (response.ok) {
                     closeViewReportModal();
                     loadTeamReportsData();
-                    showToast('success', 'Success', result.message);
+                    showToast('success', 'Success', result.message || 'Report reviewed successfully');
                 } else {
                     showToast('error', 'Error', result.error || 'Failed to submit review');
                 }
@@ -12843,7 +12914,7 @@
                     $teamLeader = \App\Models\User::where('role', \App\Models\User::ROLE_TEAM_LEADER)
                         ->where('school_id', $school->id)
                         ->first();
-                    
+
                     $schoolInternsForPdf[$school->id] = [
                         'school_name' => $school->name,
                         'required_hours' => $school->required_hours,
@@ -14705,17 +14776,17 @@
         // ===== EXPORT SCHOOL INTERNS TO PDF =====
         function exportSchoolInternsPDF(schoolId, schoolName, teamLeaderName, requiredHours) {
             const schoolData = schoolInternsForPdf[schoolId];
-            
+
             if (!schoolData || !schoolData.interns || schoolData.interns.length === 0) {
                 showToast('warning', 'No Data', 'No interns found for this school.');
                 return;
             }
 
             const interns = schoolData.interns;
-            const currentDate = new Date().toLocaleDateString('en-US', { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
+            const currentDate = new Date().toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
             });
 
             // Generate table rows (without status column)
@@ -14906,7 +14977,7 @@
             const pdfWindow = window.open('', '_blank');
             pdfWindow.document.write(pdfContent);
             pdfWindow.document.close();
-            
+
             // Auto-trigger print dialog after content loads
             pdfWindow.onload = function() {
                 setTimeout(() => {
@@ -18395,7 +18466,7 @@ University of the Philippines Cebu
                 const result = await response.json();
 
                 if (result.success) {
-                    showToast('success', 'Success', result.message);
+                    showToast('success', 'Success', result.message || 'School saved successfully');
                     cancelSchoolForm();
                     // Reload page to refresh schools list
                     setTimeout(() => location.reload(), 1000);
@@ -18486,7 +18557,7 @@ University of the Philippines Cebu
 
                 if (result.success) {
                     closeToggleSchoolStatusModal();
-                    showToast('success', 'Success', result.message);
+                    showToast('success', 'Success', result.message || 'School status updated successfully');
                     setTimeout(() => location.reload(), 1000);
                 } else {
                     // Reset button state
@@ -18522,7 +18593,7 @@ University of the Philippines Cebu
                 const result = await response.json();
 
                 if (result.success) {
-                    showToast('success', 'Success', result.message);
+                    showToast('success', 'Success', result.message || 'School deleted successfully');
                     document.getElementById(`school-row-${schoolId}`).remove();
                 } else {
                     showToast('error', 'Error', result.message || 'An error occurred');
@@ -18573,7 +18644,7 @@ University of the Philippines Cebu
 
                 if (result.success) {
                     closeAccomplishSchoolModal();
-                    showToast('success', 'Success', result.message);
+                    showToast('success', 'Success', result.message || 'School marked as completed');
                     setTimeout(() => location.reload(), 1500);
                 } else {
                     // Reset button state
@@ -18589,6 +18660,75 @@ University of the Philippines Cebu
                 confirmBtn.querySelector('i').className = 'fas fa-trophy';
                 btnText.textContent = 'Mark as Completed';
                 showToast('error', 'Error', 'An error occurred while processing the request');
+            }
+        }
+
+        // ===== SET START DATE FUNCTIONS =====
+
+        function openSetStartDateModal(schoolId, schoolName, currentStartDate) {
+            document.getElementById('startDateSchoolId').value = schoolId;
+            document.getElementById('startDateSchoolName').textContent = schoolName;
+            document.getElementById('schoolStartDateInput').value = currentStartDate || '';
+            document.getElementById('setStartDateModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSetStartDateModal() {
+            const modal = document.getElementById('setStartDateModal');
+            modal.classList.add('closing');
+            setTimeout(() => {
+                modal.classList.remove('active', 'closing');
+                document.body.style.overflow = 'auto';
+            }, 300);
+        }
+
+        async function confirmSetStartDate() {
+            const schoolId = document.getElementById('startDateSchoolId').value;
+            const startDate = document.getElementById('schoolStartDateInput').value;
+            const confirmBtn = document.getElementById('setStartDateConfirmBtn');
+            const btnText = document.getElementById('setStartDateBtnText');
+
+            if (!startDate) {
+                showToast('error', 'Validation Error', 'Please select a start date');
+                return;
+            }
+
+            // Set loading state
+            confirmBtn.disabled = true;
+            confirmBtn.querySelector('i').className = 'fas fa-spinner fa-spin';
+            btnText.textContent = 'Saving...';
+
+            try {
+                const response = await fetch(`/admin/schools/${schoolId}/update-start-date`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ interns_start_date: startDate })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    closeSetStartDateModal();
+                    showToast('success', 'Success', result.message || 'Start date updated successfully');
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    // Reset button state
+                    confirmBtn.disabled = false;
+                    confirmBtn.querySelector('i').className = 'fas fa-save';
+                    btnText.textContent = 'Save Start Date';
+                    showToast('error', 'Error', result.message || 'An error occurred');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                // Reset button state
+                confirmBtn.disabled = false;
+                confirmBtn.querySelector('i').className = 'fas fa-save';
+                btnText.textContent = 'Save Start Date';
+                showToast('error', 'Error', 'An error occurred while updating the start date');
             }
         }
 
@@ -19513,7 +19653,7 @@ University of the Philippines Cebu
                 const result = await response.json();
 
                 if (response.ok) {
-                    showToast('success', 'Success', result.message);
+                    showToast('success', 'Success', result.message || 'Event saved successfully');
                     closeEventModal();
                     loadAdminEvents();
                     loadSchedulerEvents();
@@ -19549,7 +19689,7 @@ University of the Philippines Cebu
                 const result = await response.json();
 
                 if (response.ok) {
-                    showToast('success', 'Success', result.message);
+                    showToast('success', 'Success', result.message || 'Event deleted successfully');
                     loadAdminEvents();
                     loadSchedulerEvents();
                 } else {
@@ -19581,7 +19721,7 @@ University of the Philippines Cebu
                 const result = await response.json();
 
                 if (response.ok) {
-                    showToast('success', 'Success', result.message);
+                    showToast('success', 'Success', result.message || 'Event deleted successfully');
                     closeEventModal();
                     loadAdminEvents();
                     loadSchedulerEvents();
@@ -19856,5 +19996,71 @@ University of the Philippines Cebu
             </div>
         </div>
     </div>
+
+    <script>
+        // ========== SESSION KEEP-ALIVE AND CSRF TOKEN REFRESH ==========
+        // Refresh CSRF token and keep session alive every 15 minutes to prevent session expiration
+        (function() {
+            const REFRESH_INTERVAL = 15 * 60 * 1000; // 15 minutes in milliseconds
+
+            async function refreshCsrfToken() {
+                try {
+                    const response = await fetch('/admin/csrf-refresh', {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        credentials: 'same-origin'
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.token) {
+                            // Update meta tag
+                            const metaTag = document.querySelector('meta[name="csrf-token"]');
+                            if (metaTag) {
+                                metaTag.setAttribute('content', data.token);
+                            }
+                            console.log('[Session] CSRF token refreshed successfully');
+                        }
+                    } else if (response.status === 401 || response.status === 419) {
+                        // Session expired, redirect to login
+                        console.warn('[Session] Session expired, redirecting to login...');
+                        window.location.href = '{{ route("admin.login") }}';
+                    }
+                } catch (error) {
+                    console.warn('[Session] Failed to refresh CSRF token:', error.message);
+                }
+            }
+
+            // Initial refresh after page load
+            setTimeout(refreshCsrfToken, 5000);
+
+            // Set up periodic refresh
+            setInterval(refreshCsrfToken, REFRESH_INTERVAL);
+
+            // Also refresh on user activity (debounced)
+            let activityTimeout;
+            const handleActivity = () => {
+                clearTimeout(activityTimeout);
+                activityTimeout = setTimeout(() => {
+                    // Only refresh if last refresh was more than 5 minutes ago
+                    const lastRefresh = parseInt(sessionStorage.getItem('lastCsrfRefresh') || '0');
+                    const now = Date.now();
+                    if (now - lastRefresh > 5 * 60 * 1000) {
+                        sessionStorage.setItem('lastCsrfRefresh', now.toString());
+                        refreshCsrfToken();
+                    }
+                }, 1000);
+            };
+
+            ['click', 'keypress', 'scroll', 'mousemove'].forEach(event => {
+                document.addEventListener(event, handleActivity, { passive: true });
+            });
+
+            console.log('[Session] Session keep-alive initialized');
+        })();
+    </script>
 </body>
 </html>

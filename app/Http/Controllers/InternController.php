@@ -385,6 +385,45 @@ class InternController extends Controller
         $now = Carbon::now('Asia/Manila');
         $today = $now->toDateString();
 
+        // Check if school's start date has been set and has arrived
+        $school = $intern->schoolRelation;
+        if ($school) {
+            // Block if no start date is set
+            if (!$school->interns_start_date) {
+                if ($expectsJson) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Your internship start date has not been set yet. Please contact the administrator.'
+                    ]);
+                }
+                return back()->with('error', 'Your internship start date has not been set yet. Please contact the administrator.');
+            }
+
+            // Block if start date hasn't arrived yet
+            $schoolStartDate = Carbon::parse($school->interns_start_date)->startOfDay();
+            if ($now->startOfDay()->lt($schoolStartDate)) {
+                $formattedDate = $schoolStartDate->format('F j, Y');
+                if ($expectsJson) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => "Your internship hasn't started yet. Start date is {$formattedDate}."
+                    ]);
+                }
+                return back()->with('error', "Your internship hasn't started yet. Start date is {$formattedDate}.");
+            }
+        }
+
+        // Check if school is marked as finished
+        if ($school && $school->is_finished) {
+            if ($expectsJson) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Your internship has been marked as completed.'
+                ]);
+            }
+            return back()->with('error', 'Your internship has been marked as completed.');
+        }
+
         // Get work start time from settings (default 08:00)
         $workStart = Setting::get('work_start', '08:00');
         $workStartTime = Carbon::parse($today . ' ' . $workStart, 'Asia/Manila');
