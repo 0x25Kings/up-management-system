@@ -347,15 +347,15 @@ class BookingController extends Controller
     }
 
     /**
-     * Delete a booking (admin)
+     * Archive a booking (admin)
      */
     public function destroy(Booking $booking)
     {
-        $booking->delete();
+        $booking->archive();
 
         return response()->json([
             'success' => true,
-            'message' => 'Booking deleted.'
+            'message' => 'Booking archived.'
         ]);
     }
 

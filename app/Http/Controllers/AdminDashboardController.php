@@ -106,7 +106,13 @@ class AdminDashboardController extends Controller
             ->limit(10)
             ->get();
         $allBookings = Booking::with('approvedBy')
+            ->whereNull('archived_at')
             ->orderBy('booking_date', 'desc')
+            ->get();
+        
+        $archivedBookings = Booking::with('approvedBy')
+            ->whereNotNull('archived_at')
+            ->orderBy('archived_at', 'desc')
             ->get();
 
         // Get blocked dates
@@ -180,6 +186,7 @@ class AdminDashboardController extends Controller
             'todayBookings' => $todayBookings,
             'upcomingBookings' => $upcomingBookings,
             'allBookings' => $allBookings,
+            'archivedBookings' => $archivedBookings,
             'blockedDates' => $blockedDates,
             // Startup data
             'startupDocuments' => $startupDocuments,

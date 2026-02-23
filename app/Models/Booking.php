@@ -22,12 +22,14 @@ class Booking extends Model
         'approved_at',
         'admin_emailed',
         'attachment_path',
+        'archived_at',
     ];
 
     protected $casts = [
         'booking_date' => 'date',
         'approved_at' => 'datetime',
         'admin_emailed' => 'boolean',
+        'archived_at' => 'datetime',
     ];
 
     /**
@@ -90,5 +92,22 @@ class Booking extends Model
     {
         $this->status = 'rejected';
         $this->save();
+    }
+
+    /**
+     * Archive the booking
+     */
+    public function archive(): void
+    {
+        $this->archived_at = now('Asia/Manila');
+        $this->save();
+    }
+
+    /**
+     * Check if booking is archived
+     */
+    public function isArchived(): bool
+    {
+        return $this->archived_at !== null;
     }
 }

@@ -2186,6 +2186,7 @@
             border-bottom: 1px solid #E5E7EB;
             font-size: 14px;
             color: #1F2937;
+            vertical-align: middle;
         }
 
         .intern-info {
@@ -7096,6 +7097,9 @@
                         <button class="filter-tab" onclick="switchBookingTab('all')">
                             <i class="fas fa-list"></i> All Bookings
                         </button>
+                        <button class="filter-tab" onclick="switchBookingTab('archived')">
+                            <i class="fas fa-archive"></i> Archived <span class="badge-count" style="background: #6B7280;">{{ ($archivedBookings ?? collect())->count() }}</span>
+                        </button>
                     </div>
                 </div>
 
@@ -7359,7 +7363,7 @@
                             <thead>
                                 <tr>
                                     <th style="min-width: 120px; white-space: nowrap;">Date</th>
-                                    <th style="min-width: 80px; white-space: nowrap;">Time</th>
+                                    <th style="min-width: 130px; white-space: nowrap;">Time</th>
                                     <th style="min-width: 120px; white-space: nowrap;">Agency</th>
                                     <th style="min-width: 120px; white-space: nowrap;">Purpose</th>
                                     <th style="min-width: 140px; white-space: nowrap;">Contact</th>
@@ -7375,7 +7379,7 @@
                                     <td style="white-space: nowrap;">
                                         {{ $booking->booking_date->format('M d, Y') }}
                                     </td>
-                                    <td>{{ $booking->formatted_time }}</td>
+                                    <td style="white-space: nowrap;">{{ $booking->formatted_time }}</td>
                                     <td>
                                         <div style="font-weight: 600;">{{ $booking->agency_name }}</div>
                                     </td>
@@ -7437,8 +7441,8 @@
                                                 <i class="fas fa-times"></i>
                                             </button>
                                             @endif
-                                            <button class="btn-action btn-delete" onclick="deleteBooking({{ $booking->id }})" title="Delete">
-                                                <i class="fas fa-trash"></i>
+                                            <button class="btn-action btn-delete" onclick="archiveBooking({{ $booking->id }})" title="Archive">
+                                                <i class="fas fa-archive"></i>
                                             </button>
                                         </div>
                                     </td>
@@ -7477,6 +7481,83 @@
                         <div style="text-align: center; padding: 60px 20px; color: #9CA3AF;">
                             <i class="fas fa-spinner fa-spin" style="font-size: 48px; margin-bottom: 16px;"></i>
                             <p style="font-size: 16px;">Loading events...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Archived Bookings Tab -->
+                <div id="archivedBookingsTab" class="booking-tab-content" style="display: none;">
+                    <div class="filter-bar" style="margin-bottom: 16px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+                        <div class="search-box" style="max-width: 300px;">
+                            <i class="fas fa-search"></i>
+                            <input type="text" placeholder="Search archived bookings..." id="searchArchivedBookings" onkeyup="filterArchivedBookings()">
+                        </div>
+                    </div>
+                    <div class="table-card" style="overflow-x: auto;">
+                        <table style="min-width: 900px;">
+                            <thead>
+                                <tr>
+                                    <th style="min-width: 120px; white-space: nowrap;">Date</th>
+                                    <th style="min-width: 130px; white-space: nowrap;">Time</th>
+                                    <th style="min-width: 120px; white-space: nowrap;">Agency</th>
+                                    <th style="min-width: 120px; white-space: nowrap;">Purpose</th>
+                                    <th style="min-width: 140px; white-space: nowrap;">Contact</th>
+                                    <th style="min-width: 100px; white-space: nowrap;">Status</th>
+                                    <th style="min-width: 130px; white-space: nowrap;">Archived Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="archivedBookingsBody">
+                                @forelse($archivedBookings ?? [] as $booking)
+                                <tr class="archived-booking-row" data-search="{{ strtolower($booking->agency_name . ' ' . $booking->event_name . ' ' . $booking->contact_person) }}">
+                                    <td style="white-space: nowrap;">
+                                        {{ $booking->booking_date->format('M d, Y') }}
+                                    </td>
+                                    <td style="white-space: nowrap;">{{ $booking->formatted_time }}</td>
+                                    <td>
+                                        <div style="font-weight: 600;">{{ $booking->agency_name }}</div>
+                                    </td>
+                                    <td>{{ $booking->event_name }}</td>
+                                    <td>
+                                        <div>{{ $booking->contact_person }}</div>
+                                        <div style="font-size: 12px; color: #6B7280;">{{ $booking->email }}</div>
+                                    </td>
+                                    <td>
+                                        @if($booking->status === 'pending')
+                                        <span class="status-badge" style="background: #FEF3C7; color: #D97706;">Pending</span>
+                                        @elseif($booking->status === 'approved')
+                                        <span class="status-badge" style="background: #D1FAE5; color: #059669;">Approved</span>
+                                        @else
+                                        <span class="status-badge" style="background: #FEE2E2; color: #DC2626;">Rejected</span>
+                                        @endif
+                                    </td>
+                                    <td style="white-space: nowrap;">
+                                        {{ $booking->archived_at ? $booking->archived_at->format('M d, Y h:i A') : '—' }}
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="7" style="text-align: center; padding: 40px; color: #9CA3AF;">
+                                        <i class="fas fa-archive" style="font-size: 40px; margin-bottom: 12px; display: block;"></i>
+                                        No archived bookings found
+                                    </td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Pagination for Archived Bookings -->
+                    <div id="archivedBookingsPagination" class="pagination-controls" style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding: 12px 16px; background: #F9FAFB; border-radius: 8px;">
+                        <div style="font-size: 14px; color: #6B7280;">
+                            Showing <span id="archivedShowingStart">1</span> to <span id="archivedShowingEnd">8</span> of <span id="archivedTotalItems">0</span> entries
+                        </div>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <button id="archivedPrevBtn" onclick="archivedBookingsPrevPage()" style="padding: 8px 12px; border: 1px solid #D1D5DB; border-radius: 6px; background: white; cursor: pointer; font-size: 14px;">
+                                <i class="fas fa-chevron-left"></i> Previous
+                            </button>
+                            <span id="archivedPageInfo" style="padding: 8px 16px; background: #6B7280; color: white; border-radius: 6px; font-weight: 600;">1 / 1</span>
+                            <button id="archivedNextBtn" onclick="archivedBookingsNextPage()" style="padding: 8px 12px; border: 1px solid #D1D5DB; border-radius: 6px; background: white; cursor: pointer; font-size: 14px;">
+                                Next <i class="fas fa-chevron-right"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -15023,7 +15104,8 @@
                 if ((tabName === 'pending' && tabText.includes('pending')) ||
                     (tabName === 'calendar' && tabText.includes('calendar')) ||
                     (tabName === 'events' && tabText.includes('event')) ||
-                    (tabName === 'all' && tabText.includes('all'))) {
+                    (tabName === 'all' && tabText.includes('all booking')) ||
+                    (tabName === 'archived' && tabText.includes('archived'))) {
                     tab.classList.add('active');
                 }
             });
@@ -15047,6 +15129,12 @@
                 // Initialize pagination for all bookings
                 if (typeof initAllBookingsPagination === 'function') {
                     initAllBookingsPagination();
+                }
+            } else if (tabName === 'archived') {
+                document.getElementById('archivedBookingsTab').style.display = 'block';
+                // Initialize pagination for archived bookings
+                if (typeof initArchivedBookingsPagination === 'function') {
+                    initArchivedBookingsPagination();
                 }
             }
         }
@@ -15289,18 +15377,18 @@ University of the Philippines Cebu
             });
         }
 
-        // Delete booking
-        function deleteBooking(bookingId) {
+        // Archive booking
+        function archiveBooking(bookingId) {
             showConfirmModal({
                 type: 'danger',
-                title: 'Delete Booking?',
-                message: 'This will permanently delete the booking record. This action cannot be undone.',
-                confirmText: 'Delete',
-                onConfirm: () => executeDeleteBooking(bookingId)
+                title: 'Archive Booking?',
+                message: 'This will archive the booking record. This action cannot be undone.',
+                confirmText: 'Archive',
+                onConfirm: () => executeArchiveBooking(bookingId)
             });
         }
 
-        function executeDeleteBooking(bookingId) {
+        function executeArchiveBooking(bookingId) {
             fetch(`/admin/bookings/${bookingId}`, {
                 method: 'DELETE',
                 headers: {
@@ -15312,15 +15400,15 @@ University of the Philippines Cebu
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    showToast('success', 'Deleted', 'Booking has been permanently deleted.');
+                    showToast('success', 'Archived', 'Booking has been archived.');
                     setTimeout(() => window.location.reload(), 1500);
                 } else {
-                    showToast('error', 'Error', data.message || 'Failed to delete booking.');
+                    showToast('error', 'Error', data.message || 'Failed to archive booking.');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                showToast('error', 'Error', 'An error occurred while deleting the booking.');
+                showToast('error', 'Error', 'An error occurred while archiving the booking.');
             });
         }
 
@@ -17048,6 +17136,90 @@ University of the Philippines Cebu
             allCurrentPage = 1; // Reset to first page on filter change
             updateAllBookingsPagination();
         };
+
+        // Archived Bookings Pagination
+        let archivedCurrentPage = 1;
+        let archivedTotalPages = 1;
+
+        function initArchivedBookingsPagination() {
+            const tbody = document.getElementById('archivedBookingsBody');
+            if (!tbody) return;
+
+            const rows = tbody.querySelectorAll('tr.archived-booking-row');
+            const totalRows = rows.length;
+
+            if (totalRows === 0) {
+                document.getElementById('archivedBookingsPagination').style.display = 'none';
+                return;
+            }
+
+            archivedTotalPages = Math.ceil(totalRows / ITEMS_PER_PAGE);
+            updateArchivedBookingsPagination();
+        }
+
+        function updateArchivedBookingsPagination() {
+            const tbody = document.getElementById('archivedBookingsBody');
+            const rows = Array.from(tbody.querySelectorAll('tr.archived-booking-row'));
+            const searchTerm = document.getElementById('searchArchivedBookings')?.value?.toLowerCase() || '';
+
+            const visibleRows = rows.filter(row => {
+                return !searchTerm || row.dataset.search.includes(searchTerm);
+            });
+
+            const totalRows = visibleRows.length;
+
+            if (totalRows === 0) {
+                document.getElementById('archivedBookingsPagination').style.display = 'none';
+                rows.forEach(row => row.style.display = 'none');
+                return;
+            }
+
+            archivedTotalPages = Math.ceil(totalRows / ITEMS_PER_PAGE);
+            if (archivedCurrentPage > archivedTotalPages) {
+                archivedCurrentPage = 1;
+            }
+
+            document.getElementById('archivedBookingsPagination').style.display = 'flex';
+
+            const start = (archivedCurrentPage - 1) * ITEMS_PER_PAGE;
+            const end = Math.min(start + ITEMS_PER_PAGE, totalRows);
+
+            rows.forEach(row => row.style.display = 'none');
+
+            visibleRows.forEach((row, index) => {
+                row.style.display = (index >= start && index < end) ? '' : 'none';
+            });
+
+            document.getElementById('archivedShowingStart').textContent = totalRows > 0 ? start + 1 : 0;
+            document.getElementById('archivedShowingEnd').textContent = end;
+            document.getElementById('archivedTotalItems').textContent = totalRows;
+
+            document.getElementById('archivedPrevBtn').disabled = archivedCurrentPage === 1;
+            document.getElementById('archivedPrevBtn').style.opacity = archivedCurrentPage === 1 ? '0.5' : '1';
+            document.getElementById('archivedNextBtn').disabled = archivedCurrentPage >= archivedTotalPages;
+            document.getElementById('archivedNextBtn').style.opacity = archivedCurrentPage >= archivedTotalPages ? '0.5' : '1';
+
+            document.getElementById('archivedPageInfo').textContent = `${archivedCurrentPage} / ${archivedTotalPages}`;
+        }
+
+        function archivedBookingsPrevPage() {
+            if (archivedCurrentPage > 1) {
+                archivedCurrentPage--;
+                updateArchivedBookingsPagination();
+            }
+        }
+
+        function archivedBookingsNextPage() {
+            if (archivedCurrentPage < archivedTotalPages) {
+                archivedCurrentPage++;
+                updateArchivedBookingsPagination();
+            }
+        }
+
+        function filterArchivedBookings() {
+            archivedCurrentPage = 1;
+            updateArchivedBookingsPagination();
+        }
 
         // Switch time tab function
         function switchTimeTab(event, tabId) {
