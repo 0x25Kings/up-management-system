@@ -4344,10 +4344,6 @@
                         <i class="fas fa-building"></i>
                         <span>Manage Startups</span>
                     </a>
-                    <a href="#" class="submenu-item" onclick="loadPage(event, 'moa-management')">
-                        <i class="fas fa-file-contract"></i>
-                        <span>MOA Management</span>
-                    </a>
                     <a href="#" class="submenu-item" onclick="loadPage(event, 'project-progress')">
                         <i class="fas fa-tasks"></i>
                         <span>Project Progress</span>
@@ -5524,7 +5520,7 @@
                 <div class="table-card">
                     <div class="table-header">
                         <h3 class="table-title">All Task Assignments</h3>
-                        <button style="padding: 8px 16px; background: #7B1D3A; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">
+                        <button onclick="exportTasksReport()" style="padding: 8px 16px; background: #7B1D3A; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">
                             <i class="fas fa-download"></i> Export Tasks
                         </button>
                     </div>
@@ -6091,7 +6087,7 @@
                 <div id="moa-table" class="table-card">
                     <div class="table-header">
                         <h3 class="table-title">MOA Requests from Startups</h3>
-                        <button style="padding: 8px 16px; background: #7B1D3A; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">
+                        <button onclick="exportMoaReport()" style="padding: 8px 16px; background: #7B1D3A; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">
                             <i class="fas fa-download"></i> Export Report
                         </button>
                     </div>
@@ -6176,7 +6172,7 @@
                 <div id="payments-table" class="table-card" style="display: none;">
                     <div class="table-header">
                         <h3 class="table-title">Payment Submissions from Startups</h3>
-                        <button style="padding: 8px 16px; background: #7B1D3A; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">
+                        <button onclick="exportPaymentsReport()" style="padding: 8px 16px; background: #7B1D3A; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">
                             <i class="fas fa-download"></i> Export Report
                         </button>
                     </div>
@@ -6354,7 +6350,7 @@
                     <div class="table-header" style="flex-wrap: wrap; gap: 12px;">
                         <h3 class="table-title" style="font-size: 15px;">All Room Issues & Complaints</h3>
                         <div style="display: flex; gap: 8px;">
-                            <button style="padding: 6px 12px; background: white; color: #7B1D3A; border: 2px solid #7B1D3A; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 12px;">
+                            <button onclick="exportIssuesReport()" style="padding: 6px 12px; background: white; color: #7B1D3A; border: 2px solid #7B1D3A; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 12px;">
                                 <i class="fas fa-download"></i> Export
                             </button>
                         </div>
@@ -13166,6 +13162,152 @@
             });
         }
 
+        // ========== INCUBATEE TRACKER EXPORT FUNCTIONS ==========
+        function exportMoaReport() {
+            const headers = ['Tracking Code', 'Company/Startup', 'Email', 'Contact Person', 'Phone', 'MOA Purpose', 'Status', 'Submitted Date', 'Reviewed Date'];
+            const rows = [];
+
+            // Use incubateeMoaData (available after page load)
+            const moaData = typeof incubateeMoaData !== 'undefined' ? incubateeMoaData : {};
+            for (const key in moaData) {
+                const moa = moaData[key];
+                rows.push([
+                    moa.tracking_code || '',
+                    moa.company_name || '',
+                    moa.email || '',
+                    moa.contact_person || '',
+                    moa.phone || '',
+                    moa.moa_purpose || '',
+                    (moa.status || '').replace('_', ' ').toUpperCase(),
+                    moa.created_at || '',
+                    moa.reviewed_at || 'N/A'
+                ]);
+            }
+
+            if (rows.length === 0) {
+                if (typeof showToast === 'function') {
+                    showToast('warning', 'No Data', 'There are no MOA requests to export.');
+                } else {
+                    alert('There are no MOA requests to export.');
+                }
+                return;
+            }
+
+            downloadCsv('MOA_Requests_Report', headers, rows);
+            if (typeof showToast === 'function') {
+                showToast('success', 'Export Complete', `Successfully exported ${rows.length} MOA request(s) to CSV.`);
+            }
+        }
+
+        function exportPaymentsReport() {
+            const headers = ['Tracking Code', 'Company/Startup', 'Contact Person', 'Email', 'Invoice #', 'Amount', 'Payment Method', 'Payment Date', 'Status', 'Submitted Date', 'Reviewed Date'];
+            const rows = [];
+
+            const paymentsData = typeof paymentSubmissionsData !== 'undefined' ? paymentSubmissionsData : {};
+            for (const key in paymentsData) {
+                const payment = paymentsData[key];
+                const methodLabels = {
+                    'bank_transfer': 'Bank Transfer',
+                    'bank_deposit': 'Bank Deposit',
+                    'gcash': 'GCash',
+                    'maya': 'Maya',
+                    'check': 'Check',
+                    'cash': 'Cash'
+                };
+                rows.push([
+                    payment.tracking_code || '',
+                    payment.company_name || '',
+                    payment.contact_person || '',
+                    payment.email || '',
+                    payment.invoice_number || '',
+                    payment.amount ? parseFloat(payment.amount).toFixed(2) : '0.00',
+                    methodLabels[payment.payment_method] || payment.payment_method || 'N/A',
+                    payment.payment_date || 'N/A',
+                    (payment.status || '').replace('_', ' ').toUpperCase(),
+                    payment.created_at || '',
+                    payment.reviewed_at || 'N/A'
+                ]);
+            }
+
+            if (rows.length === 0) {
+                if (typeof showToast === 'function') {
+                    showToast('warning', 'No Data', 'There are no payment submissions to export.');
+                } else {
+                    alert('There are no payment submissions to export.');
+                }
+                return;
+            }
+
+            downloadCsv('Payment_Submissions_Report', headers, rows);
+            if (typeof showToast === 'function') {
+                showToast('success', 'Export Complete', `Successfully exported ${rows.length} payment submission(s) to CSV.`);
+            }
+        }
+
+        function downloadCsv(filenamePrefix, headers, rows) {
+            let csvContent = headers.map(h => '"' + h.replace(/"/g, '""') + '"').join(',') + '\n';
+            rows.forEach(row => {
+                csvContent += row.map(cell => '"' + String(cell).replace(/"/g, '""') + '"').join(',') + '\n';
+            });
+
+            const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const now = new Date();
+            const dateStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+            link.href = URL.createObjectURL(blob);
+            link.download = `${filenamePrefix}_${dateStr}.csv`;
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(link.href);
+        }
+
+        // ========== ISSUES & TASKS EXPORT FUNCTIONS ==========
+        function exportIssuesReport() {
+            const headers = ['Tracking Code', 'Room Number', 'Issue Type', 'Description', 'Company', 'Contact Person', 'Email', 'Phone', 'Priority', 'Status', 'Reported Date', 'Resolved Date', 'Admin Notes'];
+            const rows = [];
+
+            const issuesData = typeof roomIssuesData !== 'undefined' ? roomIssuesData : {};
+            for (const key in issuesData) {
+                const issue = issuesData[key];
+                rows.push([
+                    issue.tracking_code || '',
+                    issue.room_number || '',
+                    issue.issue_type_label || issue.issue_type || '',
+                    (issue.description || '').replace(/[\r\n]+/g, ' '),
+                    issue.company_name || '',
+                    issue.contact_person || '',
+                    issue.email || '',
+                    issue.phone || '',
+                    (issue.priority || '').toUpperCase(),
+                    issue.status_label || (issue.status || '').replace('_', ' ').toUpperCase(),
+                    issue.created_at || '',
+                    issue.resolved_at || 'N/A',
+                    (issue.admin_notes || '').replace(/[\r\n]+/g, ' ')
+                ]);
+            }
+
+            if (rows.length === 0) {
+                if (typeof showToast === 'function') {
+                    showToast('warning', 'No Data', 'There are no issues to export.');
+                } else {
+                    alert('There are no issues to export.');
+                }
+                return;
+            }
+
+            downloadCsv('Issues_Complaints_Report', headers, rows);
+            if (typeof showToast === 'function') {
+                showToast('success', 'Export Complete', `Successfully exported ${rows.length} issue(s) to CSV.`);
+            }
+        }
+
+        function exportTasksReport() {
+            // Use the server-side export for a proper Excel file
+            window.location.href = '/admin/export/tasks';
+        }
+
         // ========== STARTUP DATA FOR MODALS ==========
         @php
             $startupDocumentsData = isset($startupDocuments) ? $startupDocuments->map(function($d) {
@@ -13196,10 +13338,14 @@
                     'email' => $m->email,
                     'phone' => $m->phone,
                     'moa_purpose' => $m->moa_purpose,
+                    'moa_duration' => $m->moa_duration,
                     'moa_details' => $m->moa_details,
                     'notes' => $m->notes,
                     'status' => $m->status,
                     'admin_notes' => $m->admin_notes,
+                    'admin_moa_document_path' => $m->admin_moa_document_path,
+                    'admin_moa_document_filename' => $m->admin_moa_document_filename,
+                    'admin_moa_uploaded_at' => $m->admin_moa_uploaded_at ? $m->admin_moa_uploaded_at->format('M d, Y h:i A') : null,
                     'created_at' => $m->created_at->format('M d, Y h:i A'),
                     'reviewed_at' => $m->reviewed_at ? $m->reviewed_at->format('M d, Y h:i A') : null,
                 ];
@@ -13597,10 +13743,12 @@
             }
 
             // Disable button and show loading
-            const submitBtn = document.querySelector('#reviewDocumentModal .btn-primary');
-            const originalText = submitBtn.innerHTML;
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+            const submitBtn = document.querySelector('#reviewDocumentModal .btn-modal.primary');
+            const originalText = submitBtn ? submitBtn.innerHTML : '';
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+            }
 
             fetch(`/admin/submissions/${docId}`, {
                 method: 'PUT',
@@ -13629,15 +13777,20 @@
                 alert('An error occurred while updating the submission');
             })
             .finally(() => {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalText;
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                }
             });
         }
 
         // ========== MOA REVIEW/TEMPLATE MODAL FUNCTIONS ==========
 
         function openReviewMoaModal() {
-            const moa = moaRequestsData.find(m => m.id === currentMoaId);
+            let moa = moaRequestsData.find(m => m.id == currentMoaId);
+            if (!moa) {
+                moa = incubateeMoaData[currentMoaId];
+            }
             if (!moa) return;
 
             document.getElementById('reviewMoaId').value = currentMoaId;
@@ -13667,10 +13820,12 @@
             }
 
             // Disable button and show loading
-            const submitBtn = document.querySelector('#reviewMoaModal .btn-primary');
-            const originalText = submitBtn.innerHTML;
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+            const submitBtn = document.querySelector('#reviewMoaModal .btn-modal.primary');
+            const originalText = submitBtn ? submitBtn.innerHTML : '';
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+            }
 
             fetch(`/admin/submissions/${moaId}`, {
                 method: 'PUT',
@@ -13699,13 +13854,18 @@
                 alert('An error occurred while updating the MOA request');
             })
             .finally(() => {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalText;
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                }
             });
         }
 
         function generateMoaFromTemplate() {
-            const moa = moaRequestsData.find(m => m.id === currentMoaId);
+            let moa = moaRequestsData.find(m => m.id == currentMoaId);
+            if (!moa) {
+                moa = incubateeMoaData[currentMoaId];
+            }
             closeMoaDetailsModal();
 
             // Pre-fill the template form with MOA data
@@ -14091,10 +14251,12 @@
             }
 
             // Disable button and show loading
-            const submitBtn = document.querySelector('#reviewPaymentModal .btn-primary');
-            const originalText = submitBtn.innerHTML;
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+            const submitBtn = document.querySelector('#reviewPaymentModal .btn-modal.primary');
+            const originalText = submitBtn ? submitBtn.innerHTML : '';
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+            }
 
             fetch(`/admin/submissions/${paymentId}`, {
                 method: 'PUT',
@@ -14123,8 +14285,10 @@
                 alert('An error occurred while updating the payment submission');
             })
             .finally(() => {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalText;
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                }
             });
         }
 
@@ -16331,7 +16495,10 @@ University of the Philippines Cebu
         }
 
         function viewMoaDetails(moaId) {
-            const moa = moaRequestsData.find(m => m.id === moaId);
+            let moa = moaRequestsData.find(m => m.id == moaId);
+            if (!moa) {
+                moa = incubateeMoaData[moaId];
+            }
             if (!moa) return;
 
             currentMoaId = moaId;
@@ -18785,6 +18952,7 @@ University of the Philippines Cebu
                 `;
 
                 document.getElementById('taskDetailsContent').innerHTML = detailsHtml;
+                window._lastViewedTaskId = taskId;
                 document.getElementById('viewTaskModal').classList.add('active');
             })
             .catch(error => {
@@ -18800,9 +18968,16 @@ University of the Philippines Cebu
 
         // Edit task from view modal
         function editTaskFromView() {
-            closeViewTaskModal();
-            // Here you would populate the new task modal with the task data for editing
-            alert('Edit functionality will open the task form with pre-filled data');
+            // Get the current task ID from viewTaskDetails context
+            const viewModal = document.getElementById('viewTaskModal');
+            // Find the task ID from the last viewTaskDetails call
+            if (window._lastViewedTaskId) {
+                closeViewTaskModal();
+                editTask(window._lastViewedTaskId);
+            } else {
+                closeViewTaskModal();
+                alert('Please use the edit button from the task table.');
+            }
         }
 
         // Mark task as complete
@@ -18837,9 +19012,179 @@ University of the Philippines Cebu
         }
 
         // Edit task
+        let editingTaskId = null;
+
         function editTask(taskId) {
-            alert('Edit task functionality - Task ID: ' + taskId);
-            // TODO: Implement full edit functionality
+            editingTaskId = taskId;
+
+            fetch(`/admin/tasks/${taskId}`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) {
+                    alert('Failed to load task details');
+                    return;
+                }
+                const task = data.task;
+                const groupMembers = data.group_members || [];
+
+                // Build the edit modal HTML
+                const priorityOptions = ['High', 'Medium', 'Low'].map(p =>
+                    `<option value="${p}" ${task.priority === p ? 'selected' : ''}>${p}</option>`
+                ).join('');
+
+                const statusOptions = ['Not Started', 'In Progress', 'Completed', 'On Hold'].map(s =>
+                    `<option value="${s}" ${task.status === s ? 'selected' : ''}>${s}</option>`
+                ).join('');
+
+                const dueDate = task.due_date ? task.due_date.split('T')[0] : '';
+
+                const checklistText = task.checklist && task.checklist.length > 0
+                    ? task.checklist.map(item => (typeof item === 'object' ? item.text || item.label || '' : item)).join('\n')
+                    : '';
+
+                const assignedTo = groupMembers.length > 1
+                    ? groupMembers.map(m => `<span style="display: inline-block; background: #EFF6FF; color: #1E40AF; padding: 4px 10px; border-radius: 20px; font-size: 12px; margin: 2px;">${m.name} (${m.school || 'N/A'})</span>`).join(' ')
+                    : `<span style="font-weight: 600;">${task.intern?.name || 'Unknown'}</span> <span style="color: #6B7280; font-size: 12px;">(${task.intern?.school || 'N/A'})</span>`;
+
+                const editHtml = `
+                    <div style="margin-bottom: 16px; background: #F3F4F6; padding: 12px; border-radius: 8px;">
+                        <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Assigned To</div>
+                        <div>${assignedTo}</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required">Task Title</label>
+                        <input type="text" class="form-input" id="editTaskTitle" value="${task.title.replace(/"/g, '&quot;')}" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-input form-textarea" id="editTaskDescription">${task.description || ''}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Requirements</label>
+                        <textarea class="form-input form-textarea" id="editTaskRequirements">${task.requirements || ''}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Checklist Items</label>
+                        <textarea class="form-input form-textarea" id="editTaskChecklist" placeholder="One item per line">${checklistText}</textarea>
+                        <p style="font-size: 12px; color: #9CA3AF; margin-top: 4px;">One item per line. Leave empty to keep current.</p>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label class="form-label required">Priority</label>
+                            <select class="form-input" id="editTaskPriority">${priorityOptions}</select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">Status</label>
+                            <select class="form-input" id="editTaskStatus">${statusOptions}</select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required">Due Date</label>
+                        <input type="date" class="form-input" id="editTaskDueDate" value="${dueDate}" required>
+                    </div>
+                `;
+
+                document.getElementById('taskDetailsContent').innerHTML = editHtml;
+
+                // Update modal title and footer for edit mode
+                const modal = document.getElementById('viewTaskModal');
+                modal.querySelector('.modal-title').textContent = 'Edit Task';
+                const footer = modal.querySelector('.modal-footer');
+                footer.innerHTML = `
+                    <button class="btn-modal secondary" onclick="closeViewTaskModal(); resetViewTaskModal();">Cancel</button>
+                    <button class="btn-modal primary" onclick="saveTaskEdit()"><i class="fas fa-save"></i> Save Changes</button>
+                `;
+
+                modal.classList.add('active');
+            })
+            .catch(error => {
+                console.error('Error fetching task:', error);
+                alert('Error loading task for editing');
+            });
+        }
+
+        function saveTaskEdit() {
+            if (!editingTaskId) return;
+
+            const title = document.getElementById('editTaskTitle').value.trim();
+            const description = document.getElementById('editTaskDescription').value.trim();
+            const requirements = document.getElementById('editTaskRequirements').value.trim();
+            const checklistText = document.getElementById('editTaskChecklist').value.trim();
+            const priority = document.getElementById('editTaskPriority').value;
+            const status = document.getElementById('editTaskStatus').value;
+            const dueDate = document.getElementById('editTaskDueDate').value;
+
+            if (!title) { alert('Task title is required'); return; }
+            if (!dueDate) { alert('Due date is required'); return; }
+
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
+
+            const body = {
+                title: title,
+                description: description || null,
+                requirements: requirements || null,
+                priority: priority,
+                status: status,
+                due_date: dueDate
+            };
+            if (checklistText) {
+                body.checklist_text = checklistText;
+            }
+
+            const saveBtn = document.querySelector('#viewTaskModal .modal-footer .btn-modal.primary');
+            const originalText = saveBtn.innerHTML;
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+            fetch(`/admin/tasks/${editingTaskId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                body: JSON.stringify(body)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (typeof showToast === 'function') {
+                        showToast('success', 'Task Updated', 'Task has been updated successfully.');
+                    } else {
+                        alert('Task updated successfully!');
+                    }
+                    closeViewTaskModal();
+                    resetViewTaskModal();
+                    location.reload();
+                } else {
+                    alert(data.message || 'Failed to update task');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while updating the task');
+            })
+            .finally(() => {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = originalText;
+            });
+        }
+
+        function resetViewTaskModal() {
+            const modal = document.getElementById('viewTaskModal');
+            modal.querySelector('.modal-title').textContent = 'Task Details';
+            const footer = modal.querySelector('.modal-footer');
+            footer.innerHTML = `
+                <button class="btn-modal secondary" onclick="closeViewTaskModal()">Close</button>
+                <button class="btn-modal primary" onclick="editTaskFromView()"><i class="fas fa-edit"></i> Edit Task</button>
+            `;
+            editingTaskId = null;
         }
 
         // ===== DAILY HOURS FILTER AND SEARCH =====
