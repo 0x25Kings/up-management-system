@@ -3,6 +3,24 @@
 @section('title', 'Activity Log')
 @section('page-title', 'Activity Log')
 
+@push('styles')
+<style>
+    @media (max-width: 768px) {
+        .activity-timeline .form-card-body { padding: 16px !important; }
+        .activity-item { gap: 12px !important; }
+        .activity-item .activity-icon { width: 36px !important; height: 36px !important; min-width: 36px !important; font-size: 14px !important; }
+        .activity-item .activity-timeline-line { left: 17px !important; top: 36px !important; }
+        .activity-date-separator { padding-left: 48px !important; }
+        .activity-stats { flex-direction: column; }
+    }
+    @media (max-width: 480px) {
+        .activity-item .activity-content h4 { font-size: 13px !important; }
+        .activity-item .activity-content p { font-size: 12px !important; }
+        .activity-item .activity-meta { gap: 8px !important; font-size: 11px !important; }
+    }
+</style>
+@endpush
+
 @section('content')
     <!-- Page Header -->
     <div class="page-header-card">
@@ -18,7 +36,7 @@
     </div>
 
     <!-- Activity Stats -->
-    <div style="display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;">
+    <div class="activity-stats" style="display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;">
         <div style="background: white; border: 1px solid #E5E7EB; border-radius: 12px; padding: 12px 20px; display: flex; align-items: center; gap: 10px;">
             <i class="fas fa-list" style="color: #7B1D3A;"></i>
             <span style="font-size: 14px; color: #374151; font-weight: 600;">{{ $logs->total() }} total activities</span>
@@ -32,26 +50,26 @@
     </div>
 
     <!-- Activity Timeline -->
-    <div class="form-card">
+    <div class="form-card activity-timeline">
         <div class="form-card-header">
             <h2><i class="fas fa-stream"></i> Activity Timeline</h2>
             <p>Your recent actions and system events</p>
         </div>
         <div class="form-card-body" style="padding: 24px 32px;">
             @forelse($logs as $index => $log)
-                <div style="display: flex; gap: 20px; position: relative; {{ !$loop->last ? 'padding-bottom: 28px;' : '' }}">
+                <div class="activity-item" style="display: flex; gap: 20px; position: relative; {{ !$loop->last ? 'padding-bottom: 28px;' : '' }}">
                     <!-- Timeline Line -->
                     @if(!$loop->last)
-                        <div style="position: absolute; left: 23px; top: 48px; bottom: 0; width: 2px; background: #E5E7EB;"></div>
+                        <div class="activity-timeline-line" style="position: absolute; left: 23px; top: 48px; bottom: 0; width: 2px; background: #E5E7EB;"></div>
                     @endif
 
                     <!-- Icon -->
-                    <div style="width: 48px; height: 48px; min-width: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; color: white; background: {{ $log->color }}; box-shadow: 0 4px 12px {{ $log->color }}33; z-index: 1;">
+                    <div class="activity-icon" style="width: 48px; height: 48px; min-width: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; color: white; background: {{ $log->color }}; box-shadow: 0 4px 12px {{ $log->color }}33; z-index: 1;">
                         <i class="fas {{ $log->icon }}"></i>
                     </div>
 
                     <!-- Content -->
-                    <div style="flex: 1; padding-top: 2px;">
+                    <div class="activity-content" style="flex: 1; padding-top: 2px;">
                         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px; flex-wrap: wrap;">
                             <h4 style="font-size: 14px; font-weight: 700; color: #1F2937; margin: 0;">
                                 {{ ucwords(str_replace('_', ' ', $log->action)) }}
@@ -61,7 +79,7 @@
                             </span>
                         </div>
                         <p style="font-size: 13px; color: #6B7280; margin: 0 0 8px 0;">{{ $log->description }}</p>
-                        <div style="display: flex; align-items: center; gap: 16px; font-size: 12px; color: #9CA3AF; flex-wrap: wrap;">
+                        <div class="activity-meta" style="display: flex; align-items: center; gap: 16px; font-size: 12px; color: #9CA3AF; flex-wrap: wrap;">
                             <span><i class="far fa-clock" style="margin-right: 4px;"></i> {{ $log->created_at->timezone('Asia/Manila')->format('M d, Y \a\t h:i A') }}</span>
                             <span><i class="fas fa-globe" style="margin-right: 4px;"></i> {{ $log->ip_address }}</span>
                             @if($log->created_at->timezone('Asia/Manila')->isToday())
@@ -75,7 +93,7 @@
 
                 {{-- Date separator --}}
                 @if(!$loop->last && !$log->created_at->timezone('Asia/Manila')->isSameDay($logs[$index + 1]->created_at->timezone('Asia/Manila') ?? $log->created_at->timezone('Asia/Manila')))
-                    <div style="display: flex; align-items: center; gap: 12px; padding: 8px 0 8px 68px; margin-bottom: 4px;">
+                    <div class="activity-date-separator" style="display: flex; align-items: center; gap: 12px; padding: 8px 0 8px 68px; margin-bottom: 4px;">
                         <div style="flex: 1; height: 1px; background: #E5E7EB;"></div>
                         <span style="font-size: 11px; color: #9CA3AF; font-weight: 600; white-space: nowrap;">
                             {{ $logs[$index + 1]->created_at->timezone('Asia/Manila')->format('F d, Y') }}

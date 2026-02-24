@@ -5992,6 +5992,8 @@
                             </tbody>
                         </table>
                     </div>
+                    <!-- Document List Pagination -->
+                    <div id="documentsPagination" style="display: flex; justify-content: center; align-items: center; gap: 8px; padding: 16px; border-top: 1px solid #E5E7EB;"></div>
                 </div>
             </div>
 
@@ -6909,6 +6911,8 @@
                         </tbody>
                     </table>
                 </div>
+                <!-- Issues Pagination -->
+                <div id="issuesPagination" style="display: flex; justify-content: center; align-items: center; gap: 8px; padding: 16px; border-top: 1px solid #E5E7EB;"></div>
             </div>
 
             <!-- Project Progress Page -->
@@ -7082,6 +7086,8 @@
                         </table>
                     </div>
                 </div>
+                <!-- Progress Pagination -->
+                <div id="progressPagination" style="display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 16px;"></div>
             </div>
 
             <!-- Progress View & Respond Modal (Combined) -->
@@ -8562,6 +8568,8 @@
                         <p style="font-size: 16px;">Loading reports...</p>
                     </div>
                 </div>
+                <!-- Reports Pagination -->
+                <div id="reportsPagination" style="display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 20px;"></div>
             </div>
 
             <!-- ========== ADMIN PROFILE SECTION ========== -->
@@ -12451,6 +12459,23 @@
         let schoolsData = [];
         let reportsData = [];
 
+        // Shared pagination renderer
+        function renderPaginationControls(containerId, currentPage, totalPages, totalItems, goFnName) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            if (totalPages <= 1) {
+                container.innerHTML = totalItems > 0 ? `<span style="font-size: 13px; color: #6B7280;">Showing ${totalItems} item${totalItems !== 1 ? 's' : ''}</span>` : '';
+                return;
+            }
+            const btnStyle = (disabled) => `padding: 6px 12px; border: 1px solid #E5E7EB; border-radius: 6px; background: white; cursor: pointer; font-size: 13px; ${disabled ? 'opacity:.5;cursor:not-allowed;' : ''}`;
+            let html = `<span style="font-size: 13px; color: #6B7280; margin-right: 8px;">Page ${currentPage} of ${totalPages} (${totalItems} items)</span>`;
+            html += `<button onclick="${goFnName}(1)" ${currentPage === 1 ? 'disabled' : ''} style="${btnStyle(currentPage === 1)}"><i class="fas fa-angle-double-left"></i></button>`;
+            html += `<button onclick="${goFnName}(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} style="${btnStyle(currentPage === 1)}"><i class="fas fa-angle-left"></i></button>`;
+            html += `<button onclick="${goFnName}(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} style="${btnStyle(currentPage === totalPages)}"><i class="fas fa-angle-right"></i></button>`;
+            html += `<button onclick="${goFnName}(${totalPages})" ${currentPage === totalPages ? 'disabled' : ''} style="${btnStyle(currentPage === totalPages)}"><i class="fas fa-angle-double-right"></i></button>`;
+            container.innerHTML = html;
+        }
+
         async function loadTeamLeadersData() {
             try {
                 const response = await fetch('/admin/api/team-leaders');
@@ -13202,8 +13227,12 @@
             }
         }
 
+        let reportsCurrentPage = 1;
+        const reportsPerPage = 10;
+
         function renderReportsList() {
             const container = document.getElementById('reportsListContainer');
+            const paginationContainer = document.getElementById('reportsPagination');
             const filterStatus = document.getElementById('filterReportStatus').value;
             const filterType = document.getElementById('filterReportType').value;
 
@@ -13222,14 +13251,21 @@
                         <p style="font-size: 16px;">No reports found</p>
                     </div>
                 `;
+                paginationContainer.innerHTML = '';
                 return;
             }
 
-            container.innerHTML = filtered.map(report => `
+            // Pagination logic
+            const totalPages = Math.ceil(filtered.length / reportsPerPage);
+            if (reportsCurrentPage > totalPages) reportsCurrentPage = totalPages;
+            const start = (reportsCurrentPage - 1) * reportsPerPage;
+            const paged = filtered.slice(start, start + reportsPerPage);
+
+            container.innerHTML = paged.map(report => `
                 <div style="background: white; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden; border-left: 4px solid ${getStatusColor(report.status)};">
-                    <div style="padding: 20px 24px; display: flex; justify-content: space-between; align-items: flex-start;">
-                        <div style="flex: 1;">
-                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                    <div style="padding: 20px 24px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
+                        <div style="flex: 1; min-width: 200px;">
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px; flex-wrap: wrap;">
                                 <h3 style="font-size: 16px; font-weight: 700; color: #1F2937; margin: 0;">${report.title}</h3>
                                 <span style="padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; background: ${getTypeBackground(report.report_type)}; color: ${getTypeColor(report.report_type)};">
                                     ${report.report_type.charAt(0).toUpperCase() + report.report_type.slice(1)}
@@ -13238,7 +13274,7 @@
                                     ${getStatusLabel(report.status)}
                                 </span>
                             </div>
-                            <div style="display: flex; gap: 24px; color: #6B7280; font-size: 13px;">
+                            <div style="display: flex; gap: 16px; color: #6B7280; font-size: 13px; flex-wrap: wrap;">
                                 <span><i class="fas fa-user-tie" style="margin-right: 6px;"></i>${report.team_leader_name}</span>
                                 <span><i class="fas fa-id-badge" style="margin-right: 6px;"></i>${report.team_leader_code}</span>
                                 <span><i class="fas fa-university" style="margin-right: 6px;"></i>${report.school_name}</span>
@@ -13263,9 +13299,28 @@
                     </div>
                 </div>
             `).join('');
+
+            // Render pagination
+            if (totalPages <= 1) {
+                paginationContainer.innerHTML = `<span style="font-size: 13px; color: #6B7280;">Showing ${filtered.length} report${filtered.length !== 1 ? 's' : ''}</span>`;
+                return;
+            }
+            let pagHtml = `<span style="font-size: 13px; color: #6B7280; margin-right: 8px;">Page ${reportsCurrentPage} of ${totalPages} (${filtered.length} reports)</span>`;
+            pagHtml += `<button onclick="goReportsPage(1)" ${reportsCurrentPage === 1 ? 'disabled' : ''} style="padding: 6px 12px; border: 1px solid #E5E7EB; border-radius: 6px; background: white; cursor: pointer; font-size: 13px; ${reportsCurrentPage === 1 ? 'opacity:.5;cursor:not-allowed;' : ''}"><i class="fas fa-angle-double-left"></i></button>`;
+            pagHtml += `<button onclick="goReportsPage(${reportsCurrentPage - 1})" ${reportsCurrentPage === 1 ? 'disabled' : ''} style="padding: 6px 12px; border: 1px solid #E5E7EB; border-radius: 6px; background: white; cursor: pointer; font-size: 13px; ${reportsCurrentPage === 1 ? 'opacity:.5;cursor:not-allowed;' : ''}"><i class="fas fa-angle-left"></i></button>`;
+            pagHtml += `<button onclick="goReportsPage(${reportsCurrentPage + 1})" ${reportsCurrentPage === totalPages ? 'disabled' : ''} style="padding: 6px 12px; border: 1px solid #E5E7EB; border-radius: 6px; background: white; cursor: pointer; font-size: 13px; ${reportsCurrentPage === totalPages ? 'opacity:.5;cursor:not-allowed;' : ''}"><i class="fas fa-angle-right"></i></button>`;
+            pagHtml += `<button onclick="goReportsPage(${totalPages})" ${reportsCurrentPage === totalPages ? 'disabled' : ''} style="padding: 6px 12px; border: 1px solid #E5E7EB; border-radius: 6px; background: white; cursor: pointer; font-size: 13px; ${reportsCurrentPage === totalPages ? 'opacity:.5;cursor:not-allowed;' : ''}"><i class="fas fa-angle-double-right"></i></button>`;
+            paginationContainer.innerHTML = pagHtml;
+        }
+
+        function goReportsPage(page) {
+            reportsCurrentPage = page;
+            renderReportsList();
+            document.getElementById('reportsListContainer').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
         function filterReports() {
+            reportsCurrentPage = 1;
             renderReportsList();
         }
 
@@ -15417,37 +15472,71 @@
         }
 
         // ===== ISSUES MANAGEMENT FUNCTIONS =====
+        let issuesCurrentPage = 1;
+        const issuesPerPage = 15;
 
         function filterIssues() {
+            issuesCurrentPage = 1;
+            applyIssuesFilter();
+        }
+
+        function searchIssues() {
+            issuesCurrentPage = 1;
+            applyIssuesFilter();
+        }
+
+        function applyIssuesFilter() {
             const statusFilter = document.getElementById('issueStatusFilter').value;
             const typeFilter = document.getElementById('issueTypeFilter').value;
             const priorityFilter = document.getElementById('issuePriorityFilter').value;
+            const searchTerm = document.getElementById('issueSearchInput').value.toLowerCase();
             const rows = document.querySelectorAll('.issue-row');
 
+            let visibleRows = [];
             rows.forEach(row => {
                 const status = row.getAttribute('data-status');
                 const type = row.getAttribute('data-type');
                 const priority = row.getAttribute('data-priority');
+                const text = row.textContent.toLowerCase();
 
                 const matchStatus = statusFilter === 'all' || status === statusFilter;
                 const matchType = typeFilter === 'all' || type === typeFilter;
                 const matchPriority = priorityFilter === 'all' || priority === priorityFilter;
+                const matchSearch = !searchTerm || text.includes(searchTerm);
 
-                row.style.display = (matchStatus && matchType && matchPriority) ? '' : 'none';
+                if (matchStatus && matchType && matchPriority && matchSearch) {
+                    visibleRows.push(row);
+                }
+                row.style.display = 'none';
             });
+
+            // Paginate
+            const totalPages = Math.ceil(visibleRows.length / issuesPerPage);
+            if (issuesCurrentPage > totalPages && totalPages > 0) issuesCurrentPage = totalPages;
+            const start = (issuesCurrentPage - 1) * issuesPerPage;
+            const end = start + issuesPerPage;
+            visibleRows.forEach((row, i) => {
+                row.style.display = (i >= start && i < end) ? '' : 'none';
+            });
+
+            renderPaginationControls('issuesPagination', issuesCurrentPage, totalPages, visibleRows.length, 'goIssuesPage');
         }
 
-        function searchIssues() {
-            const searchTerm = document.getElementById('issueSearchInput').value.toLowerCase();
-            const rows = document.querySelectorAll('.issue-row');
-
-            rows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                row.style.display = text.includes(searchTerm) ? '' : 'none';
-            });
+        function goIssuesPage(page) {
+            issuesCurrentPage = page;
+            applyIssuesFilter();
         }
+
+        // Initialize issues pagination on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            if (document.querySelectorAll('.issue-row').length > 0) {
+                applyIssuesFilter();
+            }
+        });
 
         // ===== PROJECT PROGRESS FUNCTIONS =====
+        let progressCurrentPage = 1;
+        const progressPerPage = 15;
 
         // Generic modal close function
         function closeModal(modalId) {
@@ -15458,10 +15547,16 @@
         }
 
         function filterProgress() {
+            progressCurrentPage = 1;
+            applyProgressFilter();
+        }
+
+        function applyProgressFilter() {
             const statusFilter = document.getElementById('progressStatusFilter').value;
             const typeFilter = document.getElementById('progressTypeFilter').value;
             const rows = document.querySelectorAll('.progress-row');
 
+            let visibleRows = [];
             rows.forEach(row => {
                 const status = row.getAttribute('data-status');
                 const type = row.getAttribute('data-type');
@@ -15469,9 +15564,35 @@
                 const matchStatus = statusFilter === 'all' || status === statusFilter;
                 const matchType = typeFilter === 'all' || type === typeFilter;
 
-                row.style.display = (matchStatus && matchType) ? '' : 'none';
+                if (matchStatus && matchType) {
+                    visibleRows.push(row);
+                }
+                row.style.display = 'none';
             });
+
+            // Paginate
+            const totalPages = Math.ceil(visibleRows.length / progressPerPage);
+            if (progressCurrentPage > totalPages && totalPages > 0) progressCurrentPage = totalPages;
+            const start = (progressCurrentPage - 1) * progressPerPage;
+            const end = start + progressPerPage;
+            visibleRows.forEach((row, i) => {
+                row.style.display = (i >= start && i < end) ? '' : 'none';
+            });
+
+            renderPaginationControls('progressPagination', progressCurrentPage, totalPages, visibleRows.length, 'goProgressPage');
         }
+
+        function goProgressPage(page) {
+            progressCurrentPage = page;
+            applyProgressFilter();
+        }
+
+        // Initialize progress pagination on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            if (document.querySelectorAll('.progress-row').length > 0) {
+                applyProgressFilter();
+            }
+        });
 
         function viewProgressDetails(progressId) {
             viewAndRespondProgress(progressId);
@@ -16316,31 +16437,64 @@
 
         // ===== DOCUMENT TRACKING FUNCTIONS =====
 
+        let documentsCurrentPage = 1;
+        const documentsPerPage = 15;
+
         function filterDocuments() {
-            const statusFilter = document.getElementById('documentStatusFilter').value;
-            const typeFilter = document.getElementById('documentTypeFilter').value;
-            const rows = document.querySelectorAll('.document-row');
-
-            rows.forEach(row => {
-                const status = row.getAttribute('data-status');
-                const type = row.getAttribute('data-type');
-
-                const matchStatus = statusFilter === 'all' || status === statusFilter;
-                const matchType = typeFilter === 'all' || type === typeFilter;
-
-                row.style.display = (matchStatus && matchType) ? '' : 'none';
-            });
+            documentsCurrentPage = 1;
+            applyDocumentsFilter();
         }
 
         function searchDocuments() {
+            documentsCurrentPage = 1;
+            applyDocumentsFilter();
+        }
+
+        function applyDocumentsFilter() {
+            const statusFilter = document.getElementById('documentStatusFilter').value;
+            const typeFilter = document.getElementById('documentTypeFilter').value;
             const searchTerm = document.getElementById('documentSearchInput').value.toLowerCase();
             const rows = document.querySelectorAll('.document-row');
 
+            let visibleRows = [];
             rows.forEach(row => {
+                const status = row.getAttribute('data-status');
+                const type = row.getAttribute('data-type');
                 const text = row.textContent.toLowerCase();
-                row.style.display = text.includes(searchTerm) ? '' : 'none';
+
+                const matchStatus = statusFilter === 'all' || status === statusFilter;
+                const matchType = typeFilter === 'all' || type === typeFilter;
+                const matchSearch = !searchTerm || text.includes(searchTerm);
+
+                if (matchStatus && matchType && matchSearch) {
+                    visibleRows.push(row);
+                }
+                row.style.display = 'none';
             });
+
+            // Paginate
+            const totalPages = Math.ceil(visibleRows.length / documentsPerPage);
+            if (documentsCurrentPage > totalPages && totalPages > 0) documentsCurrentPage = totalPages;
+            const start = (documentsCurrentPage - 1) * documentsPerPage;
+            const end = start + documentsPerPage;
+            visibleRows.forEach((row, i) => {
+                row.style.display = (i >= start && i < end) ? '' : 'none';
+            });
+
+            renderPaginationControls('documentsPagination', documentsCurrentPage, totalPages, visibleRows.length, 'goDocumentsPage');
         }
+
+        function goDocumentsPage(page) {
+            documentsCurrentPage = page;
+            applyDocumentsFilter();
+        }
+
+        // Initialize document pagination on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            if (document.querySelectorAll('.document-row').length > 0) {
+                applyDocumentsFilter();
+            }
+        });
 
         // Review submission - routes to appropriate modal based on type
         function reviewSubmission(submissionId, type) {

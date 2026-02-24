@@ -1198,35 +1198,165 @@
             cursor: pointer;
         }
 
+        /* Mobile overlay when sidebar is open */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+
+        /* ── Tablet (≤1024px) ── */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 260px;
+            }
+            .main-content {
+                margin-left: 260px;
+                padding: 20px;
+            }
+            .sidebar-toggle-wrapper { left: 260px; }
+
+            .page-header-card { padding: 26px 28px; }
+            .page-header-card h1 { font-size: 22px; }
+            .page-header-card .header-icon { width: 52px; height: 52px; font-size: 22px; }
+
+            .form-card-header { padding: 20px 24px; }
+            .form-card-body { padding: 24px; }
+        }
+
+        /* ── Mobile (≤768px) ── */
         @media (max-width: 768px) {
             .sidebar {
-                width: 100%;
+                width: 280px;
                 transform: translateX(-100%);
                 transition: transform 0.3s ease;
             }
 
             .sidebar.open { transform: translateX(0); }
+            .sidebar.open ~ .sidebar-overlay { display: block; }
+
+            .sidebar-toggle-wrapper { display: none; }
 
             .main-content {
-                margin-left: 0;
+                margin-left: 0 !important;
                 padding: 16px;
             }
 
             .mobile-menu-btn { display: block; }
 
-            .form-card { max-width: 100%; }
+            .form-card { max-width: 100%; border-radius: 14px; }
+            .form-card-header { padding: 18px 20px; }
+            .form-card-header h2 { font-size: 16px; }
+            .form-card-body { padding: 20px; }
 
-            .page-header-card { padding: 24px; }
+            .page-header-card { 
+                padding: 20px; 
+                border-radius: 14px;
+                margin-bottom: 20px;
+            }
             .page-header-card h1 { font-size: 20px; }
+            .page-header-card p { font-size: 13px; }
+            .page-header-card .header-content { gap: 14px; }
+            .page-header-card .header-icon { width: 48px; height: 48px; font-size: 20px; border-radius: 12px; }
+
+            /* Top header responsive */
+            .top-header {
+                margin: -16px -16px 16px -16px;
+                padding: 12px 16px;
+            }
+
+            .profile-btn .info { display: none; }
+            .profile-btn { padding: 8px 10px; gap: 8px; }
+            .profile-btn i.fa-chevron-down { display: none; }
+
+            .navbar-breadcrumb .page-title { font-size: 13px; }
+
+            /* Form elements */
+            .form-group { margin-bottom: 18px; }
+            .form-input, .form-select, .form-textarea { padding: 12px 14px; font-size: 14px; }
+            .form-actions { flex-direction: column; }
+            .form-actions .btn { width: 100%; justify-content: center; }
+
+            /* File upload */
+            .file-upload { padding: 24px 16px; }
+            .file-upload .upload-icon { width: 56px; height: 56px; font-size: 22px; }
+
+            /* Info box */
+            .info-box { flex-direction: column; padding: 16px; gap: 12px; }
+            .template-box { flex-direction: column; padding: 16px; gap: 12px; text-align: center; }
+
+            /* Buttons */
+            .btn { padding: 12px 20px; font-size: 13px; }
+
+            /* Alert */
+            .alert { padding: 14px 18px; font-size: 14px; }
+
+            /* Tables responsive */
+            .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        }
+
+        /* ── Small Phone (≤480px) ── */
+        @media (max-width: 480px) {
+            .sidebar { width: 100%; }
+
+            .main-content { padding: 12px; }
+
+            .mobile-menu-btn { top: 12px; left: 12px; padding: 10px; }
+
+            .page-header-card {
+                padding: 16px;
+                border-radius: 12px;
+                margin-bottom: 16px;
+            }
+            .page-header-card h1 { font-size: 17px; }
+            .page-header-card p { font-size: 12px; }
+            .page-header-card .header-content { gap: 10px; flex-wrap: wrap; }
+            .page-header-card .header-icon { width: 40px; height: 40px; font-size: 18px; border-radius: 10px; }
+
+            .form-card { border-radius: 12px; }
+            .form-card-header { padding: 14px 16px; }
+            .form-card-header h2 { font-size: 15px; }
+            .form-card-body { padding: 16px; }
+
+            .form-input, .form-select, .form-textarea { padding: 10px 12px; border-radius: 10px; }
+
+            .breadcrumb { font-size: 12px; gap: 6px; flex-wrap: wrap; }
+
+            .top-header {
+                margin: -12px -12px 12px -12px;
+                padding: 10px 12px;
+            }
+
+            .navbar-breadcrumb a { width: 30px; height: 30px; }
+            .navbar-breadcrumb .page-title { font-size: 12px; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+            .profile-btn .avatar { width: 30px; height: 30px; font-size: 12px; }
+
+            .logout-modal { padding: 24px 20px; }
+            .logout-modal h3 { font-size: 18px; }
+            .logout-modal-actions { flex-direction: column; }
+            .logout-modal-btn { width: 100%; }
+
+            .file-upload { padding: 20px 12px; }
+            .file-upload h4 { font-size: 14px; }
+            .file-upload p { font-size: 12px; }
         }
     </style>
     @stack('styles')
 </head>
 <body>
     <!-- Mobile Menu Button -->
-    <button class="mobile-menu-btn" onclick="document.querySelector('.sidebar').classList.toggle('open')">
+    <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">
         <i class="fas fa-bars"></i>
     </button>
+
+    <!-- Mobile Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
 
     <div class="sidebar-toggle-wrapper" id="sidebarToggleWrapper">
         <button class="sidebar-toggle" onclick="toggleSidebar()" title="Toggle Sidebar">
@@ -1451,6 +1581,37 @@
     </main>
 
     <script>
+        // Mobile sidebar toggle
+        function toggleMobileSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('open');
+            if (sidebar.classList.contains('open')) {
+                overlay.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+            } else {
+                overlay.style.display = 'none';
+                document.body.style.overflow = '';
+            }
+        }
+
+        function closeMobileSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.remove('open');
+            overlay.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+
+        // Close mobile sidebar when nav item clicked
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.innerWidth <= 768) {
+                document.querySelectorAll('.sidebar .nav-item').forEach(function(item) {
+                    item.addEventListener('click', closeMobileSidebar);
+                });
+            }
+        });
+
         // Sidebar toggle functionality
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');

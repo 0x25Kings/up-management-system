@@ -1253,20 +1253,6 @@
         }
 
         @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
-                transition: transform 0.3s ease;
-            }
-
-            .sidebar.open {
-                transform: translateX(0);
-            }
-
-            .main-content {
-                margin-left: 0;
-                padding: 16px;
-            }
-
             .stats-grid {
                 grid-template-columns: 1fr;
             }
@@ -1283,6 +1269,7 @@
 
             .welcome-banner {
                 padding: 24px;
+                border-radius: 14px;
             }
 
             .welcome-text h1 {
@@ -1297,27 +1284,64 @@
             .moa-action {
                 margin-top: 16px;
             }
-        }
 
-        /* Mobile Menu Toggle */
-        .mobile-menu-btn {
-            display: none;
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            z-index: 1001;
-            background: #7B1D3A;
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 10px;
-            cursor: pointer;
-        }
-
-        @media (max-width: 768px) {
-            .mobile-menu-btn {
-                display: block;
+            .two-col-grid, .three-col-grid {
+                grid-template-columns: 1fr;
             }
+
+            .content-card-header { padding: 16px 18px; }
+            .content-card-title { font-size: 15px; }
+
+            .stat-card { padding: 18px; }
+            .stat-number { font-size: 26px; }
+
+            .onboarding-card, .content-card { border-radius: 14px; }
+
+            .notification-panel { width: 300px; right: -60px; }
+
+            /* Table scroll on mobile */
+            .submissions-table-wrap, .documents-table-wrap, .issues-table-wrap {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .submissions-table-wrap table,
+            .documents-table-wrap table,
+            .issues-table-wrap table {
+                min-width: 600px;
+            }
+        }
+
+        /* Small Phone */
+        @media (max-width: 480px) {
+            .welcome-banner { padding: 18px; }
+            .welcome-text h1 { font-size: 18px; }
+            .welcome-text p { font-size: 13px; }
+
+            .stats-grid { gap: 12px; }
+            .stat-card { padding: 14px; border-radius: 12px; }
+            .stat-number { font-size: 22px; }
+            .stat-label { font-size: 12px; }
+            .stat-icon { width: 42px; height: 42px; font-size: 16px; }
+
+            .moa-card { padding: 16px; border-radius: 12px; }
+            .moa-info h4 { font-size: 15px; }
+            .moa-info p { font-size: 13px; }
+            .moa-icon { width: 44px; height: 44px; font-size: 20px; border-radius: 10px; }
+
+            .content-card-header { padding: 14px 16px; }
+            .content-card-title { font-size: 14px; }
+
+            .action-card { padding: 18px 14px; border-radius: 12px; }
+            .action-icon { width: 48px; height: 48px; font-size: 18px; }
+            .action-card h3 { font-size: 15px; }
+
+            .two-col-grid, .three-col-grid { gap: 16px; }
+
+            .notification-panel { width: 260px; right: -40px; }
+
+            .progress-item { gap: 10px; }
+            .progress-dot { width: 30px; height: 30px; font-size: 12px; }
         }
 
         /* Top Header Bar - Sticky Navbar */

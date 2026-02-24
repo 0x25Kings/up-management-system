@@ -3,6 +3,21 @@
 @section('title', 'Notifications')
 @section('page-title', 'Notifications')
 
+@push('styles')
+<style>
+    @media (max-width: 768px) {
+        .notif-actions-bar { flex-direction: column; gap: 10px; align-items: flex-start !important; }
+        .notif-card { flex-direction: column !important; padding: 16px !important; gap: 12px !important; }
+        .notif-card .notif-action-btns { align-self: flex-end; }
+    }
+    @media (max-width: 480px) {
+        .notif-card { padding: 14px !important; border-radius: 12px !important; }
+        .notif-card h4 { font-size: 14px !important; }
+        .notif-card p { font-size: 13px !important; }
+    }
+</style>
+@endpush
+
 @section('content')
     <!-- Page Header -->
     <div class="page-header-card">
@@ -18,7 +33,7 @@
     </div>
 
     <!-- Actions Bar -->
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div class="notif-actions-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <div style="font-size: 14px; color: #6B7280;">
             <i class="fas fa-bell" style="margin-right: 4px;"></i>
             {{ $notifications->total() }} notification{{ $notifications->total() !== 1 ? 's' : '' }}
@@ -42,7 +57,7 @@
     <!-- Notifications List -->
     <div style="display: flex; flex-direction: column; gap: 12px;">
         @forelse($notifications as $notification)
-            <div style="background: {{ $notification->is_read ? 'white' : 'linear-gradient(135deg, #FFF7ED, #FFFBEB)' }}; border: 1px solid {{ $notification->is_read ? '#E5E7EB' : '#FCD34D' }}; border-radius: 16px; padding: 20px 24px; display: flex; align-items: flex-start; gap: 16px; transition: all 0.3s; position: relative; overflow: hidden; {{ !$notification->is_read ? 'box-shadow: 0 2px 12px rgba(252, 211, 77, 0.2);' : '' }}">
+            <div class="notif-card" style="background: {{ $notification->is_read ? 'white' : 'linear-gradient(135deg, #FFF7ED, #FFFBEB)' }}; border: 1px solid {{ $notification->is_read ? '#E5E7EB' : '#FCD34D' }}; border-radius: 16px; padding: 20px 24px; display: flex; align-items: flex-start; gap: 16px; transition: all 0.3s; position: relative; overflow: hidden; {{ !$notification->is_read ? 'box-shadow: 0 2px 12px rgba(252, 211, 77, 0.2);' : '' }}">
                 @if(!$notification->is_read)
                     <div style="position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: {{ $notification->color ?? '#7B1D3A' }};"></div>
                 @endif
@@ -70,7 +85,7 @@
                 </div>
 
                 <!-- Actions -->
-                <div style="display: flex; align-items: center; gap: 8px;">
+                <div class="notif-action-btns" style="display: flex; align-items: center; gap: 8px;">
                     @if(!$notification->is_read)
                         <form action="{{ route('startup.notifications.read', $notification->id) }}" method="POST">
                             @csrf

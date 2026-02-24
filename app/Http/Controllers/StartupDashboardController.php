@@ -63,7 +63,7 @@ class StartupDashboardController extends Controller
         // MOA expiry days remaining
         $moaDaysRemaining = null;
         if ($startup->moa_status === 'active' && $startup->moa_expiry) {
-            $moaDaysRemaining = now()->diffInDays($startup->moa_expiry, false);
+            $moaDaysRemaining = (int) now()->diffInDays($startup->moa_expiry, false);
         }
 
         // Onboarding checklist

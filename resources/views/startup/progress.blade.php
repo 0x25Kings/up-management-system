@@ -374,6 +374,31 @@
         color: #D1D5DB;
         cursor: not-allowed;
     }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .progress-form-row {
+            grid-template-columns: 1fr !important;
+        }
+        .progress-item-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        .progress-item-meta {
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .progress-item-actions {
+            flex-wrap: wrap;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .progress-item {
+            padding: 14px;
+        }
+    }
 </style>
 @endpush
 
