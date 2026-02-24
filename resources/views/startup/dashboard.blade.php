@@ -1932,14 +1932,6 @@
                 <i class="fas fa-tools"></i>
                 <span>Room Issues</span>
             </a>
-            <a href="{{ route('startup.moa-documents') }}" class="menu-item" data-tooltip="MOA Documents">
-                <i class="fas fa-file-contract"></i>
-                <span>MOA Documents</span>
-            </a>
-            <a href="{{ route('startup.billing') }}" class="menu-item" data-tooltip="Billing & Payments">
-                <i class="fas fa-receipt"></i>
-                <span>Billing & Payments</span>
-            </a>
 
             <div class="menu-section">Account</div>
             <a href="{{ route('startup.activity-log') }}" class="menu-item" data-tooltip="Activity Log">
@@ -2188,7 +2180,7 @@
                     @endif
                 @elseif($startup->moa_status === 'pending')
                     <h4><i class="fas fa-clock" style="color: #F59E0B; margin-right: 8px;"></i>MOA Status: Under Review</h4>
-                    <p>Your MOA request has been submitted. <a href="{{ route('startup.moa-documents') }}" style="color: #7B1D3A; font-weight: 600; text-decoration: underline;">View your MOA submissions</a></p>
+                    <p>Your MOA request has been submitted. <a href="{{ route('startup.submissions', ['type' => 'moa']) }}" style="color: #7B1D3A; font-weight: 600; text-decoration: underline;">View your MOA submissions</a></p>
                 @elseif($startup->moa_status === 'expired')
                     <h4><i class="fas fa-exclamation-circle" style="color: #EF4444; margin-right: 8px;"></i>MOA Status: Expired</h4>
                     <p>Your MOA has expired. Please submit a renewal request to continue using the facilities.</p>
@@ -2199,7 +2191,7 @@
             </div>
             <div class="moa-action">
                 @if($startup->moa_status === 'pending')
-                    <a href="{{ route('startup.moa-documents') }}" class="btn-primary" style="background: linear-gradient(135deg, #F59E0B, #D97706);">
+                    <a href="{{ route('startup.submissions', ['type' => 'moa']) }}" class="btn-primary" style="background: linear-gradient(135deg, #F59E0B, #D97706);">
                         <i class="fas fa-eye"></i> View Status
                     </a>
                 @elseif($startup->moa_status !== 'active')

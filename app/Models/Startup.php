@@ -33,6 +33,13 @@ class Startup extends Model
         'status',
         'moa_status',
         'moa_expiry',
+        'payment_amount',
+        'payment_duration',
+        'payment_start_date',
+        'payment_due_date',
+        'next_payment_due',
+        'payment_reminder_sent',
+        'moa_expiry_reminder_sent',
         'created_by',
     ];
 
@@ -43,6 +50,12 @@ class Startup extends Model
     protected $casts = [
         'moa_expiry' => 'date',
         'password_set' => 'boolean',
+        'payment_start_date' => 'date',
+        'payment_due_date' => 'date',
+        'next_payment_due' => 'date',
+        'payment_amount' => 'decimal:2',
+        'payment_reminder_sent' => 'boolean',
+        'moa_expiry_reminder_sent' => 'boolean',
     ];
 
     /**

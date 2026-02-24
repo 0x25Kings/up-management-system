@@ -103,6 +103,10 @@ Route::middleware(['maintenance', 'startup.auth'])->prefix('startup')->name('sta
     Route::post('/request-moa', [StartupDashboardController::class, 'submitMoa'])->name('moa.submit');
     Route::get('/moa-template-download', [StartupDashboardController::class, 'downloadMoaTemplate'])->name('moa-template');
 
+    // MOA Submission (upload signed MOA document)
+    Route::get('/submit-moa', [StartupDashboardController::class, 'showSubmitMoaForm'])->name('submit-moa');
+    Route::post('/submit-moa', [StartupDashboardController::class, 'submitMoaDocument'])->name('submit-moa.store');
+
     // Payment
     Route::get('/submit-payment', [StartupDashboardController::class, 'showPaymentForm'])->name('submit-payment');
     Route::post('/submit-payment', [StartupDashboardController::class, 'submitPayment'])->name('payment.submit');
@@ -254,6 +258,13 @@ Route::middleware(['admin'])->group(function () {
     Route::get('/admin/room-issues/{roomIssue}', [AdminStartupController::class, 'getRoomIssue'])->name('admin.room-issues.show');
     Route::put('/admin/room-issues/{roomIssue}', [AdminStartupController::class, 'updateRoomIssue'])->name('admin.room-issues.update');
     Route::delete('/admin/room-issues/{roomIssue}', [AdminStartupController::class, 'deleteRoomIssue'])->name('admin.room-issues.destroy');
+
+    // Incubatee Schedule Management (Admin)
+    Route::post('/admin/startup/{startup}/payment-schedule', [AdminStartupController::class, 'updatePaymentSchedule'])->name('admin.startup.payment-schedule');
+    Route::post('/admin/startup/{startup}/moa-expiry', [AdminStartupController::class, 'updateMoaExpiry'])->name('admin.startup.moa-expiry');
+    Route::post('/admin/startup/{startup}/payment-due-reminder', [AdminStartupController::class, 'sendPaymentDueReminder'])->name('admin.startup.payment-due-reminder');
+    Route::post('/admin/startup/{startup}/moa-expiry-reminder', [AdminStartupController::class, 'sendMoaExpiryReminder'])->name('admin.startup.moa-expiry-reminder');
+    Route::get('/admin/incubatee-schedules', [AdminStartupController::class, 'getIncubateeSchedules'])->name('admin.incubatee-schedules');
 
     // Project Progress Management (Admin)
     Route::get('/admin/progress/{progress}', [AdminStartupController::class, 'getProgress'])->name('admin.progress.show');

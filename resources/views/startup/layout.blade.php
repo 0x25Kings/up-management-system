@@ -1260,6 +1260,10 @@
                 <i class="fas fa-file-signature"></i>
                 <span>Request MOA</span>
             </a>
+            <a href="{{ route('startup.submit-moa') }}" class="nav-item {{ request()->routeIs('startup.submit-moa') ? 'active' : '' }}" data-tooltip="Submit MOA">
+                <i class="fas fa-file-upload"></i>
+                <span>Submit MOA</span>
+            </a>
             <a href="{{ route('startup.submit-payment') }}" class="nav-item {{ request()->routeIs('startup.submit-payment') ? 'active' : '' }}" data-tooltip="Submit Payment">
                 <i class="fas fa-credit-card"></i>
                 <span>Submit Payment</span>
@@ -1281,14 +1285,6 @@
             <a href="{{ route('startup.room-issues') }}" class="nav-item {{ request()->routeIs('startup.room-issues') ? 'active' : '' }}" data-tooltip="Room Issues">
                 <i class="fas fa-tools"></i>
                 <span>Room Issues</span>
-            </a>
-            <a href="{{ route('startup.moa-documents') }}" class="nav-item {{ request()->routeIs('startup.moa-documents') ? 'active' : '' }}" data-tooltip="MOA Documents">
-                <i class="fas fa-file-contract"></i>
-                <span>MOA Documents</span>
-            </a>
-            <a href="{{ route('startup.billing') }}" class="nav-item {{ request()->routeIs('startup.billing') ? 'active' : '' }}" data-tooltip="Payment History">
-                <i class="fas fa-receipt"></i>
-                <span>Payment History</span>
             </a>
 
             <div class="nav-section">Account</div>

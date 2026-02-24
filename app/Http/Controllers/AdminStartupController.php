@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\StartupSubmission;
 use App\Models\StartupNotification;
+use App\Models\StartupActivityLog;
 use App\Models\Startup;
 use App\Models\RoomIssue;
 use App\Models\StartupProgress;
@@ -92,19 +93,30 @@ class AdminStartupController extends Controller
         $submission->update($updateData);
 
         // Update startup MOA status if this is an MOA submission
-        if ($submission->type === 'moa' && $submission->startup_id) {
-            $startup = Startup::find($submission->startup_id);
+        if ($submission->type === 'moa') {
+            $startup = null;
+            if ($submission->startup_id) {
+                $startup = Startup::find($submission->startup_id);
+            } else {
+                // Try to match by company name or email for public portal submissions
+                $startup = Startup::where('company_name', $submission->company_name)
+                    ->orWhere('email', $submission->email)
+                    ->first();
+                if ($startup) {
+                    $submission->update(['startup_id' => $startup->id]);
+                }
+            }
+
             if ($startup) {
                 if ($request->status === 'approved') {
                     $startup->update(['moa_status' => 'active']);
-                    // Notify startup about MOA approval
                     StartupNotification::notify(
                         $startup->id,
                         'moa_approved',
                         'MOA Approved',
                         'Your MOA request (' . $submission->tracking_code . ') has been approved.' .
                         ($request->payment_start_date ? ' Payment period: ' . $request->payment_start_date . ' to ' . $request->payment_end_date : ''),
-                        route('startup.moa-documents'),
+                        route('startup.submissions', ['type' => 'moa']),
                         'fa-check-circle',
                         '#10B981'
                     );
@@ -115,7 +127,7 @@ class AdminStartupController extends Controller
                         'moa_rejected',
                         'MOA Request Rejected',
                         'Your MOA request (' . $submission->tracking_code . ') has been rejected. ' . ($request->admin_notes ?? ''),
-                        route('startup.moa-documents'),
+                        route('startup.submissions', ['type' => 'moa']),
                         'fa-times-circle',
                         '#EF4444'
                     );
@@ -355,6 +367,7 @@ class AdminStartupController extends Controller
             ->map(function ($moa) {
                 return [
                     'id' => $moa->id,
+                    'startup_id' => $moa->startup_id,
                     'tracking_code' => $moa->tracking_code,
                     'company_name' => $moa->company_name,
                     'contact_person' => $moa->contact_person,
@@ -365,6 +378,7 @@ class AdminStartupController extends Controller
                     'moa_details' => $moa->moa_details,
                     'notes' => $moa->notes,
                     'status' => $moa->status,
+                    'source' => $moa->startup_id ? 'startup' : 'portal',
                     'admin_notes' => $moa->admin_notes,
                     'admin_moa_document_path' => $moa->admin_moa_document_path,
                     'admin_moa_document_filename' => $moa->admin_moa_document_filename,
@@ -430,27 +444,38 @@ class AdminStartupController extends Controller
         $submission->update($updateData);
 
         // Update startup MOA status
+        $startup = null;
         if ($submission->startup_id) {
             $startup = Startup::find($submission->startup_id);
+        } else {
+            // Try to match by company name or email for public portal submissions
+            $startup = Startup::where('company_name', $submission->company_name)
+                ->orWhere('email', $submission->email)
+                ->first();
             if ($startup) {
-                $startup->update(['moa_status' => 'active']);
-
-                $paymentInfo = '';
-                if ($request->payment_start_date && $request->payment_end_date) {
-                    $paymentInfo = ' Payment period: ' . $request->payment_start_date . ' to ' . $request->payment_end_date . '.';
-                }
-
-                StartupNotification::notify(
-                    $startup->id,
-                    'moa_approved',
-                    'MOA Approved!',
-                    'Your MOA request (' . $submission->tracking_code . ') has been approved.' . $paymentInfo .
-                    ($request->hasFile('moa_document') ? ' The signed MOA document is now available for download.' : ''),
-                    route('startup.moa-documents'),
-                    'fa-check-circle',
-                    '#10B981'
-                );
+                // Link submission to the matched startup
+                $submission->update(['startup_id' => $startup->id]);
             }
+        }
+
+        if ($startup) {
+            $startup->update(['moa_status' => 'active']);
+
+            $paymentInfo = '';
+            if ($request->payment_start_date && $request->payment_end_date) {
+                $paymentInfo = ' Payment period: ' . $request->payment_start_date . ' to ' . $request->payment_end_date . '.';
+            }
+
+            StartupNotification::notify(
+                $startup->id,
+                'moa_approved',
+                'MOA Approved!',
+                'Your MOA request (' . $submission->tracking_code . ') has been approved.' . $paymentInfo .
+                ($request->hasFile('moa_document') ? ' The signed MOA document is now available for download.' : ''),
+                route('startup.submissions', ['type' => 'moa']),
+                'fa-check-circle',
+                '#10B981'
+            );
         }
 
         return response()->json([
@@ -487,21 +512,31 @@ class AdminStartupController extends Controller
         ]);
 
         // Update startup MOA status and notify
+        $startup = null;
         if ($submission->startup_id) {
             $startup = Startup::find($submission->startup_id);
+        } else {
+            // Try to match by company name or email for public portal submissions
+            $startup = Startup::where('company_name', $submission->company_name)
+                ->orWhere('email', $submission->email)
+                ->first();
             if ($startup) {
-                $startup->update(['moa_status' => 'none']);
-
-                StartupNotification::notify(
-                    $startup->id,
-                    'moa_rejected',
-                    'MOA Request Rejected',
-                    'Your MOA request (' . $submission->tracking_code . ') has been rejected. Reason: ' . $request->rejection_remarks,
-                    route('startup.moa-documents'),
-                    'fa-times-circle',
-                    '#EF4444'
-                );
+                $submission->update(['startup_id' => $startup->id]);
             }
+        }
+
+        if ($startup) {
+            $startup->update(['moa_status' => 'none']);
+
+            StartupNotification::notify(
+                $startup->id,
+                'moa_rejected',
+                'MOA Request Rejected',
+                'Your MOA request (' . $submission->tracking_code . ') has been rejected. Reason: ' . $request->rejection_remarks,
+                route('startup.submissions', ['type' => 'moa']),
+                'fa-times-circle',
+                '#EF4444'
+            );
         }
 
         return response()->json([
@@ -525,7 +560,7 @@ class AdminStartupController extends Controller
             'moa_reminder',
             'MOA Submission Reminder',
             'This is a reminder to submit your Memorandum of Agreement (MOA). Please submit your MOA as soon as possible to complete your incubation requirements.',
-            route('startup.request-moa'),
+            route('startup.submit-moa'),
             'fa-file-signature',
             '#F59E0B'
         );
@@ -637,5 +672,196 @@ class AdminStartupController extends Controller
         // Use response()->download() to avoid IDE false positive
         $filePath = Storage::disk('public')->path($submission->admin_moa_document_path);
         return response()->download($filePath, $submission->admin_moa_document_filename);
+    }
+
+    /**
+     * Update payment schedule for a startup
+     */
+    public function updatePaymentSchedule(Request $request, Startup $startup)
+    {
+        $request->validate([
+            'payment_amount' => 'required|numeric|min:0.01',
+            'payment_duration' => 'required|in:monthly,quarterly,semi_annual,annual',
+            'payment_start_date' => 'required|date',
+        ]);
+
+        $startDate = \Carbon\Carbon::parse($request->payment_start_date);
+
+        // Calculate due date based on duration
+        $dueDate = match($request->payment_duration) {
+            'monthly' => $startDate->copy()->addMonth(),
+            'quarterly' => $startDate->copy()->addMonths(3),
+            'semi_annual' => $startDate->copy()->addMonths(6),
+            'annual' => $startDate->copy()->addYear(),
+        };
+
+        $startup->update([
+            'payment_amount' => $request->payment_amount,
+            'payment_duration' => $request->payment_duration,
+            'payment_start_date' => $startDate,
+            'payment_due_date' => $dueDate,
+            'next_payment_due' => $dueDate,
+            'payment_reminder_sent' => false,
+        ]);
+
+        // Notify startup
+        StartupNotification::notify(
+            $startup->id,
+            'payment_schedule',
+            'Payment Schedule Set',
+            'Your payment schedule has been set. Amount: ₱' . number_format($request->payment_amount, 2) .
+            ' (' . ucfirst(str_replace('_', '-', $request->payment_duration)) . '). Next payment due: ' . $dueDate->format('M d, Y') . '.',
+            route('startup.submissions', ['type' => 'finance']),
+            'fa-calendar-check',
+            '#2563EB'
+        );
+
+        StartupActivityLog::log($startup->id, 'payment_schedule', 'Payment schedule set by admin: ₱' . number_format($request->payment_amount, 2) . ' ' . $request->payment_duration);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Payment schedule updated for ' . $startup->company_name,
+            'startup' => [
+                'id' => $startup->id,
+                'payment_amount' => $startup->payment_amount,
+                'payment_duration' => $startup->payment_duration,
+                'payment_start_date' => $startup->payment_start_date->format('Y-m-d'),
+                'payment_due_date' => $startup->payment_due_date->format('Y-m-d'),
+                'next_payment_due' => $startup->next_payment_due->format('Y-m-d'),
+            ]
+        ]);
+    }
+
+    /**
+     * Update MOA expiry for a startup
+     */
+    public function updateMoaExpiry(Request $request, Startup $startup)
+    {
+        $request->validate([
+            'moa_expiry' => 'required|date|after:today',
+            'moa_status' => 'sometimes|in:none,pending,active,expired',
+        ]);
+
+        $updateData = [
+            'moa_expiry' => $request->moa_expiry,
+            'moa_expiry_reminder_sent' => false,
+        ];
+
+        // Also update MOA status if provided
+        if ($request->has('moa_status') && $request->moa_status) {
+            $updateData['moa_status'] = $request->moa_status;
+        }
+
+        $startup->update($updateData);
+
+        $expiryDate = \Carbon\Carbon::parse($request->moa_expiry);
+
+        $statusMsg = '';
+        if ($request->has('moa_status') && $request->moa_status) {
+            $statusMsg = ' MOA status: ' . ucfirst($request->moa_status) . '.';
+        }
+
+        // Notify startup
+        StartupNotification::notify(
+            $startup->id,
+            'moa_expiry_set',
+            'MOA Settings Updated',
+            'Your MOA expiry date has been set to ' . $expiryDate->format('F d, Y') . '.' . $statusMsg . ' Please ensure to renew before this date.',
+            route('startup.submissions', ['type' => 'moa']),
+            'fa-calendar-times',
+            '#D97706'
+        );
+
+        StartupActivityLog::log($startup->id, 'moa_expiry', 'MOA expiry date set to ' . $expiryDate->format('M d, Y') . ($request->moa_status ? ', status: ' . $request->moa_status : ''));
+
+        return response()->json([
+            'success' => true,
+            'message' => 'MOA settings updated for ' . $startup->company_name,
+        ]);
+    }
+
+    /**
+     * Send payment due reminder
+     */
+    public function sendPaymentDueReminder(Startup $startup)
+    {
+        $dueDate = $startup->next_payment_due ?? $startup->payment_due_date;
+        $amount = $startup->payment_amount ? '₱' . number_format($startup->payment_amount, 2) : 'your scheduled payment';
+
+        StartupNotification::notify(
+            $startup->id,
+            'payment_due_reminder',
+            'Payment Due Reminder',
+            'This is a reminder that your payment of ' . $amount . ' is due on ' .
+            ($dueDate ? $dueDate->format('M d, Y') : 'soon') . '. Please submit your payment as soon as possible.',
+            route('startup.submit-payment'),
+            'fa-exclamation-circle',
+            '#EF4444'
+        );
+
+        $startup->update(['payment_reminder_sent' => true]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Payment due reminder sent to ' . $startup->company_name
+        ]);
+    }
+
+    /**
+     * Send MOA expiry reminder
+     */
+    public function sendMoaExpiryReminder(Startup $startup)
+    {
+        $expiryDate = $startup->moa_expiry;
+
+        StartupNotification::notify(
+            $startup->id,
+            'moa_expiry_reminder',
+            'MOA Expiring Soon',
+            'Your Memorandum of Agreement is expiring on ' .
+            ($expiryDate ? $expiryDate->format('F d, Y') : 'soon') . '. Please submit a renewal request to continue your incubation.',
+            route('startup.request-moa'),
+            'fa-clock',
+            '#D97706'
+        );
+
+        $startup->update(['moa_expiry_reminder_sent' => true]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'MOA expiry reminder sent to ' . $startup->company_name
+        ]);
+    }
+
+    /**
+     * Get incubatee schedule data for the management tab
+     */
+    public function getIncubateeSchedules()
+    {
+        $startups = Startup::where('status', 'active')
+            ->orderBy('company_name')
+            ->get()
+            ->map(function ($s) {
+                return [
+                    'id' => $s->id,
+                    'company_name' => $s->company_name,
+                    'contact_person' => $s->contact_person,
+                    'email' => $s->email,
+                    'room_number' => $s->room_number,
+                    'moa_status' => $s->moa_status,
+                    'moa_expiry' => $s->moa_expiry ? $s->moa_expiry->format('Y-m-d') : null,
+                    'moa_expiry_formatted' => $s->moa_expiry ? $s->moa_expiry->format('M d, Y') : null,
+                    'moa_days_remaining' => $s->moa_expiry ? (int) now()->diffInDays($s->moa_expiry, false) : null,
+                    'payment_amount' => $s->payment_amount,
+                    'payment_duration' => $s->payment_duration,
+                    'payment_start_date' => $s->payment_start_date ? $s->payment_start_date->format('Y-m-d') : null,
+                    'payment_due_date' => $s->payment_due_date ? $s->payment_due_date->format('Y-m-d') : null,
+                    'next_payment_due' => $s->next_payment_due ? $s->next_payment_due->format('Y-m-d') : null,
+                    'next_payment_due_formatted' => $s->next_payment_due ? $s->next_payment_due->format('M d, Y') : null,
+                    'payment_days_remaining' => $s->next_payment_due ? (int) now()->diffInDays($s->next_payment_due, false) : null,
+                ];
+            });
+
+        return response()->json($startups);
     }
 }

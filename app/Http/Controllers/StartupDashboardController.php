@@ -283,6 +283,65 @@ class StartupDashboardController extends Controller
     }
 
     /**
+     * Show MOA document submission form (for uploading signed MOA)
+     */
+    public function showSubmitMoaForm()
+    {
+        $startup = $this->getStartup();
+        $moaSubmissions = StartupSubmission::where('startup_id', $startup->id)
+            ->where('type', 'moa')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('startup.submit-moa', compact('startup', 'moaSubmissions'));
+    }
+
+    /**
+     * Handle MOA document submission (upload signed MOA)
+     */
+    public function submitMoaDocument(Request $request)
+    {
+        $startup = $this->getStartup();
+
+        $validated = $request->validate([
+            'document' => 'required|file|mimes:pdf,doc,docx|max:10240',
+            'notes' => 'nullable|string|max:1000',
+        ], [
+            'document.required' => 'Please upload your signed MOA document.',
+            'document.mimes' => 'MOA document must be a PDF, DOC, or DOCX file.',
+            'document.max' => 'MOA document must not exceed 10MB.',
+        ]);
+
+        $file = $request->file('document');
+        $filename = time() . '_' . $file->getClientOriginalName();
+        $path = $file->storeAs('startup-moa', $filename, 'public');
+
+        $submission = StartupSubmission::create([
+            'startup_id' => $startup->id,
+            'tracking_code' => StartupSubmission::generateTrackingCode('moa'),
+            'company_name' => $startup->company_name,
+            'contact_person' => $startup->contact_person,
+            'email' => $startup->email,
+            'phone' => $startup->phone,
+            'type' => 'moa',
+            'moa_purpose' => 'document_submission',
+            'moa_duration' => null,
+            'moa_details' => $validated['notes'] ?? 'MOA document submission',
+            'file_path' => $path,
+            'original_filename' => $file->getClientOriginalName(),
+            'status' => 'pending',
+        ]);
+
+        // Update startup MOA status
+        $startup->update(['moa_status' => 'pending']);
+
+        StartupActivityLog::log($startup->id, 'moa_submit', 'Submitted signed MOA document', ['tracking_code' => $submission->tracking_code]);
+
+        return redirect()->route('startup.submit-moa')
+            ->with('success', 'MOA document submitted successfully! Tracking code: ' . $submission->tracking_code);
+    }
+
+    /**
      * Show payment submission form
      */
     public function showPaymentForm()

@@ -140,6 +140,7 @@
         border-top: 1px solid #F3F4F6;
         font-size: 14px;
         color: #374151;
+        vertical-align: top;
     }
 
     .table tr {
@@ -387,6 +388,7 @@
                     <th>Details</th>
                     <th>Status</th>
                     <th>Submitted</th>
+                    <th style="text-align: center;">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -411,13 +413,45 @@
                             @endif
                         </td>
                         <td>
-                            @if($submission->type === 'document')
-                                {{ $submission->document_type }}
-                            @elseif($submission->type === 'moa')
-                                {{ $submission->moa_purpose }}
-                            @else
-                                {{ $submission->invoice_number }} - ₱{{ number_format($submission->amount, 2) }}
-                            @endif
+                            <div class="submission-details">
+                                @if($submission->type === 'document')
+                                    <span class="submission-title">{{ $submission->document_type }}</span>
+                                    @if($submission->original_filename)
+                                        <span class="submission-subtitle"><i class="fas fa-paperclip" style="margin-right: 3px;"></i>{{ $submission->original_filename }}</span>
+                                    @endif
+                                @elseif($submission->type === 'moa')
+                                    <span class="submission-title">{{ $submission->moa_purpose === 'document_submission' ? 'MOA Document Submission' : ucfirst(str_replace('_', ' ', $submission->moa_purpose ?? 'MOA')) }}</span>
+                                    @if($submission->moa_duration)
+                                        <span class="submission-subtitle"><i class="fas fa-clock" style="margin-right: 3px;"></i>{{ str_replace('_', ' ', $submission->moa_duration) }}</span>
+                                    @endif
+                                    {{-- Payment Period --}}
+                                    @if($submission->payment_start_date && $submission->payment_end_date)
+                                        <div style="margin-top: 6px; display: inline-flex; align-items: center; gap: 5px; background: #EFF6FF; color: #1E40AF; padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;">
+                                            <i class="fas fa-calendar-alt"></i>
+                                            Payment: {{ $submission->payment_start_date->format('M d, Y') }} — {{ $submission->payment_end_date->format('M d, Y') }}
+                                            @if($submission->payment_end_date->isPast())
+                                                <span style="background: #FEE2E2; color: #991B1B; padding: 1px 6px; border-radius: 4px; margin-left: 2px; font-size: 10px;">Overdue</span>
+                                            @endif
+                                        </div>
+                                    @endif
+                                    {{-- Rejection Remarks --}}
+                                    @if($submission->status === 'rejected' && $submission->rejection_remarks)
+                                        <div style="margin-top: 6px; background: #FEF2F2; border: 1px solid #FECACA; border-radius: 6px; padding: 6px 10px; font-size: 12px;">
+                                            <span style="color: #991B1B; font-weight: 700;"><i class="fas fa-comment-alt" style="margin-right: 3px;"></i>Reason:</span>
+                                            <span style="color: #7F1D1D;">{{ $submission->rejection_remarks }}</span>
+                                        </div>
+                                    @endif
+                                @else
+                                    <span class="submission-title">{{ $submission->invoice_number ?? $submission->title ?? 'Payment' }}</span>
+                                    <span class="submission-subtitle" style="font-size: 15px; font-weight: 700; color: #1F2937;">₱{{ number_format($submission->amount ?? 0, 2) }}</span>
+                                    @if($submission->payment_method)
+                                        <span class="submission-subtitle"><i class="fas fa-wallet" style="margin-right: 3px;"></i>{{ ucfirst($submission->payment_method) }}</span>
+                                    @endif
+                                    @if($submission->notes)
+                                        <span class="submission-subtitle" style="max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ $submission->notes }}</span>
+                                    @endif
+                                @endif
+                            </div>
                         </td>
                         <td>
                             <span class="status-badge status-{{ $submission->status }}">
@@ -427,6 +461,33 @@
                         <td>
                             <div>{{ $submission->created_at->format('M d, Y') }}</div>
                             <div style="font-size: 12px; color: #9CA3AF;">{{ $submission->created_at->format('h:i A') }}</div>
+                        </td>
+                        <td style="text-align: center;">
+                            <div style="display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;">
+                                {{-- View uploaded file --}}
+                                @if($submission->file_path)
+                                    @if($submission->type === 'finance')
+                                        <button onclick="viewProof('{{ asset('storage/' . $submission->file_path) }}', '{{ $submission->title ?? 'Payment Proof' }}')" style="width: 34px; height: 34px; border: 1px solid #E5E7EB; border-radius: 8px; background: white; display: inline-flex; align-items: center; justify-content: center; color: #7B1D3A; cursor: pointer; transition: all 0.3s; font-size: 14px;" title="View Proof">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    @else
+                                        <a href="{{ asset('storage/' . $submission->file_path) }}" target="_blank" style="width: 34px; height: 34px; border: 1px solid #E5E7EB; border-radius: 8px; background: white; display: inline-flex; align-items: center; justify-content: center; color: #7B1D3A; text-decoration: none; transition: all 0.3s; font-size: 14px;" title="View Submission">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    @endif
+                                @endif
+
+                                {{-- Download admin-uploaded MOA document --}}
+                                @if($submission->type === 'moa' && $submission->admin_moa_document_path)
+                                    <a href="{{ route('startup.download-moa-document', $submission->id) }}" style="display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; border: none; border-radius: 8px; background: linear-gradient(135deg, #16A34A, #059669); color: white; text-decoration: none; transition: all 0.3s; font-size: 12px; font-weight: 600;" title="Download MOA">
+                                        <i class="fas fa-download"></i> MOA
+                                    </a>
+                                @elseif($submission->type === 'moa' && $submission->status === 'approved' && !$submission->admin_moa_document_path)
+                                    <span style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; background: #FEF3C7; color: #92400E; border-radius: 6px; font-size: 10px; font-weight: 500;">
+                                        <i class="fas fa-clock"></i> Awaiting upload
+                                    </span>
+                                @endif
+                            </div>
                         </td>
                     </tr>
                 @endforeach
@@ -446,4 +507,63 @@
         </div>
     @endif
 </div>
+
+<!-- Proof Viewer Modal -->
+<div id="proofModal" onclick="closeProofModal(event)" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+    <div style="background: white; border-radius: 16px; max-width: 800px; width: 90%; max-height: 90vh; overflow: hidden; box-shadow: 0 25px 60px rgba(0,0,0,0.3); position: relative;" onclick="event.stopPropagation();">
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 18px 24px; border-bottom: 1px solid #E5E7EB;">
+            <h3 id="proofModalTitle" style="font-size: 16px; font-weight: 700; color: #1F2937; margin: 0;">Payment Proof</h3>
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <a id="proofDownloadBtn" href="#" target="_blank" style="width: 36px; height: 36px; border: 1px solid #E5E7EB; border-radius: 8px; background: white; display: inline-flex; align-items: center; justify-content: center; color: #7B1D3A; text-decoration: none; transition: all 0.3s;" title="Open in new tab">
+                    <i class="fas fa-external-link-alt"></i>
+                </a>
+                <button onclick="closeProofModal()" style="width: 36px; height: 36px; border: 1px solid #E5E7EB; border-radius: 8px; background: white; display: inline-flex; align-items: center; justify-content: center; color: #6B7280; cursor: pointer; transition: all 0.3s;" title="Close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <div id="proofModalBody" style="padding: 24px; display: flex; align-items: center; justify-content: center; max-height: calc(90vh - 80px); overflow: auto; background: #F9FAFB;">
+        </div>
+    </div>
+</div>
+
+<script>
+    function viewProof(url, title) {
+        const modal = document.getElementById('proofModal');
+        const body = document.getElementById('proofModalBody');
+        const modalTitle = document.getElementById('proofModalTitle');
+        const downloadBtn = document.getElementById('proofDownloadBtn');
+
+        modalTitle.textContent = title;
+        downloadBtn.href = url;
+
+        const ext = url.split('.').pop().toLowerCase().split('?')[0];
+
+        if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp'].includes(ext)) {
+            body.innerHTML = '<img src="' + url + '" style="max-width: 100%; max-height: 70vh; border-radius: 8px; object-fit: contain;" alt="Proof">';
+        } else if (ext === 'pdf') {
+            body.innerHTML = '<iframe src="' + url + '" style="width: 100%; height: 70vh; border: none; border-radius: 8px;"></iframe>';
+        } else {
+            body.innerHTML = '<div style="text-align: center; padding: 40px;">' +
+                '<i class="fas fa-file" style="font-size: 48px; color: #9CA3AF; margin-bottom: 16px;"></i>' +
+                '<p style="color: #6B7280; margin-bottom: 16px;">This file cannot be previewed directly.</p>' +
+                '<a href="' + url + '" target="_blank" style="display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #7B1D3A, #A62450); color: white; padding: 10px 20px; border-radius: 10px; text-decoration: none; font-weight: 600; font-size: 13px;">' +
+                '<i class="fas fa-download"></i> Download File</a></div>';
+        }
+
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeProofModal(event) {
+        if (event && event.target !== document.getElementById('proofModal')) return;
+        document.getElementById('proofModal').style.display = 'none';
+        document.getElementById('proofModalBody').innerHTML = '';
+        document.body.style.overflow = '';
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeProofModal();
+    });
+</script>
 @endsection
