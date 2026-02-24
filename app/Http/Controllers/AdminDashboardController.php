@@ -19,6 +19,7 @@ use App\Models\Document;
 use App\Models\User;
 use App\Models\TeamLeaderReport;
 use App\Models\StartupProgress;
+use App\Models\Startup;
 
 
 use App\Models\UserPermission;
@@ -1584,6 +1585,66 @@ class AdminDashboardController extends Controller
         return response()->json([
             'token' => csrf_token(),
             'expires_at' => now()->addMinutes(config('session.lifetime'))->toISOString(),
+        ]);
+    }
+
+    /**
+     * Get interns, team leaders, and startups for folder permission selection
+     */
+    public function getInternsListForFolder()
+    {
+        // Get all approved active interns grouped by school
+        $interns = Intern::where('status', 'Active')
+            ->where('approval_status', 'approved')
+            ->orderBy('school')
+            ->orderBy('name')
+            ->get()
+            ->map(function ($intern) {
+                return [
+                    'id' => $intern->id,
+                    'name' => $intern->name,
+                    'school' => $intern->school,
+                    'school_id' => $intern->school_id,
+                ];
+            });
+
+        // Group interns by school
+        $internsBySchool = $interns->groupBy('school');
+
+        // Get all active team leaders grouped by school
+        $teamLeaders = User::where('role', User::ROLE_TEAM_LEADER)
+            ->where('is_active', true)
+            ->with('school')
+            ->orderBy('name')
+            ->get()
+            ->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'school' => $user->school ? $user->school->name : 'No School',
+                    'school_id' => $user->school_id,
+                ];
+            });
+
+        // Group team leaders by school
+        $teamLeadersBySchool = $teamLeaders->groupBy('school');
+
+        // Get all active startups
+        $startups = Startup::where('status', 'Active')
+            ->orderBy('company_name')
+            ->get()
+            ->map(function ($startup) {
+                return [
+                    'id' => $startup->id,
+                    'name' => $startup->company_name,
+                    'startup_code' => $startup->startup_code,
+                ];
+            });
+
+        return response()->json([
+            'internsBySchool' => $internsBySchool,
+            'teamLeadersBySchool' => $teamLeadersBySchool,
+            'startups' => $startups,
         ]);
     }
 }

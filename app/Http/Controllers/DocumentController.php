@@ -749,6 +749,12 @@ class DocumentController extends Controller
                 'description' => 'nullable|string|max:500',
                 'allowed_users' => 'required|array',
                 'allowed_users.*' => 'in:intern,team_leader,startup',
+                'allowed_intern_ids' => 'nullable|array',
+                'allowed_intern_ids.*' => 'integer|exists:interns,id',
+                'allowed_team_leader_ids' => 'nullable|array',
+                'allowed_team_leader_ids.*' => 'integer|exists:users,id',
+                'allowed_startup_ids' => 'nullable|array',
+                'allowed_startup_ids.*' => 'integer|exists:startups,id',
                 'size_limit_mb' => 'nullable|integer|min:1|max:5000',
             ]);
 
@@ -771,6 +777,9 @@ class DocumentController extends Controller
                 'created_by_admin' => $adminId,
                 'folder_type' => 'shared',
                 'allowed_users' => $request->allowed_users,
+                'allowed_intern_ids' => $request->allowed_intern_ids ?? [],
+                'allowed_team_leader_ids' => $request->allowed_team_leader_ids ?? [],
+                'allowed_startup_ids' => $request->allowed_startup_ids ?? [],
                 'storage_path' => $storagePath,
                 'size_limit_mb' => $request->size_limit_mb ?? 100,
             ]);

@@ -274,6 +274,7 @@ Route::middleware(['admin'])->group(function () {
 
     // Intern Approval Routes (Admin)
     Route::get('/admin/interns/pending', [SchoolController::class, 'getPendingInterns'])->name('admin.interns.pending');
+    Route::get('/admin/interns/list', [AdminDashboardController::class, 'getInternsListForFolder'])->name('admin.interns.list');
     Route::get('/admin/interns/{intern}', [InternController::class, 'show'])->name('admin.interns.show');
     Route::put('/admin/interns/{intern}', [InternController::class, 'update'])->name('admin.interns.update');
     Route::post('/admin/interns/{intern}/approve', [SchoolController::class, 'approveIntern'])->name('admin.interns.approve');

@@ -18,6 +18,9 @@ class DocumentFolder extends Model
         'created_by_admin',
         'folder_type',
         'allowed_users',
+        'allowed_intern_ids',
+        'allowed_team_leader_ids',
+        'allowed_startup_ids',
         'storage_path',
         'size_limit_mb',
     ];
@@ -27,6 +30,9 @@ class DocumentFolder extends Model
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',
         'allowed_users' => 'array',
+        'allowed_intern_ids' => 'array',
+        'allowed_team_leader_ids' => 'array',
+        'allowed_startup_ids' => 'array',
     ];
 
     /**

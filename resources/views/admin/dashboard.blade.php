@@ -721,6 +721,97 @@
             cursor: pointer;
             transition: all 0.3s ease;
             white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .color-option {
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .color-option:hover {
+            transform: scale(1.15);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .color-option.selected {
+            transform: scale(1.1);
+            box-shadow: 0 0 0 3px white, 0 0 0 5px currentColor;
+        }
+
+        /* Permission Accordion Styles */
+        .permission-accordion {
+            border-bottom: 1px solid #E5E7EB;
+        }
+
+        .permission-accordion:last-child {
+            border-bottom: none;
+        }
+
+        .permission-accordion-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            cursor: pointer;
+            background: #F9FAFB;
+            transition: background 0.2s;
+        }
+
+        .permission-accordion-header:hover {
+            background: #F3F4F6;
+        }
+
+        .permission-accordion-body {
+            padding: 12px 16px;
+            background: white;
+        }
+
+        .permission-school-group {
+            margin-bottom: 12px;
+            border: 1px solid #E5E7EB;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .permission-school-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            background: #F9FAFB;
+            cursor: pointer;
+        }
+
+        .permission-school-header:hover {
+            background: #F3F4F6;
+        }
+
+        .permission-school-body {
+            padding: 8px 12px;
+            background: white;
+        }
+
+        .permission-checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .permission-checkbox-item:hover {
+            background: #F3F4F6;
+        }
+
+        .permission-checkbox-item input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
         }
 
         .filter-btn:hover {
@@ -16830,7 +16921,180 @@ University of the Philippines Cebu
             document.getElementById('folderName').value = '';
             document.getElementById('folderDescription').value = '';
             document.getElementById('folderSizeLimit').value = '100';
-            document.querySelectorAll('input[name="allowed_users"]').forEach(cb => cb.checked = false);
+            
+            // Reset selections
+            document.querySelectorAll('#folderPermissionsContainer input[type="checkbox"]').forEach(cb => cb.checked = false);
+            updatePermissionCounts();
+            
+            // Show loading, hide container
+            document.getElementById('folderPermissionsLoading').style.display = 'block';
+            document.getElementById('folderPermissionsContainer').style.display = 'none';
+            
+            // Fetch interns, team leaders, and startups
+            loadFolderPermissionOptions();
+        }
+
+        function loadFolderPermissionOptions() {
+            fetch('/admin/interns/list', {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                populateFolderPermissions(data);
+                document.getElementById('folderPermissionsLoading').style.display = 'none';
+                document.getElementById('folderPermissionsContainer').style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error loading folder permissions:', error);
+                document.getElementById('folderPermissionsLoading').innerHTML = '<p style="color: #EF4444;">Failed to load. Please try again.</p>';
+            });
+        }
+
+        function populateFolderPermissions(data) {
+            // Populate Interns by School
+            const internsContainer = document.getElementById('internsBySchoolContainer');
+            let internsHtml = '';
+            
+            if (Object.keys(data.internsBySchool).length === 0) {
+                internsHtml = '<p style="color: #6B7280; text-align: center; padding: 10px;">No active interns found</p>';
+            } else {
+                for (const [school, interns] of Object.entries(data.internsBySchool)) {
+                    internsHtml += `
+                        <div class="permission-school-group">
+                            <div class="permission-school-header" onclick="toggleSchoolPermission('intern-school-${escapeHtml(school).replace(/[^a-zA-Z0-9]/g, '')}')">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="checkbox" class="school-select-all" data-school="${escapeHtml(school)}" data-type="intern" onclick="event.stopPropagation(); toggleSchoolSelectAll(this)" style="width: 16px; height: 16px;">
+                                    <span style="font-weight: 500; color: #374151;">${escapeHtml(school)}</span>
+                                    <span style="background: #E5E7EB; padding: 2px 6px; border-radius: 10px; font-size: 11px;">${interns.length}</span>
+                                </div>
+                                <i class="fas fa-chevron-down" style="font-size: 12px; color: #9CA3AF;"></i>
+                            </div>
+                            <div id="intern-school-${escapeHtml(school).replace(/[^a-zA-Z0-9]/g, '')}" class="permission-school-body" style="display: none;">
+                                ${interns.map(intern => `
+                                    <label class="permission-checkbox-item">
+                                        <input type="checkbox" name="allowed_intern_ids" value="${intern.id}" onchange="updatePermissionCounts()">
+                                        <span style="font-size: 13px; color: #374151;">${escapeHtml(intern.name)}</span>
+                                    </label>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+            internsContainer.innerHTML = internsHtml;
+
+            // Populate Team Leaders by School
+            const teamLeadersContainer = document.getElementById('teamLeadersBySchoolContainer');
+            let teamLeadersHtml = '';
+            
+            if (Object.keys(data.teamLeadersBySchool).length === 0) {
+                teamLeadersHtml = '<p style="color: #6B7280; text-align: center; padding: 10px;">No active team leaders found</p>';
+            } else {
+                for (const [school, teamLeaders] of Object.entries(data.teamLeadersBySchool)) {
+                    teamLeadersHtml += `
+                        <div class="permission-school-group">
+                            <div class="permission-school-header" onclick="toggleSchoolPermission('tl-school-${escapeHtml(school).replace(/[^a-zA-Z0-9]/g, '')}')">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="checkbox" class="school-select-all" data-school="${escapeHtml(school)}" data-type="team_leader" onclick="event.stopPropagation(); toggleSchoolSelectAll(this)" style="width: 16px; height: 16px;">
+                                    <span style="font-weight: 500; color: #374151;">${escapeHtml(school)}</span>
+                                    <span style="background: #E5E7EB; padding: 2px 6px; border-radius: 10px; font-size: 11px;">${teamLeaders.length}</span>
+                                </div>
+                                <i class="fas fa-chevron-down" style="font-size: 12px; color: #9CA3AF;"></i>
+                            </div>
+                            <div id="tl-school-${escapeHtml(school).replace(/[^a-zA-Z0-9]/g, '')}" class="permission-school-body" style="display: none;">
+                                ${teamLeaders.map(tl => `
+                                    <label class="permission-checkbox-item">
+                                        <input type="checkbox" name="allowed_team_leader_ids" value="${tl.id}" onchange="updatePermissionCounts()">
+                                        <span style="font-size: 13px; color: #374151;">${escapeHtml(tl.name)}</span>
+                                    </label>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+            teamLeadersContainer.innerHTML = teamLeadersHtml;
+
+            // Populate Startups
+            const startupsContainer = document.getElementById('startupsContainer');
+            let startupsHtml = '';
+            
+            if (data.startups.length === 0) {
+                startupsHtml = '<p style="color: #6B7280; text-align: center; padding: 10px;">No active startups found</p>';
+            } else {
+                startupsHtml = `
+                    <div style="margin-bottom: 8px;">
+                        <label class="permission-checkbox-item" style="background: #F3F4F6; border-radius: 6px;">
+                            <input type="checkbox" id="selectAllStartups" onclick="toggleAllStartups(this)">
+                            <span style="font-size: 13px; font-weight: 600; color: #374151;">Select All Startups</span>
+                        </label>
+                    </div>
+                `;
+                data.startups.forEach(startup => {
+                    startupsHtml += `
+                        <label class="permission-checkbox-item">
+                            <input type="checkbox" name="allowed_startup_ids" value="${startup.id}" onchange="updatePermissionCounts()">
+                            <span style="font-size: 13px; color: #374151;">${escapeHtml(startup.name)}</span>
+                            <span style="font-size: 11px; color: #9CA3AF;">(${escapeHtml(startup.startup_code)})</span>
+                        </label>
+                    `;
+                });
+            }
+            startupsContainer.innerHTML = startupsHtml;
+        }
+
+        function togglePermissionAccordion(accordionId) {
+            const accordion = document.getElementById(accordionId);
+            const icon = document.getElementById(accordionId + 'Icon');
+            
+            if (accordion.style.display === 'none') {
+                accordion.style.display = 'block';
+                icon.style.transform = 'rotate(180deg)';
+            } else {
+                accordion.style.display = 'none';
+                icon.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        function toggleSchoolPermission(schoolId) {
+            const schoolBody = document.getElementById(schoolId);
+            if (schoolBody) {
+                schoolBody.style.display = schoolBody.style.display === 'none' ? 'block' : 'none';
+            }
+        }
+
+        function toggleSchoolSelectAll(checkbox) {
+            const school = checkbox.dataset.school;
+            const type = checkbox.dataset.type;
+            const inputName = type === 'intern' ? 'allowed_intern_ids' : 'allowed_team_leader_ids';
+            
+            // Find all checkboxes in this school group
+            const parent = checkbox.closest('.permission-school-group');
+            const checkboxes = parent.querySelectorAll(`input[name="${inputName}"]`);
+            
+            checkboxes.forEach(cb => cb.checked = checkbox.checked);
+            updatePermissionCounts();
+        }
+
+        function toggleAllStartups(checkbox) {
+            document.querySelectorAll('input[name="allowed_startup_ids"]').forEach(cb => {
+                cb.checked = checkbox.checked;
+            });
+            updatePermissionCounts();
+        }
+
+        function updatePermissionCounts() {
+            const internsCount = document.querySelectorAll('input[name="allowed_intern_ids"]:checked').length;
+            const teamLeadersCount = document.querySelectorAll('input[name="allowed_team_leader_ids"]:checked').length;
+            const startupsCount = document.querySelectorAll('input[name="allowed_startup_ids"]:checked').length;
+            
+            document.getElementById('internsSelectedCount').textContent = internsCount + ' selected';
+            document.getElementById('teamLeadersSelectedCount').textContent = teamLeadersCount + ' selected';
+            document.getElementById('startupsSelectedCount').textContent = startupsCount + ' selected';
         }
 
         function closeCreateFolderModal() {
@@ -16838,7 +17102,11 @@ University of the Philippines Cebu
         }
 
         function selectColor(btn) {
-            document.querySelectorAll('.color-option').forEach(b => b.style.borderColor = 'transparent');
+            document.querySelectorAll('.color-option').forEach(b => {
+                b.classList.remove('selected');
+                b.style.borderColor = 'transparent';
+            });
+            btn.classList.add('selected');
             btn.style.borderColor = btn.style.backgroundColor;
             document.getElementById('selectedColor').value = btn.getAttribute('data-color');
         }
@@ -16849,11 +17117,25 @@ University of the Philippines Cebu
             const folderName = document.getElementById('folderName').value;
             const color = document.getElementById('selectedColor').value;
             const description = document.getElementById('folderDescription').value;
-            const allowedUsers = Array.from(document.querySelectorAll('input[name="allowed_users"]:checked')).map(cb => cb.value);
             const sizeLimit = document.getElementById('folderSizeLimit').value || 10;
+            
+            // Get selected intern IDs
+            const allowedInternIds = Array.from(document.querySelectorAll('input[name="allowed_intern_ids"]:checked')).map(cb => parseInt(cb.value));
+            
+            // Get selected team leader IDs
+            const allowedTeamLeaderIds = Array.from(document.querySelectorAll('input[name="allowed_team_leader_ids"]:checked')).map(cb => parseInt(cb.value));
+            
+            // Get selected startup IDs
+            const allowedStartupIds = Array.from(document.querySelectorAll('input[name="allowed_startup_ids"]:checked')).map(cb => parseInt(cb.value));
+
+            // Build allowed_users array based on selections
+            const allowedUsers = [];
+            if (allowedInternIds.length > 0) allowedUsers.push('intern');
+            if (allowedTeamLeaderIds.length > 0) allowedUsers.push('team_leader');
+            if (allowedStartupIds.length > 0) allowedUsers.push('startup');
 
             if (allowedUsers.length === 0) {
-                showToast('error', 'Error', 'Please select at least one user type who can upload');
+                showToast('error', 'Error', 'Please select at least one intern, team leader, or startup who can upload');
                 return;
             }
 
@@ -16869,6 +17151,9 @@ University of the Philippines Cebu
                     color: color,
                     description: description,
                     allowed_users: allowedUsers,
+                    allowed_intern_ids: allowedInternIds,
+                    allowed_team_leader_ids: allowedTeamLeaderIds,
+                    allowed_startup_ids: allowedStartupIds,
                     size_limit_mb: parseInt(sizeLimit)
                 })
             })
@@ -17224,37 +17509,41 @@ University of the Philippines Cebu
                 return;
             }
 
-            if (!confirm(`Are you sure you want to delete folder "${folderName}"? This will delete all contents inside. This action cannot be undone.`)) {
-                return;
-            }
-
-            fetch('/admin/documents/folder', {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                },
-                body: JSON.stringify({ folder_id: folderId })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showToast('success', 'Success', 'Folder deleted successfully');
-                    // Reload current view
-                    if (currentPath === '') {
-                        loadRootFolders();
-                    } else {
-                        // Go back one level if we're inside the deleted folder
-                        goBackFolder();
-                    }
-                } else {
-                    showToast('error', 'Error', data.message || 'Failed to delete folder');
+            showConfirmModal({
+                type: 'danger',
+                title: 'Delete Folder',
+                message: `Are you sure you want to delete folder "${folderName}"? This will delete all contents inside. This action cannot be undone.`,
+                confirmText: 'Delete',
+                onConfirm: () => {
+                    fetch('/admin/documents/folder', {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: JSON.stringify({ folder_id: folderId })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            showToast('success', 'Success', 'Folder deleted successfully');
+                            // Reload current view
+                            if (currentPath === '') {
+                                loadRootFolders();
+                            } else {
+                                // Go back one level if we're inside the deleted folder
+                                goBackFolder();
+                            }
+                        } else {
+                            showToast('error', 'Error', data.message || 'Failed to delete folder');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error deleting folder:', error);
+                        showToast('error', 'Error', 'An error occurred while deleting folder');
+                    });
                 }
-            })
-            .catch(error => {
-                console.error('Error deleting folder:', error);
-                showToast('error', 'Error', 'An error occurred while deleting folder');
             });
         }
 
@@ -20414,28 +20703,65 @@ University of the Philippines Cebu
 
                 <div style="margin-bottom: 20px;">
                     <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 8px;">Who can upload? <span style="color: #EF4444;">*</span></label>
-                    <div style="display: flex; flex-direction: column; gap: 10px;">
-                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 10px; border: 2px solid #E5E7EB; border-radius: 8px; transition: all 0.3s;" onmouseover="this.style.borderColor='#7B1D3A'" onmouseout="if(!this.querySelector('input').checked) this.style.borderColor='#E5E7EB'">
-                            <input type="checkbox" name="allowed_users" value="intern" style="width: 18px; height: 18px; cursor: pointer;">
-                            <div>
-                                <div style="font-weight: 600; color: #1F2937;">Interns</div>
-                                <div style="font-size: 12px; color: #6B7280;">Allow interns to upload files</div>
+                    <p style="font-size: 12px; color: #6B7280; margin-bottom: 12px;">Select specific interns, team leaders, or startups who can upload to this folder</p>
+                    
+                    <!-- Loading indicator -->
+                    <div id="folderPermissionsLoading" style="text-align: center; padding: 20px; color: #6B7280;">
+                        <i class="fas fa-spinner fa-spin"></i> Loading...
+                    </div>
+                    
+                    <!-- Permissions container (populated by JS) -->
+                    <div id="folderPermissionsContainer" style="display: none; max-height: 350px; overflow-y: auto; border: 1px solid #E5E7EB; border-radius: 8px;">
+                        <!-- Interns Section -->
+                        <div class="permission-accordion">
+                            <div class="permission-accordion-header" onclick="togglePermissionAccordion('internsAccordion')">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <i class="fas fa-user-graduate" style="color: #2563EB;"></i>
+                                    <span style="font-weight: 600; color: #1F2937;">Interns</span>
+                                    <span id="internsSelectedCount" style="background: #DBEAFE; color: #1E40AF; padding: 2px 8px; border-radius: 10px; font-size: 11px;">0 selected</span>
+                                </div>
+                                <i id="internsAccordionIcon" class="fas fa-chevron-down" style="color: #6B7280; transition: transform 0.3s;"></i>
                             </div>
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 10px; border: 2px solid #E5E7EB; border-radius: 8px; transition: all 0.3s;" onmouseover="this.style.borderColor='#7B1D3A'" onmouseout="if(!this.querySelector('input').checked) this.style.borderColor='#E5E7EB'">
-                            <input type="checkbox" name="allowed_users" value="team_leader" style="width: 18px; height: 18px; cursor: pointer;">
-                            <div>
-                                <div style="font-weight: 600; color: #1F2937;">Team Leaders</div>
-                                <div style="font-size: 12px; color: #6B7280;">Allow team leaders to upload files</div>
+                            <div id="internsAccordion" class="permission-accordion-body" style="display: none;">
+                                <div id="internsBySchoolContainer">
+                                    <!-- Will be populated by JS -->
+                                </div>
                             </div>
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 10px; border: 2px solid #E5E7EB; border-radius: 8px; transition: all 0.3s;" onmouseover="this.style.borderColor='#7B1D3A'" onmouseout="if(!this.querySelector('input').checked) this.style.borderColor='#E5E7EB'">
-                            <input type="checkbox" name="allowed_users" value="startup" style="width: 18px; height: 18px; cursor: pointer;">
-                            <div>
-                                <div style="font-weight: 600; color: #1F2937;">Startups</div>
-                                <div style="font-size: 12px; color: #6B7280;">Allow startups to upload files</div>
+                        </div>
+                        
+                        <!-- Team Leaders Section -->
+                        <div class="permission-accordion">
+                            <div class="permission-accordion-header" onclick="togglePermissionAccordion('teamLeadersAccordion')">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <i class="fas fa-user-tie" style="color: #7C3AED;"></i>
+                                    <span style="font-weight: 600; color: #1F2937;">Team Leaders</span>
+                                    <span id="teamLeadersSelectedCount" style="background: #EDE9FE; color: #6D28D9; padding: 2px 8px; border-radius: 10px; font-size: 11px;">0 selected</span>
+                                </div>
+                                <i id="teamLeadersAccordionIcon" class="fas fa-chevron-down" style="color: #6B7280; transition: transform 0.3s;"></i>
                             </div>
-                        </label>
+                            <div id="teamLeadersAccordion" class="permission-accordion-body" style="display: none;">
+                                <div id="teamLeadersBySchoolContainer">
+                                    <!-- Will be populated by JS -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Startups Section -->
+                        <div class="permission-accordion">
+                            <div class="permission-accordion-header" onclick="togglePermissionAccordion('startupsAccordion')">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <i class="fas fa-rocket" style="color: #059669;"></i>
+                                    <span style="font-weight: 600; color: #1F2937;">Startups</span>
+                                    <span id="startupsSelectedCount" style="background: #D1FAE5; color: #065F46; padding: 2px 8px; border-radius: 10px; font-size: 11px;">0 selected</span>
+                                </div>
+                                <i id="startupsAccordionIcon" class="fas fa-chevron-down" style="color: #6B7280; transition: transform 0.3s;"></i>
+                            </div>
+                            <div id="startupsAccordion" class="permission-accordion-body" style="display: none;">
+                                <div id="startupsContainer">
+                                    <!-- Will be populated by JS -->
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
