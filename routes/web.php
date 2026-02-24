@@ -242,6 +242,12 @@ Route::middleware(['admin'])->group(function () {
     Route::get('/admin/moa-requests', [AdminStartupController::class, 'getMoaRequests'])->name('admin.moa-requests.index');
     Route::post('/admin/moa-requests/{submission}/upload-document', [AdminStartupController::class, 'uploadMoaDocument'])->name('admin.moa-requests.upload-document');
     Route::get('/admin/moa-requests/{submission}/download-document', [AdminStartupController::class, 'downloadMoaDocument'])->name('admin.moa-requests.download-document');
+    Route::post('/admin/moa-requests/{submission}/approve', [AdminStartupController::class, 'approveMoaRequest'])->name('admin.moa-requests.approve');
+    Route::post('/admin/moa-requests/{submission}/reject', [AdminStartupController::class, 'rejectMoaRequest'])->name('admin.moa-requests.reject');
+
+    // Reminder Routes (Admin)
+    Route::post('/admin/send-moa-reminder/{startup}', [AdminStartupController::class, 'sendMoaReminder'])->name('admin.send-moa-reminder');
+    Route::post('/admin/send-payment-reminder/{startup}', [AdminStartupController::class, 'sendPaymentReminder'])->name('admin.send-payment-reminder');
 
     // Room Issues Management (Admin)
     Route::get('/admin/room-issues', [AdminStartupController::class, 'getRoomIssues'])->name('admin.room-issues.index');

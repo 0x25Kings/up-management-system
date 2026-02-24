@@ -110,6 +110,27 @@
                                 <span><i class="fas fa-hashtag" style="margin-right: 4px;"></i> {{ $moa->tracking_code }}</span>
                             @endif
                         </div>
+
+                        {{-- Payment Period --}}
+                        @if($moa->payment_start_date && $moa->payment_end_date)
+                            <div style="margin-top: 8px; display: inline-flex; align-items: center; gap: 6px; background: #EFF6FF; color: #1E40AF; padding: 4px 12px; border-radius: 6px; font-size: 12px; font-weight: 600;">
+                                <i class="fas fa-calendar-alt"></i>
+                                Payment: {{ $moa->payment_start_date->format('M d, Y') }} — {{ $moa->payment_end_date->format('M d, Y') }}
+                                @if($moa->payment_end_date->isPast())
+                                    <span style="background: #FEE2E2; color: #991B1B; padding: 2px 8px; border-radius: 4px; margin-left: 4px;">Overdue</span>
+                                @endif
+                            </div>
+                        @endif
+
+                        {{-- Rejection Remarks --}}
+                        @if($moa->status === 'rejected' && $moa->rejection_remarks)
+                            <div style="margin-top: 8px; background: #FEF2F2; border: 1px solid #FECACA; border-radius: 8px; padding: 10px 14px;">
+                                <div style="font-size: 12px; font-weight: 700; color: #991B1B; margin-bottom: 4px;">
+                                    <i class="fas fa-comment-alt" style="margin-right: 4px;"></i>Rejection Reason:
+                                </div>
+                                <div style="font-size: 13px; color: #7F1D1D;">{{ $moa->rejection_remarks }}</div>
+                            </div>
+                        @endif
                     </div>
 
                     <!-- Actions -->

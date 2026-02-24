@@ -6063,6 +6063,30 @@
                     <button class="filter-tab" onclick="switchIncubateeTab('payments')" id="paymentsTabBtn">
                         <i class="fas fa-credit-card"></i> Payment Submissions
                     </button>
+                    <button class="filter-tab" onclick="switchIncubateeTab('alerts')" id="alertsTabBtn">
+                        <i class="fas fa-bell"></i> Alerts & Reminders
+                        @php
+                            $overdueMoaStartups = \App\Models\Startup::where('status', 'active')
+                                ->where(function($q) {
+                                    $q->where('moa_status', 'none')
+                                      ->orWhereNull('moa_status');
+                                })
+                                ->get();
+                            $overduePayments = \App\Models\StartupSubmission::where('type', 'moa')
+                                ->where('status', 'approved')
+                                ->whereNotNull('payment_end_date')
+                                ->where('payment_end_date', '<', now())
+                                ->whereDoesntHave('startup', function($q2) {
+                                    // exclude if startup has an approved finance submission after payment_start_date
+                                })
+                                ->with('startup')
+                                ->get();
+                            $totalAlerts = $overdueMoaStartups->count() + $overduePayments->count();
+                        @endphp
+                        @if($totalAlerts > 0)
+                            <span style="background: #EF4444; color: white; border-radius: 50%; width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; margin-left: 4px;">{{ $totalAlerts }}</span>
+                        @endif
+                    </button>
                 </div>
 
                 <!-- Filter Bar -->
@@ -6092,13 +6116,14 @@
                         </button>
                     </div>
                     <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
-                    <table style="min-width: 950px;">
+                    <table style="min-width: 1050px;">
                         <thead>
                             <tr>
                                 <th>Tracking Code</th>
                                 <th>Company/Startup</th>
                                 <th>Contact Person</th>
                                 <th>MOA Purpose</th>
+                                <th>Payment Period</th>
                                 <th>Submitted</th>
                                 <th>Status</th>
                                 <th>Actions</th>
@@ -6131,6 +6156,20 @@
                                     </div>
                                     @endif
                                 </td>
+                                <td>
+                                    @if($moa->payment_start_date && $moa->payment_end_date)
+                                        <div style="font-size: 11px;">
+                                            {{ $moa->payment_start_date->format('M d, Y') }}
+                                            <span style="color: #9CA3AF;">→</span>
+                                            {{ $moa->payment_end_date->format('M d, Y') }}
+                                        </div>
+                                        @if($moa->payment_end_date->isPast())
+                                            <span style="font-size: 10px; color: #DC2626; font-weight: 600;"><i class="fas fa-exclamation-circle"></i> Overdue</span>
+                                        @endif
+                                    @else
+                                        <span style="font-size: 11px; color: #9CA3AF;">Not set</span>
+                                    @endif
+                                </td>
                                 <td>{{ $moa->created_at->format('M d, Y') }}</td>
                                 <td>
                                     @if($moa->status == 'pending')
@@ -6157,7 +6196,7 @@
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="7" style="text-align: center; padding: 40px; color: #9CA3AF;">
+                                <td colspan="8" style="text-align: center; padding: 40px; color: #9CA3AF;">
                                     <i class="fas fa-file-contract" style="font-size: 32px; margin-bottom: 12px; display: block;"></i>
                                     No MOA requests yet
                                 </td>
@@ -6244,6 +6283,124 @@
                             @endforelse
                         </tbody>
                     </table>
+                    </div>
+                </div>
+
+                <!-- Alerts & Reminders Table -->
+                <div id="alerts-table" class="table-card" style="display: none;">
+                    <div class="table-header">
+                        <h3 class="table-title"><i class="fas fa-bell" style="color: #EF4444; margin-right: 8px;"></i>Alerts & Reminders</h3>
+                    </div>
+
+                    <!-- No MOA Submitted Section -->
+                    <div style="padding: 20px 24px; border-bottom: 2px solid #F3F4F6;">
+                        <h4 style="font-size: 15px; font-weight: 700; color: #991B1B; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-file-signature" style="color: #EF4444;"></i>
+                            Startups Without MOA Submission
+                            <span style="background: #FEE2E2; color: #991B1B; padding: 2px 10px; border-radius: 20px; font-size: 12px;">{{ $overdueMoaStartups->count() }}</span>
+                        </h4>
+                        @if($overdueMoaStartups->count() > 0)
+                        <div style="overflow-x: auto;">
+                            <table style="min-width: 600px;">
+                                <thead>
+                                    <tr>
+                                        <th>Company</th>
+                                        <th>Contact Person</th>
+                                        <th>Email</th>
+                                        <th>Room</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($overdueMoaStartups as $noMoaStartup)
+                                    <tr>
+                                        <td style="font-weight: 600;">{{ $noMoaStartup->company_name }}</td>
+                                        <td>{{ $noMoaStartup->contact_person }}</td>
+                                        <td style="font-size: 12px; color: #6B7280;">{{ $noMoaStartup->email }}</td>
+                                        <td>{{ $noMoaStartup->room_number ?? 'N/A' }}</td>
+                                        <td>
+                                            <span class="status-badge" style="background: #FEE2E2; color: #991B1B;">
+                                                <i class="fas fa-exclamation-triangle" style="margin-right: 4px;"></i>No MOA
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <button onclick="sendMoaReminder({{ $noMoaStartup->id }}, '{{ addslashes($noMoaStartup->company_name) }}')" class="btn-action" style="background: #F59E0B; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                                                <i class="fas fa-bell"></i> Send Reminder
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                        @else
+                        <div style="text-align: center; padding: 20px; color: #10B981;">
+                            <i class="fas fa-check-circle" style="font-size: 24px; margin-bottom: 8px; display: block;"></i>
+                            All active startups have submitted their MOA.
+                        </div>
+                        @endif
+                    </div>
+
+                    <!-- Overdue Payments Section -->
+                    <div style="padding: 20px 24px;">
+                        <h4 style="font-size: 15px; font-weight: 700; color: #DC2626; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-money-bill-wave" style="color: #DC2626;"></i>
+                            Overdue Payments
+                            <span style="background: #FEE2E2; color: #991B1B; padding: 2px 10px; border-radius: 20px; font-size: 12px;">{{ $overduePayments->count() }}</span>
+                        </h4>
+                        @if($overduePayments->count() > 0)
+                        <div style="overflow-x: auto;">
+                            <table style="min-width: 700px;">
+                                <thead>
+                                    <tr>
+                                        <th>Tracking Code</th>
+                                        <th>Company</th>
+                                        <th>Payment Period</th>
+                                        <th>Days Overdue</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($overduePayments as $overdue)
+                                    <tr>
+                                        <td><strong>{{ $overdue->tracking_code }}</strong></td>
+                                        <td style="font-weight: 600;">{{ $overdue->company_name }}</td>
+                                        <td>
+                                            <div style="font-size: 12px;">
+                                                {{ $overdue->payment_start_date ? $overdue->payment_start_date->format('M d, Y') : 'N/A' }}
+                                                <span style="color: #9CA3AF; margin: 0 4px;">→</span>
+                                                {{ $overdue->payment_end_date ? $overdue->payment_end_date->format('M d, Y') : 'N/A' }}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            @php
+                                                $daysOverdue = $overdue->payment_end_date ? (int)$overdue->payment_end_date->diffInDays(now()) : 0;
+                                            @endphp
+                                            <span style="color: #DC2626; font-weight: 700;">{{ $daysOverdue }} {{ Str::plural('day', $daysOverdue) }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="status-badge" style="background: #FEE2E2; color: #991B1B;">
+                                                <i class="fas fa-exclamation-circle" style="margin-right: 4px;"></i>Overdue
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <button onclick="sendPaymentReminder({{ $overdue->startup_id ?? 'null' }}, '{{ addslashes($overdue->company_name) }}')" class="btn-action" style="background: #EF4444; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                                                <i class="fas fa-bell"></i> Send Reminder
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                        @else
+                        <div style="text-align: center; padding: 20px; color: #10B981;">
+                            <i class="fas fa-check-circle" style="font-size: 24px; margin-bottom: 8px; display: block;"></i>
+                            No overdue payments at this time.
+                        </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -9385,7 +9542,7 @@
 
     <!-- Review MOA Modal -->
     <div id="reviewMoaModal" class="modal-overlay">
-        <div class="modal-content" style="max-width: 500px;">
+        <div class="modal-content" style="max-width: 600px;">
             <div class="modal-header">
                 <h3 class="modal-title"><i class="fas fa-clipboard-check" style="margin-right: 8px;"></i>Review MOA Request</h3>
             </div>
@@ -9400,12 +9557,67 @@
 
                     <div class="form-group">
                         <label class="form-label required">Review Action</label>
-                        <select id="reviewMoaAction" class="form-select" required>
+                        <select id="reviewMoaAction" class="form-select" required onchange="toggleMoaReviewFields()">
                             <option value="">-- Select Action --</option>
                             <option value="under_review">Mark as Under Review</option>
                             <option value="approved">Approve MOA Request</option>
                             <option value="rejected">Reject MOA Request</option>
                         </select>
+                    </div>
+
+                    <!-- Approve Fields: Upload MOA + Payment Dates -->
+                    <div id="moaApproveFields" style="display: none;">
+                        <div style="background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 10px; padding: 16px; margin-bottom: 16px;">
+                            <h4 style="font-size: 14px; font-weight: 700; color: #166534; margin-bottom: 12px;">
+                                <i class="fas fa-file-upload" style="margin-right: 6px;"></i>Upload Final MOA Document
+                            </h4>
+                            <div id="moaApproveDropZone" style="border: 2px dashed #86EFAC; border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; background: white; transition: all 0.3s;"
+                                 onclick="document.getElementById('moaApproveFileInput').click()"
+                                 ondragover="event.preventDefault(); this.style.borderColor='#059669'; this.style.background='#ECFDF5';"
+                                 ondragleave="this.style.borderColor='#86EFAC'; this.style.background='white';"
+                                 ondrop="event.preventDefault(); this.style.borderColor='#86EFAC'; this.style.background='white'; handleMoaApproveFile(event.dataTransfer.files[0]);">
+                                <i class="fas fa-cloud-upload-alt" style="font-size: 24px; color: #059669; margin-bottom: 8px;"></i>
+                                <p style="font-size: 13px; color: #6B7280; margin: 0;">Drop file here or click to browse</p>
+                                <p style="font-size: 11px; color: #9CA3AF; margin: 4px 0 0;">PDF, DOC, DOCX (max 10MB)</p>
+                                <input type="file" id="moaApproveFileInput" accept=".pdf,.doc,.docx" style="display: none;" onchange="handleMoaApproveFile(this.files[0])">
+                            </div>
+                            <div id="moaApproveFilePreview" style="display: none; margin-top: 10px; background: white; border: 1px solid #D1FAE5; border-radius: 8px; padding: 10px; display: none; align-items: center; gap: 10px;">
+                                <i class="fas fa-file-pdf" style="color: #059669; font-size: 20px;"></i>
+                                <div style="flex: 1;">
+                                    <div id="moaApproveFileName" style="font-size: 13px; font-weight: 600; color: #1F2937;"></div>
+                                    <div id="moaApproveFileSize" style="font-size: 11px; color: #6B7280;"></div>
+                                </div>
+                                <button type="button" onclick="removeMoaApproveFile()" style="background: none; border: none; color: #EF4444; cursor: pointer; font-size: 16px;"><i class="fas fa-times"></i></button>
+                            </div>
+                        </div>
+
+                        <div style="background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 10px; padding: 16px; margin-bottom: 16px;">
+                            <h4 style="font-size: 14px; font-weight: 700; color: #1E40AF; margin-bottom: 12px;">
+                                <i class="fas fa-calendar-alt" style="margin-right: 6px;"></i>Set Payment Period
+                            </h4>
+                            <p style="font-size: 12px; color: #6B7280; margin-bottom: 12px;">Define the billing period for this incubatee's payment schedule</p>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                <div>
+                                    <label style="font-size: 12px; font-weight: 600; color: #374151; display: block; margin-bottom: 4px;">Payment Start Date</label>
+                                    <input type="date" id="moaPaymentStartDate" class="form-input" style="font-size: 13px;">
+                                </div>
+                                <div>
+                                    <label style="font-size: 12px; font-weight: 600; color: #374151; display: block; margin-bottom: 4px;">Payment End Date</label>
+                                    <input type="date" id="moaPaymentEndDate" class="form-input" style="font-size: 13px;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Reject Fields: Rejection Remarks -->
+                    <div id="moaRejectFields" style="display: none;">
+                        <div style="background: #FEF2F2; border: 1px solid #FECACA; border-radius: 10px; padding: 16px; margin-bottom: 16px;">
+                            <h4 style="font-size: 14px; font-weight: 700; color: #991B1B; margin-bottom: 12px;">
+                                <i class="fas fa-comment-alt" style="margin-right: 6px;"></i>Rejection Remarks <span style="color: #EF4444;">*</span>
+                            </h4>
+                            <textarea id="moaRejectionRemarks" class="form-input" rows="4" placeholder="Provide detailed reasons for rejection so the startup can address the issues..."
+                                      style="font-size: 13px; border-color: #FECACA;"></textarea>
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -13125,19 +13337,28 @@
         function switchIncubateeTab(tabType) {
             const moaTable = document.getElementById('moa-table');
             const paymentsTable = document.getElementById('payments-table');
+            const alertsTable = document.getElementById('alerts-table');
             const moaBtn = document.getElementById('moaTabBtn');
             const paymentsBtn = document.getElementById('paymentsTabBtn');
+            const alertsBtn = document.getElementById('alertsTabBtn');
+
+            // Hide all
+            moaTable.style.display = 'none';
+            paymentsTable.style.display = 'none';
+            if (alertsTable) alertsTable.style.display = 'none';
+            moaBtn.classList.remove('active');
+            paymentsBtn.classList.remove('active');
+            if (alertsBtn) alertsBtn.classList.remove('active');
 
             if (tabType === 'moa') {
                 moaTable.style.display = 'block';
-                paymentsTable.style.display = 'none';
                 moaBtn.classList.add('active');
-                paymentsBtn.classList.remove('active');
             } else if (tabType === 'payments') {
-                moaTable.style.display = 'none';
                 paymentsTable.style.display = 'block';
-                moaBtn.classList.remove('active');
                 paymentsBtn.classList.add('active');
+            } else if (tabType === 'alerts') {
+                if (alertsTable) alertsTable.style.display = 'block';
+                if (alertsBtn) alertsBtn.classList.add('active');
             }
         }
 
@@ -13159,6 +13380,71 @@
             rows.forEach(row => {
                 const text = row.textContent.toLowerCase();
                 row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        }
+
+        // ========== ALERT & REMINDER FUNCTIONS ==========
+        function sendMoaReminder(startupId, companyName) {
+            if (!startupId) {
+                showToast('error', 'Error', 'Invalid startup ID');
+                return;
+            }
+            showConfirmModal({
+                type: 'info',
+                title: 'Send MOA Reminder',
+                message: `Send a reminder to "${companyName}" to submit their MOA?`,
+                confirmText: 'Send Reminder',
+                onConfirm: () => {
+                    fetch(`/admin/send-moa-reminder/${startupId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success) {
+                            showToast('success', 'Reminder Sent', data.message || `Reminder sent to ${companyName}`);
+                        } else {
+                            showToast('error', 'Error', data.message || 'Failed to send reminder');
+                        }
+                    })
+                    .catch(() => showToast('error', 'Error', 'An error occurred'));
+                }
+            });
+        }
+
+        function sendPaymentReminder(startupId, companyName) {
+            if (!startupId) {
+                showToast('error', 'Error', 'Invalid startup ID');
+                return;
+            }
+            showConfirmModal({
+                type: 'warning',
+                title: 'Send Payment Reminder',
+                message: `Send an overdue payment reminder to "${companyName}"?`,
+                confirmText: 'Send Reminder',
+                onConfirm: () => {
+                    fetch(`/admin/send-payment-reminder/${startupId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success) {
+                            showToast('success', 'Reminder Sent', data.message || `Payment reminder sent to ${companyName}`);
+                        } else {
+                            showToast('error', 'Error', data.message || 'Failed to send reminder');
+                        }
+                    })
+                    .catch(() => showToast('error', 'Error', 'An error occurred'));
+                }
             });
         }
 
@@ -13346,6 +13632,9 @@
                     'admin_moa_document_path' => $m->admin_moa_document_path,
                     'admin_moa_document_filename' => $m->admin_moa_document_filename,
                     'admin_moa_uploaded_at' => $m->admin_moa_uploaded_at ? $m->admin_moa_uploaded_at->format('M d, Y h:i A') : null,
+                    'payment_start_date' => $m->payment_start_date ? $m->payment_start_date->format('Y-m-d') : null,
+                    'payment_end_date' => $m->payment_end_date ? $m->payment_end_date->format('Y-m-d') : null,
+                    'rejection_remarks' => $m->rejection_remarks,
                     'created_at' => $m->created_at->format('M d, Y h:i A'),
                     'reviewed_at' => $m->reviewed_at ? $m->reviewed_at->format('M d, Y h:i A') : null,
                 ];
@@ -13800,6 +14089,12 @@
             `;
             document.getElementById('reviewMoaAction').value = '';
             document.getElementById('reviewMoaNotes').value = '';
+            document.getElementById('moaApproveFields').style.display = 'none';
+            document.getElementById('moaRejectFields').style.display = 'none';
+            document.getElementById('moaRejectionRemarks').value = '';
+            document.getElementById('moaPaymentStartDate').value = '';
+            document.getElementById('moaPaymentEndDate').value = '';
+            removeMoaApproveFile();
 
             closeMoaDetailsModal();
             document.getElementById('reviewMoaModal').style.display = 'flex';
@@ -13807,6 +14102,43 @@
 
         function closeReviewMoaModal() {
             document.getElementById('reviewMoaModal').style.display = 'none';
+        }
+
+        function toggleMoaReviewFields() {
+            const action = document.getElementById('reviewMoaAction').value;
+            document.getElementById('moaApproveFields').style.display = action === 'approved' ? 'block' : 'none';
+            document.getElementById('moaRejectFields').style.display = action === 'rejected' ? 'block' : 'none';
+        }
+
+        // MOA approve file handling
+        let moaApproveSelectedFile = null;
+
+        function handleMoaApproveFile(file) {
+            if (!file) return;
+            const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+            if (!allowedTypes.includes(file.type)) {
+                alert('Please upload a PDF, DOC, or DOCX file.');
+                return;
+            }
+            if (file.size > 10 * 1024 * 1024) {
+                alert('File size must be less than 10MB.');
+                return;
+            }
+            moaApproveSelectedFile = file;
+            document.getElementById('moaApproveFileName').textContent = file.name;
+            document.getElementById('moaApproveFileSize').textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+            document.getElementById('moaApproveFilePreview').style.display = 'flex';
+            document.getElementById('moaApproveDropZone').style.display = 'none';
+        }
+
+        function removeMoaApproveFile() {
+            moaApproveSelectedFile = null;
+            const fileInput = document.getElementById('moaApproveFileInput');
+            if (fileInput) fileInput.value = '';
+            const preview = document.getElementById('moaApproveFilePreview');
+            if (preview) preview.style.display = 'none';
+            const dropZone = document.getElementById('moaApproveDropZone');
+            if (dropZone) dropZone.style.display = 'block';
         }
 
         function submitMoaReview() {
@@ -13819,6 +14151,15 @@
                 return;
             }
 
+            // Validate rejection requires remarks
+            if (action === 'rejected') {
+                const remarks = document.getElementById('moaRejectionRemarks').value.trim();
+                if (!remarks) {
+                    alert('Please provide rejection remarks');
+                    return;
+                }
+            }
+
             // Disable button and show loading
             const submitBtn = document.querySelector('#reviewMoaModal .btn-modal.primary');
             const originalText = submitBtn ? submitBtn.innerHTML : '';
@@ -13827,38 +14168,125 @@
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
             }
 
-            fetch(`/admin/submissions/${moaId}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({
+            // If approving with a file, use FormData for multipart upload
+            if (action === 'approved' && moaApproveSelectedFile) {
+                const formData = new FormData();
+                formData.append('status', action);
+                formData.append('admin_notes', notes);
+                formData.append('moa_document', moaApproveSelectedFile);
+
+                const startDate = document.getElementById('moaPaymentStartDate').value;
+                const endDate = document.getElementById('moaPaymentEndDate').value;
+                if (startDate) formData.append('payment_start_date', startDate);
+                if (endDate) formData.append('payment_end_date', endDate);
+
+                fetch(`/admin/moa-requests/${moaId}/approve`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast('success', 'MOA Approved', data.message || 'MOA has been approved successfully!');
+                        closeReviewMoaModal();
+                        location.reload();
+                    } else {
+                        showToast('error', 'Error', data.message || 'Failed to approve MOA request');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('error', 'Error', 'An error occurred while approving the MOA request');
+                })
+                .finally(() => {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalText;
+                    }
+                });
+            } else if (action === 'rejected') {
+                // Reject with remarks
+                const remarks = document.getElementById('moaRejectionRemarks').value.trim();
+                fetch(`/admin/moa-requests/${moaId}/reject`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        admin_notes: notes,
+                        rejection_remarks: remarks
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast('success', 'MOA Rejected', data.message || 'MOA request has been rejected.');
+                        closeReviewMoaModal();
+                        location.reload();
+                    } else {
+                        showToast('error', 'Error', data.message || 'Failed to reject MOA request');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('error', 'Error', 'An error occurred while rejecting the MOA request');
+                })
+                .finally(() => {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalText;
+                    }
+                });
+            } else {
+                // Under review or approve without file - use existing flow
+                const body = {
                     status: action,
                     admin_notes: notes
+                };
+
+                if (action === 'approved') {
+                    const startDate = document.getElementById('moaPaymentStartDate').value;
+                    const endDate = document.getElementById('moaPaymentEndDate').value;
+                    if (startDate) body.payment_start_date = startDate;
+                    if (endDate) body.payment_end_date = endDate;
+                }
+
+                fetch(`/admin/submissions/${moaId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(body)
                 })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert(`MOA Request ${data.submission.tracking_code} has been ${action === 'approved' ? 'approved' : action === 'rejected' ? 'rejected' : 'updated'}!`);
-                    closeReviewMoaModal();
-                    location.reload();
-                } else {
-                    alert(data.message || 'Failed to update MOA request');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred while updating the MOA request');
-            })
-            .finally(() => {
-                if (submitBtn) {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = originalText;
-                }
-            });
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast('success', 'Updated', `MOA Request has been updated!`);
+                        closeReviewMoaModal();
+                        location.reload();
+                    } else {
+                        showToast('error', 'Error', data.message || 'Failed to update MOA request');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('error', 'Error', 'An error occurred while updating the MOA request');
+                })
+                .finally(() => {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalText;
+                    }
+                });
+            }
         }
 
         function generateMoaFromTemplate() {
@@ -16572,6 +17000,21 @@ University of the Philippines Cebu
                         <div style="font-size: 15px; font-weight: 500; color: #1F2937; margin-top: 4px;">${escapeHtml(moa.moa_duration || 'N/A')}</div>
                     </div>
                 </div>
+                ${moa.payment_start_date || moa.payment_end_date ? `
+                <div style="margin-top: 16px; background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 10px; padding: 14px;">
+                    <h4 style="font-size: 13px; font-weight: 700; color: #1E40AF; margin-bottom: 8px;"><i class="fas fa-calendar-alt" style="margin-right: 6px;"></i>Payment Period</h4>
+                    <div style="display: flex; gap: 20px; font-size: 14px; color: #374151;">
+                        <div><strong>Start:</strong> ${moa.payment_start_date ? new Date(moa.payment_start_date).toLocaleDateString('en-US', {month: 'long', day: 'numeric', year: 'numeric'}) : 'N/A'}</div>
+                        <div><strong>End:</strong> ${moa.payment_end_date ? new Date(moa.payment_end_date).toLocaleDateString('en-US', {month: 'long', day: 'numeric', year: 'numeric'}) : 'N/A'}</div>
+                    </div>
+                </div>
+                ` : ''}
+                ${moa.rejection_remarks ? `
+                <div style="margin-top: 16px; background: #FEF2F2; border: 1px solid #FECACA; border-radius: 10px; padding: 14px;">
+                    <h4 style="font-size: 13px; font-weight: 700; color: #991B1B; margin-bottom: 8px;"><i class="fas fa-comment-alt" style="margin-right: 6px;"></i>Rejection Remarks</h4>
+                    <div style="font-size: 14px; color: #7F1D1D;">${escapeHtml(moa.rejection_remarks)}</div>
+                </div>
+                ` : ''}
                 <div style="margin-top: 20px;">
                     <label style="font-size: 12px; color: #6B7280; text-transform: uppercase; font-weight: 600;">MOA Details</label>
                     <div style="font-size: 14px; color: #374151; margin-top: 4px; background: #F9FAFB; padding: 12px; border-radius: 8px; max-height: 150px; overflow-y: auto;">${escapeHtml(moa.moa_details || 'No details provided.')}</div>

@@ -2187,8 +2187,8 @@
                         </div>
                     @endif
                 @elseif($startup->moa_status === 'pending')
-                    <h4><i class="fas fa-clock" style="color: #F59E0B; margin-right: 8px;"></i>MOA Status: Pending Review</h4>
-                    <p>Your MOA request is currently being reviewed by the administration</p>
+                    <h4><i class="fas fa-clock" style="color: #F59E0B; margin-right: 8px;"></i>MOA Status: Under Review</h4>
+                    <p>Your MOA request has been submitted. <a href="{{ route('startup.moa-documents') }}" style="color: #7B1D3A; font-weight: 600; text-decoration: underline;">View your MOA submissions</a></p>
                 @elseif($startup->moa_status === 'expired')
                     <h4><i class="fas fa-exclamation-circle" style="color: #EF4444; margin-right: 8px;"></i>MOA Status: Expired</h4>
                     <p>Your MOA has expired. Please submit a renewal request to continue using the facilities.</p>

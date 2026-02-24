@@ -37,6 +37,9 @@ class StartupSubmission extends Model
         'admin_moa_document_filename',
         'admin_moa_uploaded_at',
         'admin_moa_uploaded_by',
+        'payment_start_date',
+        'payment_end_date',
+        'rejection_remarks',
         'reviewed_at',
         'reviewed_by',
     ];
@@ -45,6 +48,8 @@ class StartupSubmission extends Model
         'amount' => 'decimal:2',
         'reviewed_at' => 'datetime',
         'admin_moa_uploaded_at' => 'datetime',
+        'payment_start_date' => 'date',
+        'payment_end_date' => 'date',
     ];
 
     /**

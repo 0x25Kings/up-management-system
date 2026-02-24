@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\StartupSubmission;
+use App\Models\StartupNotification;
+use App\Models\Startup;
 use App\Models\RoomIssue;
 use App\Models\StartupProgress;
 use Illuminate\Http\Request;
@@ -68,14 +70,58 @@ class AdminStartupController extends Controller
         $request->validate([
             'status' => 'required|in:pending,under_review,approved,rejected',
             'admin_notes' => 'nullable|string|max:1000',
+            'payment_start_date' => 'nullable|date',
+            'payment_end_date' => 'nullable|date|after_or_equal:payment_start_date',
         ]);
 
-        $submission->update([
+        $updateData = [
             'status' => $request->status,
             'admin_notes' => $request->admin_notes,
             'reviewed_at' => now(),
             'reviewed_by' => Auth::id(),
-        ]);
+        ];
+
+        // Add payment dates if provided (for MOA approvals)
+        if ($request->has('payment_start_date')) {
+            $updateData['payment_start_date'] = $request->payment_start_date;
+        }
+        if ($request->has('payment_end_date')) {
+            $updateData['payment_end_date'] = $request->payment_end_date;
+        }
+
+        $submission->update($updateData);
+
+        // Update startup MOA status if this is an MOA submission
+        if ($submission->type === 'moa' && $submission->startup_id) {
+            $startup = Startup::find($submission->startup_id);
+            if ($startup) {
+                if ($request->status === 'approved') {
+                    $startup->update(['moa_status' => 'active']);
+                    // Notify startup about MOA approval
+                    StartupNotification::notify(
+                        $startup->id,
+                        'moa_approved',
+                        'MOA Approved',
+                        'Your MOA request (' . $submission->tracking_code . ') has been approved.' .
+                        ($request->payment_start_date ? ' Payment period: ' . $request->payment_start_date . ' to ' . $request->payment_end_date : ''),
+                        route('startup.moa-documents'),
+                        'fa-check-circle',
+                        '#10B981'
+                    );
+                } elseif ($request->status === 'rejected') {
+                    $startup->update(['moa_status' => 'none']);
+                    StartupNotification::notify(
+                        $startup->id,
+                        'moa_rejected',
+                        'MOA Request Rejected',
+                        'Your MOA request (' . $submission->tracking_code . ') has been rejected. ' . ($request->admin_notes ?? ''),
+                        route('startup.moa-documents'),
+                        'fa-times-circle',
+                        '#EF4444'
+                    );
+                }
+            }
+        }
 
         return response()->json([
             'success' => true,
@@ -324,6 +370,9 @@ class AdminStartupController extends Controller
                     'admin_moa_document_filename' => $moa->admin_moa_document_filename,
                     'admin_moa_uploaded_at' => $moa->admin_moa_uploaded_at ? $moa->admin_moa_uploaded_at->format('M d, Y h:i A') : null,
                     'admin_moa_uploaded_by' => $moa->moaUploader ? $moa->moaUploader->name : null,
+                    'payment_start_date' => $moa->payment_start_date ? $moa->payment_start_date->format('Y-m-d') : null,
+                    'payment_end_date' => $moa->payment_end_date ? $moa->payment_end_date->format('Y-m-d') : null,
+                    'rejection_remarks' => $moa->rejection_remarks,
                     'created_at' => $moa->created_at->format('M d, Y h:i A'),
                     'created_at_iso' => $moa->created_at->toISOString(),
                     'reviewed_at' => $moa->reviewed_at ? $moa->reviewed_at->format('M d, Y h:i A') : null,
@@ -331,6 +380,181 @@ class AdminStartupController extends Controller
             });
 
         return response()->json($moaRequests);
+    }
+
+    /**
+     * Approve MOA request with document upload and payment dates
+     */
+    public function approveMoaRequest(Request $request, StartupSubmission $submission)
+    {
+        if ($submission->type !== 'moa') {
+            return response()->json(['success' => false, 'message' => 'This submission is not an MOA request'], 400);
+        }
+
+        $request->validate([
+            'moa_document' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
+            'payment_start_date' => 'nullable|date',
+            'payment_end_date' => 'nullable|date|after_or_equal:payment_start_date',
+            'admin_notes' => 'nullable|string|max:1000',
+        ]);
+
+        $updateData = [
+            'status' => 'approved',
+            'admin_notes' => $request->admin_notes,
+            'reviewed_at' => now(),
+            'reviewed_by' => Auth::id(),
+        ];
+
+        if ($request->payment_start_date) {
+            $updateData['payment_start_date'] = $request->payment_start_date;
+        }
+        if ($request->payment_end_date) {
+            $updateData['payment_end_date'] = $request->payment_end_date;
+        }
+
+        // Handle file upload
+        if ($request->hasFile('moa_document')) {
+            if ($submission->admin_moa_document_path) {
+                Storage::disk('public')->delete($submission->admin_moa_document_path);
+            }
+            $file = $request->file('moa_document');
+            $filename = $file->getClientOriginalName();
+            $path = $file->store('moa-documents', 'public');
+
+            $updateData['admin_moa_document_path'] = $path;
+            $updateData['admin_moa_document_filename'] = $filename;
+            $updateData['admin_moa_uploaded_at'] = now();
+            $updateData['admin_moa_uploaded_by'] = Auth::id();
+        }
+
+        $submission->update($updateData);
+
+        // Update startup MOA status
+        if ($submission->startup_id) {
+            $startup = Startup::find($submission->startup_id);
+            if ($startup) {
+                $startup->update(['moa_status' => 'active']);
+
+                $paymentInfo = '';
+                if ($request->payment_start_date && $request->payment_end_date) {
+                    $paymentInfo = ' Payment period: ' . $request->payment_start_date . ' to ' . $request->payment_end_date . '.';
+                }
+
+                StartupNotification::notify(
+                    $startup->id,
+                    'moa_approved',
+                    'MOA Approved!',
+                    'Your MOA request (' . $submission->tracking_code . ') has been approved.' . $paymentInfo .
+                    ($request->hasFile('moa_document') ? ' The signed MOA document is now available for download.' : ''),
+                    route('startup.moa-documents'),
+                    'fa-check-circle',
+                    '#10B981'
+                );
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'MOA request approved successfully',
+            'submission' => [
+                'id' => $submission->id,
+                'tracking_code' => $submission->tracking_code,
+                'status' => 'approved',
+            ]
+        ]);
+    }
+
+    /**
+     * Reject MOA request with remarks
+     */
+    public function rejectMoaRequest(Request $request, StartupSubmission $submission)
+    {
+        if ($submission->type !== 'moa') {
+            return response()->json(['success' => false, 'message' => 'This submission is not an MOA request'], 400);
+        }
+
+        $request->validate([
+            'rejection_remarks' => 'required|string|max:2000',
+            'admin_notes' => 'nullable|string|max:1000',
+        ]);
+
+        $submission->update([
+            'status' => 'rejected',
+            'admin_notes' => $request->admin_notes,
+            'rejection_remarks' => $request->rejection_remarks,
+            'reviewed_at' => now(),
+            'reviewed_by' => Auth::id(),
+        ]);
+
+        // Update startup MOA status and notify
+        if ($submission->startup_id) {
+            $startup = Startup::find($submission->startup_id);
+            if ($startup) {
+                $startup->update(['moa_status' => 'none']);
+
+                StartupNotification::notify(
+                    $startup->id,
+                    'moa_rejected',
+                    'MOA Request Rejected',
+                    'Your MOA request (' . $submission->tracking_code . ') has been rejected. Reason: ' . $request->rejection_remarks,
+                    route('startup.moa-documents'),
+                    'fa-times-circle',
+                    '#EF4444'
+                );
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'MOA request rejected',
+            'submission' => [
+                'id' => $submission->id,
+                'tracking_code' => $submission->tracking_code,
+                'status' => 'rejected',
+            ]
+        ]);
+    }
+
+    /**
+     * Send MOA submission reminder to a startup
+     */
+    public function sendMoaReminder(Startup $startup)
+    {
+        StartupNotification::notify(
+            $startup->id,
+            'moa_reminder',
+            'MOA Submission Reminder',
+            'This is a reminder to submit your Memorandum of Agreement (MOA). Please submit your MOA as soon as possible to complete your incubation requirements.',
+            route('startup.request-moa'),
+            'fa-file-signature',
+            '#F59E0B'
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'MOA submission reminder sent to ' . $startup->company_name
+        ]);
+    }
+
+    /**
+     * Send payment reminder to a startup
+     */
+    public function sendPaymentReminder(Startup $startup)
+    {
+        StartupNotification::notify(
+            $startup->id,
+            'payment_reminder',
+            'Payment Overdue Reminder',
+            'Your payment is overdue. Please submit your payment proof as soon as possible to avoid any disruption to your incubation services.',
+            route('startup.submit-payment'),
+            'fa-exclamation-triangle',
+            '#EF4444'
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Payment reminder sent to ' . $startup->company_name
+        ]);
     }
 
     /**
