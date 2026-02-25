@@ -13066,111 +13066,124 @@
         async function toggleTeamLeaderStatus(id) {
             const tl = teamLeadersData.find(t => t.id === id);
             const action = tl.is_active ? 'deactivate' : 'activate';
+            const actionTitle = tl.is_active ? 'Deactivate' : 'Activate';
 
-            if (!confirm(`Are you sure you want to ${action} ${tl.name}?`)) {
-                return;
-            }
+            showConfirmModal({
+                type: tl.is_active ? 'warning' : 'info',
+                title: `${actionTitle} Team Leader`,
+                message: `Are you sure you want to ${action} "${tl.name}"?`,
+                confirmText: actionTitle,
+                onConfirm: async () => {
+                    try {
+                        const response = await fetch(`/admin/api/team-leaders/${id}/toggle-status`, {
+                            method: 'PATCH',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            }
+                        });
 
-            try {
-                const response = await fetch(`/admin/api/team-leaders/${id}/toggle-status`, {
-                    method: 'PATCH',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        const result = await response.json();
+
+                        if (response.ok) {
+                            loadTeamLeadersData();
+                            showToast('success', 'Success', result.message || 'Status updated successfully');
+                        } else {
+                            showToast('error', 'Error', result.error || 'Failed to update status');
+                        }
+                    } catch (error) {
+                        console.error('Error toggling status:', error);
+                        showToast('error', 'Error', 'Failed to update status');
                     }
-                });
-
-                const result = await response.json();
-
-                if (response.ok) {
-                    loadTeamLeadersData();
-                    showToast('success', 'Success', result.message || 'Status updated successfully');
-                } else {
-                    showToast('error', 'Error', result.error || 'Failed to update status');
                 }
-            } catch (error) {
-                console.error('Error toggling status:', error);
-                showToast('error', 'Error', 'Failed to update status');
-            }
+            });
         }
 
         async function deleteTeamLeader(id, name) {
-            if (!confirm(`Are you sure you want to delete team leader "${name}"? This action cannot be undone.`)) {
-                return;
-            }
+            showConfirmModal({
+                type: 'danger',
+                title: 'Delete Team Leader',
+                message: `Are you sure you want to delete "${name}"? This action cannot be undone.`,
+                confirmText: 'Delete',
+                onConfirm: async () => {
+                    try {
+                        const response = await fetch(`/admin/api/team-leaders/${id}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            }
+                        });
 
-            try {
-                const response = await fetch(`/admin/api/team-leaders/${id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        const result = await response.json();
+
+                        if (response.ok) {
+                            loadTeamLeadersData();
+                            showToast('success', 'Success', result.message || 'Team Leader deleted successfully');
+                        } else {
+                            showToast('error', 'Error', result.error || 'Failed to delete team leader');
+                        }
+                    } catch (error) {
+                        console.error('Error deleting team leader:', error);
+                        showToast('error', 'Error', 'Failed to delete team leader');
                     }
-                });
-
-                const result = await response.json();
-
-                if (response.ok) {
-                    loadTeamLeadersData();
-                    showToast('success', 'Success', result.message || 'Team Leader deleted successfully');
-                } else {
-                    showToast('error', 'Error', result.error || 'Failed to delete team leader');
                 }
-            } catch (error) {
-                console.error('Error deleting team leader:', error);
-                showToast('error', 'Error', 'Failed to delete team leader');
-            }
+            });
         }
 
         async function resetTeamLeaderPassword(id, name) {
-            if (!confirm(`Are you sure you want to generate a password reset link for "${name}"? They will be able to set their own password.`)) {
-                return;
-            }
+            showConfirmModal({
+                type: 'info',
+                title: 'Reset Password',
+                message: `Generate a password reset link for "${name}"? They will be able to set their own password.`,
+                confirmText: 'Generate Link',
+                onConfirm: async () => {
+                    try {
+                        const response = await fetch(`/admin/api/team-leaders/${id}/reset-password`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            }
+                        });
 
-            try {
-                const response = await fetch(`/admin/api/team-leaders/${id}/reset-password`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        const result = await response.json();
+
+                        if (response.ok) {
+                            // Show the reset link in a modal so admin can share it
+                            const resetLink = result.reset_link;
+                            const email = result.email;
+
+                            // Create a custom alert with copy functionality
+                            const alertHtml = `
+                                <div style="text-align: center;">
+                                    <div style="font-size: 14px; color: #374151; margin-bottom: 16px;">
+                                        Password reset link for <strong>${name}</strong>:
+                                    </div>
+                                    <div style="background: #F3F4F6; padding: 16px; border-radius: 8px; margin-bottom: 16px; word-break: break-all;">
+                                        <input type="text" value="${resetLink}" id="resetLinkInput" readonly
+                                            style="width: 100%; background: transparent; border: none; font-size: 12px; color: #374151; text-align: center; cursor: text;">
+                                    </div>
+                                    <button onclick="navigator.clipboard.writeText('${resetLink}'); this.innerHTML='<i class=\\'fas fa-check\\'></i> Copied!'; this.style.background='#10B981';"
+                                        style="background: #7B1D3A; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                                        <i class="fas fa-copy"></i> Copy Link
+                                    </button>
+                                    <p style="font-size: 12px; color: #6B7280; margin-top: 12px;">
+                                        Share this link with the team leader. They can use it to set their own password.<br>
+                                        <strong>Link expires in 24 hours.</strong>
+                                    </p>
+                                </div>
+                            `;
+
+                            showCustomAlert('Password Reset Link Generated', alertHtml);
+                            showToast('success', 'Success', 'Password reset link has been generated');
+                        } else {
+                            showToast('error', 'Error', result.error || 'Failed to generate reset link');
+                        }
+                    } catch (error) {
+                        console.error('Error generating reset link:', error);
+                        showToast('error', 'Error', 'Failed to generate reset link');
                     }
-                });
-
-                const result = await response.json();
-
-                if (response.ok) {
-                    // Show the reset link in a modal so admin can share it
-                    const resetLink = result.reset_link;
-                    const email = result.email;
-
-                    // Create a custom alert with copy functionality
-                    const alertHtml = `
-                        <div style="text-align: center;">
-                            <div style="font-size: 14px; color: #374151; margin-bottom: 16px;">
-                                Password reset link for <strong>${name}</strong>:
-                            </div>
-                            <div style="background: #F3F4F6; padding: 16px; border-radius: 8px; margin-bottom: 16px; word-break: break-all;">
-                                <input type="text" value="${resetLink}" id="resetLinkInput" readonly
-                                    style="width: 100%; background: transparent; border: none; font-size: 12px; color: #374151; text-align: center; cursor: text;">
-                            </div>
-                            <button onclick="navigator.clipboard.writeText('${resetLink}'); this.innerHTML='<i class=\\'fas fa-check\\'></i> Copied!'; this.style.background='#10B981';"
-                                style="background: #7B1D3A; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600;">
-                                <i class="fas fa-copy"></i> Copy Link
-                            </button>
-                            <p style="font-size: 12px; color: #6B7280; margin-top: 12px;">
-                                Share this link with the team leader. They can use it to set their own password.<br>
-                                <strong>Link expires in 24 hours.</strong>
-                            </p>
-                        </div>
-                    `;
-
-                    showCustomAlert('Password Reset Link Generated', alertHtml);
-                    showToast('success', 'Success', 'Password reset link has been generated');
-                } else {
-                    showToast('error', 'Error', result.error || 'Failed to generate reset link');
                 }
-            } catch (error) {
-                console.error('Error generating reset link:', error);
-                showToast('error', 'Error', 'Failed to generate reset link');
-            }
+            });
         }
 
         function showCustomAlert(title, content) {
@@ -16141,51 +16154,62 @@
 
             const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
             const action = newStatus === 'active' ? 'activate' : 'deactivate';
+            const actionTitle = newStatus === 'active' ? 'Activate' : 'Deactivate';
 
-            if (!confirm(`Are you sure you want to ${action} "${startup.company_name}"?`)) {
-                return;
-            }
-
-            fetch(`/admin/startup-accounts/${id}/toggle-status`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            showConfirmModal({
+                type: newStatus === 'active' ? 'info' : 'warning',
+                title: `${actionTitle} Startup`,
+                message: `Are you sure you want to ${action} "${startup.company_name}"?`,
+                confirmText: actionTitle,
+                onConfirm: () => {
+                    fetch(`/admin/startup-accounts/${id}/toggle-status`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            throw new Error(data.error);
+                        }
+                        loadStartupsData();
+                        showToast('success', 'Success', `Startup ${action}d successfully`);
+                    })
+                    .catch(error => {
+                        showToast('error', 'Error', error.message);
+                    });
                 }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    throw new Error(data.error);
-                }
-                loadStartupsData();
-            })
-            .catch(error => {
-                alert('Error: ' + error.message);
             });
         }
 
         function deleteStartup(id, name) {
-            if (!confirm(`Are you sure you want to delete "${name}"?\n\nThis action cannot be undone.`)) {
-                return;
-            }
-
-            fetch(`/admin/startup-accounts/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            showConfirmModal({
+                type: 'danger',
+                title: 'Delete Startup',
+                message: `Are you sure you want to delete "${name}"? This action cannot be undone.`,
+                confirmText: 'Delete',
+                onConfirm: () => {
+                    fetch(`/admin/startup-accounts/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            throw new Error(data.error);
+                        }
+                        loadStartupsData();
+                        showToast('success', 'Success', 'Startup deleted successfully');
+                    })
+                    .catch(error => {
+                        showToast('error', 'Error', 'Error deleting startup: ' + error.message);
+                    });
                 }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    throw new Error(data.error);
-                }
-                loadStartupsData();
-            })
-            .catch(error => {
-                alert('Error deleting startup: ' + error.message);
             });
         }
 
