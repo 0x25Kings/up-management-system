@@ -6107,9 +6107,6 @@
                     <button class="filter-tab" onclick="switchIncubateeTab('payments')" id="paymentsTabBtn">
                         <i class="fas fa-credit-card"></i> Payment Submissions
                     </button>
-                    <button class="filter-tab" onclick="switchIncubateeTab('schedule')" id="scheduleTabBtn">
-                        <i class="fas fa-calendar-alt"></i> Billing & MOA Schedule
-                    </button>
                     <button class="filter-tab" onclick="switchIncubateeTab('alerts')" id="alertsTabBtn">
                         <i class="fas fa-bell"></i> Alerts & Reminders
                         @php
@@ -9911,7 +9908,7 @@
                         </select>
                     </div>
 
-                    <!-- Approve Fields: Upload MOA + Payment Dates -->
+                    <!-- Approve Fields: Upload MOA + Payment Dates + Billing Schedule + MOA Settings -->
                     <div id="moaApproveFields" style="display: none;">
                         <div style="background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 10px; padding: 16px; margin-bottom: 16px;">
                             <h4 style="font-size: 14px; font-weight: 700; color: #166534; margin-bottom: 12px;">
@@ -9937,19 +9934,52 @@
                             </div>
                         </div>
 
-                        <div style="background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 10px; padding: 16px; margin-bottom: 16px;">
-                            <h4 style="font-size: 14px; font-weight: 700; color: #1E40AF; margin-bottom: 12px;">
-                                <i class="fas fa-calendar-alt" style="margin-right: 6px;"></i>Set Payment Period
+                        <!-- Billing Schedule Section -->
+                        <div style="background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 10px; padding: 16px; margin-bottom: 16px;">
+                            <h4 style="font-size: 14px; font-weight: 700; color: #059669; margin-bottom: 12px;">
+                                <i class="fas fa-file-invoice-dollar" style="margin-right: 6px;"></i>Billing Schedule
                             </h4>
-                            <p style="font-size: 12px; color: #6B7280; margin-bottom: 12px;">Define the billing period for this incubatee's payment schedule</p>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                            <p style="font-size: 12px; color: #6B7280; margin-bottom: 12px;">Set the recurring payment schedule for this incubatee</p>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
                                 <div>
-                                    <label style="font-size: 12px; font-weight: 600; color: #374151; display: block; margin-bottom: 4px;">Payment Start Date</label>
-                                    <input type="date" id="moaPaymentStartDate" class="form-input" style="font-size: 13px;">
+                                    <label style="font-size: 12px; font-weight: 600; color: #374151; display: block; margin-bottom: 4px;">Payment Amount (₱)</label>
+                                    <input type="number" id="moaBillingAmount" step="0.01" min="0" placeholder="e.g. 5000.00" class="form-input" style="font-size: 13px;">
                                 </div>
                                 <div>
-                                    <label style="font-size: 12px; font-weight: 600; color: #374151; display: block; margin-bottom: 4px;">Payment End Date</label>
-                                    <input type="date" id="moaPaymentEndDate" class="form-input" style="font-size: 13px;">
+                                    <label style="font-size: 12px; font-weight: 600; color: #374151; display: block; margin-bottom: 4px;">Payment Duration</label>
+                                    <select id="moaBillingDuration" class="form-select" style="font-size: 13px;">
+                                        <option value="">Select duration...</option>
+                                        <option value="monthly">Monthly</option>
+                                        <option value="quarterly">Quarterly (Every 3 months)</option>
+                                        <option value="semi_annual">Semi-Annual (Every 6 months)</option>
+                                        <option value="annual">Annual (Every year)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label style="font-size: 12px; font-weight: 600; color: #374151; display: block; margin-bottom: 4px;">Billing Start Date</label>
+                                <input type="date" id="moaBillingStartDate" class="form-input" style="font-size: 13px;">
+                            </div>
+                        </div>
+
+                        <!-- MOA Settings Section (moved from Billing & MOA Schedule tab) -->
+                        <div style="background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 10px; padding: 16px; margin-bottom: 16px;">
+                            <h4 style="font-size: 14px; font-weight: 700; color: #92400E; margin-bottom: 12px;">
+                                <i class="fas fa-file-contract" style="margin-right: 6px;"></i>MOA Settings
+                            </h4>
+                            <p style="font-size: 12px; color: #6B7280; margin-bottom: 12px;">Set the MOA status and expiry for this incubatee</p>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                <div>
+                                    <label style="font-size: 12px; font-weight: 600; color: #374151; display: block; margin-bottom: 4px;">MOA Status</label>
+                                    <select id="moaApproveStatus" class="form-select" style="font-size: 13px;">
+                                        <option value="active">Active</option>
+                                        <option value="pending">Pending</option>
+                                        <option value="none">None</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="font-size: 12px; font-weight: 600; color: #374151; display: block; margin-bottom: 4px;">MOA Expiry Date</label>
+                                    <input type="date" id="moaApproveExpiryDate" class="form-input" style="font-size: 13px;">
                                 </div>
                             </div>
                         </div>
@@ -13730,21 +13760,17 @@
         function switchIncubateeTab(tabType) {
             const moaTable = document.getElementById('moa-table');
             const paymentsTable = document.getElementById('payments-table');
-            const scheduleTable = document.getElementById('schedule-table');
             const alertsTable = document.getElementById('alerts-table');
             const moaBtn = document.getElementById('moaTabBtn');
             const paymentsBtn = document.getElementById('paymentsTabBtn');
-            const scheduleBtn = document.getElementById('scheduleTabBtn');
             const alertsBtn = document.getElementById('alertsTabBtn');
 
             // Hide all
             moaTable.style.display = 'none';
             paymentsTable.style.display = 'none';
-            if (scheduleTable) scheduleTable.style.display = 'none';
             if (alertsTable) alertsTable.style.display = 'none';
             moaBtn.classList.remove('active');
             paymentsBtn.classList.remove('active');
-            if (scheduleBtn) scheduleBtn.classList.remove('active');
             if (alertsBtn) alertsBtn.classList.remove('active');
 
             if (tabType === 'moa') {
@@ -13753,9 +13779,6 @@
             } else if (tabType === 'payments') {
                 paymentsTable.style.display = 'block';
                 paymentsBtn.classList.add('active');
-            } else if (tabType === 'schedule') {
-                if (scheduleTable) scheduleTable.style.display = 'block';
-                if (scheduleBtn) scheduleBtn.classList.add('active');
             } else if (tabType === 'alerts') {
                 if (alertsTable) alertsTable.style.display = 'block';
                 if (alertsBtn) alertsBtn.classList.add('active');
@@ -14736,10 +14759,19 @@
                 formData.append('admin_notes', notes);
                 formData.append('moa_document', moaApproveSelectedFile);
 
-                const startDate = document.getElementById('moaPaymentStartDate').value;
-                const endDate = document.getElementById('moaPaymentEndDate').value;
-                if (startDate) formData.append('payment_start_date', startDate);
-                if (endDate) formData.append('payment_end_date', endDate);
+                // Billing schedule fields
+                const billingAmount = document.getElementById('moaBillingAmount').value;
+                const billingDuration = document.getElementById('moaBillingDuration').value;
+                const billingStartDate = document.getElementById('moaBillingStartDate').value;
+                if (billingAmount) formData.append('billing_amount', billingAmount);
+                if (billingDuration) formData.append('billing_duration', billingDuration);
+                if (billingStartDate) formData.append('billing_start_date', billingStartDate);
+
+                // MOA settings fields
+                const moaStatus = document.getElementById('moaApproveStatus').value;
+                const moaExpiryDate = document.getElementById('moaApproveExpiryDate').value;
+                if (moaStatus) formData.append('moa_status', moaStatus);
+                if (moaExpiryDate) formData.append('moa_expiry', moaExpiryDate);
 
                 fetch(`/admin/moa-requests/${moaId}/approve`, {
                     method: 'POST',
@@ -14812,10 +14844,19 @@
                 };
 
                 if (action === 'approved') {
-                    const startDate = document.getElementById('moaPaymentStartDate').value;
-                    const endDate = document.getElementById('moaPaymentEndDate').value;
-                    if (startDate) body.payment_start_date = startDate;
-                    if (endDate) body.payment_end_date = endDate;
+                    // Billing schedule fields
+                    const billingAmount = document.getElementById('moaBillingAmount').value;
+                    const billingDuration = document.getElementById('moaBillingDuration').value;
+                    const billingStartDate = document.getElementById('moaBillingStartDate').value;
+                    if (billingAmount) body.billing_amount = billingAmount;
+                    if (billingDuration) body.billing_duration = billingDuration;
+                    if (billingStartDate) body.billing_start_date = billingStartDate;
+
+                    // MOA settings fields
+                    const moaStatus = document.getElementById('moaApproveStatus').value;
+                    const moaExpiryDate = document.getElementById('moaApproveExpiryDate').value;
+                    if (moaStatus) body.moa_status = moaStatus;
+                    if (moaExpiryDate) body.moa_expiry = moaExpiryDate;
                 }
 
                 fetch(`/admin/submissions/${moaId}`, {

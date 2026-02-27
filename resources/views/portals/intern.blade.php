@@ -1591,15 +1591,8 @@
                     </div>
                     <div class="stat-value">
                         @php
-                            $actualCompletedHours = 0;
-                            if ($attendanceHistory && $attendanceHistory->count() > 0) {
-                                foreach ($attendanceHistory as $record) {
-                                    if ($record->time_in && $record->time_out) {
-                                        $actualCompletedHours += max(0, (float) $record->effective_hours);
-                                    }
-                                }
-                            }
-                            echo number_format(max(0, $actualCompletedHours), 2);
+                            $actualCompletedHours = max(0, (float) $intern->completed_hours);
+                            echo number_format($actualCompletedHours, 2);
                         @endphp
                     </div>
                     <div class="stat-label">Hours Completed</div>
@@ -1653,15 +1646,8 @@
                 <div class="content-card-header">
                     <h3 class="content-card-title">Internship Progress</h3>
                     @php
-                        // Calculate actual completed hours from attendance records
-                        $actualCompletedHours = 0;
-                        if ($attendanceHistory && $attendanceHistory->count() > 0) {
-                            foreach ($attendanceHistory as $record) {
-                                if ($record->time_in && $record->time_out) {
-                                    $actualCompletedHours += max(0, (float) $record->effective_hours);
-                                }
-                            }
-                        }
+                        // Use the authoritative completed_hours from the intern model
+                        $actualCompletedHours = max(0, (float) $intern->completed_hours);
                         $progressPercentage = $intern->required_hours > 0 ? round(($actualCompletedHours / $intern->required_hours) * 100, 1) : 0;
                     @endphp
                     <span data-progress-text style="font-size: 24px; font-weight: 700; color: #7B1D3A;">{{ min($progressPercentage, 100) }}%</span>

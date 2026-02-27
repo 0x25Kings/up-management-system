@@ -73,6 +73,11 @@ class AdminStartupController extends Controller
             'admin_notes' => 'nullable|string|max:1000',
             'payment_start_date' => 'nullable|date',
             'payment_end_date' => 'nullable|date|after_or_equal:payment_start_date',
+            'billing_amount' => 'nullable|numeric|min:0.01',
+            'billing_duration' => 'nullable|in:monthly,quarterly,semi_annual,annual',
+            'billing_start_date' => 'nullable|date',
+            'moa_status' => 'nullable|in:none,pending,active,expired',
+            'moa_expiry' => 'nullable|date',
         ]);
 
         $updateData = [
@@ -109,13 +114,56 @@ class AdminStartupController extends Controller
 
             if ($startup) {
                 if ($request->status === 'approved') {
-                    $startup->update(['moa_status' => 'active']);
+                    $moaStatus = $request->moa_status ?: 'active';
+                    $startupUpdateData = ['moa_status' => $moaStatus];
+
+                    // Handle billing schedule if provided
+                    if ($request->billing_amount && $request->billing_duration && $request->billing_start_date) {
+                        $billingStartDate = \Carbon\Carbon::parse($request->billing_start_date);
+                        $dueDate = match($request->billing_duration) {
+                            'monthly' => $billingStartDate->copy()->addMonth(),
+                            'quarterly' => $billingStartDate->copy()->addMonths(3),
+                            'semi_annual' => $billingStartDate->copy()->addMonths(6),
+                            'annual' => $billingStartDate->copy()->addYear(),
+                        };
+
+                        $startupUpdateData['payment_amount'] = $request->billing_amount;
+                        $startupUpdateData['payment_duration'] = $request->billing_duration;
+                        $startupUpdateData['payment_start_date'] = $billingStartDate;
+                        $startupUpdateData['payment_due_date'] = $dueDate;
+                        $startupUpdateData['next_payment_due'] = $dueDate;
+                        $startupUpdateData['payment_reminder_sent'] = false;
+
+                        StartupActivityLog::log($startup->id, 'payment_schedule', 'Payment schedule set during MOA approval: ₱' . number_format($request->billing_amount, 2) . ' ' . $request->billing_duration);
+                    }
+
+                    // Handle MOA expiry if provided
+                    if ($request->moa_expiry) {
+                        $startupUpdateData['moa_expiry'] = $request->moa_expiry;
+                        $startupUpdateData['moa_expiry_reminder_sent'] = false;
+
+                        StartupActivityLog::log($startup->id, 'moa_expiry', 'MOA expiry date set during approval to ' . \Carbon\Carbon::parse($request->moa_expiry)->format('M d, Y') . ', status: ' . $moaStatus);
+                    }
+
+                    $startup->update($startupUpdateData);
+
+                    $paymentInfo = '';
+                    if ($request->billing_amount && $request->billing_duration) {
+                        $paymentInfo = ' Billing: ₱' . number_format($request->billing_amount, 2) . ' (' . ucfirst(str_replace('_', '-', $request->billing_duration)) . ').';
+                    } elseif ($request->payment_start_date) {
+                        $paymentInfo = ' Payment period: ' . $request->payment_start_date . ' to ' . $request->payment_end_date;
+                    }
+
+                    $expiryInfo = '';
+                    if ($request->moa_expiry) {
+                        $expiryInfo = ' MOA expires: ' . \Carbon\Carbon::parse($request->moa_expiry)->format('M d, Y') . '.';
+                    }
+
                     StartupNotification::notify(
                         $startup->id,
                         'moa_approved',
                         'MOA Approved',
-                        'Your MOA request (' . $submission->tracking_code . ') has been approved.' .
-                        ($request->payment_start_date ? ' Payment period: ' . $request->payment_start_date . ' to ' . $request->payment_end_date : ''),
+                        'Your MOA request (' . $submission->tracking_code . ') has been approved.' . $paymentInfo . $expiryInfo,
                         route('startup.submissions', ['type' => 'moa']),
                         'fa-check-circle',
                         '#10B981'
@@ -410,6 +458,11 @@ class AdminStartupController extends Controller
             'payment_start_date' => 'nullable|date',
             'payment_end_date' => 'nullable|date|after_or_equal:payment_start_date',
             'admin_notes' => 'nullable|string|max:1000',
+            'billing_amount' => 'nullable|numeric|min:0.01',
+            'billing_duration' => 'nullable|in:monthly,quarterly,semi_annual,annual',
+            'billing_start_date' => 'nullable|date',
+            'moa_status' => 'nullable|in:none,pending,active,expired',
+            'moa_expiry' => 'nullable|date',
         ]);
 
         $updateData = [
@@ -459,18 +512,56 @@ class AdminStartupController extends Controller
         }
 
         if ($startup) {
-            $startup->update(['moa_status' => 'active']);
+            $moaStatus = $request->moa_status ?: 'active';
+            $startupUpdateData = ['moa_status' => $moaStatus];
+
+            // Handle billing schedule if provided
+            if ($request->billing_amount && $request->billing_duration && $request->billing_start_date) {
+                $billingStartDate = \Carbon\Carbon::parse($request->billing_start_date);
+                $dueDate = match($request->billing_duration) {
+                    'monthly' => $billingStartDate->copy()->addMonth(),
+                    'quarterly' => $billingStartDate->copy()->addMonths(3),
+                    'semi_annual' => $billingStartDate->copy()->addMonths(6),
+                    'annual' => $billingStartDate->copy()->addYear(),
+                };
+
+                $startupUpdateData['payment_amount'] = $request->billing_amount;
+                $startupUpdateData['payment_duration'] = $request->billing_duration;
+                $startupUpdateData['payment_start_date'] = $billingStartDate;
+                $startupUpdateData['payment_due_date'] = $dueDate;
+                $startupUpdateData['next_payment_due'] = $dueDate;
+                $startupUpdateData['payment_reminder_sent'] = false;
+
+                StartupActivityLog::log($startup->id, 'payment_schedule', 'Payment schedule set during MOA approval: ₱' . number_format($request->billing_amount, 2) . ' ' . $request->billing_duration);
+            }
+
+            // Handle MOA expiry if provided
+            if ($request->moa_expiry) {
+                $startupUpdateData['moa_expiry'] = $request->moa_expiry;
+                $startupUpdateData['moa_expiry_reminder_sent'] = false;
+
+                StartupActivityLog::log($startup->id, 'moa_expiry', 'MOA expiry date set during approval to ' . \Carbon\Carbon::parse($request->moa_expiry)->format('M d, Y') . ', status: ' . $moaStatus);
+            }
+
+            $startup->update($startupUpdateData);
 
             $paymentInfo = '';
-            if ($request->payment_start_date && $request->payment_end_date) {
+            if ($request->billing_amount && $request->billing_duration) {
+                $paymentInfo = ' Billing: ₱' . number_format($request->billing_amount, 2) . ' (' . ucfirst(str_replace('_', '-', $request->billing_duration)) . ').';
+            } elseif ($request->payment_start_date && $request->payment_end_date) {
                 $paymentInfo = ' Payment period: ' . $request->payment_start_date . ' to ' . $request->payment_end_date . '.';
+            }
+
+            $expiryInfo = '';
+            if ($request->moa_expiry) {
+                $expiryInfo = ' MOA expires: ' . \Carbon\Carbon::parse($request->moa_expiry)->format('M d, Y') . '.';
             }
 
             StartupNotification::notify(
                 $startup->id,
                 'moa_approved',
                 'MOA Approved!',
-                'Your MOA request (' . $submission->tracking_code . ') has been approved.' . $paymentInfo .
+                'Your MOA request (' . $submission->tracking_code . ') has been approved.' . $paymentInfo . $expiryInfo .
                 ($request->hasFile('moa_document') ? ' The signed MOA document is now available for download.' : ''),
                 route('startup.submissions', ['type' => 'moa']),
                 'fa-check-circle',

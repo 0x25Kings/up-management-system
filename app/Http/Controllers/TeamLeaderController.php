@@ -14,6 +14,8 @@ use App\Models\RoomIssue;
 use App\Models\Event;
 use App\Models\UserPermission;
 use App\Models\User;
+use App\Models\StartupProgress;
+use App\Models\Document;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -32,10 +34,49 @@ class TeamLeaderController extends Controller
     }
 
     /**
-     * Get interns for the team leader's school
+     * Check if user has intern_management view permission (can see all interns)
+     */
+    protected function hasInternManagementView(): bool
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        return in_array('intern_management', $user->getViewableModules());
+    }
+
+    /**
+     * Check if user has intern_management edit permission (can manage all interns)
+     */
+    protected function hasInternManagementEdit(): bool
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        return in_array('intern_management', $user->getEditableModules());
+    }
+
+    /**
+     * Check if user can access this intern (same school or has intern_management permission)
+     */
+    protected function canAccessIntern(Intern $intern): bool
+    {
+        return $intern->school_id === $this->getSchoolId() || $this->hasInternManagementView();
+    }
+
+    /**
+     * Check if user can edit this intern (same school or has intern_management edit permission)
+     */
+    protected function canEditIntern(Intern $intern): bool
+    {
+        return $intern->school_id === $this->getSchoolId() || $this->hasInternManagementEdit();
+    }
+
+    /**
+     * Get interns for the team leader's school (or all interns if intern_management permission is granted)
      */
     protected function getSchoolInterns()
     {
+        if ($this->hasInternManagementView()) {
+            return Intern::where('approval_status', 'approved');
+        }
         return Intern::where('school_id', $this->getSchoolId())
             ->where('approval_status', 'approved');
     }
@@ -118,7 +159,7 @@ class TeamLeaderController extends Controller
             ->get();
 
         // All interns for interns page
-        $allInterns = $this->getSchoolInterns()->orderBy('name')->get();
+        $allInterns = $this->getSchoolInterns()->with('schoolRelation')->orderBy('name')->get();
 
         // All tasks for tasks page
         $allTasks = Task::whereIn('intern_id', $internIds)
@@ -143,53 +184,108 @@ class TeamLeaderController extends Controller
             return $a->time_in && Carbon::parse($a->time_in)->format('H:i') > '08:00';
         })->count();
 
-        // Load data for permitted modules
-        $schedulerData = [];
-        $incubateeData = [];
-        $issuesData = [];
+        // Load data for permitted modules (using same variable names as admin)
+        // Scheduler defaults
+        $pendingBookings = 0;
+        $todayBookings = 0;
+        $upcomingBookings = collect();
+        $allBookings = collect();
+        $archivedBookings = collect();
+        $blockedDates = collect();
+        $events = collect();
 
-        // If user has scheduler access, load bookings and events
+        // Incubatee defaults
+        $moaRequests = collect();
+        $paymentSubmissions = collect();
+        $allStartupSubmissions = collect();
+        $pendingSubmissions = 0;
+        $pendingMoaCount = 0;
+        $pendingPaymentCount = 0;
+        $activeIncubatees = 0;
+        $progressUpdates = collect();
+        $startupDocuments = collect();
+
+        // Issues defaults
+        $roomIssues = collect();
+        $openIssues = 0;
+        $inProgressIssues = 0;
+        $resolvedThisMonth = 0;
+
+        // Digital records defaults
+        $totalDocuments = 0;
+
+        // If user has scheduler access, load bookings and events (matching admin data)
         if (in_array('scheduler', $viewableModules)) {
-            $schedulerData = [
-                'bookings' => Booking::orderBy('booking_date', 'desc')->limit(10)->get(),
-                'events' => Event::orderBy('start_date', 'desc')->limit(10)->get(),
-                'blockedDates' => BlockedDate::orderBy('date', 'desc')->get(),
-                'pendingBookings' => Booking::where('status', 'pending')->count(),
-            ];
+            $pendingBookings = Booking::where('status', 'pending')->count();
+            $todayBookings = Booking::whereDate('booking_date', $today)
+                ->where('status', 'approved')
+                ->count();
+            $upcomingBookings = Booking::where('booking_date', '>=', $today)
+                ->where('status', 'approved')
+                ->orderBy('booking_date', 'asc')
+                ->orderBy('time_start', 'asc')
+                ->limit(10)
+                ->get();
+            $allBookings = Booking::with('approvedBy')
+                ->whereNull('archived_at')
+                ->orderBy('booking_date', 'desc')
+                ->get();
+            $archivedBookings = Booking::with('approvedBy')
+                ->whereNotNull('archived_at')
+                ->orderBy('archived_at', 'desc')
+                ->get();
+            $blockedDates = BlockedDate::orderBy('blocked_date', 'asc')->get();
+            $events = Event::orderBy('start_date', 'desc')->get();
         }
 
-        // If user has incubatee tracker access
+        // If user has incubatee tracker access (matching admin data)
         if (in_array('incubatee_tracker', $viewableModules)) {
-            $incubateeData = [
-                'moaRequests' => StartupSubmission::where('type', 'moa')
-                    ->with('reviewer')
-                    ->orderBy('created_at', 'desc')
-                    ->get(),
-                'paymentSubmissions' => StartupSubmission::where('type', 'finance')
-                    ->with('reviewer')
-                    ->orderBy('created_at', 'desc')
-                    ->get(),
-                'totalSubmissions' => StartupSubmission::count(),
-                'pendingSubmissions' => StartupSubmission::where('status', 'pending')->count(),
-                'pendingMoaCount' => StartupSubmission::where('type', 'moa')->where('status', 'pending')->count(),
-                'pendingPaymentCount' => StartupSubmission::where('type', 'finance')->where('status', 'pending')->count(),
-                'activeIncubatees' => StartupSubmission::where('type', 'moa')
-                    ->whereIn('status', ['approved', 'completed'])
-                    ->distinct('company_name')
-                    ->count('company_name'),
-            ];
+            $moaRequests = StartupSubmission::where('type', 'moa')
+                ->with('reviewer')
+                ->orderBy('created_at', 'desc')
+                ->get();
+            $paymentSubmissions = StartupSubmission::where('type', 'finance')
+                ->with('reviewer')
+                ->orderBy('created_at', 'desc')
+                ->get();
+            $allStartupSubmissions = StartupSubmission::with('reviewer')
+                ->orderBy('created_at', 'desc')
+                ->get();
+            $pendingSubmissions = StartupSubmission::where('status', 'pending')->count();
+            $pendingMoaCount = StartupSubmission::where('type', 'moa')->where('status', 'pending')->count();
+            $pendingPaymentCount = StartupSubmission::where('type', 'finance')->where('status', 'pending')->count();
+            $activeIncubatees = StartupSubmission::where('type', 'moa')
+                ->whereIn('status', ['approved', 'completed'])
+                ->distinct('company_name')
+                ->count('company_name');
+            $progressUpdates = StartupProgress::with('startup')
+                ->orderBy('created_at', 'desc')
+                ->get();
         }
 
-        // If user has issues management access
+        // If user has research tracking access
+        if (in_array('research_tracking', $viewableModules)) {
+            $startupDocuments = StartupSubmission::where('type', 'document')
+                ->orderBy('created_at', 'desc')
+                ->get();
+        }
+
+        // If user has issues management access (matching admin data)
         if (in_array('issues_management', $viewableModules)) {
-            $allIssues = RoomIssue::orderBy('created_at', 'desc')->get();
-            $issuesData = [
-                'issues' => $allIssues,
-                'totalIssues' => $allIssues->count(),
-                'pendingIssues' => $allIssues->where('status', 'pending')->count(),
-                'inProgressIssues' => $allIssues->where('status', 'in_progress')->count(),
-                'resolvedIssues' => $allIssues->where('status', 'resolved')->count(),
-            ];
+            $roomIssues = RoomIssue::with('resolver')
+                ->orderBy('created_at', 'desc')
+                ->get();
+            $openIssues = RoomIssue::whereIn('status', ['pending', 'in_progress'])->count();
+            $inProgressIssues = RoomIssue::where('status', 'in_progress')->count();
+            $resolvedThisMonth = RoomIssue::where('status', 'resolved')
+                ->whereMonth('resolved_at', Carbon::now()->month)
+                ->whereYear('resolved_at', Carbon::now()->year)
+                ->count();
+        }
+
+        // If user has digital records access
+        if (in_array('digital_records', $viewableModules)) {
+            $totalDocuments = Document::count();
         }
 
         // If user has full intern management access
@@ -273,8 +369,8 @@ class TeamLeaderController extends Controller
      */
     public function showIntern(Intern $intern)
     {
-        // Check if intern belongs to team leader's school
-        if ($intern->school_id !== $this->getSchoolId()) {
+        // Check if intern belongs to team leader's school or has intern_management permission
+        if (!$this->canAccessIntern($intern)) {
             abort(403, 'Unauthorized access to this intern.');
         }
 
@@ -342,9 +438,9 @@ class TeamLeaderController extends Controller
             'due_date' => 'required|date|after_or_equal:today',
         ]);
 
-        // Verify intern belongs to team leader's school
+        // Verify intern belongs to team leader's school or has intern_management permission
         $intern = Intern::findOrFail($request->intern_id);
-        if ($intern->school_id !== $this->getSchoolId()) {
+        if (!$this->canEditIntern($intern)) {
             abort(403, 'Cannot assign task to intern from another school.');
         }
 
@@ -368,8 +464,8 @@ class TeamLeaderController extends Controller
      */
     public function editTask(Task $task)
     {
-        // Verify task belongs to an intern from team leader's school
-        if ($task->intern->school_id !== $this->getSchoolId()) {
+        // Verify task belongs to an intern from team leader's school or has intern_management permission
+        if (!$this->canAccessIntern($task->intern)) {
             abort(403, 'Unauthorized access to this task.');
         }
 
@@ -382,8 +478,8 @@ class TeamLeaderController extends Controller
      */
     public function updateTask(Request $request, Task $task)
     {
-        // Verify task belongs to an intern from team leader's school
-        if ($task->intern->school_id !== $this->getSchoolId()) {
+        // Verify task belongs to an intern from team leader's school or has intern_management permission
+        if (!$this->canAccessIntern($task->intern)) {
             abort(403, 'Unauthorized access to this task.');
         }
 
@@ -399,9 +495,9 @@ class TeamLeaderController extends Controller
             'notes' => 'nullable|string',
         ]);
 
-        // Verify new intern belongs to team leader's school
+        // Verify new intern belongs to team leader's school or has intern_management permission
         $intern = Intern::findOrFail($request->intern_id);
-        if ($intern->school_id !== $this->getSchoolId()) {
+        if (!$this->canEditIntern($intern)) {
             abort(403, 'Cannot reassign task to intern from another school.');
         }
 
@@ -426,8 +522,8 @@ class TeamLeaderController extends Controller
      */
     public function deleteTask(Task $task)
     {
-        // Verify task belongs to an intern from team leader's school
-        if ($task->intern->school_id !== $this->getSchoolId()) {
+        // Verify task belongs to an intern from team leader's school or has intern_management permission
+        if (!$this->canEditIntern($task->intern)) {
             abort(403, 'Unauthorized access to this task.');
         }
 
@@ -662,8 +758,8 @@ class TeamLeaderController extends Controller
      */
     public function updateTaskStatus(Request $request, Task $task)
     {
-        // Verify task belongs to an intern from team leader's school
-        if ($task->intern->school_id !== $this->getSchoolId()) {
+        // Verify task belongs to an intern from team leader's school or has intern_management permission
+        if (!$this->canEditIntern($task->intern)) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -684,8 +780,8 @@ class TeamLeaderController extends Controller
      */
     public function updateTaskProgress(Request $request, Task $task)
     {
-        // Verify task belongs to an intern from team leader's school
-        if ($task->intern->school_id !== $this->getSchoolId()) {
+        // Verify task belongs to an intern from team leader's school or has intern_management permission
+        if (!$this->canEditIntern($task->intern)) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
