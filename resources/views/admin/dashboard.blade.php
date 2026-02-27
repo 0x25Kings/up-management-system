@@ -6106,9 +6106,6 @@
                     <button class="filter-tab" onclick="switchIncubateeTab('payments')" id="paymentsTabBtn">
                         <i class="fas fa-credit-card"></i> Payment Submissions
                     </button>
-                    <button class="filter-tab" onclick="switchIncubateeTab('schedule')" id="scheduleTabBtn">
-                        <i class="fas fa-calendar-alt"></i> Billing & MOA Schedule
-                    </button>
                     <button class="filter-tab" onclick="switchIncubateeTab('alerts')" id="alertsTabBtn">
                         <i class="fas fa-bell"></i> Alerts & Reminders
                         @php
@@ -6335,136 +6332,6 @@
                                 <td colspan="8" style="text-align: center; padding: 40px; color: #9CA3AF;">
                                     <i class="fas fa-credit-card" style="font-size: 32px; margin-bottom: 12px; display: block;"></i>
                                     No payment submissions yet
-                                </td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                    </div>
-                </div>
-
-                <!-- Billing & MOA Schedule Table -->
-                <div id="schedule-table" class="table-card" style="display: none;">
-                    <div class="table-header">
-                        <h3 class="table-title"><i class="fas fa-calendar-alt" style="color: #2563EB; margin-right: 8px;"></i>Billing & MOA Schedule</h3>
-                    </div>
-
-                    @php
-                        $activeStartups = \App\Models\Startup::where('status', 'active')->orderBy('company_name')->get();
-                    @endphp
-
-                    <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
-                    <table style="min-width: 1100px;">
-                        <thead>
-                            <tr>
-                                <th>Startup</th>
-                                <th>MOA Status</th>
-                                <th>MOA Expiry</th>
-                                <th>Payment Amount</th>
-                                <th>Duration</th>
-                                <th>Next Due Date</th>
-                                <th>Status</th>
-                                <th style="text-align: center;">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($activeStartups as $sched)
-                            <tr>
-                                <td>
-                                    <div style="font-weight: 600; margin-bottom: 2px;">{{ $sched->company_name }}</div>
-                                    <div style="font-size: 12px; color: #6B7280;">{{ $sched->room_number ?? 'No room' }}</div>
-                                </td>
-                                <td>
-                                    @if($sched->moa_status === 'active')
-                                        <span class="status-badge" style="background: #DCFCE7; color: #166534;"><i class="fas fa-check-circle" style="margin-right: 4px;"></i>Active</span>
-                                    @elseif($sched->moa_status === 'pending')
-                                        <span class="status-badge" style="background: #FEF3C7; color: #92400E;"><i class="fas fa-clock" style="margin-right: 4px;"></i>Pending</span>
-                                    @elseif($sched->moa_status === 'expired')
-                                        <span class="status-badge" style="background: #FEE2E2; color: #991B1B;"><i class="fas fa-times-circle" style="margin-right: 4px;"></i>Expired</span>
-                                    @else
-                                        <span class="status-badge" style="background: #F3F4F6; color: #6B7280;"><i class="fas fa-minus-circle" style="margin-right: 4px;"></i>None</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    @if($sched->moa_expiry)
-                                        @php $moaDaysLeft = (int) now()->diffInDays($sched->moa_expiry, false); @endphp
-                                        <div style="font-size: 13px; font-weight: 600;">{{ $sched->moa_expiry->format('M d, Y') }}</div>
-                                        @if($moaDaysLeft <= 0)
-                                            <span style="font-size: 11px; color: #DC2626; font-weight: 700;"><i class="fas fa-exclamation-triangle"></i> Expired</span>
-                                        @elseif($moaDaysLeft <= 30)
-                                            <span style="font-size: 11px; color: #D97706; font-weight: 600;">{{ $moaDaysLeft }} days left</span>
-                                        @else
-                                            <span style="font-size: 11px; color: #059669;">{{ $moaDaysLeft }} days left</span>
-                                        @endif
-                                    @else
-                                        <span style="font-size: 12px; color: #9CA3AF;">Not set</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    @if($sched->payment_amount)
-                                        <span style="font-weight: 700; color: #059669;">₱{{ number_format($sched->payment_amount, 2) }}</span>
-                                    @else
-                                        <span style="font-size: 12px; color: #9CA3AF;">Not set</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    @if($sched->payment_duration)
-                                        <span style="font-size: 13px; text-transform: capitalize;">{{ str_replace('_', '-', $sched->payment_duration) }}</span>
-                                    @else
-                                        <span style="font-size: 12px; color: #9CA3AF;">—</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    @if($sched->next_payment_due)
-                                        @php $payDaysLeft = (int) now()->diffInDays($sched->next_payment_due, false); @endphp
-                                        <div style="font-size: 13px; font-weight: 600;">{{ $sched->next_payment_due->format('M d, Y') }}</div>
-                                        @if($payDaysLeft < 0)
-                                            <span style="font-size: 11px; color: #DC2626; font-weight: 700;"><i class="fas fa-exclamation-triangle"></i> {{ abs($payDaysLeft) }} days overdue</span>
-                                        @elseif($payDaysLeft <= 7)
-                                            <span style="font-size: 11px; color: #D97706; font-weight: 600;">Due in {{ $payDaysLeft }} {{ Str::plural('day', $payDaysLeft) }}</span>
-                                        @else
-                                            <span style="font-size: 11px; color: #059669;">{{ $payDaysLeft }} days</span>
-                                        @endif
-                                    @else
-                                        <span style="font-size: 12px; color: #9CA3AF;">Not set</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    @php
-                                        $payStatus = 'none';
-                                        if ($sched->next_payment_due) {
-                                            $payDaysLeft2 = (int) now()->diffInDays($sched->next_payment_due, false);
-                                            if ($payDaysLeft2 < 0) $payStatus = 'overdue';
-                                            elseif ($payDaysLeft2 <= 7) $payStatus = 'due_soon';
-                                            else $payStatus = 'ok';
-                                        }
-                                    @endphp
-                                    @if($payStatus === 'overdue')
-                                        <span class="status-badge" style="background: #FEE2E2; color: #991B1B;"><i class="fas fa-exclamation-circle" style="margin-right: 4px;"></i>Overdue</span>
-                                    @elseif($payStatus === 'due_soon')
-                                        <span class="status-badge" style="background: #FEF3C7; color: #92400E;"><i class="fas fa-clock" style="margin-right: 4px;"></i>Due Soon</span>
-                                    @elseif($payStatus === 'ok')
-                                        <span class="status-badge" style="background: #DCFCE7; color: #166534;"><i class="fas fa-check" style="margin-right: 4px;"></i>On Track</span>
-                                    @else
-                                        <span class="status-badge" style="background: #F3F4F6; color: #6B7280;">No Schedule</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    <div class="action-buttons" style="justify-content: center;">
-                                        <button class="btn-action" style="background: #2563EB; color: white; font-size: 11px; padding: 5px 10px; border-radius: 6px; border: none; cursor: pointer;" onclick="openPaymentScheduleModal({{ $sched->id }}, '{{ addslashes($sched->company_name) }}', '{{ $sched->payment_amount }}', '{{ $sched->payment_duration }}', '{{ $sched->payment_start_date ? $sched->payment_start_date->format('Y-m-d') : '' }}')" title="Set Payment Schedule">
-                                            <i class="fas fa-money-bill-wave" style="margin-right: 3px;"></i> Payment
-                                        </button>
-                                        <button class="btn-action" style="background: #D97706; color: white; font-size: 11px; padding: 5px 10px; border-radius: 6px; border: none; cursor: pointer;" onclick="openMoaExpiryModal({{ $sched->id }}, '{{ addslashes($sched->company_name) }}', '{{ $sched->moa_expiry ? $sched->moa_expiry->format('Y-m-d') : '' }}', '{{ $sched->moa_status ?? 'none' }}')" title="MOA Settings">
-                                            <i class="fas fa-file-contract" style="margin-right: 3px;"></i> MOA Settings
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="8" style="text-align: center; padding: 40px; color: #9CA3AF;">
-                                    <i class="fas fa-building" style="font-size: 32px; margin-bottom: 12px; display: block;"></i>
-                                    No active startups found
                                 </td>
                             </tr>
                             @endforelse
@@ -9874,7 +9741,7 @@
                         </select>
                     </div>
 
-                    <!-- Approve Fields: Upload MOA + Payment Dates -->
+                    <!-- Approve Fields: Upload MOA + Payment Dates + Billing Schedule + MOA Settings -->
                     <div id="moaApproveFields" style="display: none;">
                         <div style="background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 10px; padding: 16px; margin-bottom: 16px;">
                             <h4 style="font-size: 14px; font-weight: 700; color: #166534; margin-bottom: 12px;">
@@ -9900,19 +9767,52 @@
                             </div>
                         </div>
 
-                        <div style="background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 10px; padding: 16px; margin-bottom: 16px;">
-                            <h4 style="font-size: 14px; font-weight: 700; color: #1E40AF; margin-bottom: 12px;">
-                                <i class="fas fa-calendar-alt" style="margin-right: 6px;"></i>Set Payment Period
+                        <!-- Billing Schedule Section -->
+                        <div style="background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 10px; padding: 16px; margin-bottom: 16px;">
+                            <h4 style="font-size: 14px; font-weight: 700; color: #059669; margin-bottom: 12px;">
+                                <i class="fas fa-file-invoice-dollar" style="margin-right: 6px;"></i>Billing Schedule
                             </h4>
-                            <p style="font-size: 12px; color: #6B7280; margin-bottom: 12px;">Define the billing period for this incubatee's payment schedule</p>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                            <p style="font-size: 12px; color: #6B7280; margin-bottom: 12px;">Set the recurring payment schedule for this incubatee</p>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
                                 <div>
-                                    <label style="font-size: 12px; font-weight: 600; color: #374151; display: block; margin-bottom: 4px;">Payment Start Date</label>
-                                    <input type="date" id="moaPaymentStartDate" class="form-input" style="font-size: 13px;">
+                                    <label style="font-size: 12px; font-weight: 600; color: #374151; display: block; margin-bottom: 4px;">Payment Amount (₱)</label>
+                                    <input type="number" id="moaBillingAmount" step="0.01" min="0" placeholder="e.g. 5000.00" class="form-input" style="font-size: 13px;">
                                 </div>
                                 <div>
-                                    <label style="font-size: 12px; font-weight: 600; color: #374151; display: block; margin-bottom: 4px;">Payment End Date</label>
-                                    <input type="date" id="moaPaymentEndDate" class="form-input" style="font-size: 13px;">
+                                    <label style="font-size: 12px; font-weight: 600; color: #374151; display: block; margin-bottom: 4px;">Payment Duration</label>
+                                    <select id="moaBillingDuration" class="form-select" style="font-size: 13px;">
+                                        <option value="">Select duration...</option>
+                                        <option value="monthly">Monthly</option>
+                                        <option value="quarterly">Quarterly (Every 3 months)</option>
+                                        <option value="semi_annual">Semi-Annual (Every 6 months)</option>
+                                        <option value="annual">Annual (Every year)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label style="font-size: 12px; font-weight: 600; color: #374151; display: block; margin-bottom: 4px;">Billing Start Date</label>
+                                <input type="date" id="moaBillingStartDate" class="form-input" style="font-size: 13px;">
+                            </div>
+                        </div>
+
+                        <!-- MOA Settings Section (moved from Billing & MOA Schedule tab) -->
+                        <div style="background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 10px; padding: 16px; margin-bottom: 16px;">
+                            <h4 style="font-size: 14px; font-weight: 700; color: #92400E; margin-bottom: 12px;">
+                                <i class="fas fa-file-contract" style="margin-right: 6px;"></i>MOA Settings
+                            </h4>
+                            <p style="font-size: 12px; color: #6B7280; margin-bottom: 12px;">Set the MOA status and expiry for this incubatee</p>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                <div>
+                                    <label style="font-size: 12px; font-weight: 600; color: #374151; display: block; margin-bottom: 4px;">MOA Status</label>
+                                    <select id="moaApproveStatus" class="form-select" style="font-size: 13px;">
+                                        <option value="active">Active</option>
+                                        <option value="pending">Pending</option>
+                                        <option value="none">None</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="font-size: 12px; font-weight: 600; color: #374151; display: block; margin-bottom: 4px;">MOA Expiry Date</label>
+                                    <input type="date" id="moaApproveExpiryDate" class="form-input" style="font-size: 13px;">
                                 </div>
                             </div>
                         </div>
@@ -13693,21 +13593,17 @@
         function switchIncubateeTab(tabType) {
             const moaTable = document.getElementById('moa-table');
             const paymentsTable = document.getElementById('payments-table');
-            const scheduleTable = document.getElementById('schedule-table');
             const alertsTable = document.getElementById('alerts-table');
             const moaBtn = document.getElementById('moaTabBtn');
             const paymentsBtn = document.getElementById('paymentsTabBtn');
-            const scheduleBtn = document.getElementById('scheduleTabBtn');
             const alertsBtn = document.getElementById('alertsTabBtn');
 
             // Hide all
             moaTable.style.display = 'none';
             paymentsTable.style.display = 'none';
-            if (scheduleTable) scheduleTable.style.display = 'none';
             if (alertsTable) alertsTable.style.display = 'none';
             moaBtn.classList.remove('active');
             paymentsBtn.classList.remove('active');
-            if (scheduleBtn) scheduleBtn.classList.remove('active');
             if (alertsBtn) alertsBtn.classList.remove('active');
 
             if (tabType === 'moa') {
@@ -13716,9 +13612,6 @@
             } else if (tabType === 'payments') {
                 paymentsTable.style.display = 'block';
                 paymentsBtn.classList.add('active');
-            } else if (tabType === 'schedule') {
-                if (scheduleTable) scheduleTable.style.display = 'block';
-                if (scheduleBtn) scheduleBtn.classList.add('active');
             } else if (tabType === 'alerts') {
                 if (alertsTable) alertsTable.style.display = 'block';
                 if (alertsBtn) alertsBtn.classList.add('active');
@@ -14699,10 +14592,19 @@
                 formData.append('admin_notes', notes);
                 formData.append('moa_document', moaApproveSelectedFile);
 
-                const startDate = document.getElementById('moaPaymentStartDate').value;
-                const endDate = document.getElementById('moaPaymentEndDate').value;
-                if (startDate) formData.append('payment_start_date', startDate);
-                if (endDate) formData.append('payment_end_date', endDate);
+                // Billing schedule fields
+                const billingAmount = document.getElementById('moaBillingAmount').value;
+                const billingDuration = document.getElementById('moaBillingDuration').value;
+                const billingStartDate = document.getElementById('moaBillingStartDate').value;
+                if (billingAmount) formData.append('billing_amount', billingAmount);
+                if (billingDuration) formData.append('billing_duration', billingDuration);
+                if (billingStartDate) formData.append('billing_start_date', billingStartDate);
+
+                // MOA settings fields
+                const moaStatus = document.getElementById('moaApproveStatus').value;
+                const moaExpiryDate = document.getElementById('moaApproveExpiryDate').value;
+                if (moaStatus) formData.append('moa_status', moaStatus);
+                if (moaExpiryDate) formData.append('moa_expiry', moaExpiryDate);
 
                 fetch(`/admin/moa-requests/${moaId}/approve`, {
                     method: 'POST',
@@ -14775,10 +14677,19 @@
                 };
 
                 if (action === 'approved') {
-                    const startDate = document.getElementById('moaPaymentStartDate').value;
-                    const endDate = document.getElementById('moaPaymentEndDate').value;
-                    if (startDate) body.payment_start_date = startDate;
-                    if (endDate) body.payment_end_date = endDate;
+                    // Billing schedule fields
+                    const billingAmount = document.getElementById('moaBillingAmount').value;
+                    const billingDuration = document.getElementById('moaBillingDuration').value;
+                    const billingStartDate = document.getElementById('moaBillingStartDate').value;
+                    if (billingAmount) body.billing_amount = billingAmount;
+                    if (billingDuration) body.billing_duration = billingDuration;
+                    if (billingStartDate) body.billing_start_date = billingStartDate;
+
+                    // MOA settings fields
+                    const moaStatus = document.getElementById('moaApproveStatus').value;
+                    const moaExpiryDate = document.getElementById('moaApproveExpiryDate').value;
+                    if (moaStatus) body.moa_status = moaStatus;
+                    if (moaExpiryDate) body.moa_expiry = moaExpiryDate;
                 }
 
                 fetch(`/admin/submissions/${moaId}`, {
