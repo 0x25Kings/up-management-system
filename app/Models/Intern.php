@@ -46,7 +46,16 @@ class Intern extends Model
     ];
 
     /**
-     * Get the school this intern belongs to
+     * Get the school model this intern belongs to
+     * Named schoolModel() to avoid conflict with the 'school' text attribute
+     */
+    public function schoolModel()
+    {
+        return $this->belongsTo(School::class, 'school_id');
+    }
+
+    /**
+     * Get the school this intern belongs to (alias for backward compatibility)
      */
     public function schoolRelation()
     {

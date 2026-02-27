@@ -66,6 +66,12 @@ class InternController extends Controller
                     ->where('role', User::ROLE_TEAM_LEADER)
                     ->where('is_active', true)
                     ->exists();
+                
+                // Get overtime settings
+                $overtimeSettings = [
+                    'require_overtime_notes' => Setting::get('require_overtime_notes', true),
+                    'overtime_threshold' => Setting::get('overtime_threshold', 8.5),
+                ];
 
                 return view('portals.intern', [
                     'intern' => $intern,
@@ -75,6 +81,7 @@ class InternController extends Controller
                     'tasks' => $tasks,
                     'schools' => $schools,
                     'isTeamLeader' => $isTeamLeader,
+                    'overtimeSettings' => $overtimeSettings,
                 ]);
             }
         }
@@ -206,6 +213,19 @@ class InternController extends Controller
             return back()->withErrors(['reference_code' => 'Invalid Team Leader reference code.']);
         }
 
+        // Check if account is active first
+        if (!$teamLeader->isActive()) {
+            return back()->withErrors(['reference_code' => 'Your Team Leader access has been suspended. Please contact the administrator.']);
+        }
+
+        // If password hasn't been set yet, redirect to setup password page
+        if (!$teamLeader->password_set) {
+            // Store the team leader ID in session for password setup
+            $request->session()->put('team_leader_setup_id', $teamLeader->id);
+            return redirect()->route('team-leader.setup-password')
+                ->with('info', 'Please set your password to continue.');
+        }
+
         // Check if password was provided
         if (!$request->password) {
             // Return with a flag to show password field
@@ -222,11 +242,6 @@ class InternController extends Controller
                 ->with('show_password', true)
                 ->with('tl_name', $teamLeader->name)
                 ->withErrors(['password' => 'Incorrect password.']);
-        }
-
-        // Check if account is active
-        if (!$teamLeader->isActive()) {
-            return back()->withErrors(['reference_code' => 'Your Team Leader access has been suspended. Please contact the administrator.']);
         }
 
         // Log in the team leader
@@ -273,6 +288,14 @@ class InternController extends Controller
         if (!$teamLeader) {
             return redirect()->route('intern.portal')
                 ->with('error', 'You do not have a Team Leader account.');
+        }
+
+        // Check if team leader has set their password
+        if (!$teamLeader->password_set) {
+            // Store team leader ID in session for password setup
+            $request->session()->put('team_leader_setup_id', $teamLeader->id);
+            return redirect()->route('team-leader.setup-password')
+                ->with('info', 'Please set your Team Leader password to continue.');
         }
 
         // Log in as the team leader
@@ -401,7 +424,7 @@ class InternController extends Controller
 
             // Block if start date hasn't arrived yet
             $schoolStartDate = Carbon::parse($school->interns_start_date)->startOfDay();
-            if ($now->startOfDay()->lt($schoolStartDate)) {
+            if ($now->copy()->startOfDay()->lt($schoolStartDate)) {
                 $formattedDate = $schoolStartDate->format('F j, Y');
                 if ($expectsJson) {
                     return response()->json([
@@ -436,13 +459,15 @@ class InternController extends Controller
 
         if ($attendance) {
             // Already has an attendance record for today
-            if ($attendance->time_in) {
+            // Check for valid time_in (not null and not midnight placeholder)
+            $hasValidTimeIn = $attendance->time_in && $attendance->time_in !== '00:00:00';
+            if ($hasValidTimeIn) {
                 if ($expectsJson) {
                     return response()->json(['success' => false, 'message' => 'You have already timed in today.']);
                 }
                 return back()->with('error', 'You have already timed in today.');
             }
-            // Update existing record with time_in (rare case - record exists but no time_in)
+            // Update existing record with time_in
             $attendance->time_in = $now->format('H:i:s');
             $attendance->status = $isLate ? 'Late' : 'Present';
             $attendance->save();
@@ -458,11 +483,12 @@ class InternController extends Controller
                 );
 
                 // If record was found (not created), update it
-                if (!$attendance->wasRecentlyCreated && !$attendance->time_in) {
+                $hasValidTimeIn = $attendance->time_in && $attendance->time_in !== '00:00:00';
+                if (!$attendance->wasRecentlyCreated && !$hasValidTimeIn) {
                     $attendance->time_in = $now->format('H:i:s');
                     $attendance->status = $isLate ? 'Late' : 'Present';
                     $attendance->save();
-                } elseif (!$attendance->wasRecentlyCreated && $attendance->time_in) {
+                } elseif (!$attendance->wasRecentlyCreated && $hasValidTimeIn) {
                     if ($expectsJson) {
                         return response()->json(['success' => false, 'message' => 'You have already timed in today.']);
                     }
@@ -541,15 +567,19 @@ class InternController extends Controller
             return back()->with('error', 'You have already timed out today.');
         }
 
-        // Calculate hours worked (store times are Manila-local HH:MM:SS; attach date + timezone for accurate diffs)
+        // Calculate hours worked with lunch break deduction
         $attendanceDate = $attendance->date ? Carbon::parse($attendance->date)->format('Y-m-d') : $today;
-        $timeIn = Carbon::parse($attendanceDate . ' ' . $attendance->time_in, 'Asia/Manila');
-        $hoursWorked = round($now->diffInSeconds($timeIn, true) / 3600, 2);
+        $hoursWorked = Attendance::calculateHoursFromTimes(
+            $attendance->time_in,
+            $now->format('H:i:s'),
+            $attendanceDate
+        );
 
         // Update attendance record
         $attendance->update([
             'time_out' => $now->format('H:i:s'),
             'hours_worked' => $hoursWorked,
+            'overtime_notes' => $request->input('overtime_notes'),
         ]);
 
         // Calculate overtime/undertime

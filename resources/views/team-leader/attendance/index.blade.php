@@ -76,9 +76,8 @@
                         $isLate = false;
                         
                         if ($attendance && $attendance->time_in && $attendance->time_out) {
-                            $timeIn = \Carbon\Carbon::parse($attendance->time_in);
-                            $timeOut = \Carbon\Carbon::parse($attendance->time_out);
-                            $hoursWorked = $timeOut->diffInMinutes($timeIn) / 60;
+                            // Use stored hours_worked (already has lunch break deducted)
+                            $hoursWorked = (float) $attendance->hours_worked;
                         }
                         
                         if ($attendance && $attendance->time_in) {

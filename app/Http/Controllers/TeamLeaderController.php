@@ -192,6 +192,21 @@ class TeamLeaderController extends Controller
             ];
         }
 
+        // If user has full intern management access
+        $fullInternData = [];
+        if (in_array('intern_management', $viewableModules)) {
+            $allSystemInterns = Intern::with('schoolModel')
+                ->where('approval_status', 'approved')
+                ->orderBy('name')
+                ->get();
+            $fullInternData = [
+                'interns' => $allSystemInterns,
+                'totalInterns' => $allSystemInterns->count(),
+                'activeInterns' => $allSystemInterns->where('status', 'Active')->count(),
+                'completedInterns' => $allSystemInterns->where('status', 'Completed')->count(),
+            ];
+        }
+
         return view('team-leader.dashboard', compact(
             'user',
             'school',
@@ -220,7 +235,8 @@ class TeamLeaderController extends Controller
             'availableModules',
             'schedulerData',
             'incubateeData',
-            'issuesData'
+            'issuesData',
+            'fullInternData'
         ));
     }
 
@@ -943,6 +959,77 @@ class TeamLeaderController extends Controller
             'message' => 'Profile picture updated successfully',
             'image_url' => asset('storage/' . $path)
         ]);
+    }
+
+    /**
+     * Show the password setup form for new team leaders
+     */
+    public function showSetupPasswordForm(Request $request)
+    {
+        $teamLeaderId = $request->session()->get('team_leader_setup_id');
+
+        if (!$teamLeaderId) {
+            return redirect()->route('intern.portal')
+                ->with('error', 'Invalid password setup session.');
+        }
+
+        $teamLeader = User::find($teamLeaderId);
+
+        if (!$teamLeader || $teamLeader->role !== User::ROLE_TEAM_LEADER) {
+            $request->session()->forget('team_leader_setup_id');
+            return redirect()->route('intern.portal')
+                ->with('error', 'Invalid team leader account.');
+        }
+
+        if ($teamLeader->password_set) {
+            $request->session()->forget('team_leader_setup_id');
+            return redirect()->route('intern.portal')
+                ->with('info', 'Your password has already been set. Please use Switch to Team Leader.');
+        }
+
+        return view('team-leader.setup-password', [
+            'teamLeader' => $teamLeader
+        ]);
+    }
+
+    /**
+     * Handle password setup for new team leaders
+     */
+    public function setupPassword(Request $request)
+    {
+        $teamLeaderId = $request->session()->get('team_leader_setup_id');
+
+        if (!$teamLeaderId) {
+            return redirect()->route('intern.portal')
+                ->with('error', 'Invalid password setup session.');
+        }
+
+        $teamLeader = User::find($teamLeaderId);
+
+        if (!$teamLeader || $teamLeader->role !== User::ROLE_TEAM_LEADER) {
+            $request->session()->forget('team_leader_setup_id');
+            return redirect()->route('intern.portal')
+                ->with('error', 'Invalid team leader account.');
+        }
+
+        $request->validate([
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $teamLeader->update([
+            'password' => Hash::make($request->password),
+            'password_set' => true,
+        ]);
+
+        // Clear the setup session
+        $request->session()->forget('team_leader_setup_id');
+
+        // Log in as the team leader
+        Auth::login($teamLeader);
+        $request->session()->regenerate();
+
+        return redirect()->route('team-leader.dashboard')
+            ->with('success', 'Password set successfully! Welcome to the Team Leader portal.');
     }
 
     /**

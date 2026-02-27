@@ -170,6 +170,10 @@ Route::get('/login', [AdminAuthController::class, 'showLoginForm'])->name('login
 Route::post('/admin/login', [AdminAuthController::class, 'login'])->name('admin.login.submit');
 Route::post('/admin/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
 
+// Team Leader Password Setup (for first-time setup)
+Route::get('/team-leader/setup-password', [TeamLeaderController::class, 'showSetupPasswordForm'])->name('team-leader.setup-password');
+Route::post('/team-leader/setup-password', [TeamLeaderController::class, 'setupPassword'])->name('team-leader.setup-password.submit');
+
 // Team Leader Password Reset (Public - no auth required)
 Route::get('/team-leader/reset-password', [TeamLeaderController::class, 'showResetPasswordForm'])->name('team-leader.reset-password');
 Route::post('/team-leader/reset-password', [TeamLeaderController::class, 'resetPassword'])->name('team-leader.reset-password.submit');

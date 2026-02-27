@@ -4377,7 +4377,7 @@
             </a>
             <form method="POST" action="{{ route('admin.logout') }}" id="logoutForm" style="margin: 0;">
                 @csrf
-                <a href="#" class="menu-item" style="margin-top: 40px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;" onclick="event.preventDefault(); document.getElementById('logoutForm').submit();">
+                <a href="#" class="menu-item" style="margin-top: 40px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;" onclick="event.preventDefault(); confirmLogout();">
                     <i class="fas fa-sign-out-alt"></i>
                     <span>Logout</span>
                 </a>
@@ -5277,7 +5277,7 @@
                                         <span style="color: #9CA3AF; font-style: italic; white-space: nowrap;">Not yet</span>
                                         @endif
                                     </td>
-                                    <td style="white-space: nowrap;"><strong style="color: #7B1D3A;">{{ number_format((float)($attendance->hours_worked ?? 0), 2) }} hrs</strong></td>
+                                    <td style="white-space: nowrap;"><strong style="color: #7B1D3A;">{{ $attendance->time_out ? $attendance->hours_display : number_format((float)($attendance->hours_worked ?? 0), 2) . ' hrs' }}</strong></td>
                                     <td style="white-space: nowrap;">
                                         @if($attendance->time_out)
                                             @if($attendance->hasUndertime())
@@ -5290,8 +5290,9 @@
                                                         <i class="fas fa-check-circle"></i> +{{ number_format((float)($attendance->overtime_hours ?? 0), 2) }} hrs
                                                     </span>
                                                 @else
-                                                    <span style="background: #FEF3C7; color: #92400E; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap;">
+                                                    <span style="background: #FEF3C7; color: #92400E; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap;" @if($attendance->overtime_notes) title="Reason: {{ $attendance->overtime_notes }}" @endif>
                                                         <i class="fas fa-clock"></i> +{{ number_format((float)($attendance->overtime_hours ?? 0), 2) }} hrs (Pending)
+                                                        @if($attendance->overtime_notes) <i class="fas fa-comment-alt" style="margin-left: 4px; font-size: 10px;"></i> @endif
                                                     </span>
                                                 @endif
                                             @else
@@ -6347,10 +6348,15 @@
                 <div id="schedule-table" class="table-card" style="display: none;">
                     <div class="table-header">
                         <h3 class="table-title"><i class="fas fa-calendar-alt" style="color: #2563EB; margin-right: 8px;"></i>Billing & MOA Schedule</h3>
+                        <span style="font-size: 12px; color: #6B7280; margin-left: 12px;">(Only startups with approved MOA can have billing schedules)</span>
                     </div>
 
                     @php
-                        $activeStartups = \App\Models\Startup::where('status', 'active')->orderBy('company_name')->get();
+                        // Only show startups with approved/active MOA for billing schedule
+                        $activeStartups = \App\Models\Startup::where('status', 'active')
+                            ->where('moa_status', 'active')
+                            ->orderBy('company_name')
+                            ->get();
                     @endphp
 
                     <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
@@ -6463,8 +6469,9 @@
                             @empty
                             <tr>
                                 <td colspan="8" style="text-align: center; padding: 40px; color: #9CA3AF;">
-                                    <i class="fas fa-building" style="font-size: 32px; margin-bottom: 12px; display: block;"></i>
-                                    No active startups found
+                                    <i class="fas fa-file-contract" style="font-size: 32px; margin-bottom: 12px; display: block;"></i>
+                                    <div style="font-weight: 600; margin-bottom: 4px;">No startups with approved MOA</div>
+                                    <div style="font-size: 13px;">Billing schedules can only be set for startups after their MOA is approved.</div>
                                 </td>
                             </tr>
                             @endforelse
@@ -8825,6 +8832,38 @@
                                     </label>
                                 </div>
                             </div>
+
+                            <div class="settings-group">
+                                <label class="settings-label">Max Daily Overtime (hours)</label>
+                                <input type="number" id="settingOvertimeMaxDaily" class="settings-input" value="4" min="1" max="8" step="0.5">
+                                <p class="settings-hint">Maximum overtime hours that can be recorded per day</p>
+                            </div>
+
+                            <div class="settings-group">
+                                <div class="settings-toggle-row">
+                                    <div>
+                                        <label class="settings-label" style="margin-bottom: 0;">Auto-Approve Overtime</label>
+                                        <p class="settings-hint" style="margin-top: 4px;">Automatically approve overtime without admin review</p>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="settingOvertimeAutoApprove">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="settings-group">
+                                <div class="settings-toggle-row">
+                                    <div>
+                                        <label class="settings-label" style="margin-bottom: 0;">Require Overtime Notes</label>
+                                        <p class="settings-hint" style="margin-top: 4px;">Require interns to provide notes when working overtime</p>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="settingRequireOvertimeNotes" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Notifications Settings Tab -->
@@ -9165,7 +9204,7 @@
             </div>
 
     </main>
-    <div id="assignTeamLeaderModal" class="modal-overlay">
+    <div id="assignTeamLeaderModal" class="modal-overlay" style="z-index: 10002;">
         <div class="modal-content" style="max-width: 600px;">
             <div class="modal-header">
                 <h3 class="modal-title" id="assignTLModalTitle"><i class="fas fa-user-tie" style="margin-right: 8px;"></i>Assign Team Leader</h3>
@@ -9216,12 +9255,16 @@
                     </div>
                 </div>
 
-                <!-- Password Field -->
+                <!-- Info about password setup -->
                 <div id="passwordSection" style="display: none;">
-                    <div class="form-group">
-                        <label class="form-label required">Set Login Password</label>
-                        <input type="password" id="assignTLPassword" class="form-input" placeholder="Create password for Team Leader login (min 8 characters)" minlength="8" required>
-                        <small style="color: #6B7280; font-size: 12px; margin-top: 4px; display: block;">This password will be used by the intern to login as Team Leader</small>
+                    <div style="background: #DBEAFE; border: 1px solid #93C5FD; border-radius: 12px; padding: 16px;">
+                        <div style="display: flex; gap: 12px; align-items: flex-start;">
+                            <i class="fas fa-info-circle" style="color: #2563EB; font-size: 20px; margin-top: 2px;"></i>
+                            <div>
+                                <div style="font-weight: 600; color: #1E40AF; margin-bottom: 4px;">Password Setup</div>
+                                <div style="font-size: 13px; color: #3B82F6;">The team leader will receive a reference code and set their own password when they first switch to Team Leader mode from the intern portal.</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -9258,12 +9301,6 @@
                     <div class="form-group">
                         <label class="form-label required">Email Address</label>
                         <input type="email" id="teamLeaderEmail" class="form-input" placeholder="Enter email address" required>
-                    </div>
-
-                    <div class="form-group" id="passwordGroup">
-                        <label class="form-label" id="passwordLabel">Password</label>
-                        <input type="password" id="teamLeaderPassword" class="form-input" placeholder="Enter password (min 8 characters)" minlength="8">
-                        <small id="passwordHint" style="color: #6B7280; font-size: 12px; margin-top: 4px; display: block;">Leave blank when editing to keep current password</small>
                     </div>
 
                     <!-- Module Permissions Section -->
@@ -11933,10 +11970,23 @@
             }
         });
 
-        // Logout function - uses Laravel logout
+        // Logout function - uses Laravel logout with confirmation
         function handleLogout(event) {
             event.preventDefault();
-            document.getElementById('logoutForm').submit();
+            confirmLogout();
+        }
+
+        // Confirm logout with modal
+        function confirmLogout() {
+            showConfirmModal({
+                type: 'warning',
+                title: 'Confirm Logout',
+                message: 'Are you sure you want to logout? Any unsaved changes will be lost.',
+                confirmText: 'Logout',
+                onConfirm: () => {
+                    document.getElementById('logoutForm').submit();
+                }
+            });
         }
 
         // Toggle submenu function
@@ -12079,7 +12129,10 @@
 
                 // Internship
                 work_start: '08:00',
-                overtime_threshold: 8,
+                overtime_threshold: 8.5,
+                overtime_max_daily: 4,
+                overtime_auto_approve: false,
+                require_overtime_notes: true,
                 auto_approve_intern: false,
                 require_overtime_approval: true,
 
@@ -12135,7 +12188,10 @@
 
             // Internship Settings
             document.getElementById('settingWorkStart').value = settings.work_start || '08:00';
-            document.getElementById('settingOvertimeThreshold').value = settings.overtime_threshold || 8;
+            document.getElementById('settingOvertimeThreshold').value = settings.overtime_threshold || 8.5;
+            document.getElementById('settingOvertimeMaxDaily').value = settings.overtime_max_daily || 4;
+            document.getElementById('settingOvertimeAutoApprove').checked = settings.overtime_auto_approve || false;
+            document.getElementById('settingRequireOvertimeNotes').checked = settings.require_overtime_notes !== false;
             document.getElementById('settingAutoApproveIntern').checked = settings.auto_approve_intern || false;
             document.getElementById('settingRequireOvertimeApproval').checked = settings.require_overtime_approval !== false;
 
@@ -12181,6 +12237,9 @@
                 // Internship
                 work_start: document.getElementById('settingWorkStart').value,
                 overtime_threshold: parseFloat(document.getElementById('settingOvertimeThreshold').value),
+                overtime_max_daily: parseFloat(document.getElementById('settingOvertimeMaxDaily').value),
+                overtime_auto_approve: document.getElementById('settingOvertimeAutoApprove').checked,
+                require_overtime_notes: document.getElementById('settingRequireOvertimeNotes').checked,
                 auto_approve_intern: document.getElementById('settingAutoApproveIntern').checked,
                 require_overtime_approval: document.getElementById('settingRequireOvertimeApproval').checked,
 
@@ -12596,11 +12655,7 @@
             const modal = document.getElementById('teamLeaderModal');
             const title = document.getElementById('teamLeaderModalTitle');
             const form = document.getElementById('teamLeaderForm');
-            const passwordGroup = document.getElementById('passwordGroup');
             const refCodeDisplay = document.getElementById('referenceCodeDisplay');
-            const passwordLabel = document.getElementById('passwordLabel');
-            const passwordInput = document.getElementById('teamLeaderPassword');
-            const passwordHint = document.getElementById('passwordHint');
 
             form.reset();
             document.getElementById('teamLeaderId').value = '';
@@ -12617,12 +12672,6 @@
                     document.getElementById('teamLeaderName').value = tl.name;
                     document.getElementById('teamLeaderEmail').value = tl.email;
 
-                    // Make password optional for editing
-                    passwordInput.removeAttribute('required');
-                    passwordLabel.classList.remove('required');
-                    passwordInput.placeholder = 'Leave blank to keep current password';
-                    passwordHint.style.display = 'block';
-
                     if (tl.reference_code) {
                         document.getElementById('referenceCodeValue').textContent = tl.reference_code;
                         refCodeDisplay.style.display = 'block';
@@ -12633,12 +12682,6 @@
                 }
             } else {
                 title.innerHTML = '<i class="fas fa-user-tie" style="margin-right: 8px;"></i>Add Team Leader';
-
-                // Make password required for new team leaders
-                passwordInput.setAttribute('required', 'required');
-                passwordLabel.classList.add('required');
-                passwordInput.placeholder = 'Enter password (min 8 characters)';
-                passwordHint.style.display = 'none';
             }
 
             modal.style.display = 'flex';
@@ -12734,7 +12777,6 @@
             // Reset form
             document.getElementById('searchInternInput').value = '';
             document.getElementById('selectedInternId').value = '';
-            document.getElementById('assignTLPassword').value = '';
             document.getElementById('selectedInternDisplay').style.display = 'none';
             document.getElementById('passwordSection').style.display = 'none';
             document.getElementById('btnAssignTeamLeader').disabled = true;
@@ -12856,15 +12898,9 @@
 
         async function assignInternAsTeamLeader() {
             const internId = document.getElementById('selectedInternId').value;
-            const password = document.getElementById('assignTLPassword').value;
 
             if (!internId) {
                 showToast('error', 'Error', 'Please select an intern');
-                return;
-            }
-
-            if (!password || password.length < 8) {
-                showToast('error', 'Error', 'Password must be at least 8 characters');
                 return;
             }
 
@@ -12880,8 +12916,7 @@
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                     },
                     body: JSON.stringify({
-                        intern_id: internId,
-                        password: password
+                        intern_id: internId
                     })
                 });
 
@@ -12960,7 +12995,6 @@
             document.getElementById('teamLeaderId').value = '';
             refCodeDisplay.style.display = 'none';
             document.getElementById('teamLeaderModalTitle').innerHTML = '<i class="fas fa-user-tie" style="margin-right: 8px;"></i>Create Team Leader Account';
-            document.getElementById('teamLeaderPassword').setAttribute('required', 'required');
 
             // Pre-select the school if we have one
             if (currentAssignSchoolId) {
@@ -13005,7 +13039,6 @@
             const id = document.getElementById('teamLeaderId').value;
             const name = document.getElementById('teamLeaderName').value;
             const email = document.getElementById('teamLeaderEmail').value;
-            const password = document.getElementById('teamLeaderPassword').value;
             const permissions = getPermissionsFromForm();
 
             // Validate name and email (always required)
@@ -13014,17 +13047,8 @@
                 return;
             }
 
-            // For new team leaders, password is required
-            if (!id) {
-                if (!password) {
-                    showToast('error', 'Validation Error', 'Password is required for new team leaders');
-                    return;
-                }
-            }
-
-            // Build data object
+            // Build data object (password is handled by team leader on first login)
             const data = { name, email, permissions };
-            if (password) data.password = password;
 
             try {
                 const url = id ? `/admin/api/team-leaders/${id}` : '/admin/api/team-leaders';
@@ -19477,44 +19501,48 @@ University of the Philippines Cebu
             });
 
             if (pendingIds.length === 0) {
-                alert('No pending overtime requests to approve.');
+                showToast('warning', 'No Requests', 'No pending overtime requests to approve.');
                 return;
             }
 
-            if (!confirm(`Are you sure you want to approve all ${pendingIds.length} pending overtime request(s)?`)) {
-                return;
-            }
+            showConfirmModal({
+                type: 'info',
+                title: 'Approve All Overtime',
+                message: `Are you sure you want to approve all ${pendingIds.length} pending overtime request(s)? The extra hours will be added to the interns' totals.`,
+                confirmText: 'Approve All',
+                onConfirm: () => {
+                    // Process approvals sequentially
+                    let processed = 0;
+                    let failed = 0;
 
-            // Process approvals sequentially
-            let processed = 0;
-            let failed = 0;
+                    pendingIds.forEach((id, index) => {
+                        fetch(`/admin/attendance/${id}/approve-overtime`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) processed++;
+                            else failed++;
 
-            pendingIds.forEach((id, index) => {
-                fetch(`/admin/attendance/${id}/approve-overtime`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) processed++;
-                    else failed++;
-
-                    if (index === pendingIds.length - 1) {
-                        alert(`Overtime approval complete: ${processed} approved, ${failed} failed.`);
-                        window.location.reload();
-                    }
-                })
-                .catch(() => {
-                    failed++;
-                    if (index === pendingIds.length - 1) {
-                        alert(`Overtime approval complete: ${processed} approved, ${failed} failed.`);
-                        window.location.reload();
-                    }
-                });
+                            if (index === pendingIds.length - 1) {
+                                showToast('success', 'Complete', `${processed} approved, ${failed} failed.`);
+                                setTimeout(() => window.location.reload(), 1500);
+                            }
+                        })
+                        .catch(() => {
+                            failed++;
+                            if (index === pendingIds.length - 1) {
+                                showToast('success', 'Complete', `${processed} approved, ${failed} failed.`);
+                                setTimeout(() => window.location.reload(), 1500);
+                            }
+                        });
+                    });
+                }
             });
         }
 
@@ -19535,44 +19563,48 @@ University of the Philippines Cebu
             });
 
             if (pendingIds.length === 0) {
-                alert('No pending overtime requests to reject.');
+                showToast('warning', 'No Requests', 'No pending overtime requests to reject.');
                 return;
             }
 
-            if (!confirm(`Are you sure you want to reject all ${pendingIds.length} pending overtime request(s)? The excess hours will not be counted.`)) {
-                return;
-            }
+            showConfirmModal({
+                type: 'danger',
+                title: 'Reject All Overtime',
+                message: `Are you sure you want to reject all ${pendingIds.length} pending overtime request(s)? The excess hours will not be counted.`,
+                confirmText: 'Reject All',
+                onConfirm: () => {
+                    // Process rejections sequentially
+                    let processed = 0;
+                    let failed = 0;
 
-            // Process rejections sequentially
-            let processed = 0;
-            let failed = 0;
+                    pendingIds.forEach((id, index) => {
+                        fetch(`/admin/attendance/${id}/decline-overtime`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) processed++;
+                            else failed++;
 
-            pendingIds.forEach((id, index) => {
-                fetch(`/admin/attendance/${id}/decline-overtime`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) processed++;
-                    else failed++;
-
-                    if (index === pendingIds.length - 1) {
-                        alert(`Overtime rejection complete: ${processed} rejected, ${failed} failed.`);
-                        window.location.reload();
-                    }
-                })
-                .catch(() => {
-                    failed++;
-                    if (index === pendingIds.length - 1) {
-                        alert(`Overtime rejection complete: ${processed} rejected, ${failed} failed.`);
-                        window.location.reload();
-                    }
-                });
+                            if (index === pendingIds.length - 1) {
+                                showToast('success', 'Complete', `${processed} rejected, ${failed} failed.`);
+                                setTimeout(() => window.location.reload(), 1500);
+                            }
+                        })
+                        .catch(() => {
+                            failed++;
+                            if (index === pendingIds.length - 1) {
+                                showToast('success', 'Complete', `${processed} rejected, ${failed} failed.`);
+                                setTimeout(() => window.location.reload(), 1500);
+                            }
+                        });
+                    });
+                }
             });
         }
 
@@ -19582,30 +19614,34 @@ University of the Philippines Cebu
             const dropdown = document.getElementById(`ot-dropdown-${attendanceId}`);
             if (dropdown) dropdown.classList.remove('show');
 
-            if (!confirm('Are you sure you want to approve this overtime?')) {
-                return;
-            }
-
-            fetch(`/admin/attendance/${attendanceId}/approve-overtime`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
+            showConfirmModal({
+                type: 'info',
+                title: 'Approve Overtime',
+                message: 'Are you sure you want to approve this overtime? The extra hours will be added to the intern\'s total.',
+                confirmText: 'Approve',
+                onConfirm: () => {
+                    fetch(`/admin/attendance/${attendanceId}/approve-overtime`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            showToast('success', 'Approved', 'Overtime approved successfully!');
+                            setTimeout(() => window.location.reload(), 1000);
+                        } else {
+                            showToast('error', 'Error', data.message || 'Failed to approve overtime.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showToast('error', 'Error', 'An error occurred while approving overtime.');
+                    });
                 }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Overtime approved successfully!');
-                    window.location.reload();
-                } else {
-                    alert(data.message || 'Failed to approve overtime.');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred while approving overtime.');
             });
         }
 
@@ -19615,30 +19651,34 @@ University of the Philippines Cebu
             const dropdown = document.getElementById(`ot-dropdown-${attendanceId}`);
             if (dropdown) dropdown.classList.remove('show');
 
-            if (!confirm('Are you sure you want to decline this overtime? The excess hours will not be counted.')) {
-                return;
-            }
-
-            fetch(`/admin/attendance/${attendanceId}/decline-overtime`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
+            showConfirmModal({
+                type: 'danger',
+                title: 'Decline Overtime',
+                message: 'Are you sure you want to decline this overtime? The excess hours will not be counted towards the intern\'s total.',
+                confirmText: 'Decline',
+                onConfirm: () => {
+                    fetch(`/admin/attendance/${attendanceId}/decline-overtime`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            showToast('success', 'Declined', 'Overtime declined successfully!');
+                            setTimeout(() => window.location.reload(), 1000);
+                        } else {
+                            showToast('error', 'Error', data.message || 'Failed to decline overtime.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showToast('error', 'Error', 'An error occurred while declining overtime.');
+                    });
                 }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Overtime declined successfully!');
-                    window.location.reload();
-                } else {
-                    alert(data.message || 'Failed to decline overtime.');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred while declining overtime.');
             });
         }
 

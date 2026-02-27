@@ -1348,6 +1348,13 @@
                 <span>Digital Records</span>
             </a>
             @endif
+
+            @if(in_array('intern_management', $viewableModules))
+            <a class="menu-item" data-page="full-intern-management">
+                <i class="fas fa-briefcase"></i>
+                <span>All Interns</span>
+            </a>
+            @endif
             @endif
 
             <div style="flex-grow: 1;"></div>
@@ -1902,7 +1909,8 @@
                             @php
                                 $timeIn = $attendance->time_in ? \Carbon\Carbon::parse($attendance->time_in) : null;
                                 $timeOut = $attendance->time_out ? \Carbon\Carbon::parse($attendance->time_out) : null;
-                                $hoursWorked = $timeIn && $timeOut ? round($timeOut->diffInMinutes($timeIn) / 60, 2) : 0;
+                                // Use stored hours_worked (already has lunch break deducted)
+                                $hoursWorked = $timeIn && $timeOut ? (float) $attendance->hours_worked : 0;
                                 $isLate = $timeIn && $timeIn->format('H:i') > '08:00';
                             @endphp
                             <tr>
@@ -2959,6 +2967,145 @@
                             </tbody>
                         </table>
                     </div>
+                </div>
+            </div>
+        </div>
+        @endif
+
+        {{-- FULL INTERN MANAGEMENT PAGE --}}
+        @if(in_array('intern_management', $viewableModules))
+        <div id="full-intern-management" class="page-content">
+            <div style="margin-bottom: 24px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                    <div>
+                        <h2 style="font-size: 28px; font-weight: 700; color: #1F2937; margin-bottom: 8px;">All System Interns</h2>
+                        <p style="color: #6B7280; font-size: 14px;">View and manage all interns across all schools in the system</p>
+                    </div>
+                    @if(in_array('intern_management', $editableModules))
+                    <span class="badge badge-success" style="padding: 8px 16px; font-size: 13px;"><i class="fas fa-edit"></i> Edit Access</span>
+                    @else
+                    <span class="badge badge-info" style="padding: 8px 16px; font-size: 13px;"><i class="fas fa-eye"></i> View Only</span>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Stats Overview -->
+            <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 24px;">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #DBEAFE, #BFDBFE); color: #2563EB;">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" style="color: #2563EB;">{{ $fullInternData['totalInterns'] ?? 0 }}</div>
+                    <div class="stat-label">Total Interns</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #D1FAE5, #A7F3D0); color: #059669;">
+                            <i class="fas fa-user-check"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" style="color: #059669;">{{ $fullInternData['activeInterns'] ?? 0 }}</div>
+                    <div class="stat-label">Active Interns</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #EDE9FE, #DDD6FE); color: #7C3AED;">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" style="color: #7C3AED;">{{ $fullInternData['completedInterns'] ?? 0 }}</div>
+                    <div class="stat-label">Completed</div>
+                </div>
+            </div>
+
+            <!-- Search and Filter -->
+            <div style="background: white; padding: 16px 20px; border-radius: 12px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+                <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+                    <input type="text" id="fullInternSearch" placeholder="Search by name, email, or school..." class="form-input" style="padding: 10px 14px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 14px; min-width: 280px;" oninput="filterFullInterns()">
+                    <select id="fullInternStatusFilter" class="form-input" style="padding: 10px 14px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 14px;" onchange="filterFullInterns()">
+                        <option value="">All Status</option>
+                        <option value="Active">Active</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Inactive">Inactive</option>
+                    </select>
+                </div>
+                <div style="font-size: 13px; color: #6B7280;">
+                    <span id="fullInternCount">{{ $fullInternData['totalInterns'] ?? 0 }}</span> interns found
+                </div>
+            </div>
+
+            <!-- Interns Table -->
+            <div class="card">
+                <div class="card-body" style="padding: 0; overflow-x: auto;">
+                    <table class="data-table" id="fullInternsTable">
+                        <thead>
+                            <tr>
+                                <th>Intern</th>
+                                <th>School</th>
+                                <th>Course</th>
+                                <th>Hours</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if(isset($fullInternData['interns']) && $fullInternData['interns']->count() > 0)
+                                @foreach($fullInternData['interns'] as $intern)
+                                <tr class="full-intern-row" data-name="{{ strtolower($intern->name) }}" data-email="{{ strtolower($intern->email) }}" data-school="{{ strtolower($intern->schoolModel->name ?? '') }}" data-status="{{ $intern->status }}">
+                                    <td>
+                                        <div style="display: flex; align-items: center; gap: 12px;">
+                                            <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #7B1D3A, #5a1428); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 14px;">
+                                                {{ strtoupper(substr($intern->name, 0, 2)) }}
+                                            </div>
+                                            <div>
+                                                <div style="font-weight: 600; color: #1F2937;">{{ $intern->name }}</div>
+                                                <div style="font-size: 12px; color: #6B7280;">{{ $intern->email }}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span style="font-size: 13px; color: #374151;">{{ $intern->schoolModel->name ?? 'N/A' }}</span>
+                                    </td>
+                                    <td>
+                                        <span style="font-size: 13px; color: #374151;">{{ $intern->course ?? 'N/A' }}</span>
+                                    </td>
+                                    <td>
+                                        @php
+                                            $progress = $intern->required_hours > 0 ? ($intern->completed_hours / $intern->required_hours) * 100 : 0;
+                                        @endphp
+                                        <div style="display: flex; flex-direction: column; gap: 4px;">
+                                            <span style="font-size: 13px; font-weight: 600; color: #374151;">{{ $intern->completed_hours }}/{{ $intern->required_hours }} hrs</span>
+                                            <div style="width: 80px; height: 6px; background: #E5E7EB; border-radius: 3px; overflow: hidden;">
+                                                <div style="width: {{ min($progress, 100) }}%; height: 100%; background: {{ $progress >= 100 ? '#10B981' : '#7B1D3A' }};"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @php
+                                            $statusColors = [
+                                                'Active' => ['bg' => '#D1FAE5', 'text' => '#065F46'],
+                                                'Completed' => ['bg' => '#DBEAFE', 'text' => '#1E40AF'],
+                                                'Inactive' => ['bg' => '#FEE2E2', 'text' => '#991B1B'],
+                                            ];
+                                            $colors = $statusColors[$intern->status] ?? ['bg' => '#F3F4F6', 'text' => '#374151'];
+                                        @endphp
+                                        <span style="background: {{ $colors['bg'] }}; color: {{ $colors['text'] }}; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600;">
+                                            {{ $intern->status }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            @else
+                            <tr>
+                                <td colspan="5" style="text-align: center; padding: 40px; color: #6B7280;">
+                                    <i class="fas fa-users" style="font-size: 48px; margin-bottom: 16px; opacity: 0.3;"></i>
+                                    <p>No interns available</p>
+                                </td>
+                            </tr>
+                            @endif
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -4586,6 +4733,7 @@
             'incubatee-tracker': 'Incubatee Tracker',
             'issues-management': 'Issues & Complaints',
             'digital-records': 'Digital Records',
+            'full-intern-management': 'All Interns',
             'profile': 'My Profile'
         };
 
@@ -4663,6 +4811,7 @@
         }
 
         // ========== DIGITAL RECORDS (TEAM LEADER) ==========
+        @if(in_array('digital_records', $viewableModules))
         const tlDrHasEditAccess = {{ in_array('digital_records', $editableModules) ? 'true' : 'false' }};
         let tlDrCurrentPath = '';
         let tlDrHistory = [];
@@ -5076,6 +5225,39 @@
                 "'": '&#39;'
             }[c]));
         }
+        @endif
+
+        // ========== FULL INTERN MANAGEMENT FILTER ==========
+        @if(in_array('intern_management', $viewableModules))
+        function filterFullInterns() {
+            const searchQuery = (document.getElementById('fullInternSearch').value || '').toLowerCase();
+            const statusFilter = document.getElementById('fullInternStatusFilter').value;
+            const rows = document.querySelectorAll('.full-intern-row');
+            let visibleCount = 0;
+
+            rows.forEach(row => {
+                const name = row.dataset.name || '';
+                const email = row.dataset.email || '';
+                const school = row.dataset.school || '';
+                const status = row.dataset.status || '';
+
+                const matchesSearch = !searchQuery || 
+                    name.includes(searchQuery) || 
+                    email.includes(searchQuery) || 
+                    school.includes(searchQuery);
+                const matchesStatus = !statusFilter || status === statusFilter;
+
+                if (matchesSearch && matchesStatus) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            document.getElementById('fullInternCount').textContent = visibleCount;
+        }
+        @endif
 
         // ========== RECENT TASKS PAGINATION ==========
         let recentTaskCurrentPage = 1;
@@ -5921,6 +6103,7 @@
         });
 
         // ==================== TEAM LEADER SCHEDULER FUNCTIONS ====================
+        @if(in_array('scheduler', $viewableModules))
         let tlSchedulerCurrentYear = new Date().getFullYear();
         let tlSchedulerCurrentMonth = new Date().getMonth();
         let tlSchedulerEvents = [];
@@ -6782,6 +6965,7 @@ University of the Philippines Cebu
                 showToast('An error occurred while rejecting the booking', true);
             }
         }
+        @endif
     </script>
 </body>
 </html>

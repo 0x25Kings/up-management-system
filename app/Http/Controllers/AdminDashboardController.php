@@ -302,7 +302,6 @@ class AdminDashboardController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8',
             'school_id' => 'required|exists:schools,id',
         ]);
 
@@ -317,15 +316,19 @@ class AdminDashboardController extends Controller
                 ->withInput();
         }
 
+        // Generate a temporary password - team leader will set their own on first login
+        $tempPassword = \Illuminate\Support\Str::random(16);
+
         $teamLeader = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'password' => Hash::make($tempPassword),
             'role' => User::ROLE_TEAM_LEADER,
             'school_id' => $request->school_id,
             'is_admin' => false,
             'reference_code' => User::generateReferenceCode(),
             'is_active' => true,
+            'password_set' => false, // Team leader will set their own password
         ]);
 
         return redirect()->route('admin.team-leaders.index')
@@ -498,28 +501,33 @@ class AdminDashboardController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8',
-            'school_id' => 'required|exists:schools,id',
+            'school_id' => 'nullable|exists:schools,id',
         ]);
 
-        // Check if school already has a team leader
-        $existingTeamLeader = User::where('role', User::ROLE_TEAM_LEADER)
-            ->where('school_id', $request->school_id)
-            ->first();
+        // Check if school already has a team leader (only if school_id is provided)
+        if ($request->filled('school_id')) {
+            $existingTeamLeader = User::where('role', User::ROLE_TEAM_LEADER)
+                ->where('school_id', $request->school_id)
+                ->first();
 
-        if ($existingTeamLeader) {
-            return response()->json(['error' => 'This school already has a team leader assigned.'], 422);
+            if ($existingTeamLeader) {
+                return response()->json(['error' => 'This school already has a team leader assigned.'], 422);
+            }
         }
+
+        // Generate a temporary password - team leader will set their own on first login
+        $tempPassword = \Illuminate\Support\Str::random(16);
 
         $teamLeader = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'password' => Hash::make($tempPassword),
             'role' => User::ROLE_TEAM_LEADER,
             'school_id' => $request->school_id,
             'is_admin' => false,
             'reference_code' => User::generateReferenceCode(),
             'is_active' => true,
+            'password_set' => false, // Team leader will set their own password
         ]);
 
         // Handle permissions if provided
@@ -745,7 +753,6 @@ class AdminDashboardController extends Controller
     {
         $request->validate([
             'intern_id' => 'required|exists:interns,id',
-            'password' => 'required|string|min:8',
         ]);
 
         $intern = Intern::findOrFail($request->intern_id);
@@ -764,14 +771,19 @@ class AdminDashboardController extends Controller
         // Check if a user with this email already exists
         $existingUser = User::where('email', $intern->email)->first();
 
+        // Generate a temporary random password (team leader will set their own)
+        $tempPassword = \Illuminate\Support\Str::random(32);
+        $referenceCode = User::generateReferenceCode();
+
         if ($existingUser) {
             // Update existing user to team leader
             $existingUser->update([
                 'role' => User::ROLE_TEAM_LEADER,
                 'school_id' => $intern->school_id,
-                'password' => Hash::make($request->password),
-                'reference_code' => User::generateReferenceCode(),
-                'is_admin' => false, // Ensure TL is not marked as admin
+                'password' => Hash::make($tempPassword),
+                'password_set' => false,
+                'reference_code' => $referenceCode,
+                'is_admin' => false,
                 'is_active' => true,
             ]);
             $teamLeader = $existingUser;
@@ -780,11 +792,12 @@ class AdminDashboardController extends Controller
             $teamLeader = User::create([
                 'name' => $intern->name,
                 'email' => $intern->email,
-                'password' => Hash::make($request->password),
+                'password' => Hash::make($tempPassword),
+                'password_set' => false,
                 'role' => User::ROLE_TEAM_LEADER,
                 'school_id' => $intern->school_id,
                 'is_admin' => false,
-                'reference_code' => User::generateReferenceCode(),
+                'reference_code' => $referenceCode,
                 'is_active' => true,
             ]);
         }

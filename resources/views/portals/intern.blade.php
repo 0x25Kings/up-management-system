@@ -2042,6 +2042,7 @@
                         <!-- Time Out Button -->
                         <form action="{{ route('intern.timeout') }}" method="POST" id="timeOutForm" style="display: {{ ($todayAttendance && $todayAttendance->time_in && !$todayAttendance->time_out) ? 'block' : 'none' }};">
                             @csrf
+                            <input type="hidden" name="overtime_notes" id="overtimeNotesInput" value="">
                             <button type="submit" id="timeOutBtn" style="background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%); color: white; border: none; padding: 16px 48px; border-radius: 12px; font-size: 18px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 10px;">
                                 <i class="fas fa-sign-out-alt" id="timeOutIcon"></i>
                                 <span id="timeOutText">TIME OUT</span>
@@ -2058,14 +2059,10 @@
                     <!-- Today's Summary -->
                     @if($todayAttendance)
                     @php
-                        // Calculate hours for today only if time_out exists
+                        // Use stored hours_worked which already has lunch break deducted
                         $todayHours = null;
                         if ($todayAttendance->time_in && $todayAttendance->time_out) {
-                            $attendanceDate = $todayAttendance->date ? $todayAttendance->date->toDateString() : \Carbon\Carbon::now('Asia/Manila')->toDateString();
-                            $timeIn = \Carbon\Carbon::parse($attendanceDate . ' ' . $todayAttendance->time_in, 'Asia/Manila');
-                            $timeOut = \Carbon\Carbon::parse($attendanceDate . ' ' . $todayAttendance->time_out, 'Asia/Manila');
-                            $todayHours = round($timeOut->diffInSeconds($timeIn, true) / 3600, 2);
-                            $todayHours = max(0, $todayHours);
+                            $todayHours = (float) $todayAttendance->hours_worked;
                         }
                     @endphp
                     <div id="todaySummary" style="margin-top: 32px; display: flex; justify-content: center; gap: 40px;">
@@ -2113,7 +2110,7 @@
                         <tbody>
                             @foreach($attendanceHistory as $record)
                             @php
-                                // Calculate hours from time_in and time_out
+                                // Use stored hours_worked which already has lunch break deducted
                                 $hoursWorked = null;
                                 $displayStatus = 'Absent';
 
@@ -2124,9 +2121,8 @@
                                     $timeOut = $record->time_out ? \Carbon\Carbon::parse($attendanceDate . ' ' . $record->time_out, 'Asia/Manila') : null;
 
                                     if ($timeOut) {
-                                        // Calculate hours if there's both time_in and time_out
-                                        $hoursWorked = round($timeOut->diffInSeconds($timeIn, true) / 3600, 2);
-                                        $hoursWorked = max(0, $hoursWorked);
+                                        // Use stored hours_worked (already has lunch break deducted)
+                                        $hoursWorked = (float) $record->hours_worked;
 
                                         // Determine status based on hours and time in
                                         if ($hoursWorked >= 8) {
@@ -3603,6 +3599,47 @@
                 text.textContent = type === 'in' ? 'TIMING IN...' : 'TIMING OUT...';
             }
 
+            // Check if timing out with overtime and notes are required
+            if (type === 'out' && overtimeSettings.require_overtime_notes) {
+                // Calculate current hours using the same logic as live hours
+                const summaryHoursEl = document.getElementById('summaryHours');
+                const timeInRaw = summaryHoursEl?.getAttribute('data-raw-time-in');
+                
+                if (timeInRaw) {
+                    const now = new Date();
+                    const timeIn = new Date(timeInRaw);
+                    let diffMs = now - timeIn;
+                    let diffHours = diffMs / (1000 * 60 * 60);
+                    
+                    // Deduct lunch break if applicable
+                    const lunchStart = new Date(timeIn);
+                    lunchStart.setHours(12, 0, 0, 0);
+                    const lunchEnd = new Date(timeIn);
+                    lunchEnd.setHours(13, 0, 0, 0);
+                    
+                    if (now > lunchEnd && timeIn < lunchEnd) {
+                        const lunchDeduction = Math.min(1, Math.max(0, (Math.min(now, lunchEnd) - Math.max(timeIn, lunchStart)) / (1000 * 60 * 60)));
+                        diffHours -= lunchDeduction;
+                    }
+                    
+                    // If working overtime (more than 8 hours), show optional notes modal
+                    if (diffHours > 8) {
+                        showOvertimeNotesModal(form, type);
+                        return false;
+                    }
+                }
+            }
+
+            // Proceed with actual submission
+            actualAttendanceSubmit(form, type);
+            return false;
+        }
+
+        function actualAttendanceSubmit(form, type) {
+            const btn = form.querySelector('button');
+            const icon = type === 'in' ? document.getElementById('timeInIcon') : document.getElementById('timeOutIcon');
+            const text = type === 'in' ? document.getElementById('timeInText') : document.getElementById('timeOutText');
+
             // Get form data
             const formData = new FormData(form);
 
@@ -3834,8 +3871,27 @@
                 timeInMs = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m, s, 0).getTime();
             }
 
-            const diffMs = Date.now() - timeInMs;
-            const diffHours = Math.max(0, diffMs / (1000 * 60 * 60));
+            const now = Date.now();
+            const diffMs = now - timeInMs;
+            let diffHours = Math.max(0, diffMs / (1000 * 60 * 60));
+            
+            // Deduct lunch break (12:00 PM - 1:00 PM) if applicable
+            const timeInDate = new Date(timeInMs);
+            const nowDate = new Date(now);
+            
+            // Lunch break times (same day)
+            const lunchStart = new Date(timeInDate.getFullYear(), timeInDate.getMonth(), timeInDate.getDate(), 12, 0, 0);
+            const lunchEnd = new Date(timeInDate.getFullYear(), timeInDate.getMonth(), timeInDate.getDate(), 13, 0, 0);
+            
+            // Calculate lunch overlap
+            const workStart = Math.max(timeInMs, lunchStart.getTime());
+            const workEnd = Math.min(now, lunchEnd.getTime());
+            
+            if (workStart < workEnd && timeInMs < lunchEnd.getTime() && now > lunchStart.getTime()) {
+                const lunchOverlapMs = workEnd - workStart;
+                const lunchOverlapHours = lunchOverlapMs / (1000 * 60 * 60);
+                diffHours = Math.max(0, diffHours - lunchOverlapHours);
+            }
 
             hoursElement.textContent = diffHours.toFixed(2);
         }
@@ -4029,6 +4085,90 @@
             if (modal) {
                 modal.classList.remove('active');
             }
+        }
+
+        // Overtime notes settings
+        const overtimeSettings = @json($overtimeSettings ?? ['require_overtime_notes' => true, 'overtime_threshold' => 8.5]);
+
+        function createOvertimeNotesModal() {
+            const existingModal = document.getElementById('overtimeNotesModal');
+            if (existingModal) return;
+            
+            const modalHTML = `
+                <div id="overtimeNotesModal" class="modal-overlay" onclick="if(event.target === this) closeOvertimeNotesModal()">
+                    <div class="modal-content" style="max-width: 500px;">
+                        <div class="modal-header" style="background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: white;">
+                            <h2 style="margin: 0;"><i class="fas fa-clock" style="margin-right: 8px;"></i>Overtime Note</h2>
+                        </div>
+                        <div class="modal-body">
+                            <p style="color: #6B7280; margin-bottom: 16px;">You are working overtime. You may provide a note explaining the reason (optional).</p>
+                            <form id="overtimeNotesForm" onsubmit="submitWithOvertimeNotes(event)">
+                                <div class="form-group" style="margin-bottom: 20px;">
+                                    <label style="display: block; font-size: 14px; font-weight: 600; color: #1F2937; margin-bottom: 8px;">
+                                        <i class="fas fa-comment-alt" style="color: #F59E0B; margin-right: 6px;"></i>
+                                        Reason for Overtime <span style="color: #9CA3AF; font-weight: 400;">(optional)</span>
+                                    </label>
+                                    <textarea id="overtimeNotesText" placeholder="e.g., Finishing urgent project deadline, completing documentation..." style="width: 100%; padding: 10px 12px; border: 1px solid #E5E7EB; border-radius: 6px; font-size: 14px; min-height: 100px; resize: vertical;"></textarea>
+                                </div>
+                                <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                                    <button type="button" onclick="skipOvertimeNotes()" style="padding: 10px 20px; background: #F3F4F6; color: #6B7280; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">
+                                        Skip
+                                    </button>
+                                    <button type="submit" style="padding: 10px 20px; background: #F59E0B; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">
+                                        <i class="fas fa-check" style="margin-right: 6px;"></i>Submit & Time Out
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+        }
+
+        function showOvertimeNotesModal(form, type) {
+            createOvertimeNotesModal();
+            window.pendingTimeoutForm = form;
+            window.pendingTimeoutType = type;
+            const modal = document.getElementById('overtimeNotesModal');
+            if (modal) {
+                modal.classList.add('active');
+                document.getElementById('overtimeNotesText').focus();
+            }
+        }
+
+        function closeOvertimeNotesModal() {
+            const modal = document.getElementById('overtimeNotesModal');
+            if (modal) {
+                modal.classList.remove('active');
+            }
+        }
+
+        function cancelOvertimeTimeout() {
+            closeOvertimeNotesModal();
+            isSubmitting = false;
+            // Reset the button state
+            const btn = document.getElementById('timeOutBtn');
+            const icon = document.getElementById('timeOutIcon');
+            const text = document.getElementById('timeOutText');
+            resetButton(btn, icon, text, 'out');
+        }
+
+        function skipOvertimeNotes() {
+            document.getElementById('overtimeNotesInput').value = '';
+            closeOvertimeNotesModal();
+            actualAttendanceSubmit(window.pendingTimeoutForm, window.pendingTimeoutType);
+        }
+
+        function submitWithOvertimeNotes(event) {
+            event.preventDefault();
+            const notes = document.getElementById('overtimeNotesText').value.trim();
+            
+            document.getElementById('overtimeNotesInput').value = notes;
+            closeOvertimeNotesModal();
+            
+            // Continue with actual form submission
+            actualAttendanceSubmit(window.pendingTimeoutForm, window.pendingTimeoutType);
         }
 
         function createTaskStartModal() {

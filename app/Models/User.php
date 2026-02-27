@@ -28,6 +28,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'password_set',
         'is_admin',
         'role',
         'school_id',
@@ -58,6 +59,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'is_admin' => 'boolean',
             'is_active' => 'boolean',
+            'password_set' => 'boolean',
         ];
     }
 
