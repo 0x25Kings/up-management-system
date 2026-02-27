@@ -14676,8 +14676,17 @@
             document.getElementById('moaApproveFields').style.display = 'none';
             document.getElementById('moaRejectFields').style.display = 'none';
             document.getElementById('moaRejectionRemarks').value = '';
-            document.getElementById('moaPaymentStartDate').value = '';
-            document.getElementById('moaPaymentEndDate').value = '';
+            // Reset billing/MOA fields
+            const billingAmountEl = document.getElementById('moaBillingAmount');
+            if (billingAmountEl) billingAmountEl.value = '';
+            const billingDurationEl = document.getElementById('moaBillingDuration');
+            if (billingDurationEl) billingDurationEl.value = '';
+            const billingStartEl = document.getElementById('moaBillingStartDate');
+            if (billingStartEl) billingStartEl.value = '';
+            const moaStatusEl = document.getElementById('moaApproveStatus');
+            if (moaStatusEl) moaStatusEl.value = 'active';
+            const moaExpiryEl = document.getElementById('moaApproveExpiryDate');
+            if (moaExpiryEl) moaExpiryEl.value = '';
             removeMoaApproveFile();
 
             closeMoaDetailsModal();
