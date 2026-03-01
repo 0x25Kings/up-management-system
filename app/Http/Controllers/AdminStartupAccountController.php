@@ -102,7 +102,7 @@ class AdminStartupAccountController extends Controller
                 'status_color' => $startup->status_color,
                 'moa_status' => $startup->moa_status,
                 'moa_status_color' => $startup->moa_status_color,
-                'moa_expiry' => $startup->moa_expiry ? Carbon::parse($startup->moa_expiry)->format('M d, Y') : null,
+                'moa_expiry' => $startup->moa_expiry ? Carbon::parse($startup->moa_expiry)->format('Y-m-d') : null,
                 'created_by' => $startup->creator?->name,
                 'created_at' => $startup->created_at->format('M d, Y h:i A'),
                 'submission_count' => $startup->submissions->count(),

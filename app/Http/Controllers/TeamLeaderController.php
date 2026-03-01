@@ -303,6 +303,37 @@ class TeamLeaderController extends Controller
             ];
         }
 
+        // Build grouped data arrays for the view
+        $schedulerData = [
+            'pendingBookings' => $pendingBookings,
+            'todayBookings'   => $todayBookings,
+            'bookings'        => $allBookings,
+            'upcomingBookings' => $upcomingBookings,
+            'archivedBookings' => $archivedBookings,
+            'blockedDates'    => $blockedDates,
+            'events'          => $events,
+        ];
+
+        $incubateeData = [
+            'moaRequests'        => $moaRequests,
+            'paymentSubmissions' => $paymentSubmissions,
+            'allSubmissions'     => $allStartupSubmissions,
+            'pendingSubmissions' => $pendingSubmissions,
+            'pendingMoaCount'    => $pendingMoaCount,
+            'pendingPaymentCount' => $pendingPaymentCount,
+            'activeIncubatees'   => $activeIncubatees,
+            'progressUpdates'    => $progressUpdates,
+            'startupDocuments'   => $startupDocuments,
+        ];
+
+        $issuesData = [
+            'roomIssues'       => $roomIssues,
+            'pendingIssues'    => $openIssues,
+            'openIssues'       => $openIssues,
+            'inProgressIssues' => $inProgressIssues,
+            'resolvedThisMonth' => $resolvedThisMonth,
+        ];
+
         return view('team-leader.dashboard', compact(
             'user',
             'school',

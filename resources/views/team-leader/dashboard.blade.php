@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -4155,7 +4155,7 @@
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                     'Accept': 'application/json'
                 },
                 body: JSON.stringify({
@@ -4340,7 +4340,7 @@
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                     'Accept': 'application/json'
                 },
                 body: JSON.stringify({
@@ -4574,7 +4574,7 @@
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                     'Accept': 'application/json'
                 },
                 body: JSON.stringify({
@@ -4691,7 +4691,7 @@
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                     'Accept': 'application/json'
                 }
             })
@@ -5241,9 +5241,9 @@
                 const school = row.dataset.school || '';
                 const status = row.dataset.status || '';
 
-                const matchesSearch = !searchQuery || 
-                    name.includes(searchQuery) || 
-                    email.includes(searchQuery) || 
+                const matchesSearch = !searchQuery ||
+                    name.includes(searchQuery) ||
+                    email.includes(searchQuery) ||
                     school.includes(searchQuery);
                 const matchesStatus = !statusFilter || status === statusFilter;
 
@@ -5576,6 +5576,7 @@
             if (!report) return showToast('Report not found', true);
 
             document.getElementById('editReportForm').action = `/team-leader/reports/${reportId}`;
+            document.getElementById('editReportId').value = reportId;
             document.getElementById('editReportTitle').value = report.title;
             document.getElementById('editReportType').value = report.report_type;
             document.getElementById('editReportPeriodStart').value = report.period_start ? report.period_start.split('T')[0] : '';
@@ -5600,7 +5601,7 @@
             e.preventDefault();
             const form = e.target;
             const formData = new FormData(form);
-            formData.append('_token', '{{ csrf_token() }}');
+            formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
 
             fetch('{{ route("team-leader.reports.store") }}', {
                 method: 'POST',
@@ -5633,7 +5634,7 @@
             e.preventDefault();
             const form = e.target;
             const formData = new FormData(form);
-            formData.append('_token', '{{ csrf_token() }}');
+            formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
             formData.append('_method', 'PUT');
             const reportId = document.getElementById('editReportId').value;
 
@@ -5714,7 +5715,7 @@
 
             const formData = new FormData();
             formData.append('profile_picture', file);
-            formData.append('_token', '{{ csrf_token() }}');
+            formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
 
             try {
                 const response = await fetch('{{ route("team-leader.profile.upload-picture") }}', {

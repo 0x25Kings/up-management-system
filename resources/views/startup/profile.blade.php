@@ -98,6 +98,15 @@
                     <span class="stat-value">{{ $startup->moa_expiry ? $startup->moa_expiry->format('M d, Y') : 'N/A' }}</span>
                 </div>
             </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #8B5CF6, #7C3AED);">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-label">Next Billing Date</span>
+                    <span class="stat-value">{{ $startup->next_payment_due ? $startup->next_payment_due->format('M d, Y') : 'N/A' }}</span>
+                </div>
+            </div>
         </div>
 
         <!-- Main Content Grid -->
@@ -124,7 +133,7 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="contact_person">Contact Person <span>*</span></label>
-                                <input type="text" id="contact_person" name="contact_person" class="form-input @error('contact_person') error @enderror" 
+                                <input type="text" id="contact_person" name="contact_person" class="form-input @error('contact_person') error @enderror"
                                        value="{{ old('contact_person', ucwords(strtolower($startup->contact_person))) }}" required>
                                 @error('contact_person')
                                     <div class="error-message">{{ $message }}</div>
@@ -133,7 +142,7 @@
 
                             <div class="form-group">
                                 <label for="phone">Phone Number</label>
-                                <input type="text" id="phone" name="phone" class="form-input @error('phone') error @enderror" 
+                                <input type="text" id="phone" name="phone" class="form-input @error('phone') error @enderror"
                                        value="{{ old('phone', $startup->phone) }}" placeholder="+63 XXX XXX XXXX">
                                 @error('phone')
                                     <div class="error-message">{{ $message }}</div>
@@ -143,7 +152,7 @@
 
                         <div class="form-group">
                             <label for="email">Email Address <span>*</span></label>
-                            <input type="email" id="email" name="email" class="form-input @error('email') error @enderror" 
+                            <input type="email" id="email" name="email" class="form-input @error('email') error @enderror"
                                    value="{{ old('email', $startup->email) }}" required>
                             @error('email')
                                 <div class="error-message">{{ $message }}</div>
@@ -152,7 +161,7 @@
 
                         <div class="form-group">
                             <label for="address">Business Address</label>
-                            <input type="text" id="address" name="address" class="form-input @error('address') error @enderror" 
+                            <input type="text" id="address" name="address" class="form-input @error('address') error @enderror"
                                    value="{{ old('address', $startup->address) }}" placeholder="Enter your business address">
                             @error('address')
                                 <div class="error-message">{{ $message }}</div>
@@ -161,7 +170,7 @@
 
                         <div class="form-group">
                             <label for="description">Company Description</label>
-                            <textarea id="description" name="description" class="form-textarea @error('description') error @enderror" 
+                            <textarea id="description" name="description" class="form-textarea @error('description') error @enderror"
                                       placeholder="Brief description of your startup, products, or services...">{{ old('description', $startup->description) }}</textarea>
                             @error('description')
                                 <div class="error-message">{{ $message }}</div>
@@ -221,6 +230,37 @@
                         <a href="{{ route('startup.request-moa') }}" class="moa-action-btn">
                             <i class="fas fa-plus"></i>
                             {{ $startup->moa_status === 'expired' ? 'Renew MOA' : 'Request MOA' }}
+                        </a>
+                    @endif
+                </div>
+
+                <!-- Billing Info Card -->
+                <div class="moa-status-card" style="background: linear-gradient(135deg, #F5F3FF, #EDE9FE); border-color: #8B5CF6;">
+                    <div class="moa-icon" style="background: linear-gradient(135deg, #8B5CF6, #7C3AED); color: white;">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <div class="moa-info">
+                        <h3 style="color: #5B21B6;">Billing Schedule</h3>
+                        <p>
+                            @if($startup->next_payment_due)
+                                Next due: <strong>{{ $startup->next_payment_due->format('M d, Y') }}</strong>
+                                @if($startup->payment_amount)
+                                    &mdash; ₱{{ number_format($startup->payment_amount, 2) }}
+                                @endif
+                            @elseif($startup->payment_due_date)
+                                Due date: <strong>{{ $startup->payment_due_date->format('M d, Y') }}</strong>
+                            @else
+                                No billing schedule set
+                            @endif
+                        </p>
+                        @if($startup->payment_duration)
+                            <p style="font-size: 12px; margin-top: 4px; opacity: 0.8;">Duration: {{ $startup->payment_duration }}</p>
+                        @endif
+                    </div>
+                    @if($startup->next_payment_due)
+                        <a href="{{ route('startup.submit-payment') }}" class="moa-action-btn" style="background: linear-gradient(135deg, #8B5CF6, #7C3AED);">
+                            <i class="fas fa-credit-card"></i>
+                            Pay Now
                         </a>
                     @endif
                 </div>
@@ -680,7 +720,7 @@
     function previewAndSubmitPhoto(input) {
         if (input.files && input.files[0]) {
             const file = input.files[0];
-            
+
             // Validate file size (2MB)
             if (file.size > 2 * 1024 * 1024) {
                 alert('File size must be less than 2MB');

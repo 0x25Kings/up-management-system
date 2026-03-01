@@ -1918,7 +1918,7 @@
                 <i class="fas fa-th-large"></i>
                 <span>Dashboard</span>
             </a>
-            
+
             <a href="{{ route('startup.upload-document') }}" class="menu-item" data-tooltip="Upload Document">
                 <i class="fas fa-cloud-upload-alt"></i>
                 <span>Upload Document</span>
@@ -1951,7 +1951,7 @@
                 <i class="fas fa-chart-line"></i>
                 <span>Project Progress</span>
             </a>
-            
+
             <a href="{{ route('startup.room-issues') }}" class="menu-item" data-tooltip="Room Issues">
                 <i class="fas fa-tools"></i>
                 <span>Room Issues</span>
@@ -2008,7 +2008,7 @@
                         </div>
                         <div style="max-height: 340px; overflow-y: auto;">
                             @forelse($recentNotifs as $notif)
-                                <a href="{{ $notif->link ? route('startup.notifications.read', $notif->id) : '#' }}" 
+                                <a href="{{ $notif->link ? route('startup.notifications.read', $notif->id) : '#' }}"
                                    @if($notif->link) onclick="event.preventDefault(); document.getElementById('notif-form-{{ $notif->id }}').submit();" @endif
                                    style="display: flex; gap: 12px; padding: 14px 20px; text-decoration: none; transition: background 0.2s; border-bottom: 1px solid #F3F4F6; {{ !$notif->is_read ? 'background: #FFFBEB;' : '' }}"
                                    onmouseover="this.style.background='{{ !$notif->is_read ? '#FEF3C7' : '#F9FAFB' }}'" onmouseout="this.style.background='{{ !$notif->is_read ? '#FFFBEB' : 'white' }}'">
@@ -2122,7 +2122,7 @@
                     @endphp
                     <h1>{{ $greeting }}, {{ ucwords(strtolower($startup->company_name)) }}! 👋</h1>
                     <p>Here's your startup dashboard overview. Manage your documents, track issues, and stay updated.</p>
-                    
+
                     <!-- Insight Badges -->
                     <div class="welcome-insights">
                         @php
@@ -2130,33 +2130,33 @@
                             $pendingIssues = $startup->roomIssues()->where('status', 'pending')->count();
                             $totalItems = $documentCount + $moaCount + $paymentCount;
                         @endphp
-                        
+
                         @if($pendingSubmissions > 0)
                             <a href="{{ route('startup.submissions') }}" class="insight-badge alert">
                                 <i class="fas fa-clock"></i>
                                 {{ $pendingSubmissions }} pending {{ Str::plural('submission', $pendingSubmissions) }}
                             </a>
                         @endif
-                        
+
                         @if($pendingIssues > 0)
                             <a href="{{ route('startup.room-issues') }}" class="insight-badge alert">
                                 <i class="fas fa-exclamation-triangle"></i>
                                 {{ $pendingIssues }} unresolved {{ Str::plural('issue', $pendingIssues) }}
                             </a>
                         @endif
-                        
+
                         @if($pendingSubmissions == 0 && $pendingIssues == 0)
                             <span class="insight-badge success">
                                 <i class="fas fa-check-circle"></i>
                                 All caught up!
                             </span>
                         @endif
-                        
+
                         <span class="insight-badge">
                             <i class="fas fa-folder"></i>
                             {{ $totalItems }} total {{ Str::plural('submission', $totalItems) }}
                         </span>
-                        
+
                         @if($startup->moa_status === 'active')
                             <span class="insight-badge success">
                                 <i class="fas fa-file-contract"></i>
@@ -2230,6 +2230,51 @@
                 @endif
             </div>
         </div>
+
+        <!-- Billing Schedule Card -->
+        @if($startup->next_payment_due || $startup->payment_due_date || $startup->payment_amount)
+        <div class="moa-card" style="background: linear-gradient(135deg, #F5F3FF 0%, #EDE9FE 100%); border-left: 4px solid #8B5CF6;">
+            <div class="moa-icon" style="background: linear-gradient(135deg, #8B5CF6, #7C3AED);">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+            <div class="moa-info">
+                <h4><i class="fas fa-credit-card" style="color: #7C3AED; margin-right: 8px;"></i>Billing Schedule</h4>
+                @if($startup->next_payment_due)
+                    @php $daysUntilBilling = now()->diffInDays($startup->next_payment_due, false); @endphp
+                    <p>Next payment due on <strong>{{ $startup->next_payment_due->format('F d, Y') }}</strong>
+                        @if($startup->payment_amount)
+                            &mdash; <strong>₱{{ number_format($startup->payment_amount, 2) }}</strong>
+                        @endif
+                    </p>
+                    @if($daysUntilBilling >= 0 && $daysUntilBilling <= 30)
+                        <div style="margin-top: 10px;">
+                            <span style="background: linear-gradient(135deg, #FEF3C7, #FDE68A); color: #92400E; padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
+                                <i class="fas fa-hourglass-half"></i> {{ $daysUntilBilling }} {{ Str::plural('day', $daysUntilBilling) }} until next billing
+                            </span>
+                        </div>
+                    @elseif($daysUntilBilling < 0)
+                        <div style="margin-top: 10px;">
+                            <span style="background: linear-gradient(135deg, #FEE2E2, #FECACA); color: #991B1B; padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
+                                <i class="fas fa-exclamation-triangle"></i> Payment overdue — please submit payment
+                            </span>
+                        </div>
+                    @endif
+                @elseif($startup->payment_due_date)
+                    <p>Payment due date: <strong>{{ $startup->payment_due_date->format('F d, Y') }}</strong></p>
+                @else
+                    <p>Your billing schedule has been set up.</p>
+                @endif
+                @if($startup->payment_duration)
+                    <p style="margin-top: 6px; font-size: 13px; color: #6B7280;">Duration: {{ $startup->payment_duration }}</p>
+                @endif
+            </div>
+            <div class="moa-action">
+                <a href="{{ route('startup.submit-payment') }}" class="btn-primary" style="background: linear-gradient(135deg, #8B5CF6, #7C3AED);">
+                    <i class="fas fa-credit-card"></i> Submit Payment
+                </a>
+            </div>
+        </div>
+        @endif
 
         <!-- Getting Started Checklist (for new startups) -->
         @php
@@ -2582,10 +2627,10 @@
             const toggleWrapper = document.getElementById('sidebarToggleWrapper');
             sidebar.classList.toggle('collapsed');
             toggleWrapper.classList.toggle('collapsed');
-            
+
             // Update html class for consistent state
             document.documentElement.classList.toggle('sidebar-is-collapsed');
-            
+
             // Save state to localStorage
             const isCollapsed = sidebar.classList.contains('collapsed');
             localStorage.setItem('sidebarCollapsed', isCollapsed);
@@ -2604,7 +2649,7 @@
 
             const profileBtn = document.getElementById('profileBtn');
             const profileDropdown = document.getElementById('profileDropdown');
-            
+
             if (profileBtn) {
                 profileBtn.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -2631,7 +2676,7 @@
                     }
                 });
             }
-            
+
             // Close dropdowns when clicking outside
             document.addEventListener('click', function(event) {
                 if (profileDropdown && !profileDropdown.contains(event.target)) {

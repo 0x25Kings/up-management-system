@@ -829,7 +829,7 @@ class AdminStartupController extends Controller
     public function updateMoaExpiry(Request $request, Startup $startup)
     {
         $request->validate([
-            'moa_expiry' => 'required|date|after:today',
+            'moa_expiry' => 'required|date|after_or_equal:today',
             'moa_status' => 'sometimes|in:none,pending,active,expired',
         ]);
 

@@ -797,7 +797,8 @@ class StartupDashboardController extends Controller
         $startup = $this->getStartup();
 
         // Verify this submission belongs to the startup
-        if ($submission->startup_id !== $startup->id) {
+        // Use loose comparison (!=) to handle null startup_id for public portal submissions
+        if ($submission->startup_id != $startup->id) {
             abort(403, 'Unauthorized');
         }
 

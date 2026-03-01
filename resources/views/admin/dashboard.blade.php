@@ -1,4 +1,4 @@
-@php
+﻿@php
 /**
  * @var \Illuminate\Support\Collection<int, \App\Models\Attendance> $todayAttendances
  * @var \Illuminate\Support\Collection<int, \App\Models\Attendance> $attendanceHistory
@@ -12106,6 +12106,8 @@
                 loadMoaRequestsData();
             } else if (pageId === 'digital-records') {
                 breadcrumb.innerHTML = 'Dashboard > <span>Digital Records</span>';
+                loadDigitalRecords();
+                loadDigitalRecordsStats();
             } else if (pageId === 'scheduler') {
                 breadcrumb.innerHTML = 'Dashboard > <span>Scheduler & Events</span>';
             } else if (pageId === 'activity-log') {
@@ -13822,7 +13824,7 @@
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                             'Accept': 'application/json'
                         }
                     })
@@ -13854,7 +13856,7 @@
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                             'Accept': 'application/json'
                         }
                     })
@@ -13901,7 +13903,7 @@
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                     'Accept': 'application/json'
                 },
                 body: JSON.stringify({
@@ -13950,7 +13952,7 @@
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                     'Accept': 'application/json'
                 },
                 body: JSON.stringify({ moa_expiry: expiryDate, moa_status: moaStatus })
@@ -13983,7 +13985,7 @@
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                             'Accept': 'application/json'
                         }
                     })
@@ -14015,7 +14017,7 @@
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                             'Accept': 'application/json'
                         }
                     })
@@ -14627,7 +14629,7 @@
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                     'Accept': 'application/json'
                 },
                 body: JSON.stringify({
@@ -14785,7 +14787,7 @@
                 fetch(`/admin/moa-requests/${moaId}/approve`, {
                     method: 'POST',
                     headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                         'Accept': 'application/json'
                     },
                     body: formData
@@ -14817,7 +14819,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                         'Accept': 'application/json'
                     },
                     body: JSON.stringify({
@@ -14872,7 +14874,7 @@
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                         'Accept': 'application/json'
                     },
                     body: JSON.stringify(body)
@@ -15301,7 +15303,7 @@
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                     'Accept': 'application/json'
                 },
                 body: JSON.stringify({
@@ -16920,7 +16922,7 @@ University of the Philippines Cebu
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                     'Accept': 'application/json'
                 }
             })
@@ -16967,7 +16969,7 @@ University of the Philippines Cebu
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                     'Accept': 'application/json'
                 }
             })
@@ -16999,7 +17001,7 @@ University of the Philippines Cebu
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                     'Accept': 'application/json'
                 }
             })
@@ -17038,7 +17040,7 @@ University of the Philippines Cebu
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                     'Accept': 'application/json'
                 }
             })
@@ -17387,7 +17389,7 @@ University of the Philippines Cebu
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                         'Accept': 'application/json'
                     },
                     body: JSON.stringify({
@@ -17438,7 +17440,7 @@ University of the Philippines Cebu
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                     'Accept': 'application/json'
                 }
             })
@@ -17467,9 +17469,7 @@ University of the Philippines Cebu
                 renderSchedulerCalendar();
             }
 
-            // Load Digital Records when the page loads
-            loadDigitalRecords();
-            loadDigitalRecordsStats();
+            // Digital Records are loaded on demand when navigating to the digital-records page
         });
 
         // ===== MOA MANAGEMENT FUNCTIONS =====
@@ -18258,15 +18258,15 @@ University of the Philippines Cebu
             document.getElementById('folderName').value = '';
             document.getElementById('folderDescription').value = '';
             document.getElementById('folderSizeLimit').value = '100';
-            
+
             // Reset selections
             document.querySelectorAll('#folderPermissionsContainer input[type="checkbox"]').forEach(cb => cb.checked = false);
             updatePermissionCounts();
-            
+
             // Show loading, hide container
             document.getElementById('folderPermissionsLoading').style.display = 'block';
             document.getElementById('folderPermissionsContainer').style.display = 'none';
-            
+
             // Fetch interns, team leaders, and startups
             loadFolderPermissionOptions();
         }
@@ -18295,7 +18295,7 @@ University of the Philippines Cebu
             // Populate Interns by School
             const internsContainer = document.getElementById('internsBySchoolContainer');
             let internsHtml = '';
-            
+
             if (Object.keys(data.internsBySchool).length === 0) {
                 internsHtml = '<p style="color: #6B7280; text-align: center; padding: 10px;">No active interns found</p>';
             } else {
@@ -18327,7 +18327,7 @@ University of the Philippines Cebu
             // Populate Team Leaders by School
             const teamLeadersContainer = document.getElementById('teamLeadersBySchoolContainer');
             let teamLeadersHtml = '';
-            
+
             if (Object.keys(data.teamLeadersBySchool).length === 0) {
                 teamLeadersHtml = '<p style="color: #6B7280; text-align: center; padding: 10px;">No active team leaders found</p>';
             } else {
@@ -18359,7 +18359,7 @@ University of the Philippines Cebu
             // Populate Startups
             const startupsContainer = document.getElementById('startupsContainer');
             let startupsHtml = '';
-            
+
             if (data.startups.length === 0) {
                 startupsHtml = '<p style="color: #6B7280; text-align: center; padding: 10px;">No active startups found</p>';
             } else {
@@ -18387,7 +18387,7 @@ University of the Philippines Cebu
         function togglePermissionAccordion(accordionId) {
             const accordion = document.getElementById(accordionId);
             const icon = document.getElementById(accordionId + 'Icon');
-            
+
             if (accordion.style.display === 'none') {
                 accordion.style.display = 'block';
                 icon.style.transform = 'rotate(180deg)';
@@ -18408,11 +18408,11 @@ University of the Philippines Cebu
             const school = checkbox.dataset.school;
             const type = checkbox.dataset.type;
             const inputName = type === 'intern' ? 'allowed_intern_ids' : 'allowed_team_leader_ids';
-            
+
             // Find all checkboxes in this school group
             const parent = checkbox.closest('.permission-school-group');
             const checkboxes = parent.querySelectorAll(`input[name="${inputName}"]`);
-            
+
             checkboxes.forEach(cb => cb.checked = checkbox.checked);
             updatePermissionCounts();
         }
@@ -18428,7 +18428,7 @@ University of the Philippines Cebu
             const internsCount = document.querySelectorAll('input[name="allowed_intern_ids"]:checked').length;
             const teamLeadersCount = document.querySelectorAll('input[name="allowed_team_leader_ids"]:checked').length;
             const startupsCount = document.querySelectorAll('input[name="allowed_startup_ids"]:checked').length;
-            
+
             document.getElementById('internsSelectedCount').textContent = internsCount + ' selected';
             document.getElementById('teamLeadersSelectedCount').textContent = teamLeadersCount + ' selected';
             document.getElementById('startupsSelectedCount').textContent = startupsCount + ' selected';
@@ -18455,13 +18455,13 @@ University of the Philippines Cebu
             const color = document.getElementById('selectedColor').value;
             const description = document.getElementById('folderDescription').value;
             const sizeLimit = document.getElementById('folderSizeLimit').value || 10;
-            
+
             // Get selected intern IDs
             const allowedInternIds = Array.from(document.querySelectorAll('input[name="allowed_intern_ids"]:checked')).map(cb => parseInt(cb.value));
-            
+
             // Get selected team leader IDs
             const allowedTeamLeaderIds = Array.from(document.querySelectorAll('input[name="allowed_team_leader_ids"]:checked')).map(cb => parseInt(cb.value));
-            
+
             // Get selected startup IDs
             const allowedStartupIds = Array.from(document.querySelectorAll('input[name="allowed_startup_ids"]:checked')).map(cb => parseInt(cb.value));
 
@@ -19570,7 +19570,7 @@ University of the Philippines Cebu
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                                 'Accept': 'application/json'
                             }
                         })
@@ -19632,7 +19632,7 @@ University of the Philippines Cebu
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                                 'Accept': 'application/json'
                             }
                         })
@@ -19674,7 +19674,7 @@ University of the Philippines Cebu
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                             'Accept': 'application/json'
                         }
                     })
@@ -19711,7 +19711,7 @@ University of the Philippines Cebu
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                             'Accept': 'application/json'
                         }
                     })
@@ -21185,16 +21185,16 @@ University of the Philippines Cebu
                 const result = await response.json();
 
                 if (result.success) {
-                    showToast(result.message, 'success');
+                    showToast('success', result.message);
                     document.getElementById(`pending-intern-${internId}`).remove();
                     // Update pending count
                     setTimeout(() => location.reload(), 1500);
                 } else {
-                    showToast(result.message || 'An error occurred', 'error');
+                    showToast('error', result.message || 'An error occurred');
                 }
             } catch (error) {
                 console.error('Error:', error);
-                showToast('An error occurred while approving the intern', 'error');
+                showToast('error', 'An error occurred while approving the intern');
             }
         }
 
@@ -22235,12 +22235,12 @@ University of the Philippines Cebu
                 <div style="margin-bottom: 20px;">
                     <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 8px;">Who can upload? <span style="color: #EF4444;">*</span></label>
                     <p style="font-size: 12px; color: #6B7280; margin-bottom: 12px;">Select specific interns, team leaders, or startups who can upload to this folder</p>
-                    
+
                     <!-- Loading indicator -->
                     <div id="folderPermissionsLoading" style="text-align: center; padding: 20px; color: #6B7280;">
                         <i class="fas fa-spinner fa-spin"></i> Loading...
                     </div>
-                    
+
                     <!-- Permissions container (populated by JS) -->
                     <div id="folderPermissionsContainer" style="display: none; max-height: 350px; overflow-y: auto; border: 1px solid #E5E7EB; border-radius: 8px;">
                         <!-- Interns Section -->
@@ -22259,7 +22259,7 @@ University of the Philippines Cebu
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- Team Leaders Section -->
                         <div class="permission-accordion">
                             <div class="permission-accordion-header" onclick="togglePermissionAccordion('teamLeadersAccordion')">
@@ -22276,7 +22276,7 @@ University of the Philippines Cebu
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- Startups Section -->
                         <div class="permission-accordion">
                             <div class="permission-accordion-header" onclick="togglePermissionAccordion('startupsAccordion')">
