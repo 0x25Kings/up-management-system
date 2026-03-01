@@ -45,6 +45,25 @@
         .fa-spin {
             animation: spin 1s linear infinite;
         }
+        /* ── Modern loading spinner ─────────────────────────────────────────── */
+        @keyframes up-spin {
+            to { transform: rotate(360deg); }
+        }
+        i.fa-spinner::before { content: '' !important; }
+        i.fa-spinner {
+            display: inline-block;
+            width: 1em;
+            height: 1em;
+            border-radius: 50%;
+            border: 0.11em solid rgba(123, 29, 58, 0.12);
+            border-top-color: var(--maroon, #7B1D3A);
+            border-right-color: #C9A000;
+            box-sizing: border-box;
+            vertical-align: middle;
+        }
+        i.fa-spinner.fa-spin {
+            animation: up-spin 0.72s cubic-bezier(0.4, 0, 0.2, 1) infinite !important;
+        }
 
         /* Pulse animation for updated elements */
         @keyframes pulse-green {

@@ -94,6 +94,8 @@ class Setting extends Model
             'work_end' => ['value' => '17:00', 'type' => 'string'],
             'grace_period' => ['value' => 15, 'type' => 'integer'],
             'overtime_threshold' => ['value' => 8, 'type' => 'float'],
+            'overtime_max_daily' => ['value' => 4, 'type' => 'float'],
+            'overtime_auto_approve' => ['value' => false, 'type' => 'boolean'],
             'auto_approve_intern' => ['value' => false, 'type' => 'boolean'],
             'require_overtime_approval' => ['value' => true, 'type' => 'boolean'],
 

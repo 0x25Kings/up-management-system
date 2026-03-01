@@ -374,6 +374,7 @@ class AdminStartupController extends Controller
                     'id' => $progress->startup->id,
                     'company_name' => $progress->startup->company_name,
                     'startup_code' => $progress->startup->startup_code,
+                    'profile_photo_url' => $progress->startup->profile_photo ? asset('storage/' . $progress->startup->profile_photo) : null,
                 ]
             ]
         ]);
@@ -410,7 +411,7 @@ class AdminStartupController extends Controller
     {
         $moaRequests = StartupSubmission::where('type', 'moa')
             ->orderBy('created_at', 'desc')
-            ->with(['moaUploader'])
+            ->with(['moaUploader', 'startup'])
             ->get()
             ->map(function ($moa) {
                 return [
@@ -438,6 +439,8 @@ class AdminStartupController extends Controller
                     'created_at' => $moa->created_at->format('M d, Y h:i A'),
                     'created_at_iso' => $moa->created_at->toISOString(),
                     'reviewed_at' => $moa->reviewed_at ? $moa->reviewed_at->format('M d, Y h:i A') : null,
+                    'profile_photo_url' => ($moa->startup && $moa->startup->profile_photo)
+                        ? asset('storage/' . $moa->startup->profile_photo) : null,
                 ];
             });
 

@@ -73,6 +73,17 @@ class StartupDashboardController extends Controller
         $hasPayment = $paymentCount > 0;
         $hasProgress = $startup->progressUpdates()->count() > 0;
 
+        // Billing payment status
+        $lastApprovedPayment = $startup->submissions()
+            ->where('type', 'finance')
+            ->where('status', 'approved')
+            ->latest()
+            ->first();
+        $hasPendingPayment = $startup->submissions()
+            ->where('type', 'finance')
+            ->where('status', 'pending')
+            ->exists();
+
         return view('startup.dashboard', compact(
             'startup',
             'documentCount',
@@ -89,7 +100,9 @@ class StartupDashboardController extends Controller
             'hasDocuments',
             'hasMoa',
             'hasPayment',
-            'hasProgress'
+            'hasProgress',
+            'lastApprovedPayment',
+            'hasPendingPayment'
         ));
     }
 
@@ -842,7 +855,18 @@ class StartupDashboardController extends Controller
 
         $payments = $query->paginate(20);
 
-        return view('startup.billing', compact('startup', 'payments', 'statusFilter'));
+        // Billing payment status
+        $lastApprovedPayment = $startup->submissions()
+            ->where('type', 'finance')
+            ->where('status', 'approved')
+            ->latest()
+            ->first();
+        $hasPendingPayment = $startup->submissions()
+            ->where('type', 'finance')
+            ->where('status', 'pending')
+            ->exists();
+
+        return view('startup.billing', compact('startup', 'payments', 'statusFilter', 'lastApprovedPayment', 'hasPendingPayment'));
     }
 
     // ==========================================

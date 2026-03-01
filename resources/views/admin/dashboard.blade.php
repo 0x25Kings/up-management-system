@@ -258,6 +258,56 @@
             display: block;
         }
 
+        /* Page navigation loading bar */
+        #pageLoadingBar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            z-index: 99999;
+            pointer-events: none;
+            display: none;
+            overflow: hidden;
+            background: rgba(123, 29, 58, 0.10);
+        }
+        #pageLoadingBar .bar-fill {
+            position: absolute;
+            top: 0;
+            height: 100%;
+            width: 55%;
+            background: linear-gradient(90deg, transparent 0%, #7B1D3A 20%, #D4183D 55%, #FFBF00 82%, transparent 100%);
+            animation: adminBarSlide 0.95s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+            border-radius: 3px;
+        }
+        @keyframes adminBarSlide {
+            0%   { left: -55%; }
+            100% { left: 108%; }
+        }
+
+        /* ── Modern loading spinner ──────────────────────────────────────────
+           Replaces fa-spinner glyph with a dual-tone arc (maroon + gold).
+           Scales automatically via 1em so all existing font-size overrides work.
+        ──────────────────────────────────────────────────────────────────── */
+        @keyframes up-spin {
+            to { transform: rotate(360deg); }
+        }
+        i.fa-spinner::before { content: '' !important; }
+        i.fa-spinner {
+            display: inline-block;
+            width: 1em;
+            height: 1em;
+            border-radius: 50%;
+            border: 0.11em solid rgba(123, 29, 58, 0.12);
+            border-top-color: #7B1D3A;
+            border-right-color: #C9A000;
+            box-sizing: border-box;
+            vertical-align: middle;
+        }
+        i.fa-spinner.fa-spin {
+            animation: up-spin 0.72s cubic-bezier(0.4, 0, 0.2, 1) infinite !important;
+        }
+
         .filter-tabs {
             display: flex;
             gap: 10px;
@@ -1568,6 +1618,7 @@
             font-weight: 700;
             font-size: 12px;
             border: 2px solid white;
+            overflow: hidden;
         }
 
         .training-status,
@@ -4386,6 +4437,9 @@
     </aside>
 
     <!-- Main Content -->
+    <!-- Page Navigation Loading Bar -->
+    <div id="pageLoadingBar"><div class="bar-fill" style="display:none;"></div></div>
+
     <main class="main-content">
         <!-- Top Header -->
         <header class="top-header">
@@ -6194,7 +6248,13 @@
                                 </td>
                                 <td>
                                     <div style="display: flex; align-items: center; gap: 8px;">
-                                        <div class="avatar">{{ strtoupper(substr($moa->contact_person, 0, 1)) }}</div>
+                                        @if($moa->startup?->profile_photo)
+                                            <div class="avatar" style="padding:0;overflow:hidden;background:none;border:2px solid #E5E7EB;">
+                                                <img src="{{ asset('storage/' . $moa->startup->profile_photo) }}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                                            </div>
+                                        @else
+                                            <div class="avatar">{{ strtoupper(substr($moa->contact_person, 0, 1)) }}</div>
+                                        @endif
                                         <div>
                                             <span style="font-weight: 600;">{{ $moa->contact_person }}</span>
                                             @if($moa->phone)
@@ -7021,8 +7081,12 @@
                                 <tr class="progress-row" data-status="{{ $progress->status }}" data-type="{{ $progress->milestone_type }}" style="border-bottom: 1px solid #F3F4F6;">
                                     <td style="padding: 16px;">
                                         <div style="display: flex; align-items: center; gap: 10px;">
-                                            <div style="width: 36px; height: 36px; background: linear-gradient(135deg, #7B1D3A, #A62450); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 12px;">
-                                                {{ strtoupper(substr($progress->startup->company_name, 0, 2)) }}
+                                            <div style="width: 36px; height: 36px; background: linear-gradient(135deg, #7B1D3A, #A62450); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 12px; overflow: hidden; flex-shrink: 0;">
+                                                @if($progress->startup?->profile_photo)
+                                                    <img src="{{ asset('storage/' . $progress->startup->profile_photo) }}" alt="{{ $progress->startup->company_name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                                @else
+                                                    {{ strtoupper(substr($progress->startup->company_name, 0, 2)) }}
+                                                @endif
                                             </div>
                                             <div>
                                                 <div style="font-weight: 600; color: #1F2937;">{{ $progress->startup->company_name }}</div>
@@ -7373,7 +7437,7 @@
                             <i class="fas fa-times" style="color: white; font-size: 16px;"></i>
                         </button>
                     </div>
-                    <div class="modal-body" id="startupDetailsContent" style="padding: 28px;">
+                    <div class="modal-body" id="startupDetailsContent" style="padding: 24px; overflow-y: auto; max-height: calc(85vh - 80px);">
                         <!-- Content loaded dynamically -->
                     </div>
                 </div>
@@ -12051,6 +12115,12 @@
         function loadPage(event, pageId) {
             event.preventDefault();
 
+            // Show page-switch loading bar
+            const bar = document.getElementById('pageLoadingBar');
+            bar.innerHTML = '<div class="bar-fill"></div>';
+            bar.style.display = 'block';
+            setTimeout(() => { bar.style.display = 'none'; }, 950);
+
             // Hide all pages
             document.querySelectorAll('.page-content').forEach(page => {
                 page.classList.remove('active');
@@ -14223,6 +14293,8 @@
                     'rejection_remarks' => $m->rejection_remarks,
                     'created_at' => $m->created_at->format('M d, Y h:i A'),
                     'reviewed_at' => $m->reviewed_at ? $m->reviewed_at->format('M d, Y h:i A') : null,
+                    'profile_photo_url' => ($m->startup && $m->startup->profile_photo)
+                        ? asset('storage/' . $m->startup->profile_photo) : null,
                 ];
             })->keyBy('id')->toArray() : [];
 
@@ -15244,8 +15316,8 @@
                     ${payment.payment_proof_path ? `
                     <div style="width: 280px; flex-shrink: 0;">
                         <div style="font-size: 12px; color: #6B7280; margin-bottom: 8px; font-weight: 600;">Payment Proof</div>
-                        <a href="/storage/${payment.payment_proof_path}" target="_blank" style="display: block; border: 2px solid #E5E7EB; border-radius: 12px; overflow: hidden; transition: all 0.3s ease; height: calc(100% - 28px);" onmouseover="this.style.borderColor='#6366F1'" onmouseout="this.style.borderColor='#E5E7EB'">
-                            <img src="/storage/${payment.payment_proof_path}" alt="Payment Proof" style="width: 100%; height: 100%; object-fit: contain; background: #F9FAFB;" onerror="this.parentElement.innerHTML='<div style=\'padding: 40px 20px; text-align: center; color: #6366F1; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;\'><i class=\'fas fa-file-pdf\' style=\'font-size: 48px; margin-bottom: 8px;\'></i><span>Click to view document</span></div>'">
+                        <a href="/admin/payment-proof?path=${encodeURIComponent(payment.payment_proof_path)}" target="_blank" style="display: block; border: 2px solid #E5E7EB; border-radius: 12px; overflow: hidden; transition: all 0.3s ease; height: calc(100% - 28px);" onmouseover="this.style.borderColor='#6366F1'" onmouseout="this.style.borderColor='#E5E7EB'">
+                            <img src="/admin/payment-proof?path=${encodeURIComponent(payment.payment_proof_path)}" alt="Payment Proof" style="width: 100%; height: 100%; object-fit: contain; background: #F9FAFB;" onerror="this.parentElement.innerHTML='<div style=\'padding: 40px 20px; text-align: center; color: #6366F1; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;\'><i class=\'fas fa-file-pdf\' style=\'font-size: 48px; margin-bottom: 8px;\'></i><span>Click to view document</span></div>'">
                         </a>
                     </div>
                     ` : ''}
@@ -15719,8 +15791,11 @@
                         <div style="display: grid; gap: 16px;">
                             <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid #E5E7EB;">
                                 <div style="display: flex; align-items: center; gap: 12px;">
-                                    <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #7B1D3A, #A62450); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 16px;">
-                                        ${progress.startup.company_name.substring(0, 2).toUpperCase()}
+                                    <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #7B1D3A, #A62450); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 16px; overflow: hidden; flex-shrink: 0;">
+                                        ${progress.startup.profile_photo_url
+                                            ? `<img src="${progress.startup.profile_photo_url}" alt="${progress.startup.company_name}" style="width:100%;height:100%;object-fit:cover;">`
+                                            : progress.startup.company_name.substring(0, 2).toUpperCase()
+                                        }
                                     </div>
                                     <div>
                                         <div style="font-weight: 700; color: #1F2937;">${progress.startup.company_name}</div>
@@ -15915,8 +15990,11 @@
                     </td>
                     <td style="padding: 16px;">
                         <div style="display: flex; align-items: center; gap: 12px;">
-                            <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #7B1D3A, #A62450); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                                <span style="color: white; font-weight: 700; font-size: 14px;">${startup.company_name.charAt(0).toUpperCase()}</span>
+                            <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #7B1D3A, #A62450); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden;">
+                                ${startup.profile_photo
+                                    ? `<img src="/storage/${startup.profile_photo}" alt="" style="width:100%;height:100%;object-fit:cover;">`
+                                    : `<span style="color: white; font-weight: 700; font-size: 14px;">${startup.company_name.charAt(0).toUpperCase()}</span>`
+                                }
                             </div>
                             <div style="min-width: 0;">
                                 <div style="font-weight: 600; color: #1F2937; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${startup.company_name}</div>
@@ -16092,65 +16170,123 @@
             const startup = startupsData.find(s => s.id === id);
             if (!startup) return;
 
+            const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : null;
+            const fmtMoney = (v) => v ? '₱' + parseFloat(v).toLocaleString('en-US', { minimumFractionDigits: 2 }) : null;
+            const notSet = `<span style="color:#9CA3AF;font-style:italic;">Not yet set</span>`;
+
+            const moaStatusColors = {
+                active:  'background:#D1FAE5;color:#065F46;',
+                pending: 'background:#FEF3C7;color:#92400E;',
+                expired: 'background:#FEE2E2;color:#991B1B;',
+                none:    'background:#F3F4F6;color:#6B7280;',
+            };
+            const moaColor = moaStatusColors[startup.moa_status] || moaStatusColors.none;
+
             const content = `
                 <div style="display: grid; gap: 20px;">
+
+                    <!-- Header -->
                     <div style="display: flex; align-items: center; gap: 16px; padding-bottom: 16px; border-bottom: 1px solid #E5E7EB;">
-                        <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #7B1D3A, #A62450); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-building" style="font-size: 24px; color: white;"></i>
+                        <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #7B1D3A, #A62450); border-radius: 12px; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;">
+                            ${startup.profile_photo
+                                ? `<img src="/storage/${startup.profile_photo}" alt="${startup.company_name}" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">`
+                                : `<i class="fas fa-building" style="font-size: 24px; color: white;"></i>`
+                            }
                         </div>
                         <div>
                             <h3 style="font-size: 20px; font-weight: 700; color: #1F2937; margin-bottom: 4px;">${startup.company_name}</h3>
                             <span style="font-family: monospace; background: #F3F4F6; padding: 4px 8px; border-radius: 4px; font-size: 14px;">${startup.startup_code}</span>
                         </div>
+                        <div style="margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 6px;">
+                            <span style="padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; ${startup.status === 'active' ? 'background:#D1FAE5;color:#065F46;' : 'background:#FEE2E2;color:#991B1B;'}">
+                                ${startup.status.charAt(0).toUpperCase() + startup.status.slice(1)}
+                            </span>
+                        </div>
                     </div>
 
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                        <div style="background: #F9FAFB; padding: 16px; border-radius: 8px;">
-                            <label style="font-size: 12px; color: #6B7280; text-transform: uppercase;">Contact Person</label>
-                            <div style="font-weight: 600; color: #1F2937; margin-top: 4px;">${startup.contact_person || '-'}</div>
-                        </div>
-                        <div style="background: #F9FAFB; padding: 16px; border-radius: 8px;">
-                            <label style="font-size: 12px; color: #6B7280; text-transform: uppercase;">Email</label>
-                            <div style="font-weight: 600; color: #1F2937; margin-top: 4px;">${startup.email || '-'}</div>
-                        </div>
-                        <div style="background: #F9FAFB; padding: 16px; border-radius: 8px;">
-                            <label style="font-size: 12px; color: #6B7280; text-transform: uppercase;">Phone</label>
-                            <div style="font-weight: 600; color: #1F2937; margin-top: 4px;">${startup.phone || '-'}</div>
-                        </div>
-                        <div style="background: #F9FAFB; padding: 16px; border-radius: 8px;">
-                            <label style="font-size: 12px; color: #6B7280; text-transform: uppercase;">MOA Status</label>
-                            <div style="margin-top: 4px;">
-                                <span style="padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
-                                    ${startup.moa_status === 'active' ? 'background: #D1FAE5; color: #065F46;' : ''}
-                                    ${startup.moa_status === 'pending' ? 'background: #FEF3C7; color: #92400E;' : ''}
-                                    ${startup.moa_status === 'expired' ? 'background: #FEE2E2; color: #991B1B;' : ''}
-                                    ${startup.moa_status === 'none' ? 'background: #F3F4F6; color: #6B7280;' : ''}
-                                ">${startup.moa_status.charAt(0).toUpperCase() + startup.moa_status.slice(1)}</span>
+                    <!-- Contact Info -->
+                    <div>
+                        <div style="font-size: 11px; font-weight: 700; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px;">Contact Information</div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div style="background:#F9FAFB;padding:12px 14px;border-radius:8px;">
+                                <div style="font-size:11px;color:#6B7280;text-transform:uppercase;margin-bottom:3px;">Contact Person</div>
+                                <div style="font-weight:600;color:#1F2937;">${startup.contact_person || '-'}</div>
                             </div>
-                        </div>
-                        <div style="background: #F9FAFB; padding: 16px; border-radius: 8px;">
-                            <label style="font-size: 12px; color: #6B7280; text-transform: uppercase;">Account Status</label>
-                            <div style="margin-top: 4px;">
-                                <span style="padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
-                                    ${startup.status === 'active' ? 'background: #D1FAE5; color: #065F46;' : 'background: #FEE2E2; color: #991B1B;'}
-                                ">${startup.status.charAt(0).toUpperCase() + startup.status.slice(1)}</span>
+                            <div style="background:#F9FAFB;padding:12px 14px;border-radius:8px;">
+                                <div style="font-size:11px;color:#6B7280;text-transform:uppercase;margin-bottom:3px;">Email</div>
+                                <div style="font-weight:600;color:#1F2937;">${startup.email || '-'}</div>
+                            </div>
+                            <div style="background:#F9FAFB;padding:12px 14px;border-radius:8px;">
+                                <div style="font-size:11px;color:#6B7280;text-transform:uppercase;margin-bottom:3px;">Phone</div>
+                                <div style="font-weight:600;color:#1F2937;">${startup.phone || '-'}</div>
+                            </div>
+                            <div style="background:#F9FAFB;padding:12px 14px;border-radius:8px;">
+                                <div style="font-size:11px;color:#6B7280;text-transform:uppercase;margin-bottom:3px;">Room Number</div>
+                                <div style="font-weight:600;color:#1F2937;">${startup.room_number || '-'}</div>
                             </div>
                         </div>
                     </div>
 
-                    ${startup.moa_expiry ? `
-                    <div style="background: #FEF3C7; padding: 12px 16px; border-radius: 8px; border: 1px solid #FCD34D;">
-                        <i class="fas fa-calendar-alt" style="color: #D97706;"></i>
-                        <span style="color: #92400E; font-weight: 500;"> MOA Expires: ${new Date(startup.moa_expiry).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
-                    </div>
-                    ` : ''}
-
-                    <div style="background: #F3F4F6; padding: 12px 16px; border-radius: 8px;">
-                        <div style="display: flex; justify-content: space-between; color: #6B7280; font-size: 13px;">
-                            <span>Created: ${new Date(startup.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
-                            <span>Last Updated: ${new Date(startup.updated_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
+                    <!-- MOA Details -->
+                    <div style="border:1px solid #E5E7EB;border-radius:10px;overflow:hidden;">
+                        <div style="background:linear-gradient(135deg,#F0FDF4,#DCFCE7);padding:10px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #E5E7EB;">
+                            <i class="fas fa-file-contract" style="color:#16A34A;font-size:14px;"></i>
+                            <span style="font-size:12px;font-weight:700;color:#15803D;text-transform:uppercase;letter-spacing:0.05em;">MOA Details</span>
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;">
+                            <div style="padding:12px 14px;border-right:1px solid #F3F4F6;border-bottom:1px solid #F3F4F6;">
+                                <div style="font-size:11px;color:#6B7280;text-transform:uppercase;margin-bottom:4px;">MOA Status</div>
+                                <span style="padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;${moaColor}">
+                                    ${startup.moa_status.charAt(0).toUpperCase() + startup.moa_status.slice(1)}
+                                </span>
+                            </div>
+                            <div style="padding:12px 14px;border-bottom:1px solid #F3F4F6;">
+                                <div style="font-size:11px;color:#6B7280;text-transform:uppercase;margin-bottom:4px;">MOA Expiry Date</div>
+                                <div style="font-weight:600;color:#1F2937;">${fmtDate(startup.moa_expiry) || notSet}</div>
+                            </div>
                         </div>
                     </div>
+
+                    <!-- Billing Details -->
+                    <div style="border:1px solid #E5E7EB;border-radius:10px;overflow:hidden;">
+                        <div style="background:linear-gradient(135deg,#F5F3FF,#EDE9FE);padding:10px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #E5E7EB;">
+                            <i class="fas fa-credit-card" style="color:#7C3AED;font-size:14px;"></i>
+                            <span style="font-size:12px;font-weight:700;color:#6D28D9;text-transform:uppercase;letter-spacing:0.05em;">Billing Details</span>
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;">
+                            <div style="padding:12px 14px;border-right:1px solid #F3F4F6;border-bottom:1px solid #F3F4F6;">
+                                <div style="font-size:11px;color:#6B7280;text-transform:uppercase;margin-bottom:4px;">Payment Amount</div>
+                                <div style="font-weight:600;color:#1F2937;">${fmtMoney(startup.payment_amount) || notSet}</div>
+                            </div>
+                            <div style="padding:12px 14px;border-bottom:1px solid #F3F4F6;">
+                                <div style="font-size:11px;color:#6B7280;text-transform:uppercase;margin-bottom:4px;">Payment Duration</div>
+                                <div style="font-weight:600;color:#1F2937;">${startup.payment_duration || notSet}</div>
+                            </div>
+                            <div style="padding:12px 14px;border-right:1px solid #F3F4F6;border-bottom:1px solid #F3F4F6;">
+                                <div style="font-size:11px;color:#6B7280;text-transform:uppercase;margin-bottom:4px;">Payment Start Date</div>
+                                <div style="font-weight:600;color:#1F2937;">${fmtDate(startup.payment_start_date) || notSet}</div>
+                            </div>
+                            <div style="padding:12px 14px;border-bottom:1px solid #F3F4F6;">
+                                <div style="font-size:11px;color:#6B7280;text-transform:uppercase;margin-bottom:4px;">Payment Due Date</div>
+                                <div style="font-weight:600;color:#1F2937;">${fmtDate(startup.payment_due_date) || notSet}</div>
+                            </div>
+                            <div style="padding:12px 14px;grid-column:1/-1;">
+                                <div style="font-size:11px;color:#6B7280;text-transform:uppercase;margin-bottom:4px;">Next Payment Due</div>
+                                <div style="font-weight:600;color:${startup.next_payment_due ? '#7C3AED' : '#9CA3AF'};">
+                                    ${fmtDate(startup.next_payment_due) || notSet}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div style="background:#F9FAFB;padding:10px 14px;border-radius:8px;border:1px solid #F3F4F6;">
+                        <div style="display:flex;justify-content:space-between;color:#6B7280;font-size:12px;">
+                            <span><i class="fas fa-calendar-plus" style="margin-right:4px;"></i>Created: ${new Date(startup.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
+                            <span><i class="fas fa-clock" style="margin-right:4px;"></i>Updated: ${new Date(startup.updated_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
+                        </div>
+                    </div>
+
                 </div>
             `;
 
@@ -17579,8 +17715,16 @@ University of the Philippines Cebu
                             </div>
                         </td>
                         <td style="padding: 14px 16px;">
-                            <div style="font-weight: 600; color: #1F2937;">${escapeHtml(moa.company_name || '')}</div>
-                            <div style="font-size: 12px; color: #6B7280;">${escapeHtml(moa.contact_person || '')} • ${escapeHtml(moa.email || '')}</div>
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                ${moa.profile_photo_url
+                                    ? `<img src="${moa.profile_photo_url}" alt="" style="width:36px;height:36px;border-radius:8px;object-fit:cover;flex-shrink:0;border:1px solid #E5E7EB;">`
+                                    : `<div style="width:36px;height:36px;background:linear-gradient(135deg,#7B1D3A,#A62450);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:700;font-size:14px;color:white;">${escapeHtml((moa.company_name||'').charAt(0).toUpperCase())}</div>`
+                                }
+                                <div>
+                                    <div style="font-weight: 600; color: #1F2937;">${escapeHtml(moa.company_name || '')}</div>
+                                    <div style="font-size: 12px; color: #6B7280;">${escapeHtml(moa.contact_person || '')} • ${escapeHtml(moa.email || '')}</div>
+                                </div>
+                            </div>
                         </td>
                         <td style="padding: 14px 16px;">
                             <div style="font-weight: 500; color: #374151;">${escapeHtml(moa.moa_purpose || '')}</div>
@@ -17659,6 +17803,16 @@ University of the Philippines Cebu
             currentMoaId = moaId;
 
             document.getElementById('moaModalTrackingCode').textContent = moa.tracking_code || '';
+
+            // Update modal header with profile photo
+            const moaAvatarEl = document.querySelector('#moaDetailsModal .modal-content > div:first-child > div:first-child > div:first-child');
+            if (moaAvatarEl) {
+                moaAvatarEl.innerHTML = moa.profile_photo_url
+                    ? `<img src="${moa.profile_photo_url}" alt="${escapeHtml(moa.company_name || '')}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;">`
+                    : `<i class="fas fa-file-contract" style="font-size: 18px; color: white;"></i>`;
+                if (moa.profile_photo_url) moaAvatarEl.style.padding = '0';
+                else moaAvatarEl.style.padding = '';
+            }
 
             const statusBadge = getStatusBadge(moa.status);
             const submittedDate = moa.created_at ? new Date(moa.created_at).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : 'N/A';
@@ -17975,12 +18129,48 @@ University of the Philippines Cebu
                     const allFolders = [...sharedFolders, ...data.intern_folders];
                     displayItems(allFolders, []);
                 } else {
-                    showToast('error', 'Error', data.message || 'Failed to load folders');
+                    // Silently ignore auth failures (user may not have digital_records permission)
+                    if (data.message && data.message !== 'Unauthorized') {
+                        showToast('error', 'Error', data.message || 'Failed to load folders');
+                    }
+                    // Only show permission-denied UI for actual auth failures; show retry for other errors
+                    if (data.message === 'Unauthorized') {
+                        document.getElementById('grid-view').innerHTML = `
+                            <div style="grid-column:span 7;text-align:center;padding:60px 20px;color:#9CA3AF;">
+                                <i class="fas fa-lock" style="font-size:48px;margin-bottom:16px;display:block;color:#D1D5DB;"></i>
+                                <p style="font-size:15px;font-weight:600;color:#6B7280;margin-bottom:6px;">Digital Records Not Accessible</p>
+                                <p style="font-size:13px;">You don't have permission to view this section.</p>
+                            </div>`;
+                        document.getElementById('list-view-body').innerHTML = `
+                            <tr><td colspan="5" style="text-align:center;padding:50px;color:#9CA3AF;">
+                                <i class="fas fa-lock" style="font-size:28px;margin-bottom:12px;display:block;"></i>
+                                <p>Digital records not accessible</p>
+                            </td></tr>`;
+                    } else {
+                        document.getElementById('grid-view').innerHTML = `
+                            <div style="grid-column:span 7;text-align:center;padding:60px 20px;color:#9CA3AF;">
+                                <i class="fas fa-exclamation-circle" style="font-size:48px;margin-bottom:16px;display:block;color:#F59E0B;"></i>
+                                <p style="font-size:15px;font-weight:600;color:#6B7280;margin-bottom:6px;">Unable to Load Folders</p>
+                                <p style="font-size:13px;margin-bottom:16px;">${data.message || 'An error occurred while loading digital records.'}</p>
+                                <button onclick="loadRootFolders()" style="padding:8px 20px;background:linear-gradient(135deg,#7B1D3A,#A62450);color:white;border:none;border-radius:8px;font-weight:600;cursor:pointer;">
+                                    <i class="fas fa-redo" style="margin-right:6px;"></i>Retry
+                                </button>
+                            </div>`;
+                        document.getElementById('list-view-body').innerHTML = `
+                            <tr><td colspan="5" style="text-align:center;padding:50px;color:#9CA3AF;">
+                                <i class="fas fa-exclamation-circle" style="font-size:28px;margin-bottom:12px;display:block;color:#F59E0B;"></i>
+                                <p style="margin-bottom:12px;">${data.message || 'Failed to load folders'}</p>
+                                <button onclick="loadRootFolders()" style="padding:6px 16px;background:linear-gradient(135deg,#7B1D3A,#A62450);color:white;border:none;border-radius:8px;font-weight:600;cursor:pointer;">Retry</button>
+                            </td></tr>`;
+                    }
                 }
             })
             .catch(error => {
                 console.error('Error loading folders:', error);
-                showToast('error', 'Error', 'An error occurred while loading folders');
+                // Only show toast for non-auth errors
+                if (!error.message?.includes('401') && !error.message?.includes('403')) {
+                    showToast('error', 'Error', 'An error occurred while loading folders');
+                }
             });
         }
 

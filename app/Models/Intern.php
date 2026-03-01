@@ -200,6 +200,25 @@ class Intern extends Model
     }
 
     /**
+     * Recalculate completed_hours from all finalized attendance records.
+     * Sums effective_hours (regular + approved OT) for records with time_out set.
+     * Saves the result to the DB and refreshes the model.
+     */
+    public function recalculateCompletedHours(): void
+    {
+        $total = 0.0;
+        $this->attendances()
+            ->whereNotNull('time_out')
+            ->get()
+            ->each(function ($attendance) use (&$total) {
+                $total += $attendance->effective_hours;
+            });
+
+        $this->completed_hours = floor($total);
+        $this->save();
+    }
+
+    /**
      * Auto-update task progress based on attendance records
      * Called daily to increment progress for active tasks
      */

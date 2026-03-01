@@ -17,6 +17,92 @@
         </div>
     </div>
 
+    <!-- Billing Status Banner -->
+    @if($startup->next_payment_due || $startup->payment_due_date || $startup->payment_amount)
+    @php
+        $daysUntilBilling = $startup->next_payment_due ? (int) now()->diffInDays($startup->next_payment_due, false) : null;
+        $isOverdue = $daysUntilBilling !== null && $daysUntilBilling < 0;
+        // Only "due soon" when within 30 days AND no approved payment covering this period
+        $isDueSoon = !$isOverdue && $daysUntilBilling !== null && $daysUntilBilling <= 30 && !$lastApprovedPayment;
+        $billingBannerBg = $isOverdue ? 'linear-gradient(135deg, #FEE2E2, #FECACA)' : ($isDueSoon ? 'linear-gradient(135deg, #FEF3C7, #FDE68A)' : 'linear-gradient(135deg, #D1FAE5, #A7F3D0)');
+        $billingBannerBorder = $isOverdue ? '#EF4444' : ($isDueSoon ? '#F59E0B' : '#10B981');
+        $billingBannerText = $isOverdue ? '#991B1B' : ($isDueSoon ? '#92400E' : '#065F46');
+        $billingIcon = $isOverdue ? 'exclamation-triangle' : ($isDueSoon ? 'hourglass-half' : 'check-circle');
+    @endphp
+    <div style="background: {{ $billingBannerBg }}; border: 1px solid {{ $billingBannerBorder }}; border-radius: 14px; padding: 18px 24px; margin-bottom: 20px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+        <div style="width: 44px; height: 44px; background: {{ $billingBannerBorder }}; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; flex-shrink: 0;">
+            <i class="fas fa-{{ $billingIcon }}"></i>
+        </div>
+        <div style="flex: 1; min-width: 200px;">
+            @if($isOverdue)
+                <div style="font-size: 15px; font-weight: 700; color: {{ $billingBannerText }}; margin-bottom: 4px;">
+                    Payment Overdue
+                </div>
+                <div style="font-size: 13px; color: {{ $billingBannerText }};">
+                    Your payment is overdue by <strong>{{ abs($daysUntilBilling) }} {{ Str::plural('day', abs($daysUntilBilling)) }}</strong>.
+                    @if($startup->payment_amount) Amount due: <strong>₱{{ number_format($startup->payment_amount, 2) }}</strong>.@endif
+                    Please submit your payment as soon as possible.
+                </div>
+            @elseif($isDueSoon)
+                @if($hasPendingPayment)
+                    <div style="font-size: 15px; font-weight: 700; color: #1E40AF; margin-bottom: 4px;">
+                        Payment Under Review
+                    </div>
+                    <div style="font-size: 13px; color: #1E40AF;">
+                        You have a pending payment awaiting admin approval.
+                        Next payment due on <strong>{{ $startup->next_payment_due->format('F d, Y') }}</strong>
+                        (in {{ $daysUntilBilling }} {{ Str::plural('day', $daysUntilBilling) }}).
+                    </div>
+                @else
+                    <div style="font-size: 15px; font-weight: 700; color: {{ $billingBannerText }}; margin-bottom: 4px;">
+                        Payment Due Soon
+                    </div>
+                    <div style="font-size: 13px; color: {{ $billingBannerText }};">
+                        Your next payment is due in <strong>{{ $daysUntilBilling }} {{ Str::plural('day', $daysUntilBilling) }}</strong>
+                        on <strong>{{ $startup->next_payment_due->format('F d, Y') }}</strong>.
+                        @if($startup->payment_amount) Amount: <strong>₱{{ number_format($startup->payment_amount, 2) }}</strong>.@endif
+                    </div>
+                @endif
+            @else
+                <div style="font-size: 15px; font-weight: 700; color: {{ $billingBannerText }}; margin-bottom: 4px;">
+                    Payment Up to Date
+                </div>
+                <div style="font-size: 13px; color: {{ $billingBannerText }};">
+                    You're all caught up!
+                    @if($startup->next_payment_due)
+                        Next payment due on <strong>{{ $startup->next_payment_due->format('F d, Y') }}</strong>
+                        @if($startup->payment_amount) — <strong>₱{{ number_format($startup->payment_amount, 2) }}</strong>@endif
+                        (in {{ $daysUntilBilling }} {{ Str::plural('day', $daysUntilBilling) }}).
+                    @endif
+                </div>
+            @endif
+            @if($lastApprovedPayment)
+                <div style="margin-top: 6px; font-size: 12px; color: #6B7280;">
+                    <i class="fas fa-check-circle" style="color: #10B981;"></i>
+                    Last approved payment: {{ $lastApprovedPayment->created_at->format('M d, Y') }}
+                    @if($lastApprovedPayment->amount) — ₱{{ number_format($lastApprovedPayment->amount, 2) }}@endif
+                </div>
+            @endif
+        </div>
+        <div>
+            @if($isOverdue)
+                <a href="{{ route('startup.submit-payment') }}" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; background: linear-gradient(135deg, #EF4444, #DC2626); color: white; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 14px; box-shadow: 0 4px 12px rgba(239,68,68,0.3);">
+                    <i class="fas fa-credit-card"></i> Pay Now
+                </a>
+            @elseif($isDueSoon && !$hasPendingPayment)
+                <a href="{{ route('startup.submit-payment') }}" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; background: linear-gradient(135deg, #F59E0B, #D97706); color: white; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 14px; box-shadow: 0 4px 12px rgba(245,158,11,0.3);">
+                    <i class="fas fa-credit-card"></i> Submit Payment
+                </a>
+            @else
+                <span style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; background: {{ $billingBannerBorder }}; color: white; border-radius: 10px; font-weight: 700; font-size: 14px;">
+                    <i class="fas fa-{{ $billingIcon }}"></i>
+                    {{ $isOverdue ? 'Overdue' : ($hasPendingPayment ? 'Pending Review' : 'Up to Date') }}
+                </span>
+            @endif
+        </div>
+    </div>
+    @endif
+
     <!-- Filter Bar -->
     <div style="display: flex; justify-content: flex-start; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 8px;">
         <a href="{{ route('startup.billing') }}" style="padding: 8px 18px; border-radius: 10px; font-size: 13px; font-weight: 600; text-decoration: none; transition: all 0.3s; {{ $statusFilter === 'all' ? 'background: linear-gradient(135deg, #7B1D3A, #A62450); color: white; box-shadow: 0 4px 12px rgba(123,29,58,0.3);' : 'background: white; color: #6B7280; border: 1px solid #E5E7EB;' }}">

@@ -37,7 +37,7 @@ class Attendance extends Model
 
     // Required hours per day
     const REQUIRED_HOURS = 8;
-    
+
     // Lunch break times (12:00 PM - 1:00 PM)
     const LUNCH_START_HOUR = 12;
     const LUNCH_END_HOUR = 13;
@@ -52,6 +52,26 @@ class Attendance extends Model
     }
 
     /**
+     * Boot the model — auto-calculate overtime/undertime whenever a record with
+     * both time_in and time_out is saved through Eloquent (prevents stale DB records).
+     */
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::saving(function (Attendance $attendance) {
+            // Only (re)calculate when time_out is present and hours_worked is meaningful
+            if ($attendance->time_out && (float) ($attendance->hours_worked ?? 0) > 0) {
+                // Skip if the change originated inside calculateOvertimeUndertime itself
+                // (it only touches overtime_hours/undertime_hours/overtime_approved, not hours_worked)
+                if ($attendance->isDirty('hours_worked') || $attendance->isDirty('time_out')) {
+                    $attendance->calculateOvertimeUndertime();
+                }
+            }
+        });
+    }
+
+    /**
      * Calculate lunch break deduction based on time in and time out
      * Returns the number of hours to deduct for lunch
      */
@@ -60,21 +80,21 @@ class Attendance extends Model
         // Get lunch start and end times for the same day
         $lunchStart = $timeIn->copy()->setTime(self::LUNCH_START_HOUR, 0, 0);
         $lunchEnd = $timeIn->copy()->setTime(self::LUNCH_END_HOUR, 0, 0);
-        
+
         // Check if the work period overlaps with lunch
         // Time in before lunch end AND time out after lunch start = overlap exists
         if ($timeIn < $lunchEnd && $timeOut > $lunchStart) {
             // Calculate actual overlap
             $overlapStart = $timeIn > $lunchStart ? $timeIn : $lunchStart;
             $overlapEnd = $timeOut < $lunchEnd ? $timeOut : $lunchEnd;
-            
+
             // Use absolute value to ensure positive result
             $overlapMinutes = abs($overlapEnd->diffInMinutes($overlapStart));
-            
+
             // Return the overlap in hours (max 1 hour)
             return min($overlapMinutes / 60, self::LUNCH_DURATION_HOURS);
         }
-        
+
         return 0;
     }
 
@@ -95,15 +115,15 @@ class Attendance extends Model
 
         // Calculate total hours
         $totalHours = $timeOut->diffInSeconds($timeIn, true) / 3600;
-        
+
         // Deduct lunch break if applicable
         $lunchDeduction = self::calculateLunchDeduction($timeIn, $timeOut);
-        
+
         $netHours = $totalHours - $lunchDeduction;
-        
+
         return round(max(0, $netHours), 2);
     }
-    
+
     /**
      * Static method to calculate hours worked from time strings
      * Used by controllers before saving attendance
@@ -113,15 +133,15 @@ class Attendance extends Model
         $attendanceDate = $date ?? Carbon::now('Asia/Manila')->format('Y-m-d');
         $timeIn = Carbon::parse($attendanceDate . ' ' . $timeInStr, 'Asia/Manila');
         $timeOut = Carbon::parse($attendanceDate . ' ' . $timeOutStr, 'Asia/Manila');
-        
+
         // Calculate total hours
         $totalHours = $timeOut->diffInSeconds($timeIn, true) / 3600;
-        
+
         // Deduct lunch break if applicable
         $lunchDeduction = self::calculateLunchDeduction($timeIn, $timeOut);
-        
+
         $netHours = $totalHours - $lunchDeduction;
-        
+
         return round(max(0, $netHours), 2);
     }
 
@@ -148,7 +168,7 @@ class Attendance extends Model
         if (!$this->time_in || $this->time_in === '00:00:00') {
             return '--:--';
         }
-        
+
         // Parse with date context to ensure proper timezone handling
         $date = $this->date ? Carbon::parse($this->date)->format('Y-m-d') : now('Asia/Manila')->format('Y-m-d');
         return Carbon::parse($date . ' ' . $this->time_in, 'Asia/Manila')->format('h:i A');
@@ -162,7 +182,7 @@ class Attendance extends Model
         if (!$this->time_out) {
             return '--:--';
         }
-        
+
         // Parse with date context to ensure proper timezone handling
         $date = $this->date ? Carbon::parse($this->date)->format('Y-m-d') : now('Asia/Manila')->format('Y-m-d');
         return Carbon::parse($date . ' ' . $this->time_out, 'Asia/Manila')->format('h:i A');
@@ -189,7 +209,7 @@ class Attendance extends Model
     public function calculateOvertimeUndertime(): void
     {
         $hoursWorked = (float) $this->hours_worked;
-        
+
         // Get threshold from settings (default 8.5 hours - only count OT after this)
         $threshold = (float) Setting::get('overtime_threshold', 8.5);
         // Get max daily OT cap from settings (default 4 hours)
@@ -202,10 +222,10 @@ class Attendance extends Model
             $rawOT = $hoursWorked - self::REQUIRED_HOURS;
             // Apply cap
             $cappedOT = min($rawOT, $maxOT);
-            
+
             $this->attributes['overtime_hours'] = round($cappedOT, 2);
             $this->attributes['undertime_hours'] = 0;
-            
+
             // Auto-approve if setting enabled
             if ($autoApprove && $cappedOT > 0 && !$this->overtime_approved) {
                 $this->attributes['overtime_approved'] = true;
@@ -220,7 +240,7 @@ class Attendance extends Model
             $this->attributes['undertime_hours'] = round(self::REQUIRED_HOURS - $hoursWorked, 2);
         }
     }
-    
+
     /**
      * Get regular hours (capped at required hours)
      */
@@ -228,7 +248,7 @@ class Attendance extends Model
     {
         return min((float) $this->hours_worked, self::REQUIRED_HOURS);
     }
-    
+
     /**
      * Get display string with split hours (e.g., "8.00 hrs + 3.00 OT")
      */
@@ -236,11 +256,11 @@ class Attendance extends Model
     {
         $regular = $this->regular_hours;
         $ot = (float) $this->overtime_hours;
-        
+
         if ($ot > 0) {
             return number_format($regular, 2) . ' hrs + ' . number_format($ot, 2) . ' OT';
         }
-        
+
         return number_format((float) $this->hours_worked, 2) . ' hrs';
     }
 
@@ -275,17 +295,17 @@ class Attendance extends Model
     public function getEffectiveHoursAttribute(): float
     {
         $hoursWorked = (float) ($this->hours_worked ?? 0);
-        
+
         // If no hours worked, return 0
         if ($hoursWorked <= 0) {
             return 0;
         }
-        
+
         // If overtime is approved, count all hours worked
         if ($this->overtime_approved) {
             return $hoursWorked;
         }
-        
+
         // Otherwise, cap at required hours (8)
         return min($hoursWorked, self::REQUIRED_HOURS);
     }

@@ -97,7 +97,7 @@
                     <!-- Reference Number -->
                     <div class="form-group">
                         <label>Reference Number <span>*</span></label>
-                        <input type="text" name="invoice_number" class="form-input @error('invoice_number') error @enderror" 
+                        <input type="text" name="invoice_number" class="form-input @error('invoice_number') error @enderror"
                                placeholder="e.g., REF-2024-001" value="{{ old('invoice_number') }}" required>
                         @error('invoice_number')
                             <div class="error-message">{{ $message }}</div>
@@ -109,7 +109,7 @@
                         <label>Amount Paid <span>*</span></label>
                         <div style="position: relative;">
                             <span style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #6B7280; font-weight: 600;">₱</span>
-                            <input type="number" name="amount" class="form-input @error('amount') error @enderror" 
+                            <input type="number" name="amount" class="form-input @error('amount') error @enderror"
                                    style="padding-left: 36px;"
                                    placeholder="0.00" value="{{ old('amount') }}" step="0.01" min="0" required>
                         </div>
@@ -124,7 +124,7 @@
                     <label>Payment Method <span>*</span></label>
                     <!-- Hidden input for form submission -->
                     <input type="hidden" name="payment_method" id="paymentMethodInput" value="{{ old('payment_method') }}" required>
-                    
+
                     <!-- Custom Dropdown -->
                     <div class="custom-select-wrapper @error('payment_method') error @enderror" id="paymentMethodDropdown">
                         <div class="custom-select-trigger" onclick="togglePaymentDropdown()">
@@ -174,7 +174,7 @@
                         </div>
                         <h4>Drag & drop your receipt here or <span>browse</span></h4>
                         <p>JPG, PNG, PDF (max 5MB) - Screenshot or photo of payment confirmation</p>
-                        <input type="file" name="payment_proof" id="fileInput" accept=".jpg,.jpeg,.png,.pdf" 
+                        <input type="file" name="payment_proof" id="fileInput" accept=".jpg,.jpeg,.png,.pdf"
                                style="display: none;">
                     </div>
                     <div id="filePreview" class="file-preview" style="display: none;">
@@ -201,7 +201,7 @@
                 <!-- Notes -->
                 <div class="form-group">
                     <label>Additional Notes</label>
-                    <textarea name="notes" class="form-textarea @error('notes') error @enderror" 
+                    <textarea name="notes" class="form-textarea @error('notes') error @enderror"
                               placeholder="Any additional information about this payment (e.g., what the payment is for, transaction reference, etc.)">{{ old('notes') }}</textarea>
                     @error('notes')
                         <div class="error-message">{{ $message }}</div>
@@ -219,7 +219,7 @@
                             <p style="color: #B45309; font-size: 13px; margin: 0;">Please ensure the details below match your uploaded receipt</p>
                         </div>
                     </div>
-                    
+
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
                         <!-- Image Preview (Left side) -->
                         <div style="background: white; border-radius: 12px; padding: 20px; border: 1px solid #FCD34D;">
@@ -258,7 +258,7 @@
                                 </div>
 
                             </div>
-                            
+
                             <!-- Match Checklist -->
                             <div style="margin-top: 16px; padding: 14px; background: #FEF9C3; border-radius: 8px; border: 1px solid #FDE047;">
                                 <p style="font-size: 12px; font-weight: 600; color: #854D0E; margin-bottom: 8px;">
@@ -286,7 +286,7 @@
                         <h5 style="font-size: 14px; font-weight: 700; color: #92400E; margin-bottom: 16px;">
                             <i class="fas fa-robot"></i> Automatic Receipt Verification
                         </h5>
-                        
+
                         <!-- OCR Processing Status -->
                         <div id="ocrStatus" style="display: none; padding: 16px; border-radius: 10px; margin-bottom: 16px; text-align: center;">
                             <!-- Updated by JS -->
@@ -390,7 +390,7 @@
                                     I confirm that the payment proof I uploaded is clear, readable, and matches the details I entered above.
                                 </span>
                                 <p id="checkboxHint" style="font-size: 12px; color: #6B7280; margin-top: 4px; transition: color 0.3s ease;">
-                                    <i class="fas fa-info-circle"></i> 
+                                    <i class="fas fa-info-circle"></i>
                                     Submissions with unclear or mismatched proofs will be rejected and may delay your verification.
                                 </p>
                                 <!-- Live validation feedback -->
@@ -442,26 +442,31 @@
             grid-template-columns: 1fr !important;
         }
     }
-    
+
     @keyframes spin {
         to { transform: rotate(360deg); }
     }
-    
+
     .spinner {
-        animation: spin 1s linear infinite;
+        border-radius: 50%;
+        border: 0.13em solid rgba(123, 29, 58, 0.12);
+        border-top-color: #7B1D3A;
+        border-right-color: #C9A000;
+        box-sizing: border-box;
+        animation: spin 0.72s cubic-bezier(0.4, 0, 0.2, 1) infinite;
     }
-    
+
     @keyframes fadeIn {
         from { opacity: 0; }
         to { opacity: 1; }
     }
-    
+
     @keyframes slideUp {
-        from { 
+        from {
             opacity: 0;
             transform: translateY(20px) scale(0.95);
         }
-        to { 
+        to {
             opacity: 1;
             transform: translateY(0) scale(1);
         }
@@ -606,7 +611,7 @@
 
     function selectPaymentMethod(value, icon, text) {
         paymentMethodInput.value = value;
-        
+
         // Update display based on icon type
         if (icon === 'gcash') {
             paymentMethodDisplay.innerHTML = `
@@ -619,7 +624,7 @@
                 <span>${text}</span>
             `;
         }
-        
+
         // Update selected state
         document.querySelectorAll('.custom-select-option').forEach(opt => {
             opt.classList.remove('selected');
@@ -627,13 +632,13 @@
                 opt.classList.add('selected');
             }
         });
-        
+
         // Close dropdown
         paymentMethodDropdown.classList.remove('open');
-        
+
         // Remove error state if present
         paymentMethodDropdown.classList.remove('error');
-        
+
         // Update verification details and trigger method match check
         if (typeof updateVerificationDetails === 'function') {
             updateVerificationDetails();
@@ -665,7 +670,7 @@
                 'check': { icon: '📄', text: 'Check Payment' },
                 'cash': { icon: '💰', text: 'Cash (In-person)' }
             };
-            
+
             if (methodMap[oldValue]) {
                 selectPaymentMethod(oldValue, methodMap[oldValue].icon, methodMap[oldValue].text);
             }
@@ -729,12 +734,12 @@
             icon.className = 'fas fa-file-image';
             proofPreview.style.display = 'block';
             pdfPreview.style.display = 'none';
-            
+
             // Show image preview
             const reader = new FileReader();
             reader.onload = function(e) {
                 proofPreview.src = e.target.result;
-                
+
                 // Check image quality
                 const img = new Image();
                 img.onload = function() {
@@ -743,7 +748,7 @@
                     } else {
                         qualityWarning.style.display = 'none';
                     }
-                    
+
                     // Enhance image quality before OCR
                     enhanceImageForOCR(img).then(enhancedImageData => {
                         // Run OCR on the enhanced image
@@ -769,18 +774,18 @@
         return new Promise((resolve) => {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
-            
+
             // Calculate optimal size - upscale small images for better OCR
             let width = img.width;
             let height = img.height;
             const minDimension = 1500; // Minimum dimension for good OCR
-            
+
             if (width < minDimension && height < minDimension) {
                 const scale = minDimension / Math.min(width, height);
                 width = Math.round(width * scale);
                 height = Math.round(height * scale);
             }
-            
+
             // Limit maximum size to prevent memory issues
             const maxDimension = 3000;
             if (width > maxDimension || height > maxDimension) {
@@ -788,19 +793,19 @@
                 width = Math.round(width * scale);
                 height = Math.round(height * scale);
             }
-            
+
             canvas.width = width;
             canvas.height = height;
-            
+
             // Draw the image with high quality interpolation
             ctx.imageSmoothingEnabled = true;
             ctx.imageSmoothingQuality = 'high';
             ctx.drawImage(img, 0, 0, width, height);
-            
+
             // Get image data for processing
             let imageData = ctx.getImageData(0, 0, width, height);
             let data = imageData.data;
-            
+
             // Step 1: Convert to grayscale (improves OCR significantly)
             for (let i = 0; i < data.length; i += 4) {
                 // Use luminosity method for better grayscale
@@ -810,80 +815,80 @@
                 data[i + 2] = gray; // B
                 // Alpha stays the same
             }
-            
+
             // Step 2: Increase contrast using histogram stretching
             let min = 255, max = 0;
             for (let i = 0; i < data.length; i += 4) {
                 if (data[i] < min) min = data[i];
                 if (data[i] > max) max = data[i];
             }
-            
+
             const range = max - min || 1;
             const contrastFactor = 1.3; // Boost contrast
-            
+
             for (let i = 0; i < data.length; i += 4) {
                 // Stretch histogram
                 let value = ((data[i] - min) / range) * 255;
-                
+
                 // Apply additional contrast
                 value = ((value - 128) * contrastFactor) + 128;
-                
+
                 // Clamp values
                 value = Math.max(0, Math.min(255, Math.round(value)));
-                
+
                 data[i] = value;
                 data[i + 1] = value;
                 data[i + 2] = value;
             }
-            
+
             // Step 3: Apply sharpening using unsharp mask
             ctx.putImageData(imageData, 0, 0);
             imageData = ctx.getImageData(0, 0, width, height);
             data = imageData.data;
-            
+
             const sharpenedData = new Uint8ClampedArray(data);
             const sharpenAmount = 0.5;
-            
+
             // Simple sharpen kernel
             for (let y = 1; y < height - 1; y++) {
                 for (let x = 1; x < width - 1; x++) {
                     const idx = (y * width + x) * 4;
-                    
+
                     // Get surrounding pixels
                     const top = ((y - 1) * width + x) * 4;
                     const bottom = ((y + 1) * width + x) * 4;
                     const left = (y * width + (x - 1)) * 4;
                     const right = (y * width + (x + 1)) * 4;
-                    
+
                     // Apply sharpening
                     const laplacian = 4 * data[idx] - data[top] - data[bottom] - data[left] - data[right];
                     const sharpened = data[idx] + sharpenAmount * laplacian;
-                    
+
                     sharpenedData[idx] = Math.max(0, Math.min(255, sharpened));
                     sharpenedData[idx + 1] = Math.max(0, Math.min(255, sharpened));
                     sharpenedData[idx + 2] = Math.max(0, Math.min(255, sharpened));
                 }
             }
-            
+
             // Copy sharpened data back
             for (let i = 0; i < data.length; i++) {
                 data[i] = sharpenedData[i];
             }
-            
+
             // Step 4: Apply adaptive thresholding for cleaner text (optional binarization)
             // This helps with low contrast receipts
             const windowSize = 15;
             const C = 10; // Threshold offset
-            
+
             // Calculate local means using integral image for efficiency
             const integralImage = new Float64Array(width * height);
-            
+
             for (let y = 0; y < height; y++) {
                 let rowSum = 0;
                 for (let x = 0; x < width; x++) {
                     const idx = (y * width + x) * 4;
                     rowSum += data[idx];
-                    
+
                     if (y === 0) {
                         integralImage[y * width + x] = rowSum;
                     } else {
@@ -891,33 +896,33 @@
                     }
                 }
             }
-            
+
             // Apply adaptive threshold
             const halfWindow = Math.floor(windowSize / 2);
-            
+
             for (let y = 0; y < height; y++) {
                 for (let x = 0; x < width; x++) {
                     const idx = (y * width + x) * 4;
-                    
+
                     // Calculate window bounds
                     const x1 = Math.max(0, x - halfWindow);
                     const y1 = Math.max(0, y - halfWindow);
                     const x2 = Math.min(width - 1, x + halfWindow);
                     const y2 = Math.min(height - 1, y + halfWindow);
-                    
+
                     // Calculate local mean using integral image
                     const count = (x2 - x1 + 1) * (y2 - y1 + 1);
                     let sum = integralImage[y2 * width + x2];
                     if (x1 > 0) sum -= integralImage[y2 * width + (x1 - 1)];
                     if (y1 > 0) sum -= integralImage[(y1 - 1) * width + x2];
                     if (x1 > 0 && y1 > 0) sum += integralImage[(y1 - 1) * width + (x1 - 1)];
-                    
+
                     const localMean = sum / count;
-                    
+
                     // Apply threshold with some tolerance to preserve gray levels
                     const threshold = localMean - C;
                     const pixelValue = data[idx];
-                    
+
                     // Soft thresholding to preserve some gray levels
                     let newValue;
                     if (pixelValue < threshold - 20) {
@@ -928,21 +933,21 @@
                         // Keep intermediate values for smoother text edges
                         newValue = Math.round(((pixelValue - (threshold - 20)) / 40) * 255);
                     }
-                    
+
                     data[idx] = newValue;
                     data[idx + 1] = newValue;
                     data[idx + 2] = newValue;
                 }
             }
-            
+
             // Put enhanced image back on canvas
             ctx.putImageData(imageData, 0, 0);
-            
+
             // Return as data URL
             const enhancedDataUrl = canvas.toDataURL('image/png', 1.0);
-            
+
             console.log(`Image enhanced: ${img.width}x${img.height} -> ${width}x${height}`);
-            
+
             resolve(enhancedDataUrl);
         });
     }
@@ -956,25 +961,25 @@
         const invoiceMatchIndicator = document.getElementById('invoiceMatchIndicator');
         const amountMatchIndicator = document.getElementById('amountMatchIndicator');
         const methodMatchIndicator = document.getElementById('methodMatchIndicator');
-        
+
         // Show scanning status
         ocrStatus.style.display = 'block';
-        ocrStatus.style.background = '#EFF6FF';
-        ocrStatus.style.border = '1px solid #3B82F6';
+        ocrStatus.style.background = '#FDF2F5';
+        ocrStatus.style.border = '1px solid #A62450';
         ocrStatus.innerHTML = `
             <div style="display: flex; align-items: center; justify-content: center; gap: 12px;">
-                <div class="spinner" style="width: 24px; height: 24px; border: 3px solid #3B82F6; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                <div class="spinner" style="width: 24px; height: 24px;"></div>
                 <div>
-                    <p style="color: #1D4ED8; font-weight: 600; margin: 0;">Scanning receipt...</p>
-                    <p style="color: #3B82F6; font-size: 12px; margin: 0;">Extracting details using AI</p>
+                    <p style="color: #7B1D3A; font-weight: 600; margin: 0;">Scanning receipt...</p>
+                    <p style="color: #A62450; font-size: 12px; margin: 0;">Extracting details using AI</p>
                 </div>
             </div>
         `;
-        
+
         // Set all indicators to scanning state
         const scanningIndicator = `
-            <div style="width: 36px; height: 36px; background: #3B82F6; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                <div class="spinner" style="width: 16px; height: 16px; border: 2px solid white; border-top-color: transparent; border-radius: 50%;"></div>
+            <div style="width: 36px; height: 36px; background: #7B1D3A; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                <div class="spinner" style="width: 16px; height: 16px;"></div>
             </div>
         `;
         invoiceMatchIndicator.innerHTML = scanningIndicator;
@@ -983,7 +988,7 @@
         detectedInvoice.textContent = 'Scanning...';
         detectedAmount.textContent = 'Scanning...';
         detectedMethod.textContent = 'Scanning...';
-        
+
         try {
             // Use Tesseract.js to extract text with optimized settings
             const result = await Tesseract.recognize(imageData, 'eng', {
@@ -992,7 +997,7 @@
                         const progress = Math.round(m.progress * 100);
                         ocrStatus.innerHTML = `
                             <div style="display: flex; align-items: center; justify-content: center; gap: 12px;">
-                                <div class="spinner" style="width: 24px; height: 24px; border: 3px solid #3B82F6; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                                <div class="spinner" style="width: 24px; height: 24px;"></div>
                                 <div>
                                     <p style="color: #1D4ED8; font-weight: 600; margin: 0;">Scanning receipt... ${progress}%</p>
                                     <p style="color: #3B82F6; font-size: 12px; margin: 0;">Looking for payment details</p>
@@ -1002,27 +1007,27 @@
                     }
                 }
             });
-            
+
             const text = result.data.text;
             console.log('OCR Result:', text);
-            
+
             // Extract reference numbers, amounts, and payment method
             const referenceNumbers = extractInvoiceNumbers(text);
             const amounts = extractAmounts(text);
             const paymentMethod = detectPaymentMethod(text);
-            
+
             console.log('OCR extracted reference numbers:', referenceNumbers);
             console.log('OCR extracted amounts:', amounts);
             console.log('OCR detected payment method:', paymentMethod);
-            
+
             // Process reference numbers - ONLY validation that matters
             if (referenceNumbers.length > 0) {
                 const formReference = document.querySelector('input[name="invoice_number"]').value.trim();
                 const normalizedFormRef = formReference.toUpperCase().replace(/[^A-Z0-9]/g, '');
-                
+
                 let detectedRef = null;
                 let exactMatch = false;
-                
+
                 // Look for EXACT match first
                 for (const ref of referenceNumbers) {
                     const normalizedRef = ref.toUpperCase().replace(/[^A-Z0-9]/g, '');
@@ -1032,22 +1037,22 @@
                         break;
                     }
                 }
-                
+
                 // If no exact match, use the first detected reference
                 if (!detectedRef) {
                     detectedRef = referenceNumbers[0];
                 }
-                
+
                 document.getElementById('confirmInvoice').value = detectedRef;
                 detectedInvoice.textContent = detectedRef;
-                
+
                 // Check reference number match
                 checkInvoiceMatch();
             } else {
                 detectedInvoice.textContent = 'Not found';
                 setIndicatorNotFound(invoiceMatchIndicator);
             }
-            
+
             // Process amounts (display only, no validation)
             if (amounts.length > 0) {
                 const bestAmount = amounts[0];
@@ -1058,7 +1063,7 @@
                 detectedAmount.textContent = 'Not found';
                 setIndicatorNotFound(amountMatchIndicator);
             }
-            
+
             // Process payment method (display only, no validation)
             if (paymentMethod) {
                 document.getElementById('confirmMethod').value = paymentMethod.value;
@@ -1068,7 +1073,7 @@
                 detectedMethod.textContent = 'Not found';
                 setIndicatorNotFound(methodMatchIndicator);
             }
-            
+
             // Update OCR status based on reference number detection
             if (referenceNumbers.length > 0) {
                 ocrStatus.style.background = '#ECFDF5';
@@ -1081,13 +1086,13 @@
             } else {
                 showOcrError('Could not detect reference number from receipt. Please ensure the reference number is clearly visible.');
             }
-            
+
         } catch (error) {
             console.error('OCR Error:', error);
             showOcrError('Error scanning receipt.');
         }
     }
-    
+
     function setIndicatorNotFound(indicator) {
         indicator.innerHTML = `
             <div style="width: 36px; height: 36px; background: #9CA3AF; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
@@ -1095,17 +1100,17 @@
             </div>
         `;
     }
-    
+
     // Extract reference numbers from OCR text
     // Extract reference numbers - ONLY look for specific labels:
     // "Reference Number", "Ref. No.", "Ref No.", "Transaction Ref. No.", "Reference ID"
     function extractInvoiceNumbers(text) {
         const references = [];
         const lines = text.split(/[\r\n]+/);
-        
+
         console.log('Searching for reference numbers in OCR text...');
         console.log('Full OCR text:', text);
-        
+
         // ONLY these specific patterns - look for labeled reference numbers
         // Made more flexible to handle OCR artifacts and spacing issues
         const allowedPatterns = [
@@ -1139,12 +1144,12 @@
             // "InstaPay Ref", "PesoNet Ref"
             /(?:instapay|pesonet)\s*(?:ref(?:erence)?|no\.?)?[\s:\.]*([A-Z0-9][A-Z0-9\-\_\s]{4,30})/gi,
         ];
-        
+
         // Search line by line for better accuracy
         for (const line of lines) {
             const trimmedLine = line.trim();
             if (!trimmedLine) continue;
-            
+
             for (const pattern of allowedPatterns) {
                 pattern.lastIndex = 0; // Reset regex state
                 let match;
@@ -1152,9 +1157,9 @@
                     let ref = match[1].trim();
                     // Clean up: remove trailing/leading spaces and normalize
                     ref = ref.replace(/\s+/g, '').toUpperCase();
-                    
+
                     // Filter out invalid matches
-                    if (ref.length >= 5 && 
+                    if (ref.length >= 5 &&
                         ref.length <= 30 &&
                         !ref.match(/^\d{1,2}[\-\/]\d{1,2}[\-\/]\d{2,4}$/) && // Not a date
                         !ref.match(/^\d{1,3}(\.\d{2})?$/) && // Not a small number/amount
@@ -1166,7 +1171,7 @@
                 }
             }
         }
-        
+
         // If no labeled reference found, try to find it in the full text
         if (references.length === 0) {
             for (const pattern of allowedPatterns) {
@@ -1174,7 +1179,7 @@
                 let match;
                 while ((match = pattern.exec(text)) !== null) {
                     let ref = match[1].trim().replace(/\s+/g, '').toUpperCase();
-                    if (ref.length >= 5 && 
+                    if (ref.length >= 5 &&
                         ref.length <= 30 &&
                         !ref.match(/^\d{1,2}[\-\/]\d{1,2}[\-\/]\d{2,4}$/) &&
                         !ref.match(/^\d{1,3}(\.\d{2})?$/) &&
@@ -1186,7 +1191,7 @@
                 }
             }
         }
-        
+
         // Fallback: Look for line after "Reference ID" label (PayMaya format where value is on next line)
         if (references.length === 0) {
             for (let i = 0; i < lines.length; i++) {
@@ -1216,7 +1221,7 @@
                 }
             }
         }
-        
+
         // Last resort: Look for standalone alphanumeric codes that look like references (8-12 chars, mixed letters and numbers)
         if (references.length === 0) {
             const standalonePattern = /\b([A-Z][A-Z0-9]{7,14})\b/g;
@@ -1224,7 +1229,7 @@
             while ((match = standalonePattern.exec(text.toUpperCase())) !== null) {
                 const ref = match[1];
                 // Must contain both letters and numbers (like AE9A6FD26B91)
-                if (ref.match(/[A-Z]/) && ref.match(/[0-9]/) && 
+                if (ref.match(/[A-Z]/) && ref.match(/[0-9]/) &&
                     !ref.match(/^\d{1,2}[\-\/]\d{1,2}[\-\/]\d{2,4}$/) &&
                     !references.some(r => r === ref)) {
                     references.push(ref);
@@ -1233,22 +1238,22 @@
                 }
             }
         }
-        
+
         console.log('Extracted references:', references);
         return references;
     }
-    
+
     // Extract amounts from OCR text
     function extractAmounts(text) {
         const amounts = [];
         const lines = text.split(/[\r\n]+/);
-        
+
         // Look for amounts near keywords like "total", "amount", "paid", "sale"
         const amountKeywords = ['total', 'amount', 'paid', 'payment', 'sum', 'sale amount', 'sale'];
-        
+
         for (const line of lines) {
             const lowerLine = line.toLowerCase();
-            
+
             // Check if line contains amount-related keywords
             for (const keyword of amountKeywords) {
                 if (lowerLine.includes(keyword)) {
@@ -1261,7 +1266,7 @@
                         /[₱P]\s*(\d{1,3}(?:,\d{3})+)/g,           // ₱50,000 (no decimals, with commas)
                         /(\d{1,3}(?:,\d{3})+)/g,                  // 50,000 (no decimals, with commas)
                     ];
-                    
+
                     for (const pattern of amountPatterns) {
                         pattern.lastIndex = 0; // Reset regex
                         let match;
@@ -1279,14 +1284,14 @@
                 }
             }
         }
-        
+
         // If no keyword-based amounts found, look for currency amounts
         if (amounts.length === 0) {
             const currencyPatterns = [
                 /[₱][\s]*(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)/g,
                 /PHP[\s]*(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)/gi,
             ];
-            
+
             for (const pattern of currencyPatterns) {
                 let match;
                 while ((match = pattern.exec(text)) !== null) {
@@ -1300,7 +1305,7 @@
                 }
             }
         }
-        
+
         // Last resort: look for decimal numbers
         if (amounts.length === 0) {
             const decimalPattern = /(\d{1,3}(?:,\d{3})*\.\d{2})/g;
@@ -1315,15 +1320,15 @@
                 }
             }
         }
-        
+
         return amounts.sort((a, b) => b - a);
     }
-    
+
     // Detect payment method from OCR text
     function detectPaymentMethod(text) {
         const lowerText = text.toLowerCase();
         const originalText = text; // Keep original for case-sensitive checks
-        
+
         const methodPatterns = [
             { value: 'gcash', label: 'GCash', keywords: ['gcash', 'g-cash', 'globe gcash', 'buy load transaction', 'send money', 'gcredit', 'gscore', 'gforest', 'glife', 'pay bills', 'cash in', 'cash out', 'transaction slip', 'gcash account', 'service fee', 'agent signature', 'customer\'s name'] },
             { value: 'maya', label: 'Maya/PayMaya', keywords: ['maya', 'paymaya', 'pay maya', 'paymaya invest', 'purchased on crypto', 'smart padala', 'thank you for using', 'go to invest', 'payma', 'p ay m aya', 'pay m aya', 'mayal', 'mayat', 'crypto', 'eth', 'merchant', 'paydroid', 'aquarius', 'a920', 'sale amount', 'visa debit', 'customer copy', 'retain this copy'] },
@@ -1332,13 +1337,13 @@
             { value: 'check', label: 'Check Payment', keywords: ['check', 'cheque'] },
             { value: 'cash', label: 'Cash', keywords: ['cash payment', 'paid cash'] },
         ];
-        
-        const bankNames = ['bpi', 'bdo', 'metrobank', 'landbank', 'land bank', 'pnb', 'unionbank', 'union bank', 
+
+        const bankNames = ['bpi', 'bdo', 'metrobank', 'landbank', 'land bank', 'pnb', 'unionbank', 'union bank',
                           'security bank', 'rcbc', 'eastwest', 'chinabank', 'china bank', 'psbank'];
-        
+
         let detectedMethod = null;
         let highestScore = 0;
-        
+
         for (const method of methodPatterns) {
             let score = 0;
             for (const keyword of method.keywords) {
@@ -1351,7 +1356,7 @@
                 detectedMethod = method;
             }
         }
-        
+
         // Additional PayMaya-specific detection based on receipt format
         // PayMaya receipts have unique elements that other apps don't have
         if (!detectedMethod || detectedMethod.value !== 'maya') {
@@ -1365,20 +1370,20 @@
                 /share.*save/i,              // "Share/Save" button text
                 /back\s*to\s*home/i,         // "Back to Home" button
             ];
-            
+
             let mayaScore = 0;
             for (const pattern of mayaPatterns) {
                 if (pattern.test(originalText)) {
                     mayaScore += 10;
                 }
             }
-            
+
             // If we match at least 2 PayMaya-specific patterns, it's likely PayMaya
             if (mayaScore >= 20) {
                 return { value: 'maya', label: 'Maya/PayMaya' };
             }
         }
-        
+
         // Additional GCash-specific detection
         if (!detectedMethod || detectedMethod.value !== 'gcash') {
             const gcashPatterns = [
@@ -1387,20 +1392,20 @@
                 /get\s*help/i,               // GCash help button
                 /\d{11}/,                    // Phone number format
             ];
-            
+
             let gcashScore = 0;
             for (const pattern of gcashPatterns) {
                 if (pattern.test(originalText)) {
                     gcashScore += 10;
                 }
             }
-            
+
             // If we match at least 3 GCash-specific patterns AND no other method detected
             if (gcashScore >= 30 && !detectedMethod) {
                 return { value: 'gcash', label: 'GCash' };
             }
         }
-        
+
         // Additional Bank Transfer-specific detection
         if (!detectedMethod || (detectedMethod.value !== 'bank_transfer' && detectedMethod.value !== 'bank_deposit')) {
             const bankTransferPatterns = [
@@ -1413,27 +1418,27 @@
                 /mobile\s*banking/i,                    // Mobile banking
                 /interbank/i,                           // Interbank transfer
             ];
-            
+
             let bankScore = 0;
             for (const pattern of bankTransferPatterns) {
                 if (pattern.test(originalText)) {
                     bankScore += 15;
                 }
             }
-            
+
             // Check for bank names
             for (const bank of bankNames) {
                 if (lowerText.includes(bank)) {
                     bankScore += 10;
                 }
             }
-            
+
             // If we match at least 2 bank transfer patterns or bank name + 1 pattern, it's bank transfer
             if (bankScore >= 20) {
                 return { value: 'bank_transfer', label: 'Bank Transfer' };
             }
         }
-        
+
         // If no specific method found but bank name detected, assume bank transfer
         if (!detectedMethod) {
             for (const bank of bankNames) {
@@ -1442,11 +1447,11 @@
                 }
             }
         }
-        
+
         return detectedMethod;
     }
 
-    
+
     function showOcrError(message) {
         const ocrStatus = document.getElementById('ocrStatus');
         const detectedInvoice = document.getElementById('detectedInvoice');
@@ -1455,7 +1460,7 @@
         const invoiceMatchIndicator = document.getElementById('invoiceMatchIndicator');
         const amountMatchIndicator = document.getElementById('amountMatchIndicator');
         const methodMatchIndicator = document.getElementById('methodMatchIndicator');
-        
+
         ocrStatus.style.display = 'block';
         ocrStatus.style.background = '#FEE2E2';
         ocrStatus.style.border = '1px solid #EF4444';
@@ -1465,16 +1470,16 @@
             </p>
             <p style="color: #B91C1C; font-size: 12px; margin: 4px 0 0 0;">Please upload a clearer image of your receipt with a visible reference number.</p>
         `;
-        
+
         const errorIndicator = `
             <div style="width: 36px; height: 36px; background: #EF4444; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
                 <i class="fas fa-exclamation" style="color: white; font-size: 14px;"></i>
             </div>
         `;
-        
+
         invoiceMatchIndicator.innerHTML = errorIndicator;
         detectedInvoice.textContent = 'Not detected';
-        
+
         // Set amount and method to not found state
         const notFoundIndicator = `
             <div style="width: 36px; height: 36px; background: #9CA3AF; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
@@ -1486,7 +1491,7 @@
         detectedAmount.textContent = 'Not detected';
         detectedMethod.textContent = 'Not detected';
     }
-    
+
     // Check reference number match - EXACT MATCH REQUIRED
     function checkInvoiceMatch() {
         const formInvoice = document.querySelector('input[name="invoice_number"]').value.trim();
@@ -1494,23 +1499,23 @@
         const invoiceMatchIndicator = document.getElementById('invoiceMatchIndicator');
         const invoiceMatchResult = document.getElementById('invoiceMatchResult');
         const displayFormInvoice = document.getElementById('displayFormInvoice');
-        
+
         displayFormInvoice.textContent = formInvoice || '-';
-        
+
         if (!confirmInvoice || confirmInvoice === '') {
             invoiceMatchResult.style.display = 'none';
             return;
         }
-        
+
         // Normalize for comparison - EXACT MATCH ONLY
         const normalizedForm = formInvoice.toUpperCase().replace(/[^A-Z0-9]/g, '');
         const normalizedConfirm = confirmInvoice.toUpperCase().replace(/[^A-Z0-9]/g, '');
-        
+
         invoiceMatchResult.style.display = 'block';
-        
+
         // EXACT MATCH REQUIRED - reference numbers must match exactly
         const isExactMatch = normalizedForm === normalizedConfirm;
-        
+
         if (isExactMatch) {
             invoiceMatchIndicator.innerHTML = `
                 <div style="width: 36px; height: 36px; background: #10B981; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
@@ -1531,24 +1536,24 @@
             invoiceMatchResult.innerHTML = `<span style="color: #B45309;"><i class="fas fa-exclamation-triangle"></i> Reference number doesn't match. Please verify.</span>`;
         }
     }
-    
+
     // Check amount match (display only, no blocking validation)
     function checkAmountMatch() {
         const formAmount = parseFloat(document.querySelector('input[name="amount"]').value) || 0;
         const confirmAmount = parseFloat(document.getElementById('confirmAmount').value) || 0;
         const amountMatchIndicator = document.getElementById('amountMatchIndicator');
         const amountMatchResult = document.getElementById('amountMatchResult');
-        
+
         if (!confirmAmount || confirmAmount === 0) {
             amountMatchResult.style.display = 'none';
             return;
         }
-        
+
         amountMatchResult.style.display = 'block';
-        
+
         // Check if amounts are close (within 1 peso tolerance)
         const isMatch = Math.abs(formAmount - confirmAmount) < 1;
-        
+
         if (isMatch) {
             amountMatchIndicator.innerHTML = `
                 <div style="width: 36px; height: 36px; background: #10B981; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
@@ -1569,21 +1574,21 @@
             amountMatchResult.innerHTML = `<span style="color: #B45309;"><i class="fas fa-exclamation-triangle"></i> Amount differs. Form: ₱${formAmount.toLocaleString('en-PH', {minimumFractionDigits: 2})} | Receipt: ₱${confirmAmount.toLocaleString('en-PH', {minimumFractionDigits: 2})}</span>`;
         }
     }
-    
+
     // Check payment method match (display only, no blocking validation)
     function checkMethodMatch() {
         const formMethod = document.getElementById('paymentMethodInput').value;
         const confirmMethod = document.getElementById('confirmMethod').value;
         const methodMatchIndicator = document.getElementById('methodMatchIndicator');
         const methodMatchResult = document.getElementById('methodMatchResult');
-        
+
         if (!confirmMethod || confirmMethod === '') {
             methodMatchResult.style.display = 'none';
             return;
         }
-        
+
         methodMatchResult.style.display = 'block';
-        
+
         // Check if methods match (allow some flexibility)
         const similarMethods = {
             'bank_transfer': ['bank_transfer', 'bank_deposit'],
@@ -1593,10 +1598,10 @@
             'check': ['check'],
             'cash': ['cash']
         };
-        
-        const isMatch = formMethod === confirmMethod || 
+
+        const isMatch = formMethod === confirmMethod ||
                        (similarMethods[formMethod] && similarMethods[formMethod].includes(confirmMethod));
-        
+
         if (isMatch) {
             methodMatchIndicator.innerHTML = `
                 <div style="width: 36px; height: 36px; background: #10B981; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
@@ -1625,23 +1630,23 @@
         filePreview.style.display = 'none';
         verificationSection.style.display = 'none';
         document.getElementById('proofVerified').checked = false;
-        
+
         // Reset all confirm values
         document.getElementById('confirmAmount').value = '';
         document.getElementById('confirmInvoice').value = '';
         document.getElementById('confirmMethod').value = '';
-        
+
         // Reset all result displays
         document.getElementById('invoiceMatchResult').style.display = 'none';
         document.getElementById('amountMatchResult').style.display = 'none';
         document.getElementById('methodMatchResult').style.display = 'none';
         document.getElementById('ocrStatus').style.display = 'none';
-        
+
         // Reset all detected values
         document.getElementById('detectedInvoice').textContent = 'Scanning...';
         document.getElementById('detectedAmount').textContent = 'Scanning...';
         document.getElementById('detectedMethod').textContent = 'Scanning...';
-        
+
         // Reset all match indicators
         const waitingIndicator = `
             <div style="width: 36px; height: 36px; background: #E5E7EB; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
@@ -1692,18 +1697,18 @@
     });
     // Note: Payment method change is handled in selectPaymentMethod function
     // which calls updateVerificationDetails() and updateDisplayFormMethod()
-    
+
     // Update display functions
     function updateDisplayFormInvoice() {
         const invoice = document.querySelector('input[name="invoice_number"]').value || '-';
         document.getElementById('displayFormInvoice').textContent = invoice;
     }
-    
+
     function updateDisplayFormAmount() {
         const amount = parseFloat(document.querySelector('input[name="amount"]').value) || 0;
         document.getElementById('displayFormAmount').textContent = '₱' + amount.toLocaleString('en-PH', {minimumFractionDigits: 2, maximumFractionDigits: 2});
     }
-    
+
     function updateDisplayFormMethod() {
         const methodValue = document.getElementById('paymentMethodInput').value;
         const methodLabels = {
@@ -1719,10 +1724,10 @@
     }
 
     // ============ LIVE VALIDATION SYSTEM ============
-    
+
     // Track if user has attempted to submit (to show validation after first attempt)
     let hasAttemptedSubmit = false;
-    
+
     // Live checkbox validation with visual feedback
     document.getElementById('proofVerified').addEventListener('change', function() {
         updateCheckboxValidation();
@@ -1731,14 +1736,14 @@
             closeMismatchPopup();
         }
     });
-    
+
     function updateCheckboxValidation() {
         const checkbox = document.getElementById('proofVerified');
         const container = document.getElementById('checkboxContainer');
         const label = document.getElementById('checkboxLabel');
         const hint = document.getElementById('checkboxHint');
         const feedback = document.getElementById('checkboxFeedback');
-        
+
         if (checkbox.checked) {
             // Valid state - green styling
             container.style.background = 'linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%)';
@@ -1768,18 +1773,18 @@
             feedback.style.display = 'none';
         }
     }
-    
+
     // Live validation for required fields
     function validateFieldLive(input, fieldName) {
         const value = input.value.trim();
         const formGroup = input.closest('.form-group');
-        
+
         if (!formGroup) return;
-        
+
         // Remove existing live error
         const existingError = formGroup.querySelector('.live-error');
         if (existingError) existingError.remove();
-        
+
         if (hasAttemptedSubmit && !value) {
             input.style.borderColor = '#EF4444';
             input.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.1)';
@@ -1796,57 +1801,57 @@
             input.style.boxShadow = '';
         }
     }
-    
+
     // Add live validation to form fields
     document.querySelector('input[name="invoice_number"]').addEventListener('input', function() {
         validateFieldLive(this, 'Reference Number');
         checkInvoiceMatch(); // Also update OCR match in real-time
     });
-    
+
     document.querySelector('input[name="amount"]').addEventListener('input', function() {
         validateFieldLive(this, 'Amount');
         checkAmountMatch(); // Also update OCR match in real-time
     });
-    
+
     // Payment method validation is handled in selectPaymentMethod function
-    
+
     // Flag to track if we're doing a validated submit
     let isValidatedSubmit = false;
-    
+
     // Form validation before submission - validates ALL fields to prevent page reload
     document.getElementById('paymentForm').addEventListener('submit', function(e) {
         // If this is a validated submit, allow it to proceed
         if (isValidatedSubmit) {
             return true;
         }
-        
+
         // ALWAYS prevent default first, then decide to submit manually
         e.preventDefault();
-        
+
         // Mark that user has attempted to submit - enables live validation feedback
         hasAttemptedSubmit = true;
-        
+
         const fileInput = document.getElementById('fileInput');
         const proofVerified = document.getElementById('proofVerified');
         const confirmInvoiceInput = document.getElementById('confirmInvoice');
-        
+
         // Get all form values
         const formInvoice = document.querySelector('input[name="invoice_number"]').value.trim();
         const formAmount = document.querySelector('input[name="amount"]').value.trim();
         const formMethod = document.getElementById('paymentMethodInput').value;
         const formNotes = document.querySelector('textarea[name="notes"]').value;
         const confirmInvoice = confirmInvoiceInput.value.trim();
-        
+
         // Collect all validation errors
         const errors = [];
-        
+
         // === VALIDATE REFERENCE NUMBER ===
         if (!formInvoice) {
             errors.push({ field: 'Reference Number', message: 'Reference Number is required.' });
         } else if (formInvoice.length > 100) {
             errors.push({ field: 'Reference Number', message: 'Reference Number must not exceed 100 characters.' });
         }
-        
+
         // === VALIDATE AMOUNT ===
         if (!formAmount) {
             errors.push({ field: 'Amount Paid', message: 'Amount Paid is required.' });
@@ -1858,17 +1863,17 @@
                 errors.push({ field: 'Amount Paid', message: 'Amount Paid must be greater than zero.' });
             }
         }
-        
+
         // === VALIDATE PAYMENT METHOD ===
         if (!formMethod) {
             errors.push({ field: 'Payment Method', message: 'Please select a Payment Method.' });
         }
-        
+
         // === VALIDATE NOTES LENGTH ===
         if (formNotes && formNotes.length > 1000) {
             errors.push({ field: 'Notes', message: 'Notes must not exceed 1000 characters.' });
         }
-        
+
         // === VALIDATE FILE UPLOAD ===
         if (!fileInput.files || fileInput.files.length === 0) {
             errors.push({ field: 'Payment Proof', message: 'Please upload your payment proof.' });
@@ -1876,7 +1881,7 @@
             const file = fileInput.files[0];
             const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
             const maxSize = 5 * 1024 * 1024; // 5MB
-            
+
             if (!allowedTypes.includes(file.type)) {
                 errors.push({ field: 'Payment Proof', message: 'File must be JPG, PNG, or PDF format.' });
             }
@@ -1884,19 +1889,19 @@
                 errors.push({ field: 'Payment Proof', message: 'File size must not exceed 5MB.' });
             }
         }
-        
+
         // === CHECK VERIFICATION CHECKBOX EARLY - This is critical to prevent page reload ===
         if (!proofVerified.checked) {
             errors.push({ field: 'Confirmation', message: 'Please check the confirmation box to verify your payment proof is clear and readable.' });
         }
-        
+
         // If there are basic validation errors, show them and stop
         if (errors.length > 0) {
             // Update live validation UI for all fields
             updateCheckboxValidation();
             validateFieldLive(document.querySelector('input[name="invoice_number"]'), 'Reference Number');
             validateFieldLive(document.querySelector('input[name="amount"]'), 'Amount');
-            
+
             showValidationErrorsPopup(errors);
             return false;
         }
@@ -1905,12 +1910,12 @@
         const fileUploaded = fileInput.files && fileInput.files.length > 0;
         const isPDF = fileUploaded && fileInput.files[0].type === 'application/pdf';
         const ocrCompleted = confirmInvoice && confirmInvoice !== '' && confirmInvoice !== 'Not found' && confirmInvoice !== 'Not detected';
-        
+
         // Only check OCR for images (PDFs can't be scanned)
         if (!isPDF && !ocrCompleted) {
             showMismatchPopup(
-                'Reference Number Not Detected', 
-                'Please wait for the receipt to be scanned, or upload a clearer image. We need to detect and verify the reference number from your receipt.', 
+                'Reference Number Not Detected',
+                'Please wait for the receipt to be scanned, or upload a clearer image. We need to detect and verify the reference number from your receipt.',
                 'warning'
             );
             return false;
@@ -1920,10 +1925,10 @@
         if (!isPDF) {
             const normalizedForm = formInvoice.toUpperCase().replace(/[^A-Z0-9]/g, '');
             const normalizedConfirm = confirmInvoice.toUpperCase().replace(/[^A-Z0-9]/g, '');
-            
+
             // Collect all mismatches
             const mismatches = [];
-            
+
             // Check reference number match
             if (normalizedForm !== normalizedConfirm) {
                 mismatches.push({
@@ -1933,13 +1938,13 @@
                     icon: 'fa-hashtag'
                 });
             }
-            
+
             // Check amount match (if amount was detected)
             const confirmAmountValue = document.getElementById('confirmAmount').value;
             if (confirmAmountValue && confirmAmountValue !== '') {
                 const formAmountNum = parseFloat(formAmount) || 0;
                 const confirmAmountNum = parseFloat(confirmAmountValue) || 0;
-                
+
                 // Amount must match within 1 peso tolerance
                 if (Math.abs(formAmountNum - confirmAmountNum) >= 1) {
                     mismatches.push({
@@ -1950,7 +1955,7 @@
                     });
                 }
             }
-            
+
             // Check payment method match (if method was detected)
             const confirmMethodValue = document.getElementById('confirmMethod').value;
             if (confirmMethodValue && confirmMethodValue !== '') {
@@ -1963,10 +1968,10 @@
                     'check': ['check'],
                     'cash': ['cash']
                 };
-                
-                const isMethodMatch = formMethod === confirmMethodValue || 
+
+                const isMethodMatch = formMethod === confirmMethodValue ||
                     (similarMethods[formMethod] && similarMethods[formMethod].includes(confirmMethodValue));
-                
+
                 if (!isMethodMatch) {
                     const methodLabels = {
                         'bank_transfer': 'Bank Transfer',
@@ -1984,37 +1989,37 @@
                     });
                 }
             }
-            
+
             // If there are any mismatches, block submission
             if (mismatches.length > 0) {
-                const title = mismatches.length === 1 
+                const title = mismatches.length === 1
                     ? `${mismatches[0].field} Mismatch!`
                     : 'Payment Details Mismatch!';
                 const message = mismatches.length === 1
                     ? `Your payment cannot be submitted because the ${mismatches[0].field.toLowerCase()} does not match:`
                     : 'Your payment cannot be submitted because the following details do not match your receipt:';
-                
+
                 showMismatchPopup(title, message, 'error', mismatches, []);
                 return false;
             }
         }
-        
+
         // All validations passed - set flag and submit
         isValidatedSubmit = true;
         this.submit();
     });
-    
+
     // Show validation errors in a popup
     function showValidationErrorsPopup(errors) {
         const existingPopup = document.getElementById('mismatchPopup');
         if (existingPopup) {
             existingPopup.remove();
         }
-        
-        const errorListHTML = errors.map(err => 
+
+        const errorListHTML = errors.map(err =>
             `<li style="margin-bottom: 8px;"><strong>${err.field}:</strong> ${err.message}</li>`
         ).join('');
-        
+
         const popup = document.createElement('div');
         popup.id = 'mismatchPopup';
         popup.innerHTML = `
@@ -2042,15 +2047,15 @@
                 </div>
             </div>
         `;
-        
+
         document.body.appendChild(popup);
-        
+
         popup.querySelector('div').addEventListener('click', function(e) {
             if (e.target === this) {
                 closeMismatchPopup();
             }
         });
-        
+
         document.addEventListener('keydown', function closeOnEscape(e) {
             if (e.key === 'Escape') {
                 closeMismatchPopup();
@@ -2058,7 +2063,7 @@
             }
         });
     }
-    
+
     // Custom popup notification for mismatches
     function showMismatchPopup(title, message, type, mismatches = [], notDetected = []) {
         // Remove existing popup if any
@@ -2066,14 +2071,14 @@
         if (existingPopup) {
             existingPopup.remove();
         }
-        
+
         const bgColor = type === 'error' ? '#FEE2E2' : '#FEF3C7';
         const borderColor = type === 'error' ? '#EF4444' : '#F59E0B';
         const iconColor = type === 'error' ? '#DC2626' : '#D97706';
         const icon = type === 'error' ? 'fa-times-circle' : 'fa-exclamation-triangle';
         const titleColor = type === 'error' ? '#991B1B' : '#92400E';
         const textColor = type === 'error' ? '#B91C1C' : '#B45309';
-        
+
         let mismatchHTML = '';
         if (mismatches.length > 0) {
             mismatchHTML = `
@@ -2105,29 +2110,29 @@
                 </div>
             `;
         }
-        
+
         let notDetectedHTML = '';
         if (notDetected.length > 0) {
             notDetectedHTML = `
                 <div style="margin-top: 12px; padding: 12px; background: #F3F4F6; border-radius: 8px; border: 1px solid #D1D5DB;">
                     <p style="font-size: 12px; color: #4B5563; margin: 0;">
-                        <i class="fas fa-question-circle" style="color: #9CA3AF;"></i> 
+                        <i class="fas fa-question-circle" style="color: #9CA3AF;"></i>
                         <strong>Could not automatically detect:</strong> ${notDetected.join(', ')}
                     </p>
                 </div>
             `;
         }
-        
-        const actionText = type === 'error' 
-            ? '<i class="fas fa-edit"></i> I\'ll Correct the Details' 
+
+        const actionText = type === 'error'
+            ? '<i class="fas fa-edit"></i> I\'ll Correct the Details'
             : '<i class="fas fa-check"></i> I Understand';
-        
+
         const instructionText = type === 'error'
             ? `<p style="margin-top: 12px; font-size: 12px; color: #6B7280;">
                    <i class="fas fa-info-circle"></i> <strong>To submit your payment:</strong> Please correct the mismatched fields in the form to match what appears on your receipt, or upload a different receipt that matches your entered details.
                </p>`
             : '';
-        
+
         const popup = document.createElement('div');
         popup.id = 'mismatchPopup';
         popup.innerHTML = `
@@ -2143,13 +2148,13 @@
                             <p style="margin: 4px 0 0 0; color: ${textColor}; font-size: 14px;">${message}</p>
                         </div>
                     </div>
-                    
+
                     <!-- Body -->
                     <div style="padding: 20px 24px; max-height: 400px; overflow-y: auto;">
                         ${mismatchHTML}
                         ${notDetectedHTML}
                         ${instructionText}
-                        
+
                         <!-- Action Button -->
                         <div style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 12px;">
                             <button type="button" onclick="closeMismatchPopup()" style="padding: 12px 24px; background: ${borderColor}; color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
@@ -2160,16 +2165,16 @@
                 </div>
             </div>
         `;
-        
+
         document.body.appendChild(popup);
-        
+
         // Close on backdrop click
         popup.querySelector('div').addEventListener('click', function(e) {
             if (e.target === this) {
                 closeMismatchPopup();
             }
         });
-        
+
         // Close on Escape key
         document.addEventListener('keydown', function closeOnEscape(e) {
             if (e.key === 'Escape') {
@@ -2178,7 +2183,7 @@
             }
         });
     }
-    
+
     function closeMismatchPopup() {
         const popup = document.getElementById('mismatchPopup');
         if (popup) {
@@ -2192,7 +2197,7 @@
         const proofPreview = document.getElementById('proofPreview');
         const modalImage = document.getElementById('modalImage');
         const imageModal = document.getElementById('imageModal');
-        
+
         if (proofPreview.src) {
             modalImage.src = proofPreview.src;
             imageModal.style.display = 'flex';

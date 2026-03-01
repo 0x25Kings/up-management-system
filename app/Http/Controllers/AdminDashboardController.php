@@ -126,7 +126,7 @@ class AdminDashboardController extends Controller
 
         // Get MOA requests for incubatee tracking
         $moaRequests = StartupSubmission::where('type', 'moa')
-            ->with('reviewer')
+            ->with(['reviewer', 'startup'])
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -231,16 +231,21 @@ class AdminDashboardController extends Controller
         // Approve the overtime
         $attendance->approveOvertime(Auth::id());
 
-        // Add the extra hours to intern's completed hours
+        // Recalculate intern's completed hours from all finalized attendance records.
+        // This ensures regular + overtime are both counted regardless of how the record was created.
         $intern = $attendance->intern;
-        if ($intern && $attendance->overtime_hours) {
-            $intern->increment('completed_hours', floor((float)$attendance->overtime_hours));
+        if ($intern) {
+            $intern->recalculateCompletedHours();
         }
 
         return response()->json([
             'success' => true,
             'message' => 'Overtime approved successfully. ' . $attendance->overtime_hours . ' hours added.',
-            'overtime_hours' => $attendance->overtime_hours
+            'overtime_hours' => $attendance->overtime_hours,
+            'completed_hours' => $intern?->fresh()->completed_hours,
+            'progress_percentage' => ($intern && $intern->required_hours > 0)
+                ? round(($intern->fresh()->completed_hours / $intern->required_hours) * 100)
+                : 0,
         ]);
     }
 

@@ -16,11 +16,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body { 
-            font-family: 'Segoe UI', Arial, sans-serif; 
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
             background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
-            min-height: 100vh; 
+            min-height: 100vh;
         }
 
         /* Prevent transition on initial load */
@@ -428,10 +428,10 @@
             color: #7B1D3A;
         }
 
-        .nav-item i { 
-            width: 20px; 
-            text-align: center; 
-            font-size: 16px; 
+        .nav-item i {
+            width: 20px;
+            text-align: center;
+            font-size: 16px;
             transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
@@ -1118,6 +1118,26 @@
             }
         }
 
+        /* ── Modern loading spinner ──────────────────────────────────────────── */
+        @keyframes up-spin {
+            to { transform: rotate(360deg); }
+        }
+        i.fa-spinner::before { content: '' !important; }
+        i.fa-spinner {
+            display: inline-block;
+            width: 1em;
+            height: 1em;
+            border-radius: 50%;
+            border: 0.11em solid rgba(123, 29, 58, 0.12);
+            border-top-color: #7B1D3A;
+            border-right-color: #C9A000;
+            box-sizing: border-box;
+            vertical-align: middle;
+        }
+        i.fa-spinner.fa-spin {
+            animation: up-spin 0.72s cubic-bezier(0.4, 0, 0.2, 1) infinite !important;
+        }
+
         .logout-modal-icon {
             width: 72px;
             height: 72px;
@@ -1254,8 +1274,8 @@
             .form-card-header h2 { font-size: 16px; }
             .form-card-body { padding: 20px; }
 
-            .page-header-card { 
-                padding: 20px; 
+            .page-header-card {
+                padding: 20px;
                 border-radius: 14px;
                 margin-bottom: 20px;
             }
@@ -1439,7 +1459,7 @@
                     <span class="page-title">@yield('page-title', 'Page')</span>
                 </div>
             </div>
-            
+
             <div style="display: flex; align-items: center; gap: 16px;">
                 <!-- Notification Bell Dropdown -->
                 @php
@@ -1467,7 +1487,7 @@
                         </div>
                         <div style="max-height: 340px; overflow-y: auto;">
                             @forelse($recentNotifs as $notif)
-                                <a href="{{ $notif->link ? route('startup.notifications.read', $notif->id) : '#' }}" 
+                                <a href="{{ $notif->link ? route('startup.notifications.read', $notif->id) : '#' }}"
                                    @if($notif->link) onclick="event.preventDefault(); document.getElementById('notif-form-{{ $notif->id }}').submit();" @endif
                                    style="display: flex; gap: 12px; padding: 14px 20px; text-decoration: none; transition: background 0.2s; border-bottom: 1px solid #F3F4F6; {{ !$notif->is_read ? 'background: #FFFBEB;' : '' }}"
                                    onmouseover="this.style.background='{{ !$notif->is_read ? '#FEF3C7' : '#F9FAFB' }}'" onmouseout="this.style.background='{{ !$notif->is_read ? '#FFFBEB' : 'white' }}'">
@@ -1618,10 +1638,10 @@
             const toggleWrapper = document.getElementById('sidebarToggleWrapper');
             sidebar.classList.toggle('collapsed');
             toggleWrapper.classList.toggle('collapsed');
-            
+
             // Update html class for consistent state
             document.documentElement.classList.toggle('sidebar-is-collapsed');
-            
+
             // Save state to localStorage
             const isCollapsed = sidebar.classList.contains('collapsed');
             localStorage.setItem('sidebarCollapsed', isCollapsed);
@@ -1640,7 +1660,7 @@
 
             const profileBtn = document.getElementById('profileBtn');
             const profileDropdown = document.getElementById('profileDropdown');
-            
+
             if (profileBtn) {
                 profileBtn.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -1668,7 +1688,7 @@
                     }
                 });
             }
-            
+
             // Close dropdowns when clicking outside
             document.addEventListener('click', function(event) {
                 if (profileDropdown && !profileDropdown.contains(event.target)) {

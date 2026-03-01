@@ -253,6 +253,21 @@ Route::middleware(['admin'])->group(function () {
     Route::post('/admin/moa-requests/{submission}/approve', [AdminStartupController::class, 'approveMoaRequest'])->name('admin.moa-requests.approve');
     Route::post('/admin/moa-requests/{submission}/reject', [AdminStartupController::class, 'rejectMoaRequest'])->name('admin.moa-requests.reject');
 
+    // Serve payment proof files securely (admin-authenticated)
+    Route::get('/admin/payment-proof', function (\Illuminate\Http\Request $request) {
+        $path = $request->query('path', '');
+        if (!$path) abort(404);
+        // Prevent directory traversal
+        $path = ltrim(str_replace(['..', '//'], '', $path), '/');
+        $fullPath = storage_path('app/public/' . $path);
+        if (!file_exists($fullPath)) abort(404, 'File not found');
+        $mime = mime_content_type($fullPath) ?: 'application/octet-stream';
+        return response()->file($fullPath, [
+            'Content-Type' => $mime,
+            'Content-Disposition' => 'inline',
+        ]);
+    })->name('admin.payment-proof');
+
     // Reminder Routes (Admin)
     Route::post('/admin/send-moa-reminder/{startup}', [AdminStartupController::class, 'sendMoaReminder'])->name('admin.send-moa-reminder');
     Route::post('/admin/send-payment-reminder/{startup}', [AdminStartupController::class, 'sendPaymentReminder'])->name('admin.send-payment-reminder');

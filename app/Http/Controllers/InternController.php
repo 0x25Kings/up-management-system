@@ -66,7 +66,7 @@ class InternController extends Controller
                     ->where('role', User::ROLE_TEAM_LEADER)
                     ->where('is_active', true)
                     ->exists();
-                
+
                 // Get overtime settings
                 $overtimeSettings = [
                     'require_overtime_notes' => Setting::get('require_overtime_notes', true),
@@ -597,8 +597,9 @@ class InternController extends Controller
 
         $attendance->save();
 
-        // Update intern's completed hours (only count effective hours)
-        $intern->increment('completed_hours', floor($attendance->effective_hours));
+        // Recalculate intern's completed hours from all finalized attendance records.
+        // This keeps the total accurate including any previously approved overtime.
+        $intern->recalculateCompletedHours();
 
         // Prepare message based on overtime/undertime status
         $message = 'Time Out recorded at ' . $now->format('h:i A') . '. Hours worked: ' . $hoursWorked;

@@ -360,6 +360,11 @@
                 font-size: 13px;
             }
         }
+        /* ── Modern loading spinner ────────────────────────────────────────── */
+        @keyframes up-spin { to { transform: rotate(360deg); } }
+        i.fa-spinner::before { content: '' !important; }
+        i.fa-spinner { display: inline-block; width: 1em; height: 1em; border-radius: 50%; border: 0.11em solid rgba(123,29,58,0.12); border-top-color: #7B1D3A; border-right-color: #C9A000; box-sizing: border-box; vertical-align: middle; }
+        i.fa-spinner.fa-spin { animation: up-spin 0.72s cubic-bezier(0.4,0,0.2,1) infinite !important; }
     </style>
 </head>
 <body>
@@ -420,11 +425,11 @@
                             <i class="fas fa-lock" style="color: #7B1D3A; margin-right: 6px;"></i>New Password
                         </label>
                         <div class="input-wrapper">
-                            <input 
-                                type="password" 
-                                id="password" 
-                                name="password" 
-                                class="@error('password') error @enderror" 
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                class="@error('password') error @enderror"
                                 placeholder="Create a strong password"
                                 required
                                 autofocus
@@ -450,10 +455,10 @@
                             <i class="fas fa-lock" style="color: #7B1D3A; margin-right: 6px;"></i>Confirm Password
                         </label>
                         <div class="input-wrapper">
-                            <input 
-                                type="password" 
-                                id="password_confirmation" 
-                                name="password_confirmation" 
+                            <input
+                                type="password"
+                                id="password_confirmation"
+                                name="password_confirmation"
                                 placeholder="Confirm your password"
                                 required
                             >
@@ -499,7 +504,7 @@
         document.getElementById('password').addEventListener('input', function(e) {
             const password = e.target.value;
             const reqLength = document.getElementById('req-length');
-            
+
             if (password.length >= 8) {
                 reqLength.classList.add('valid');
                 reqLength.querySelector('i').classList.remove('fa-circle');

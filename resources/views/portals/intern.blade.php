@@ -279,6 +279,25 @@
             from { opacity: 0; transform: translateY(-30px) scale(0.95); }
             to { opacity: 1; transform: translateY(0) scale(1); }
         }
+        /* ── Modern loading spinner ─────────────────────────────────────────── */
+        @keyframes up-spin {
+            to { transform: rotate(360deg); }
+        }
+        i.fa-spinner::before { content: '' !important; }
+        i.fa-spinner {
+            display: inline-block;
+            width: 1em;
+            height: 1em;
+            border-radius: 50%;
+            border: 0.11em solid rgba(123, 29, 58, 0.12);
+            border-top-color: #7B1D3A;
+            border-right-color: #C9A000;
+            box-sizing: border-box;
+            vertical-align: middle;
+        }
+        i.fa-spinner.fa-spin {
+            animation: up-spin 0.72s cubic-bezier(0.4, 0, 0.2, 1) infinite !important;
+        }
         @keyframes slideIn {
             from { opacity: 0; transform: translateX(100px); }
             to { opacity: 1; transform: translateX(0); }
@@ -3590,24 +3609,24 @@
                 // Calculate current hours using the same logic as live hours
                 const summaryHoursEl = document.getElementById('summaryHours');
                 const timeInRaw = summaryHoursEl?.getAttribute('data-raw-time-in');
-                
+
                 if (timeInRaw) {
                     const now = new Date();
                     const timeIn = new Date(timeInRaw);
                     let diffMs = now - timeIn;
                     let diffHours = diffMs / (1000 * 60 * 60);
-                    
+
                     // Deduct lunch break if applicable
                     const lunchStart = new Date(timeIn);
                     lunchStart.setHours(12, 0, 0, 0);
                     const lunchEnd = new Date(timeIn);
                     lunchEnd.setHours(13, 0, 0, 0);
-                    
+
                     if (now > lunchEnd && timeIn < lunchEnd) {
                         const lunchDeduction = Math.min(1, Math.max(0, (Math.min(now, lunchEnd) - Math.max(timeIn, lunchStart)) / (1000 * 60 * 60)));
                         diffHours -= lunchDeduction;
                     }
-                    
+
                     // If working overtime (more than 8 hours), show optional notes modal
                     if (diffHours > 8) {
                         showOvertimeNotesModal(form, type);
@@ -3860,19 +3879,19 @@
             const now = Date.now();
             const diffMs = now - timeInMs;
             let diffHours = Math.max(0, diffMs / (1000 * 60 * 60));
-            
+
             // Deduct lunch break (12:00 PM - 1:00 PM) if applicable
             const timeInDate = new Date(timeInMs);
             const nowDate = new Date(now);
-            
+
             // Lunch break times (same day)
             const lunchStart = new Date(timeInDate.getFullYear(), timeInDate.getMonth(), timeInDate.getDate(), 12, 0, 0);
             const lunchEnd = new Date(timeInDate.getFullYear(), timeInDate.getMonth(), timeInDate.getDate(), 13, 0, 0);
-            
+
             // Calculate lunch overlap
             const workStart = Math.max(timeInMs, lunchStart.getTime());
             const workEnd = Math.min(now, lunchEnd.getTime());
-            
+
             if (workStart < workEnd && timeInMs < lunchEnd.getTime() && now > lunchStart.getTime()) {
                 const lunchOverlapMs = workEnd - workStart;
                 const lunchOverlapHours = lunchOverlapMs / (1000 * 60 * 60);
@@ -4079,7 +4098,7 @@
         function createOvertimeNotesModal() {
             const existingModal = document.getElementById('overtimeNotesModal');
             if (existingModal) return;
-            
+
             const modalHTML = `
                 <div id="overtimeNotesModal" class="modal-overlay" onclick="if(event.target === this) closeOvertimeNotesModal()">
                     <div class="modal-content" style="max-width: 500px;">
@@ -4149,10 +4168,10 @@
         function submitWithOvertimeNotes(event) {
             event.preventDefault();
             const notes = document.getElementById('overtimeNotesText').value.trim();
-            
+
             document.getElementById('overtimeNotesInput').value = notes;
             closeOvertimeNotesModal();
-            
+
             // Continue with actual form submission
             actualAttendanceSubmit(window.pendingTimeoutForm, window.pendingTimeoutType);
         }

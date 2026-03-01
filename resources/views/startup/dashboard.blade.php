@@ -2233,45 +2233,102 @@
 
         <!-- Billing Schedule Card -->
         @if($startup->next_payment_due || $startup->payment_due_date || $startup->payment_amount)
-        <div class="moa-card" style="background: linear-gradient(135deg, #F5F3FF 0%, #EDE9FE 100%); border-left: 4px solid #8B5CF6;">
-            <div class="moa-icon" style="background: linear-gradient(135deg, #8B5CF6, #7C3AED);">
-                <i class="fas fa-calendar-alt"></i>
+        @php
+            $daysUntilBilling = $startup->next_payment_due ? (int) now()->diffInDays($startup->next_payment_due, false) : null;
+            $isOverdue = $daysUntilBilling !== null && $daysUntilBilling < 0;
+            // Only "due soon" when within 30 days AND no approved payment covering this period
+            $isDueSoon = !$isOverdue && $daysUntilBilling !== null && $daysUntilBilling <= 30 && !$lastApprovedPayment;
+            $isUpToDate = !$isOverdue && !$isDueSoon;
+            $billingCardColor = $isOverdue ? '#FEE2E2' : ($isDueSoon ? '#FEF3C7' : '#F0FDF4');
+            $billingBorderColor = $isOverdue ? '#EF4444' : ($isDueSoon ? '#F59E0B' : '#10B981');
+            $billingIconBg = $isOverdue ? 'linear-gradient(135deg, #EF4444, #DC2626)' : ($isDueSoon ? 'linear-gradient(135deg, #F59E0B, #D97706)' : 'linear-gradient(135deg, #10B981, #059669)');
+        @endphp
+        <div class="moa-card" style="background: linear-gradient(135deg, {{ $billingCardColor }} 0%, {{ $billingCardColor }} 100%); border-left: 4px solid {{ $billingBorderColor }};">
+            <div class="moa-icon" style="background: {{ $billingIconBg }};">
+                <i class="fas fa-{{ $isOverdue ? 'exclamation-triangle' : ($isDueSoon ? 'hourglass-half' : 'check-circle') }}"></i>
             </div>
             <div class="moa-info">
-                <h4><i class="fas fa-credit-card" style="color: #7C3AED; margin-right: 8px;"></i>Billing Schedule</h4>
-                @if($startup->next_payment_due)
-                    @php $daysUntilBilling = now()->diffInDays($startup->next_payment_due, false); @endphp
-                    <p>Next payment due on <strong>{{ $startup->next_payment_due->format('F d, Y') }}</strong>
-                        @if($startup->payment_amount)
-                            &mdash; <strong>₱{{ number_format($startup->payment_amount, 2) }}</strong>
-                        @endif
-                    </p>
-                    @if($daysUntilBilling >= 0 && $daysUntilBilling <= 30)
-                        <div style="margin-top: 10px;">
-                            <span style="background: linear-gradient(135deg, #FEF3C7, #FDE68A); color: #92400E; padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
-                                <i class="fas fa-hourglass-half"></i> {{ $daysUntilBilling }} {{ Str::plural('day', $daysUntilBilling) }} until next billing
-                            </span>
-                        </div>
-                    @elseif($daysUntilBilling < 0)
-                        <div style="margin-top: 10px;">
-                            <span style="background: linear-gradient(135deg, #FEE2E2, #FECACA); color: #991B1B; padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
-                                <i class="fas fa-exclamation-triangle"></i> Payment overdue — please submit payment
-                            </span>
-                        </div>
+                <h4>
+                    <i class="fas fa-credit-card" style="color: {{ $billingBorderColor }}; margin-right: 8px;"></i>Billing Schedule
+                </h4>
+
+                @if($isOverdue)
+                    <div style="margin-bottom: 8px;">
+                        <span style="background: #FEE2E2; color: #991B1B; padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            Payment overdue by {{ abs($daysUntilBilling) }} {{ Str::plural('day', abs($daysUntilBilling)) }} — please submit payment now
+                        </span>
+                    </div>
+                    @if($startup->payment_amount)
+                        <p style="font-size: 13px; color: #374151;">Amount due: <strong>₱{{ number_format($startup->payment_amount, 2) }}</strong></p>
                     @endif
-                @elseif($startup->payment_due_date)
-                    <p>Payment due date: <strong>{{ $startup->payment_due_date->format('F d, Y') }}</strong></p>
+
+                @elseif($isDueSoon)
+                    @if($hasPendingPayment)
+                        <div style="margin-bottom: 8px;">
+                            <span style="background: #DBEAFE; color: #1E40AF; padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
+                                <i class="fas fa-clock"></i>
+                                Payment submitted — awaiting admin approval
+                            </span>
+                        </div>
+                        <p style="font-size: 13px; color: #374151;">Next payment due on <strong>{{ $startup->next_payment_due->format('F d, Y') }}</strong>
+                            @if($startup->payment_amount) — <strong>₱{{ number_format($startup->payment_amount, 2) }}</strong>@endif</p>
+                    @else
+                        <div style="margin-bottom: 8px;">
+                            <span style="background: #FEF3C7; color: #92400E; padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
+                                <i class="fas fa-hourglass-half"></i>
+                                {{ $daysUntilBilling }} {{ Str::plural('day', $daysUntilBilling) }} until payment due
+                            </span>
+                        </div>
+                        <p style="font-size: 13px; color: #374151;">Next payment due on <strong>{{ $startup->next_payment_due->format('F d, Y') }}</strong>
+                            @if($startup->payment_amount) — <strong>₱{{ number_format($startup->payment_amount, 2) }}</strong>@endif</p>
+                    @endif
+
                 @else
-                    <p>Your billing schedule has been set up.</p>
+                    {{-- Up to date (due > 30 days away) --}}
+                    <div style="margin-bottom: 8px;">
+                        <span style="background: #D1FAE5; color: #065F46; padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
+                            <i class="fas fa-check-circle"></i>
+                            You're all caught up! Payment is up to date.
+                        </span>
+                    </div>
+                    @if($startup->next_payment_due)
+                        <p style="font-size: 13px; color: #374151;">Next payment due on <strong>{{ $startup->next_payment_due->format('F d, Y') }}</strong>
+                            @if($startup->payment_amount) — <strong>₱{{ number_format($startup->payment_amount, 2) }}</strong>@endif
+                            <span style="color: #6B7280;">(in {{ $daysUntilBilling }} {{ Str::plural('day', $daysUntilBilling) }})</span>
+                        </p>
+                    @endif
                 @endif
+
                 @if($startup->payment_duration)
                     <p style="margin-top: 6px; font-size: 13px; color: #6B7280;">Duration: {{ $startup->payment_duration }}</p>
                 @endif
+                @if($lastApprovedPayment)
+                    <p style="margin-top: 4px; font-size: 12px; color: #6B7280;">
+                        <i class="fas fa-check" style="color: #10B981;"></i>
+                        Last approved payment: {{ $lastApprovedPayment->created_at->format('M d, Y') }}
+                        @if($lastApprovedPayment->amount) — ₱{{ number_format($lastApprovedPayment->amount, 2) }}@endif
+                    </p>
+                @endif
             </div>
             <div class="moa-action">
-                <a href="{{ route('startup.submit-payment') }}" class="btn-primary" style="background: linear-gradient(135deg, #8B5CF6, #7C3AED);">
-                    <i class="fas fa-credit-card"></i> Submit Payment
-                </a>
+                @if($isOverdue)
+                    <a href="{{ route('startup.submit-payment') }}" class="btn-primary" style="background: linear-gradient(135deg, #EF4444, #DC2626);">
+                        <i class="fas fa-credit-card"></i> Pay Now
+                    </a>
+                @elseif($isDueSoon && !$hasPendingPayment)
+                    <a href="{{ route('startup.submit-payment') }}" class="btn-primary" style="background: linear-gradient(135deg, #F59E0B, #D97706);">
+                        <i class="fas fa-credit-card"></i> Submit Payment
+                    </a>
+                @elseif($hasPendingPayment)
+                    <a href="{{ route('startup.billing') }}" class="btn-primary" style="background: linear-gradient(135deg, #3B82F6, #2563EB);">
+                        <i class="fas fa-eye"></i> View Status
+                    </a>
+                @else
+                    <a href="{{ route('startup.billing') }}" class="btn-primary" style="background: linear-gradient(135deg, #10B981, #059669);">
+                        <i class="fas fa-history"></i> View History
+                    </a>
+                @endif
             </div>
         </div>
         @endif
