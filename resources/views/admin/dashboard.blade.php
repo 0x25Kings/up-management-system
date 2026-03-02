@@ -5682,19 +5682,27 @@
                                 <td>
                                     @php
                                         $isPendingAdminApproval = $task->status === 'Completed' && empty($task->completed_date);
-                                        $statusStyle = $task->status === 'Completed'
-                                            ? 'background: #D1FAE5; color: #065F46;'
-                                            : ($task->status === 'In Progress'
-                                                ? 'background: #FEF3C7; color: #92400E;'
-                                                : 'background: #E5E7EB; color: #6B7280;');
-
-                                        if ($isPendingAdminApproval) {
-                                            $statusStyle = 'background: #DBEAFE; color: #1E40AF;';
+                                        $status = $isPendingAdminApproval ? 'Pending Admin Approval' : $task->status;
+                                        $badgeStyle = '';
+                                        $badgeIcon = '';
+                                        if ($status === 'Completed') {
+                                            $badgeStyle = 'background: #D1FAE5; color: #065F46; display: flex; align-items: center; justify-content: center; gap: 6px; min-width: 110px;';
+                                            $badgeIcon = '<i class="fas fa-check-circle" style="color: #059669;"></i>';
+                                        } else if ($status === 'In Progress' || $status === 'Ongoing') {
+                                            $badgeStyle = 'background: #FEF3C7; color: #D97706; display: flex; align-items: center; justify-content: center; gap: 6px; min-width: 110px;';
+                                            $badgeIcon = '<i class="fas fa-spinner fa-spin" style="color: #D97706;"></i>';
+                                        } else if ($status === 'Pending Admin Approval') {
+                                            $badgeStyle = 'background: #DBEAFE; color: #1E40AF; display: flex; align-items: center; justify-content: center; gap: 6px; min-width: 110px;';
+                                            $badgeIcon = '<i class="fas fa-user-check" style="color: #1E40AF;"></i>';
+                                        } else if ($status === 'Pending') {
+                                            $badgeStyle = 'background: #E5E7EB; color: #6B7280; display: flex; align-items: center; justify-content: center; gap: 6px; min-width: 110px;';
+                                            $badgeIcon = '<i class="fas fa-clock" style="color: #6B7280;"></i>';
+                                        } else {
+                                            $badgeStyle = 'background: #E5E7EB; color: #6B7280; display: flex; align-items: center; justify-content: center; gap: 6px; min-width: 110px;';
+                                            $badgeIcon = '';
                                         }
                                     @endphp
-                                    <span class="status-badge" style="{{ $statusStyle }}">
-                                        {{ $isPendingAdminApproval ? 'Pending Admin Approval' : $task->status }}
-                                    </span>
+                                    <span class="status-badge" style="{!! $badgeStyle !!}">{!! $badgeIcon !!} <span style="flex:1;text-align:center;">{{ $status }}</span></span>
                                 </td>
                                 <td style="position: sticky; right: 0; background: #F9FAFB; z-index: 9;">
                                     <div class="action-buttons" style="display: flex; gap: 6px; justify-content: center; flex-wrap: nowrap;">
@@ -14686,7 +14694,7 @@
             const notes = document.getElementById('reviewDocNotes').value;
 
             if (!action) {
-                alert('Please select a review action');
+                showToast('warning', 'Review Action Required', 'Please select a review action.');
                 return;
             }
 
@@ -14713,16 +14721,16 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert(`Document ${data.submission.tracking_code} has been ${action === 'approved' ? 'approved' : action === 'rejected' ? 'rejected' : 'updated'}!`);
+                    showToast('success', 'Document Updated', `Document ${data.submission.tracking_code} has been ${action === 'approved' ? 'approved' : action === 'rejected' ? 'rejected' : 'updated'}!`);
                     closeReviewDocumentModal();
-                    location.reload();
+                    setTimeout(() => location.reload(), 1200);
                 } else {
-                    alert(data.message || 'Failed to update submission');
+                    showToast('error', 'Error', data.message || 'Failed to update submission');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('An error occurred while updating the submission');
+                showToast('error', 'Error', 'An error occurred while updating the submission');
             })
             .finally(() => {
                 if (submitBtn) {
