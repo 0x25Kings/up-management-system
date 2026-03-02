@@ -4364,7 +4364,7 @@
 
                     <a href="#" class="submenu-item" onclick="loadPage(event, 'time-attendance')">
                         <i class="fas fa-clock"></i>
-                        <span>Time & Attendance</span>
+                        <span>Time &amp; Attendance</span>
                     </a>
 
                     <a href="#" class="submenu-item" onclick="loadPage(event, 'task-assignment')">
@@ -10859,7 +10859,7 @@
                         if (savedPage === 'intern-list') {
                             breadcrumb.innerHTML = 'Dashboard > Intern Management > <span>Intern List</span>';
                         } else if (savedPage === 'time-attendance') {
-                            breadcrumb.innerHTML = 'Dashboard > Intern Management > <span>Time & Attendance</span>';
+                            breadcrumb.innerHTML = 'Dashboard > Intern Management > <span>Time &amp; Attendance</span>';
                         } else if (savedPage === 'task-assignment') {
                             breadcrumb.innerHTML = 'Dashboard > Intern Management > <span>Task Assignment</span>';
                         } else if (savedPage === 'research-tracking') {
@@ -12152,7 +12152,7 @@
             if (pageId === 'intern-list') {
                 breadcrumb.innerHTML = 'Dashboard > Intern Management > <span>Intern List</span>';
             } else if (pageId === 'time-attendance') {
-                breadcrumb.innerHTML = 'Dashboard > Intern Management > <span>Time & Attendance</span>';
+                breadcrumb.innerHTML = 'Dashboard > Intern Management > <span>Time &amp; Attendance</span>';
             } else if (pageId === 'task-assignment') {
                 breadcrumb.innerHTML = 'Dashboard > Intern Management > <span>Task Assignment</span>';
             } else if (pageId === 'team-leaders') {

@@ -404,6 +404,17 @@ Route::middleware(['maintenance', 'team.leader'])->prefix('team-leader')->name('
     Route::post('/blocked-dates', [BlockedDateController::class, 'store'])->name('blocked-dates.store');
     Route::delete('/blocked-dates/{blockedDate}', [BlockedDateController::class, 'destroy'])->name('blocked-dates.destroy');
 
+    // Booking Approval Management (Team Leader)
+    Route::post('/bookings/{booking}/approve', [BookingController::class, 'approve'])->name('bookings.approve');
+    Route::post('/bookings/{booking}/reject', [BookingController::class, 'reject'])->name('bookings.reject');
+    Route::delete('/bookings/{booking}', [BookingController::class, 'destroy'])->name('bookings.destroy');
+
+    // Reminder Routes (Team Leader)
+    Route::post('/send-moa-reminder/{startup}', [TeamLeaderController::class, 'sendMoaReminder'])->name('send-moa-reminder');
+    Route::post('/send-payment-reminder/{startup}', [TeamLeaderController::class, 'sendPaymentReminder'])->name('send-payment-reminder');
+    Route::post('/send-moa-expiry-reminder/{startup}', [TeamLeaderController::class, 'sendMoaExpiryReminder'])->name('send-moa-expiry-reminder');
+    Route::post('/send-payment-due-reminder/{startup}', [TeamLeaderController::class, 'sendPaymentDueReminder'])->name('send-payment-due-reminder');
+
     // Switch to Intern Portal
     Route::post('/switch-to-intern', [TeamLeaderController::class, 'switchToIntern'])->name('switch-to-intern');
 });

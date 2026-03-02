@@ -9,6 +9,8 @@ use App\Models\TeamLeaderReport;
 use App\Models\School;
 use App\Models\Booking;
 use App\Models\BlockedDate;
+use App\Models\Startup;
+use App\Models\StartupNotification;
 use App\Models\StartupSubmission;
 use App\Models\RoomIssue;
 use App\Models\Event;
@@ -327,10 +329,13 @@ class TeamLeaderController extends Controller
         ];
 
         $issuesData = [
+            'issues'           => $roomIssues,           // alias used by blade view
             'roomIssues'       => $roomIssues,
+            'totalIssues'      => $roomIssues->count(),  // stat card
             'pendingIssues'    => $openIssues,
             'openIssues'       => $openIssues,
             'inProgressIssues' => $inProgressIssues,
+            'resolvedIssues'   => $resolvedThisMonth,    // alias used by blade stat card
             'resolvedThisMonth' => $resolvedThisMonth,
         ];
 
@@ -1284,5 +1289,73 @@ class TeamLeaderController extends Controller
         return redirect()->route('intern.portal')
             ->with('success', 'Switched to Intern Portal. Welcome, ' . $intern->name . '!');
 
+    }
+
+    /**
+     * Send MOA submission reminder to a startup
+     */
+    public function sendMoaReminder(Startup $startup)
+    {
+        StartupNotification::notify(
+            $startup->id,
+            'moa_reminder',
+            'MOA Submission Reminder',
+            'This is a reminder to submit your Memorandum of Agreement (MOA). Please submit your MOA as soon as possible.',
+            route('startup.submit-moa'),
+            'fa-file-signature',
+            '#F59E0B'
+        );
+        return response()->json(['success' => true, 'message' => 'MOA submission reminder sent to ' . $startup->company_name]);
+    }
+
+    /**
+     * Send payment overdue reminder to a startup
+     */
+    public function sendPaymentReminder(Startup $startup)
+    {
+        StartupNotification::notify(
+            $startup->id,
+            'payment_reminder',
+            'Payment Overdue Reminder',
+            'Your payment is overdue. Please submit your payment proof as soon as possible.',
+            route('startup.submit-payment'),
+            'fa-exclamation-triangle',
+            '#EF4444'
+        );
+        return response()->json(['success' => true, 'message' => 'Payment reminder sent to ' . $startup->company_name]);
+    }
+
+    /**
+     * Send MOA expiry reminder to a startup
+     */
+    public function sendMoaExpiryReminder(Startup $startup)
+    {
+        StartupNotification::notify(
+            $startup->id,
+            'moa_expiry_reminder',
+            'MOA Expiry Reminder',
+            'Your MOA is expiring soon. Please renew your Memorandum of Agreement to continue your incubation.',
+            null,
+            'fa-calendar-times',
+            '#D97706'
+        );
+        return response()->json(['success' => true, 'message' => 'MOA expiry reminder sent to ' . $startup->company_name]);
+    }
+
+    /**
+     * Send payment due reminder to a startup
+     */
+    public function sendPaymentDueReminder(Startup $startup)
+    {
+        StartupNotification::notify(
+            $startup->id,
+            'payment_due_reminder',
+            'Payment Due Reminder',
+            'Your payment is due soon. Please prepare and submit your payment proof before the due date.',
+            route('startup.submit-payment'),
+            'fa-receipt',
+            '#EA580C'
+        );
+        return response()->json(['success' => true, 'message' => 'Payment due reminder sent to ' . $startup->company_name]);
     }
 }

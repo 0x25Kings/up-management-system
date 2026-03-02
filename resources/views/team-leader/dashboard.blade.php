@@ -523,6 +523,53 @@
         }
         .data-table tr:hover { background: rgba(34, 139, 34, 0.03); }
 
+        /* Kanban Board */
+        .kanban-container { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; padding: 16px 0; min-height: 600px; }
+        .kanban-column { background: #F9FAFB; border-radius: 12px; padding: 14px; min-height: 500px; display: flex; flex-direction: column; }
+        .kanban-column.drag-over { background: #EEF2FF; border: 2px dashed #7B1D3A; }
+        .kanban-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 2px solid #E5E7EB; flex-shrink: 0; }
+        .kanban-header h4 { font-size: 14px; font-weight: 700; color: #1F2937; display: flex; align-items: center; gap: 6px; }
+        .kanban-count { background: #7B1D3A; color: white; padding: 3px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; }
+        .kanban-cards { display: flex; flex-direction: column; gap: 10px; flex: 1; overflow-y: auto; min-height: 100px; }
+        .kanban-card { background: white; border-radius: 8px; padding: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.06); cursor: grab; transition: all 0.2s ease; border-left: 3px solid #7B1D3A; min-height: 140px; display: flex; flex-direction: column; }
+        .kanban-card:active { cursor: grabbing; }
+        .kanban-card.dragging { opacity: 0.5; transform: rotate(3deg); box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .kanban-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .kanban-card.success { border-left-color: #10B981; background: linear-gradient(135deg, #ECFDF5 0%, #ffffff 100%); }
+        .kanban-card.rejected { border-left-color: #EF4444; background: linear-gradient(135deg, #FEF2F2 0%, #ffffff 100%); }
+        .kanban-card.reviewing { border-left-color: #3B82F6; background: linear-gradient(135deg, #EFF6FF 0%, #ffffff 100%); }
+        .kanban-card.pending { border-left-color: #F59E0B; background: linear-gradient(135deg, #FFFBEB 0%, #ffffff 100%); }
+        @media (max-width: 1200px) { .kanban-container { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 768px) { .kanban-container { grid-template-columns: 1fr; } }
+
+        /* Booking/Scheduler filter tabs */
+        .filter-bar { background: white; padding: 12px 16px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .filter-tabs { display: flex; gap: 4px; flex-wrap: wrap; }
+        .filter-tab { padding: 10px 18px; border: 1px solid #E5E7EB; background: white; color: #6B7280; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 6px; }
+        .filter-tab:hover { background: #F9FAFB; color: #374151; border-color: #D1D5DB; }
+        .filter-tab.active { background: #7B1D3A; color: white; border-color: #7B1D3A; }
+        .badge-count { background: #EF4444; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; min-width: 18px; text-align: center; }
+        .filter-tab.active .badge-count { background: rgba(255,255,255,0.3); }
+        .filter-select { padding: 8px 12px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 13px; background: white; color: #374151; }
+        .search-box { position: relative; display: flex; align-items: center; }
+        .search-box i { position: absolute; left: 12px; color: #9CA3AF; font-size: 13px; }
+        .search-box input { width: 100%; padding: 8px 12px 8px 32px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 13px; outline: none; }
+        .tl-booking-tab-content { animation: fadeIn 0.2s ease; }
+        .table-card { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); overflow: hidden; }
+        .table-card table { width: 100%; border-collapse: collapse; }
+        .table-card thead th { background: #F9FAFB; padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #374151; border-bottom: 1px solid #E5E7EB; white-space: nowrap; }
+        .table-card tbody td { padding: 12px 16px; border-bottom: 1px solid #F3F4F6; font-size: 13px; color: #1F2937; }
+        .table-card tbody tr:last-child td { border-bottom: none; }
+        .table-card tbody tr:hover td { background: #FAFAFA; }
+        .btn-action { width: 32px; height: 32px; border: none; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; transition: all 0.2s; }
+        .btn-action.btn-view { background: #DBEAFE; color: #2563EB; }
+        .btn-action.btn-view:hover { background: #BFDBFE; }
+        .btn-action.btn-edit { background: #D1FAE5; color: #059669; }
+        .btn-action.btn-edit:hover { background: #A7F3D0; }
+        .btn-action.btn-delete { background: #FEE2E2; color: #DC2626; }
+        .btn-action.btn-delete:hover { background: #FCA5A5; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
         /* Badges */
         .badge {
             padding: 5px 12px;
@@ -2258,128 +2305,328 @@
         {{-- SCHEDULER PAGE --}}
         @if(in_array('scheduler', $viewableModules))
         <div id="scheduler" class="page-content">
-            <div class="stats-grid">
-                <div class="stat-card maroon">
-                    <div class="stat-header">
-                        <div class="stat-icon maroon"><i class="fas fa-calendar-alt"></i></div>
+            <!-- Page Heading -->
+            <div style="margin-bottom: 24px;">
+                <h2 style="font-size: 28px; font-weight: 700; color: #1F2937; margin-bottom: 8px;">Scheduler &amp; Events</h2>
+                <p style="color: #6B7280; font-size: 14px;">Manage agency bookings, events, and calendar</p>
+            </div>
+
+            <!-- Stats Overview (white-box style) -->
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
+                <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #FEF3C7, #FCD34D); border-radius: 12px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-clock" style="color: #D97706; font-size: 20px;"></i></div>
+                        <div><div id="tlPendingBookings" style="font-size: 28px; font-weight: 700; color: #D97706;">{{ $schedulerData['pendingBookings'] ?? 0 }}</div><div style="font-size: 13px; color: #6B7280;">Pending Requests</div></div>
                     </div>
-                    <div class="stat-value" id="tlTotalBookings">{{ isset($schedulerData['bookings']) ? $schedulerData['bookings']->count() : 0 }}</div>
-                    <div class="stat-label">Total Bookings</div>
                 </div>
-                <div class="stat-card gold">
-                    <div class="stat-header">
-                        <div class="stat-icon gold"><i class="fas fa-clock"></i></div>
+                <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #DBEAFE, #93C5FD); border-radius: 12px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-calendar-check" style="color: #2563EB; font-size: 20px;"></i></div>
+                        <div><div id="tlTodayBookings" style="font-size: 28px; font-weight: 700; color: #2563EB;">{{ $schedulerData['todayBookings'] ?? 0 }}</div><div style="font-size: 13px; color: #6B7280;">Today's Bookings</div></div>
                     </div>
-                    <div class="stat-value" id="tlPendingBookings">{{ $schedulerData['pendingBookings'] ?? 0 }}</div>
-                    <div class="stat-label">Pending Bookings</div>
                 </div>
-                <div class="stat-card green">
-                    <div class="stat-header">
-                        <div class="stat-icon green"><i class="fas fa-calendar-check"></i></div>
+                <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #D1FAE5, #6EE7B7); border-radius: 12px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-calendar-alt" style="color: #059669; font-size: 20px;"></i></div>
+                        <div><div id="tlTotalEvents" style="font-size: 28px; font-weight: 700; color: #059669;">{{ isset($schedulerData['events']) ? $schedulerData['events']->count() : 0 }}</div><div style="font-size: 13px; color: #6B7280;">Upcoming Events</div></div>
                     </div>
-                    <div class="stat-value" id="tlTotalEvents">{{ isset($schedulerData['events']) ? $schedulerData['events']->count() : 0 }}</div>
-                    <div class="stat-label">Total Events</div>
                 </div>
-                <div class="stat-card red">
-                    <div class="stat-header">
-                        <div class="stat-icon red"><i class="fas fa-ban"></i></div>
+                <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #EDE9FE, #C4B5FD); border-radius: 12px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-building" style="color: #7C3AED; font-size: 20px;"></i></div>
+                        <div><div id="tlTotalBookings" style="font-size: 28px; font-weight: 700; color: #7C3AED;">{{ isset($schedulerData['bookings']) ? $schedulerData['bookings']->where('status','approved')->count() : 0 }}</div><div style="font-size: 13px; color: #6B7280;">Total Approved</div></div>
                     </div>
-                    <div class="stat-value" id="tlBlockedDates">{{ isset($schedulerData['blockedDates']) ? $schedulerData['blockedDates']->count() : 0 }}</div>
-                    <div class="stat-label">Blocked Dates</div>
                 </div>
             </div>
 
-            <!-- Calendar View -->
-            <div class="card" style="margin-bottom: 24px;">
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-calendar"></i> Schedule Calendar</h3>
-                    <div style="display: flex; gap: 12px; align-items: center;">
-                        @if(in_array('scheduler', $editableModules))
-                        <button onclick="tlShowCreateEventModal()" class="btn btn-primary btn-sm">
-                            <i class="fas fa-plus"></i> Add Event
-                        </button>
-                        <button onclick="tlOpenBlockDateModal()" class="btn btn-danger btn-sm">
-                            <i class="fas fa-ban"></i> Block Date
-                        </button>
-                        <span class="badge badge-success"><i class="fas fa-edit"></i> Edit Access</span>
-                        @else
-                        <span class="badge badge-info"><i class="fas fa-eye"></i> View Only</span>
+            <!-- Booking Tabs -->
+            <div class="filter-bar" style="margin-bottom: 24px;">
+                <div class="filter-tabs" style="margin: 0;">
+                    <button class="filter-tab active" id="tlPendingBookingsTabBtn" onclick="tlSwitchBookingTab('pending')">
+                        <i class="fas fa-clock"></i> Pending Requests
+                        @if(($schedulerData['pendingBookings'] ?? 0) > 0)
+                        <span class="badge-count" id="tlPendingBadge">{{ $schedulerData['pendingBookings'] }}</span>
                         @endif
-                    </div>
+                    </button>
+                    <button class="filter-tab" id="tlCalendarViewTabBtn" onclick="tlSwitchBookingTab('calendar')">
+                        <i class="fas fa-calendar"></i> Calendar View
+                    </button>
+                    <button class="filter-tab" id="tlEventsTabBtn" onclick="tlSwitchBookingTab('events')">
+                        <i class="fas fa-calendar-plus"></i> Events
+                    </button>
+                    <button class="filter-tab" id="tlAllBookingsTabBtn" onclick="tlSwitchBookingTab('all')">
+                        <i class="fas fa-list"></i> All Bookings
+                    </button>
+                    <button class="filter-tab" id="tlArchivedTabBtn" onclick="tlSwitchBookingTab('archived')">
+                        <i class="fas fa-archive"></i> Archived
+                        <span class="badge-count" style="background: #6B7280;">{{ isset($schedulerData['archivedBookings']) ? $schedulerData['archivedBookings']->count() : 0 }}</span>
+                    </button>
                 </div>
-                <div class="card-body">
-                    <!-- Calendar Header -->
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-                        <h3 id="tlSchedulerMonthTitle" style="font-size: 20px; font-weight: 700; color: var(--maroon);">January 2026</h3>
-                        <div style="display: flex; gap: 8px;">
-                            <button onclick="tlPreviousMonth()" style="background: white; border: 2px solid var(--maroon); color: var(--maroon); width: 40px; height: 40px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s;">
-                                <i class="fas fa-chevron-left"></i>
-                            </button>
-                            <button onclick="tlNextMonth()" style="background: white; border: 2px solid var(--maroon); color: var(--maroon); width: 40px; height: 40px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s;">
-                                <i class="fas fa-chevron-right"></i>
-                            </button>
-                        </div>
-                    </div>
+            </div>
 
-                    <!-- Calendar Grid -->
-                    <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: #E5E7EB; border: 1px solid #E5E7EB; border-radius: 12px; overflow: hidden;">
-                        <!-- Weekday Headers -->
-                        <div style="background: var(--maroon); color: white; padding: 12px; text-align: center; font-weight: 700; font-size: 12px;">Sun</div>
-                        <div style="background: var(--maroon); color: white; padding: 12px; text-align: center; font-weight: 700; font-size: 12px;">Mon</div>
-                        <div style="background: var(--maroon); color: white; padding: 12px; text-align: center; font-weight: 700; font-size: 12px;">Tue</div>
-                        <div style="background: var(--maroon); color: white; padding: 12px; text-align: center; font-weight: 700; font-size: 12px;">Wed</div>
-                        <div style="background: var(--maroon); color: white; padding: 12px; text-align: center; font-weight: 700; font-size: 12px;">Thu</div>
-                        <div style="background: var(--maroon); color: white; padding: 12px; text-align: center; font-weight: 700; font-size: 12px;">Fri</div>
-                        <div style="background: var(--maroon); color: white; padding: 12px; text-align: center; font-weight: 700; font-size: 12px;">Sat</div>
-                    </div>
-                    <div id="tlSchedulerCalendarGrid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: #E5E7EB; border: 1px solid #E5E7EB; border-radius: 0 0 12px 12px; overflow: hidden; margin-top: 1px;">
-                        <!-- Calendar days will be rendered here by JavaScript -->
-                    </div>
+            <!-- Pending Bookings Tab -->
+            <div id="tlPendingBookingsTab" class="tl-booking-tab-content">
+                <div class="table-card" style="overflow-x: auto;">
+                    <table style="min-width: 900px;">
+                        <thead>
+                            <tr>
+                                <th style="min-width: 130px;">Date &amp; Time</th>
+                                <th style="min-width: 120px;">Agency</th>
+                                <th style="min-width: 120px;">Purpose</th>
+                                <th style="min-width: 120px;">Contact Person</th>
+                                <th style="min-width: 140px;">Contact Info</th>
+                                <th style="min-width: 80px;">Attachment</th>
+                                @if(in_array('scheduler', $editableModules))
+                                <th style="min-width: 120px;">Actions</th>
+                                @endif
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse(isset($schedulerData['bookings']) ? $schedulerData['bookings']->where('status','pending') : [] as $booking)
+                            <tr>
+                                <td>
+                                    <div style="font-weight: 600;">{{ $booking->booking_date->format('M d, Y') }}</div>
+                                    <div style="font-size: 12px; color: #6B7280;">{{ $booking->formatted_time }}</div>
+                                </td>
+                                <td><div style="font-weight: 600; color: #7B1D3A;">{{ $booking->agency_name }}</div></td>
+                                <td>{{ $booking->event_name }}</td>
+                                <td>{{ $booking->contact_person }}</td>
+                                <td>
+                                    <div style="font-size: 12px;"><i class="fas fa-phone" style="color: #6B7280; margin-right: 4px;"></i> {{ $booking->phone }}</div>
+                                    <div style="font-size: 12px;"><i class="fas fa-envelope" style="color: #6B7280; margin-right: 4px;"></i> {{ $booking->email }}</div>
+                                </td>
+                                <td>
+                                    @if($booking->attachment_path)
+                                    <a href="{{ asset('storage/' . $booking->attachment_path) }}" target="_blank" class="btn-action btn-view" style="background: #DBEAFE; color: #2563EB;" title="View Attachment"><i class="fas fa-file-pdf"></i></a>
+                                    @else
+                                    <span style="color: #9CA3AF; font-size: 12px;">None</span>
+                                    @endif
+                                </td>
+                                @if(in_array('scheduler', $editableModules))
+                                <td>
+                                    <div style="display: flex; gap: 4px;">
+                                        <button class="btn-action btn-edit" onclick="tlApproveBooking({{ $booking->id }})" title="Approve"><i class="fas fa-check"></i></button>
+                                        <button class="btn-action btn-delete" onclick="tlRejectBooking({{ $booking->id }})" title="Reject"><i class="fas fa-times"></i></button>
+                                    </div>
+                                </td>
+                                @endif
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="{{ in_array('scheduler', $editableModules) ? 7 : 6 }}" style="text-align: center; padding: 40px; color: #9CA3AF;">
+                                    <i class="fas fa-check-circle" style="font-size: 40px; margin-bottom: 12px; display: block;"></i>
+                                    No pending booking requests
+                                </td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
-                    <!-- Legend -->
-                    <div style="display: flex; gap: 24px; margin-top: 20px; padding-top: 20px; border-top: 1px solid #E5E7EB; flex-wrap: wrap;">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <div style="width: 16px; height: 16px; background: #DBEAFE; border-left: 3px solid #3B82F6; border-radius: 4px;"></div>
-                            <span style="font-size: 13px; color: #6B7280;">Bookings</span>
+            <!-- Calendar View Tab -->
+            <div id="tlCalendarViewTab" class="tl-booking-tab-content" style="display: none;">
+                <div class="card" style="margin-bottom: 24px;">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-calendar"></i> Schedule Calendar</h3>
+                        <div style="display: flex; gap: 12px; align-items: center;">
+                            @if(in_array('scheduler', $editableModules))
+                            <button onclick="tlShowCreateEventModal()" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Add Event</button>
+                            <button onclick="tlOpenBlockDateModal()" class="btn btn-danger btn-sm"><i class="fas fa-ban"></i> Block Date</button>
+                            <span class="badge badge-success"><i class="fas fa-edit"></i> Edit Access</span>
+                            @else
+                            <span class="badge badge-info"><i class="fas fa-eye"></i> View Only</span>
+                            @endif
                         </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <div style="width: 16px; height: 16px; background: rgba(34, 139, 34, 0.2); border-left: 3px solid var(--forest-green); border-radius: 4px;"></div>
-                            <span style="font-size: 13px; color: #6B7280;">Events</span>
+                    </div>
+                    <div class="card-body">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                            <h3 id="tlSchedulerMonthTitle" style="font-size: 20px; font-weight: 700; color: var(--maroon);">January 2026</h3>
+                            <div style="display: flex; gap: 8px;">
+                                <button onclick="tlPreviousMonth()" style="background: white; border: 2px solid var(--maroon); color: var(--maroon); width: 40px; height: 40px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s;"><i class="fas fa-chevron-left"></i></button>
+                                <button onclick="tlNextMonth()" style="background: white; border: 2px solid var(--maroon); color: var(--maroon); width: 40px; height: 40px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s;"><i class="fas fa-chevron-right"></i></button>
+                            </div>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <div style="width: 16px; height: 16px; background: #FEE2E2; border-left: 3px solid #DC2626; border-radius: 4px;"></div>
-                            <span style="font-size: 13px; color: #6B7280;">Blocked</span>
+                        <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: #E5E7EB; border: 1px solid #E5E7EB; border-radius: 12px; overflow: hidden;">
+                            <div style="background: var(--maroon); color: white; padding: 12px; text-align: center; font-weight: 700; font-size: 12px;">Sun</div>
+                            <div style="background: var(--maroon); color: white; padding: 12px; text-align: center; font-weight: 700; font-size: 12px;">Mon</div>
+                            <div style="background: var(--maroon); color: white; padding: 12px; text-align: center; font-weight: 700; font-size: 12px;">Tue</div>
+                            <div style="background: var(--maroon); color: white; padding: 12px; text-align: center; font-weight: 700; font-size: 12px;">Wed</div>
+                            <div style="background: var(--maroon); color: white; padding: 12px; text-align: center; font-weight: 700; font-size: 12px;">Thu</div>
+                            <div style="background: var(--maroon); color: white; padding: 12px; text-align: center; font-weight: 700; font-size: 12px;">Fri</div>
+                            <div style="background: var(--maroon); color: white; padding: 12px; text-align: center; font-weight: 700; font-size: 12px;">Sat</div>
+                        </div>
+                        <div id="tlSchedulerCalendarGrid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: #E5E7EB; border: 1px solid #E5E7EB; border-radius: 0 0 12px 12px; overflow: hidden; margin-top: 1px;"></div>
+                        <div style="display: flex; gap: 24px; margin-top: 20px; padding-top: 20px; border-top: 1px solid #E5E7EB; flex-wrap: wrap;">
+                            <div style="display: flex; align-items: center; gap: 8px;"><div style="width: 16px; height: 16px; background: #DBEAFE; border-left: 3px solid #3B82F6; border-radius: 4px;"></div><span style="font-size: 13px; color: #6B7280;">Bookings</span></div>
+                            <div style="display: flex; align-items: center; gap: 8px;"><div style="width: 16px; height: 16px; background: rgba(34, 139, 34, 0.2); border-left: 3px solid var(--forest-green); border-radius: 4px;"></div><span style="font-size: 13px; color: #6B7280;">Events</span></div>
+                            <div style="display: flex; align-items: center; gap: 8px;"><div style="width: 16px; height: 16px; background: #FEE2E2; border-left: 3px solid #DC2626; border-radius: 4px;"></div><span style="font-size: 13px; color: #6B7280;">Blocked</span></div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Events & Bookings List -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                <!-- Upcoming Events -->
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title"><i class="fas fa-calendar-day"></i> Upcoming Events</h3>
+            <!-- Events Tab -->
+            <div id="tlEventsTab" class="tl-booking-tab-content" style="display: none;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fas fa-calendar-day"></i> Upcoming Events</h3>
+                            @if(in_array('scheduler', $editableModules))
+                            <button onclick="tlShowCreateEventModal()" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Add Event</button>
+                            @endif
+                        </div>
+                        <div class="card-body" id="tlUpcomingEventsList" style="max-height: 500px; overflow-y: auto;">
+                            <div class="empty-state"><i class="fas fa-calendar-check"></i><p>No upcoming events</p></div>
+                        </div>
                     </div>
-                    <div class="card-body" id="tlUpcomingEventsList" style="max-height: 400px; overflow-y: auto;">
-                        <div class="empty-state">
-                            <i class="fas fa-calendar-check"></i>
-                            <p>No upcoming events</p>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fas fa-calendar-alt"></i> Upcoming Bookings</h3>
+                        </div>
+                        <div class="card-body" id="tlRecentBookingsList" style="max-height: 500px; overflow-y: auto;">
+                            <div class="empty-state"><i class="fas fa-calendar-alt"></i><p>No bookings found</p></div>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Recent Bookings -->
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title"><i class="fas fa-calendar-alt"></i> Recent Bookings</h3>
+            <!-- All Bookings Tab -->
+            <div id="tlAllBookingsTab" class="tl-booking-tab-content" style="display: none;">
+                <div class="filter-bar" style="margin-bottom: 16px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+                    <div class="search-box" style="max-width: 300px;">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Search bookings..." id="tlSearchAllBookings" onkeyup="tlFilterAllBookings()">
                     </div>
-                    <div class="card-body" id="tlRecentBookingsList" style="max-height: 400px; overflow-y: auto;">
-                        <div class="empty-state">
-                            <i class="fas fa-calendar-alt"></i>
-                            <p>No bookings found</p>
-                        </div>
+                    <select class="filter-select" id="tlFilterAllBookingStatus" onchange="tlFilterAllBookings()">
+                        <option value="">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+                <div class="table-card" style="overflow-x: auto;">
+                    <table style="min-width: 1000px;">
+                        <thead>
+                            <tr>
+                                <th style="min-width: 120px;">Date</th>
+                                <th style="min-width: 120px;">Agency</th>
+                                <th style="min-width: 120px;">Purpose</th>
+                                <th style="min-width: 140px;">Contact</th>
+                                <th style="min-width: 100px;">Status</th>
+                                <th style="min-width: 80px;">Attachment</th>
+                                @if(in_array('scheduler', $editableModules))
+                                <th style="min-width: 120px;">Actions</th>
+                                @endif
+                            </tr>
+                        </thead>
+                        <tbody id="tlAllBookingsBody">
+                            @forelse(isset($schedulerData['bookings']) ? $schedulerData['bookings']->whereNull('archived_at') : [] as $booking)
+                            <tr class="tl-booking-row" data-status="{{ $booking->status }}" data-search="{{ strtolower($booking->agency_name . ' ' . $booking->event_name . ' ' . $booking->contact_person) }}">
+                                <td>
+                                    <div style="font-weight: 600;">{{ $booking->booking_date->format('M d, Y') }}</div>
+                                    <div style="font-size: 12px; color: #6B7280;">{{ $booking->formatted_time }}</div>
+                                </td>
+                                <td><div style="font-weight: 600;">{{ $booking->agency_name }}</div></td>
+                                <td>{{ $booking->event_name }}</td>
+                                <td>
+                                    <div>{{ $booking->contact_person }}</div>
+                                    <div style="font-size: 12px; color: #6B7280;">{{ $booking->email }}</div>
+                                </td>
+                                <td>
+                                    @if($booking->status === 'pending')
+                                    <span style="background: #FEF3C7; color: #D97706; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;">Pending</span>
+                                    @elseif($booking->status === 'approved')
+                                    <span style="background: #D1FAE5; color: #059669; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;">Approved</span>
+                                    @else
+                                    <span style="background: #FEE2E2; color: #DC2626; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;">Rejected</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($booking->attachment_path)
+                                    <a href="{{ asset('storage/' . $booking->attachment_path) }}" target="_blank" class="btn-action btn-view" style="background: #DBEAFE; color: #2563EB;" title="View PDF"><i class="fas fa-file-pdf"></i></a>
+                                    @else
+                                    <span style="color: #9CA3AF; font-size: 12px;">—</span>
+                                    @endif
+                                </td>
+                                @if(in_array('scheduler', $editableModules))
+                                <td>
+                                    <div style="display: flex; gap: 4px;">
+                                        @if($booking->status === 'pending')
+                                        <button class="btn-action btn-edit" onclick="tlApproveBooking({{ $booking->id }})" title="Approve"><i class="fas fa-check"></i></button>
+                                        <button class="btn-action btn-delete" onclick="tlRejectBooking({{ $booking->id }})" title="Reject"><i class="fas fa-times"></i></button>
+                                        @endif
+                                        <button class="btn-action btn-delete" onclick="tlArchiveBooking({{ $booking->id }})" title="Archive"><i class="fas fa-archive"></i></button>
+                                    </div>
+                                </td>
+                                @endif
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="{{ in_array('scheduler', $editableModules) ? 7 : 6 }}" style="text-align: center; padding: 40px; color: #9CA3AF;">
+                                    <i class="fas fa-calendar-times" style="font-size: 40px; margin-bottom: 12px; display: block;"></i>
+                                    No bookings found
+                                </td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Archived Bookings Tab -->
+            <div id="tlArchivedBookingsTab" class="tl-booking-tab-content" style="display: none;">
+                <div class="filter-bar" style="margin-bottom: 16px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+                    <div class="search-box" style="max-width: 300px;">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Search archived bookings..." id="tlSearchArchivedBookings" onkeyup="tlFilterArchivedBookings()">
                     </div>
+                </div>
+                <div class="table-card" style="overflow-x: auto;">
+                    <table style="min-width: 900px;">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Agency</th>
+                                <th>Purpose</th>
+                                <th>Contact</th>
+                                <th>Status</th>
+                                <th>Archived Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tlArchivedBookingsBody">
+                            @forelse(isset($schedulerData['archivedBookings']) ? $schedulerData['archivedBookings'] : [] as $booking)
+                            <tr class="tl-archived-booking-row" data-search="{{ strtolower($booking->agency_name . ' ' . $booking->event_name . ' ' . $booking->contact_person) }}">
+                                <td style="white-space: nowrap;">{{ $booking->booking_date->format('M d, Y') }}</td>
+                                <td style="white-space: nowrap;">{{ $booking->formatted_time }}</td>
+                                <td><div style="font-weight: 600;">{{ $booking->agency_name }}</div></td>
+                                <td>{{ $booking->event_name }}</td>
+                                <td>
+                                    <div>{{ $booking->contact_person }}</div>
+                                    <div style="font-size: 12px; color: #6B7280;">{{ $booking->email }}</div>
+                                </td>
+                                <td>
+                                    @if($booking->status === 'pending')
+                                    <span style="background: #FEF3C7; color: #D97706; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;">Pending</span>
+                                    @elseif($booking->status === 'approved')
+                                    <span style="background: #D1FAE5; color: #059669; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;">Approved</span>
+                                    @else
+                                    <span style="background: #FEE2E2; color: #DC2626; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;">Rejected</span>
+                                    @endif
+                                </td>
+                                <td style="white-space: nowrap;">{{ $booking->archived_at ? $booking->archived_at->format('M d, Y h:i A') : '—' }}</td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="7" style="text-align: center; padding: 40px; color: #9CA3AF;">
+                                    <i class="fas fa-archive" style="font-size: 40px; margin-bottom: 12px; display: block;"></i>
+                                    No archived bookings found
+                                </td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -2388,76 +2635,382 @@
         {{-- RESEARCH TRACKING PAGE --}}
         @if(in_array('research_tracking', $viewableModules))
         <div id="research-tracking" class="page-content">
+            <div style="margin-bottom: 24px;">
+                <h2 style="font-size: 28px; font-weight: 700; color: #1F2937; margin-bottom: 8px;">Research &amp; Startup Document Tracking</h2>
+                <p style="color: #6B7280; font-size: 14px;">Track and manage document submissions from startups in the incubation program</p>
+            </div>
+
+            <!-- Stats Overview -->
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
+                <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #DBEAFE, #93C5FD); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-file-alt" style="color: #2563EB; font-size: 20px;"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 28px; font-weight: 700; color: #1F2937;">{{ isset($incubateeData['startupDocuments']) ? $incubateeData['startupDocuments']->count() : 0 }}</div>
+                            <div style="font-size: 13px; color: #6B7280;">Total Documents</div>
+                        </div>
+                    </div>
+                </div>
+                <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #FEF3C7, #FCD34D); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-clock" style="color: #D97706; font-size: 20px;"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 28px; font-weight: 700; color: #D97706;">{{ isset($incubateeData['startupDocuments']) ? $incubateeData['startupDocuments']->where('status', 'pending')->count() : 0 }}</div>
+                            <div style="font-size: 13px; color: #6B7280;">Pending Review</div>
+                        </div>
+                    </div>
+                </div>
+                <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #E0E7FF, #A5B4FC); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-search" style="color: #4F46E5; font-size: 20px;"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 28px; font-weight: 700; color: #4F46E5;">{{ isset($incubateeData['startupDocuments']) ? $incubateeData['startupDocuments']->where('status', 'under_review')->count() : 0 }}</div>
+                            <div style="font-size: 13px; color: #6B7280;">Under Review</div>
+                        </div>
+                    </div>
+                </div>
+                <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #D1FAE5, #6EE7B7); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-check-circle" style="color: #059669; font-size: 20px;"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 28px; font-weight: 700; color: #059669;">{{ isset($incubateeData['startupDocuments']) ? $incubateeData['startupDocuments']->whereIn('status', ['approved', 'completed'])->count() : 0 }}</div>
+                            <div style="font-size: 13px; color: #6B7280;">Approved</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter Bar -->
+            <div style="background: white; padding: 16px; border-radius: 12px; margin-bottom: 20px; display: flex; gap: 16px; align-items: center; flex-wrap: wrap; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 14px; font-weight: 500; color: #374151;">Status:</span>
+                    <select onchange="tlFilterDocuments()" id="tlDocumentStatusFilter" style="padding: 8px 12px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 14px;">
+                        <option value="all">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="under_review">Under Review</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 14px; font-weight: 500; color: #374151;">Type:</span>
+                    <select onchange="tlFilterDocuments()" id="tlDocumentTypeFilter" style="padding: 8px 12px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 14px;">
+                        <option value="all">All Types</option>
+                        <option value="Business Plan">Business Plan</option>
+                        <option value="Financial Report">Financial Report</option>
+                        <option value="Progress Report">Progress Report</option>
+                        <option value="Legal Document">Legal Document</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div style="flex: 1; min-width: 200px; position: relative;">
+                    <i class="fas fa-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9CA3AF;"></i>
+                    <input type="text" placeholder="Search documents..." onkeyup="tlSearchDocuments()" id="tlDocumentSearchInput" style="width: 100%; padding: 8px 12px 8px 36px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 14px; box-sizing: border-box;">
+                </div>
+                <div style="display: flex; gap: 8px; margin-left: auto;">
+                    <button id="tlDocKanbanBtn" onclick="tlSwitchResearchView('kanban')" style="padding: 8px 16px; background: #7B1D3A; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-th"></i> Kanban
+                    </button>
+                    <button id="tlDocListBtn" onclick="tlSwitchResearchView('list')" style="padding: 8px 16px; background: white; color: #6B7280; border: 1px solid #E5E7EB; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-list"></i> List
+                    </button>
+                </div>
+            </div>
+
+            <!-- Kanban Board View -->
+            <div id="tl-kanban-view" class="kanban-container">
+                <div class="kanban-column" data-status="pending" ondrop="tlDropDocCard(event)" ondragover="tlAllowDropDoc(event)" ondragleave="tlDragLeaveDoc(event)">
+                    <div class="kanban-header">
+                        <h4><i class="fas fa-inbox"></i> Pending</h4>
+                        <span class="kanban-count">{{ isset($incubateeData['startupDocuments']) ? $incubateeData['startupDocuments']->where('status', 'pending')->count() : 0 }}</span>
+                    </div>
+                    <div class="kanban-cards">
+                        @forelse(isset($incubateeData['startupDocuments']) ? $incubateeData['startupDocuments']->where('status', 'pending') : [] as $doc)
+                        <div class="kanban-card pending" draggable="true" data-id="{{ $doc->id }}" ondragstart="tlDragStartDoc(event)" ondragend="tlDragEndDoc(event)" onclick="tlViewDocumentDetails('{{ $doc->id }}')">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+                                <h5 style="font-size: 13px; font-weight: 700; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin: 0;">{{ $doc->company_name }}</h5>
+                                <span style="background: #FEF3C7; color: #92400E; font-size: 9px; padding: 2px 6px; border-radius: 10px; white-space: nowrap;">Pending</span>
+                            </div>
+                            <p style="font-size: 12px; color: #6B7280; margin-bottom: 8px;">{{ $doc->document_type }}</p>
+                            <div style="display: flex; justify-content: space-between; font-size: 11px; color: #6B7280; margin-bottom: 4px;">
+                                <span><i class="fas fa-user"></i> {{ Str::limit($doc->contact_person, 12) }}</span>
+                                <span><i class="fas fa-calendar"></i> {{ $doc->created_at->format('M d') }}</span>
+                            </div>
+                            <div style="font-size: 10px; color: #6B7280; margin-bottom: 8px;"><i class="fas fa-hashtag"></i> {{ $doc->tracking_code }}</div>
+                            <div style="margin-top: auto; padding-top: 8px; display: flex; gap: 4px;">
+                                @if(in_array('research_tracking', $editableModules))
+                                <button onclick="event.stopPropagation(); tlReviewDocument('{{ $doc->id }}')" style="flex: 1; padding: 5px 8px; font-size: 10px; background: #10B981; color: white; border: none; border-radius: 4px; cursor: pointer;"><i class="fas fa-check"></i> Review</button>
+                                @endif
+                                <a href="{{ asset('storage/' . $doc->file_path) }}" target="_blank" onclick="event.stopPropagation();" style="padding: 5px 8px; font-size: 10px; background: #3B82F6; color: white; border: none; border-radius: 4px; cursor: pointer; text-decoration: none;"><i class="fas fa-download"></i></a>
+                            </div>
+                        </div>
+                        @empty
+                        <div style="padding: 20px; text-align: center; color: #9CA3AF; font-size: 12px;"><i class="fas fa-inbox" style="font-size: 20px; margin-bottom: 6px; display: block;"></i>No pending documents</div>
+                        @endforelse
+                    </div>
+                </div>
+                <div class="kanban-column" data-status="under_review" ondrop="tlDropDocCard(event)" ondragover="tlAllowDropDoc(event)" ondragleave="tlDragLeaveDoc(event)">
+                    <div class="kanban-header">
+                        <h4><i class="fas fa-search"></i> Under Review</h4>
+                        <span class="kanban-count">{{ isset($incubateeData['startupDocuments']) ? $incubateeData['startupDocuments']->where('status', 'under_review')->count() : 0 }}</span>
+                    </div>
+                    <div class="kanban-cards">
+                        @forelse(isset($incubateeData['startupDocuments']) ? $incubateeData['startupDocuments']->where('status', 'under_review') : [] as $doc)
+                        <div class="kanban-card reviewing" draggable="true" data-id="{{ $doc->id }}" ondragstart="tlDragStartDoc(event)" ondragend="tlDragEndDoc(event)" onclick="tlViewDocumentDetails('{{ $doc->id }}')">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+                                <h5 style="font-size: 13px; font-weight: 700; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin: 0;">{{ $doc->company_name }}</h5>
+                                <span style="background: #DBEAFE; color: #1E40AF; font-size: 9px; padding: 2px 6px; border-radius: 10px; white-space: nowrap;">Reviewing</span>
+                            </div>
+                            <p style="font-size: 12px; color: #6B7280; margin-bottom: 8px;">{{ $doc->document_type }}</p>
+                            <div style="display: flex; justify-content: space-between; font-size: 11px; color: #6B7280; margin-bottom: 4px;">
+                                <span><i class="fas fa-user"></i> {{ Str::limit($doc->contact_person, 12) }}</span>
+                                <span><i class="fas fa-calendar"></i> {{ $doc->created_at->format('M d') }}</span>
+                            </div>
+                            <div style="font-size: 10px; color: #6B7280; margin-bottom: 8px;"><i class="fas fa-hashtag"></i> {{ $doc->tracking_code }}</div>
+                            <div style="margin-top: auto; padding-top: 8px; display: flex; gap: 4px;">
+                                @if(in_array('research_tracking', $editableModules))
+                                <button onclick="event.stopPropagation(); tlReviewDocument('{{ $doc->id }}')" style="flex: 1; padding: 5px 8px; font-size: 10px; background: #10B981; color: white; border: none; border-radius: 4px; cursor: pointer;"><i class="fas fa-check"></i> Approve/Reject</button>
+                                @endif
+                                <a href="{{ asset('storage/' . $doc->file_path) }}" target="_blank" onclick="event.stopPropagation();" style="padding: 5px 8px; font-size: 10px; background: #3B82F6; color: white; border: none; border-radius: 4px; cursor: pointer; text-decoration: none;"><i class="fas fa-download"></i></a>
+                            </div>
+                        </div>
+                        @empty
+                        <div style="padding: 20px; text-align: center; color: #9CA3AF; font-size: 12px;"><i class="fas fa-search" style="font-size: 20px; margin-bottom: 6px; display: block;"></i>No documents under review</div>
+                        @endforelse
+                    </div>
+                </div>
+                <div class="kanban-column" data-status="approved" ondrop="tlDropDocCard(event)" ondragover="tlAllowDropDoc(event)" ondragleave="tlDragLeaveDoc(event)">
+                    <div class="kanban-header">
+                        <h4><i class="fas fa-check-circle"></i> Approved</h4>
+                        <span class="kanban-count">{{ isset($incubateeData['startupDocuments']) ? $incubateeData['startupDocuments']->where('status', 'approved')->count() : 0 }}</span>
+                    </div>
+                    <div class="kanban-cards">
+                        @forelse(isset($incubateeData['startupDocuments']) ? $incubateeData['startupDocuments']->where('status', 'approved') : [] as $doc)
+                        <div class="kanban-card success" draggable="true" data-id="{{ $doc->id }}" ondragstart="tlDragStartDoc(event)" ondragend="tlDragEndDoc(event)" onclick="tlViewDocumentDetails('{{ $doc->id }}')">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+                                <h5 style="font-size: 13px; font-weight: 700; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin: 0;">{{ $doc->company_name }}</h5>
+                                <span style="background: #DCFCE7; color: #166534; font-size: 9px; padding: 2px 6px; border-radius: 10px; white-space: nowrap;">Approved</span>
+                            </div>
+                            <p style="font-size: 12px; color: #6B7280; margin-bottom: 8px;">{{ $doc->document_type }}</p>
+                            <div style="display: flex; justify-content: space-between; font-size: 11px; color: #6B7280; margin-bottom: 4px;">
+                                <span><i class="fas fa-user"></i> {{ Str::limit($doc->contact_person, 12) }}</span>
+                                <span><i class="fas fa-calendar"></i> {{ $doc->reviewed_at ? $doc->reviewed_at->format('M d') : 'N/A' }}</span>
+                            </div>
+                            <div style="font-size: 10px; color: #6B7280;"><i class="fas fa-hashtag"></i> {{ $doc->tracking_code }}</div>
+                        </div>
+                        @empty
+                        <div style="padding: 20px; text-align: center; color: #9CA3AF; font-size: 12px;"><i class="fas fa-check-circle" style="font-size: 20px; margin-bottom: 6px; display: block;"></i>No approved documents</div>
+                        @endforelse
+                    </div>
+                </div>
+                <div class="kanban-column" data-status="rejected" ondrop="tlDropDocCard(event)" ondragover="tlAllowDropDoc(event)" ondragleave="tlDragLeaveDoc(event)">
+                    <div class="kanban-header">
+                        <h4><i class="fas fa-times-circle"></i> Rejected</h4>
+                        <span class="kanban-count">{{ isset($incubateeData['startupDocuments']) ? $incubateeData['startupDocuments']->where('status', 'rejected')->count() : 0 }}</span>
+                    </div>
+                    <div class="kanban-cards">
+                        @forelse(isset($incubateeData['startupDocuments']) ? $incubateeData['startupDocuments']->where('status', 'rejected') : [] as $doc)
+                        <div class="kanban-card rejected" draggable="true" data-id="{{ $doc->id }}" ondragstart="tlDragStartDoc(event)" ondragend="tlDragEndDoc(event)" onclick="tlViewDocumentDetails('{{ $doc->id }}')">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+                                <h5 style="font-size: 13px; font-weight: 700; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin: 0;">{{ $doc->company_name }}</h5>
+                                <span style="background: #FEE2E2; color: #991B1B; font-size: 9px; padding: 2px 6px; border-radius: 10px; white-space: nowrap;">Rejected</span>
+                            </div>
+                            <p style="font-size: 12px; color: #6B7280; margin-bottom: 8px;">{{ $doc->document_type }}</p>
+                            <div style="display: flex; justify-content: space-between; font-size: 11px; color: #6B7280; margin-bottom: 4px;">
+                                <span><i class="fas fa-user"></i> {{ Str::limit($doc->contact_person, 12) }}</span>
+                                <span><i class="fas fa-calendar"></i> {{ $doc->reviewed_at ? $doc->reviewed_at->format('M d') : 'N/A' }}</span>
+                            </div>
+                            <div style="font-size: 10px; color: #6B7280;"><i class="fas fa-hashtag"></i> {{ $doc->tracking_code }}</div>
+                            @if($doc->admin_notes)
+                            <div style="margin-top: auto; font-size: 9px; color: #DC2626; padding: 4px; background: #FEF2F2; border-radius: 3px;"><i class="fas fa-exclamation-circle"></i> {{ Str::limit($doc->admin_notes, 30) }}</div>
+                            @endif
+                        </div>
+                        @empty
+                        <div style="padding: 20px; text-align: center; color: #9CA3AF; font-size: 12px;"><i class="fas fa-times-circle" style="font-size: 20px; margin-bottom: 6px; display: block;"></i>No rejected documents</div>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
+
+            <!-- Documents Table (List View) -->
+            <div id="tl-doc-list-view" style="display: none;">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-flask"></i> Research Tracking</h3>
+                    <h3 class="card-title"><i class="fas fa-file-alt"></i> Startup Document Submissions</h3>
                     @if(in_array('research_tracking', $editableModules))
                     <span class="badge badge-success"><i class="fas fa-edit"></i> Edit Access</span>
                     @else
                     <span class="badge badge-info"><i class="fas fa-eye"></i> View Only</span>
                     @endif
                 </div>
-                <div class="card-body">
+                <div class="card-body" style="padding: 0; overflow-x: auto;">
+                    @if(isset($incubateeData['startupDocuments']) && $incubateeData['startupDocuments']->count() > 0)
+                    <table class="data-table" style="min-width: 900px;">
+                        <thead>
+                            <tr>
+                                <th>Tracking Code</th>
+                                <th>Company/Startup</th>
+                                <th>Document Type</th>
+                                <th>Contact Person</th>
+                                <th>Submitted</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tlDocumentsTableBody">
+                            @foreach($incubateeData['startupDocuments'] as $doc)
+                            <tr class="tl-document-row" data-status="{{ $doc->status }}" data-type="{{ $doc->document_type }}">
+                                <td><strong style="color: #7B1D3A;">{{ $doc->tracking_code }}</strong></td>
+                                <td>
+                                    <div style="font-weight: 600; margin-bottom: 2px;">{{ $doc->company_name }}</div>
+                                    <div style="font-size: 12px; color: #6B7280;">{{ $doc->email }}</div>
+                                </td>
+                                <td><span style="font-size: 13px;">{{ $doc->document_type }}</span></td>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #7B1D3A, #5a1428); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 12px;">
+                                            {{ strtoupper(substr($doc->contact_person, 0, 1)) }}
+                                        </div>
+                                        <span style="font-weight: 600;">{{ $doc->contact_person }}</span>
+                                    </div>
+                                </td>
+                                <td>{{ $doc->created_at->format('M d, Y') }}</td>
+                                <td>
+                                    @if($doc->status == 'pending')
+                                        <span class="badge badge-warning">Pending</span>
+                                    @elseif($doc->status == 'under_review')
+                                        <span class="badge badge-info">Under Review</span>
+                                    @elseif($doc->status == 'approved')
+                                        <span class="badge badge-success">Approved</span>
+                                    @elseif($doc->status == 'rejected')
+                                        <span class="badge badge-danger">Rejected</span>
+                                    @else
+                                        <span class="badge">{{ ucfirst($doc->status) }}</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    <div style="display: flex; gap: 6px;">
+                                        <button class="btn btn-sm" style="background: #3B82F6; color: white;" onclick="tlViewDocumentDetails('{{ $doc->id }}')" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <a href="{{ asset('storage/' . $doc->file_path) }}" target="_blank" class="btn btn-sm" style="background: #6B7280; color: white;" title="Download">
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                        @if(in_array('research_tracking', $editableModules) && in_array($doc->status, ['pending', 'under_review']))
+                                        <button class="btn btn-sm" style="background: #10B981; color: white;" onclick="tlReviewDocument('{{ $doc->id }}')" title="Review">
+                                            <i class="fas fa-clipboard-check"></i>
+                                        </button>
+                                        @endif
+                                    </div>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                    @else
                     <div class="empty-state">
-                        <i class="fas fa-flask"></i>
-                        <h4>Research Tracking Module</h4>
-                        <p>You have been granted access to the Research Tracking module. This feature will be fully integrated soon.</p>
+                        <i class="fas fa-file-alt"></i>
+                        <h4>No document submissions yet</h4>
+                        <p>Document submissions from startups will appear here</p>
                     </div>
+                    @endif
                 </div>
             </div>
+            </div>{{-- /tl-doc-list-view --}}
         </div>
         @endif
 
         {{-- INCUBATEE TRACKER PAGE --}}
         @if(in_array('incubatee_tracker', $viewableModules))
         <div id="incubatee-tracker" class="page-content">
+            <div style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
+                <div>
+                    <h2 style="font-size: 28px; font-weight: 700; color: #1F2937; margin-bottom: 8px;">Incubatee Management & Tracking</h2>
+                    <p style="color: #6B7280; font-size: 14px;">Monitor MOA requests, payment submissions, and incubatee activities from the startup portal</p>
+                </div>
+                @if(in_array('incubatee_tracker', $editableModules))
+                <button onclick="openMoaTemplateModal()" style="background: linear-gradient(135deg, #7B1D3A, #5a1428); color: white; padding: 12px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-file-contract"></i> Generate MOA Template
+                </button>
+                @endif
+            </div>
+
             <!-- Stats Overview -->
-            <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 24px;">
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #D1FAE5, #6EE7B7); color: #059669;">
-                            <i class="fas fa-check-circle"></i>
-                        </div>
+            @php
+                $tlExpiringMoaCount = \App\Models\Startup::where('status', 'active')->where('moa_status', 'active')->whereNotNull('moa_expiry')->where('moa_expiry', '<=', now()->addDays(30))->where('moa_expiry', '>', now())->count();
+                $tlExpiredMoaCount  = \App\Models\Startup::where('status', 'active')->where('moa_status', 'active')->whereNotNull('moa_expiry')->where('moa_expiry', '<=', now())->count();
+                $tlPaymentDueCount  = \App\Models\Startup::where('status', 'active')->whereNotNull('next_payment_due')->where('next_payment_due', '<=', now()->addDays(7))->count();
+            @endphp
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 16px;">
+                <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #D1FAE5, #6EE7B7); border-radius: 12px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-check-circle" style="color: #059669; font-size: 20px;"></i></div>
+                        <div><div style="font-size: 28px; font-weight: 700; color: #059669;">{{ $incubateeData['activeIncubatees'] ?? 0 }}</div><div style="font-size: 13px; color: #6B7280;">Active Incubatees</div></div>
                     </div>
-                    <div class="stat-value" style="color: #059669;">{{ $incubateeData['activeIncubatees'] ?? 0 }}</div>
-                    <div class="stat-label">Active Incubatees</div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #DBEAFE, #93C5FD); color: #2563EB;">
-                            <i class="fas fa-file-contract"></i>
-                        </div>
+                <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #DBEAFE, #93C5FD); border-radius: 12px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-file-contract" style="color: #2563EB; font-size: 20px;"></i></div>
+                        <div><div style="font-size: 28px; font-weight: 700; color: #2563EB;">{{ isset($incubateeData['moaRequests']) ? $incubateeData['moaRequests']->count() : 0 }}</div><div style="font-size: 13px; color: #6B7280;">Total MOA Requests</div></div>
                     </div>
-                    <div class="stat-value" style="color: #2563EB;">{{ isset($incubateeData['moaRequests']) ? $incubateeData['moaRequests']->count() : 0 }}</div>
-                    <div class="stat-label">Total MOA Requests</div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #FEF3C7, #FCD34D); color: #D97706;">
-                            <i class="fas fa-exclamation-circle"></i>
-                        </div>
+                <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #FEF3C7, #FCD34D); border-radius: 12px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-exclamation-circle" style="color: #D97706; font-size: 20px;"></i></div>
+                        <div><div style="font-size: 28px; font-weight: 700; color: #D97706;">{{ $incubateeData['pendingMoaCount'] ?? 0 }}</div><div style="font-size: 13px; color: #6B7280;">Pending MOAs</div></div>
                     </div>
-                    <div class="stat-value" style="color: #D97706;">{{ $incubateeData['pendingMoaCount'] ?? 0 }}</div>
-                    <div class="stat-label">Pending MOAs</div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #E0E7FF, #A5B4FC); color: #4F46E5;">
-                            <i class="fas fa-money-bill-wave"></i>
-                        </div>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px;">
+                <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #E0E7FF, #A5B4FC); border-radius: 12px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-money-bill-wave" style="color: #4F46E5; font-size: 20px;"></i></div>
+                        <div><div style="font-size: 28px; font-weight: 700; color: #4F46E5;">{{ $incubateeData['pendingPaymentCount'] ?? 0 }}</div><div style="font-size: 13px; color: #6B7280;">Pending Payments</div></div>
                     </div>
-                    <div class="stat-value" style="color: #4F46E5;">{{ $incubateeData['pendingPaymentCount'] ?? 0 }}</div>
-                    <div class="stat-label">Pending Payments</div>
+                </div>
+                <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #FEE2E2, #FCA5A5); border-radius: 12px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-calendar-times" style="color: #DC2626; font-size: 20px;"></i></div>
+                        <div><div style="font-size: 28px; font-weight: 700; color: #DC2626;">{{ $tlExpiringMoaCount + $tlExpiredMoaCount }}</div><div style="font-size: 13px; color: #6B7280;">Expiring/Expired MOAs</div></div>
+                    </div>
+                </div>
+                <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #FFF7ED, #FDBA74); border-radius: 12px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-receipt" style="color: #EA580C; font-size: 20px;"></i></div>
+                        <div><div style="font-size: 28px; font-weight: 700; color: #EA580C;">{{ $tlPaymentDueCount }}</div><div style="font-size: 13px; color: #6B7280;">Payments Due Soon</div></div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Tabs for MOA and Payments -->
-            <div style="display: flex; gap: 8px; margin-bottom: 20px;">
+            <!-- Tabs for MOA, Payments, and Alerts -->
+            <div style="display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap;">
                 <button class="filter-tab active" onclick="tlSwitchIncubateeTab('moa')" id="tlMoaTabBtn" style="padding: 10px 20px; border: none; background: #7B1D3A; color: white; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
                     <i class="fas fa-file-contract"></i> MOA Requests
                 </button>
                 <button class="filter-tab" onclick="tlSwitchIncubateeTab('payments')" id="tlPaymentsTabBtn" style="padding: 10px 20px; border: 1px solid #E5E7EB; background: white; color: #6B7280; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
                     <i class="fas fa-credit-card"></i> Payment Submissions
+                </button>
+                <button class="filter-tab" onclick="tlSwitchIncubateeTab('alerts')" id="tlAlertsTabBtn" style="padding: 10px 20px; border: 1px solid #E5E7EB; background: white; color: #6B7280; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-bell"></i> Alerts & Reminders
+                    @php
+                        $tlAlertBadge = \App\Models\Startup::where('status', 'active')->where(function($q){ $q->where('moa_status', 'none')->orWhereNull('moa_status'); })->count()
+                            + \App\Models\StartupSubmission::where('type', 'moa')->where('status', 'approved')->whereNotNull('payment_end_date')->where('payment_end_date', '<', now())->count()
+                            + $tlExpiringMoaCount + $tlPaymentDueCount;
+                    @endphp
+                    @if($tlAlertBadge > 0)
+                    <span style="background: #EF4444; color: white; border-radius: 50%; width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700;">{{ $tlAlertBadge }}</span>
+                    @endif
+                </button>
+                <button class="filter-tab" onclick="tlSwitchIncubateeTab('schedule')" id="tlScheduleTabBtn" style="padding: 10px 20px; border: 1px solid #E5E7EB; background: white; color: #6B7280; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-calendar-alt"></i> Billing &amp; MOA Schedule
                 </button>
             </div>
 
@@ -2485,6 +3038,7 @@
             <div id="tl-moa-table" class="card">
                 <div class="card-header">
                     <h3 class="card-title"><i class="fas fa-file-contract"></i> MOA Requests from Startups</h3>
+                    <button onclick="window.print()" style="padding: 8px 16px; background: #7B1D3A; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 13px;"><i class="fas fa-download"></i> Export Report</button>
                 </div>
                 <div class="card-body" style="padding: 0; overflow-x: auto;">
                     @if(isset($incubateeData['moaRequests']) && $incubateeData['moaRequests']->count() > 0)
@@ -2495,6 +3049,7 @@
                                 <th>Company/Startup</th>
                                 <th>Contact Person</th>
                                 <th>MOA Purpose</th>
+                                <th>Payment Period</th>
                                 <th>Submitted</th>
                                 <th>Status</th>
                                 <th>Actions</th>
@@ -2527,6 +3082,16 @@
                                     <div style="font-size: 11px; color: #6B7280; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                                         {{ Str::limit($moa->moa_details, 50) }}
                                     </div>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($moa->payment_start_date && $moa->payment_end_date)
+                                        <div style="font-size: 11px;">{{ \Carbon\Carbon::parse($moa->payment_start_date)->format('M d, Y') }} <span style="color: #9CA3AF;">→</span> {{ \Carbon\Carbon::parse($moa->payment_end_date)->format('M d, Y') }}</div>
+                                        @if(\Carbon\Carbon::parse($moa->payment_end_date)->isPast())
+                                        <span style="font-size: 10px; color: #DC2626; font-weight: 600;"><i class="fas fa-exclamation-circle"></i> Overdue</span>
+                                        @endif
+                                    @else
+                                        <span style="font-size: 11px; color: #9CA3AF;">Not set</span>
                                     @endif
                                 </td>
                                 <td>{{ $moa->created_at->format('M d, Y') }}</td>
@@ -2576,6 +3141,7 @@
             <div id="tl-payments-table" class="card" style="display: none;">
                 <div class="card-header">
                     <h3 class="card-title"><i class="fas fa-credit-card"></i> Payment Submissions from Startups</h3>
+                    <button onclick="window.print()" style="padding: 8px 16px; background: #7B1D3A; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 13px;"><i class="fas fa-download"></i> Export Report</button>
                 </div>
                 <div class="card-body" style="padding: 0; overflow-x: auto;">
                     @if(isset($incubateeData['paymentSubmissions']) && $incubateeData['paymentSubmissions']->count() > 0)
@@ -2587,7 +3153,7 @@
                                 <th>Invoice #</th>
                                 <th>Amount</th>
                                 <th>Method</th>
-                                <th>Submitted</th>
+                                <th>Payment Date</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
@@ -2615,7 +3181,7 @@
                                 <td>
                                     <span style="font-size: 12px;">{!! $methodLabels[$payment->payment_method] ?? $payment->payment_method ?? 'N/A' !!}</span>
                                 </td>
-                                <td>{{ $payment->created_at->format('M d, Y') }}</td>
+                                <td>{{ $payment->payment_date ? \Carbon\Carbon::parse($payment->payment_date)->format('M d, Y') : 'N/A' }}</td>
                                 <td>
                                     @if($payment->status == 'pending')
                                         <span class="badge badge-warning">Pending</span>
@@ -2654,49 +3220,328 @@
                     @endif
                 </div>
             </div>
+
+            <!-- Alerts & Reminders Table -->
+            @php
+                $tlOverdueMoaStartups = \App\Models\Startup::where('status', 'active')->where(function($q){ $q->where('moa_status', 'none')->orWhereNull('moa_status'); })->get();
+                $tlOverduePayments = \App\Models\StartupSubmission::where('type', 'moa')->where('status', 'approved')->whereNotNull('payment_end_date')->where('payment_end_date', '<', now())->with('startup')->get();
+                $tlExpiringMoaStartups = \App\Models\Startup::where('status', 'active')->where('moa_status', 'active')->whereNotNull('moa_expiry')->where('moa_expiry', '<=', now()->addDays(30))->orderBy('moa_expiry')->get();
+                $tlPaymentDueStartups = \App\Models\Startup::where('status', 'active')->whereNotNull('next_payment_due')->where('next_payment_due', '<=', now()->addDays(7))->orderBy('next_payment_due')->get();
+            @endphp
+            <div id="tl-alerts-table" class="card" style="display: none;">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-bell" style="color: #EF4444;"></i> Alerts & Reminders</h3>
+                </div>
+                <div class="card-body" style="padding: 0;">
+
+                    <!-- No MOA Section -->
+                    <div style="padding: 20px 24px; border-bottom: 2px solid #F3F4F6;">
+                        <h4 style="font-size: 15px; font-weight: 700; color: #991B1B; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-file-signature" style="color: #EF4444;"></i> Startups Without MOA Submission
+                            <span style="background: #FEE2E2; color: #991B1B; padding: 2px 10px; border-radius: 20px; font-size: 12px;">{{ $tlOverdueMoaStartups->count() }}</span>
+                        </h4>
+                        @if($tlOverdueMoaStartups->count() > 0)
+                        <div style="overflow-x: auto;">
+                            <table class="data-table" style="min-width: 600px;">
+                                <thead><tr><th>Company</th><th>Contact Person</th><th>Email</th><th>Room</th><th>Status</th><th>Actions</th></tr></thead>
+                                <tbody>
+                                    @foreach($tlOverdueMoaStartups as $noMoa)
+                                    <tr>
+                                        <td style="font-weight: 600;">{{ $noMoa->company_name }}</td>
+                                        <td>{{ $noMoa->contact_person }}</td>
+                                        <td style="font-size: 12px; color: #6B7280;">{{ $noMoa->email }}</td>
+                                        <td>{{ $noMoa->room_number ?? 'N/A' }}</td>
+                                        <td><span class="badge badge-danger"><i class="fas fa-exclamation-triangle"></i> No MOA</span></td>
+                                        <td>
+                                            <button onclick="tlSendMoaReminder({{ $noMoa->id }}, '{{ addslashes($noMoa->company_name) }}')" style="background: #F59E0B; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                                                <i class="fas fa-bell"></i> Send Reminder
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                        @else
+                        <div style="text-align: center; padding: 20px; color: #10B981;"><i class="fas fa-check-circle" style="font-size: 24px; margin-bottom: 8px; display: block;"></i>All active startups have submitted their MOA.</div>
+                        @endif
+                    </div>
+
+                    <!-- Overdue Payments Section -->
+                    <div style="padding: 20px 24px; border-bottom: 2px solid #F3F4F6;">
+                        <h4 style="font-size: 15px; font-weight: 700; color: #DC2626; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-money-bill-wave" style="color: #DC2626;"></i> Overdue Payments
+                            <span style="background: #FEE2E2; color: #991B1B; padding: 2px 10px; border-radius: 20px; font-size: 12px;">{{ $tlOverduePayments->count() }}</span>
+                        </h4>
+                        @if($tlOverduePayments->count() > 0)
+                        <div style="overflow-x: auto;">
+                            <table class="data-table" style="min-width: 700px;">
+                                <thead><tr><th>Tracking Code</th><th>Company</th><th>Payment Period</th><th>Days Overdue</th><th>Status</th><th>Actions</th></tr></thead>
+                                <tbody>
+                                    @foreach($tlOverduePayments as $overP)
+                                    @php $daysOverdue = $overP->payment_end_date ? (int)\Carbon\Carbon::parse($overP->payment_end_date)->diffInDays(now()) : 0; @endphp
+                                    <tr>
+                                        <td><strong>{{ $overP->tracking_code }}</strong></td>
+                                        <td style="font-weight: 600;">{{ $overP->company_name }}</td>
+                                        <td style="font-size: 12px;">{{ $overP->payment_start_date ? \Carbon\Carbon::parse($overP->payment_start_date)->format('M d, Y') : 'N/A' }} <span style="color: #9CA3AF;">→</span> {{ $overP->payment_end_date ? \Carbon\Carbon::parse($overP->payment_end_date)->format('M d, Y') : 'N/A' }}</td>
+                                        <td><span style="color: #DC2626; font-weight: 700;">{{ $daysOverdue }} {{ Str::plural('day', $daysOverdue) }}</span></td>
+                                        <td><span class="badge badge-danger"><i class="fas fa-exclamation-circle"></i> Overdue</span></td>
+                                        <td>
+                                            <button onclick="tlSendPaymentReminder({{ $overP->startup_id ?? 'null' }}, '{{ addslashes($overP->company_name) }}')" style="background: #EF4444; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                                                <i class="fas fa-bell"></i> Send Reminder
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                        @else
+                        <div style="text-align: center; padding: 20px; color: #10B981;"><i class="fas fa-check-circle" style="font-size: 24px; margin-bottom: 8px; display: block;"></i>No overdue payments at this time.</div>
+                        @endif
+                    </div>
+
+                    <!-- Expiring MOAs Section -->
+                    <div style="padding: 20px 24px; border-bottom: 2px solid #F3F4F6;">
+                        <h4 style="font-size: 15px; font-weight: 700; color: #B45309; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-calendar-times" style="color: #D97706;"></i> Expiring MOAs (within 30 days)
+                            <span style="background: #FEF3C7; color: #92400E; padding: 2px 10px; border-radius: 20px; font-size: 12px;">{{ $tlExpiringMoaStartups->count() }}</span>
+                        </h4>
+                        @if($tlExpiringMoaStartups->count() > 0)
+                        <div style="overflow-x: auto;">
+                            <table class="data-table" style="min-width: 650px;">
+                                <thead><tr><th>Company</th><th>Contact Person</th><th>MOA Expiry</th><th>Days Remaining</th><th>Status</th><th>Actions</th></tr></thead>
+                                <tbody>
+                                    @foreach($tlExpiringMoaStartups as $expMoa)
+                                    @php $expiryDays = (int) now()->diffInDays($expMoa->moa_expiry, false); @endphp
+                                    <tr>
+                                        <td style="font-weight: 600;">{{ $expMoa->company_name }}</td>
+                                        <td>{{ $expMoa->contact_person }}</td>
+                                        <td style="font-weight: 600;">{{ \Carbon\Carbon::parse($expMoa->moa_expiry)->format('M d, Y') }}</td>
+                                        <td>
+                                            @if($expiryDays <= 0)
+                                                <span style="color: #DC2626; font-weight: 700;">Expired</span>
+                                            @elseif($expiryDays <= 7)
+                                                <span style="color: #DC2626; font-weight: 700;">{{ $expiryDays }} {{ Str::plural('day', $expiryDays) }}</span>
+                                            @else
+                                                <span style="color: #D97706; font-weight: 600;">{{ $expiryDays }} {{ Str::plural('day', $expiryDays) }}</span>
+                                            @endif
+                                        </td>
+                                        <td><span class="badge" style="background: {{ $expiryDays <= 7 ? '#FEE2E2' : '#FEF3C7' }}; color: {{ $expiryDays <= 7 ? '#991B1B' : '#92400E' }};">{{ $expiryDays <= 0 ? 'Expired' : ($expiryDays <= 7 ? 'Critical' : 'Expiring') }}</span></td>
+                                        <td>
+                                            <button onclick="tlSendMoaExpiryReminder({{ $expMoa->id }}, '{{ addslashes($expMoa->company_name) }}')" style="background: #D97706; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                                                <i class="fas fa-bell"></i> Send Reminder
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                        @else
+                        <div style="text-align: center; padding: 20px; color: #10B981;"><i class="fas fa-check-circle" style="font-size: 24px; margin-bottom: 8px; display: block;"></i>No MOAs expiring within the next 30 days.</div>
+                        @endif
+                    </div>
+
+                    <!-- Payment Due Soon Section -->
+                    <div style="padding: 20px 24px;">
+                        <h4 style="font-size: 15px; font-weight: 700; color: #EA580C; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-receipt" style="color: #EA580C;"></i> Upcoming & Overdue Payments
+                            <span style="background: #FFF7ED; color: #C2410C; padding: 2px 10px; border-radius: 20px; font-size: 12px;">{{ $tlPaymentDueStartups->count() }}</span>
+                        </h4>
+                        @if($tlPaymentDueStartups->count() > 0)
+                        <div style="overflow-x: auto;">
+                            <table class="data-table" style="min-width: 700px;">
+                                <thead><tr><th>Company</th><th>Amount</th><th>Duration</th><th>Due Date</th><th>Status</th><th>Actions</th></tr></thead>
+                                <tbody>
+                                    @foreach($tlPaymentDueStartups as $payDue)
+                                    @php $payDueDays = (int) now()->diffInDays($payDue->next_payment_due, false); @endphp
+                                    <tr>
+                                        <td style="font-weight: 600;">{{ $payDue->company_name }}</td>
+                                        <td style="font-weight: 700; color: #059669;">₱{{ number_format($payDue->payment_amount ?? 0, 2) }}</td>
+                                        <td style="text-transform: capitalize;">{{ str_replace('_', '-', $payDue->payment_duration ?? 'N/A') }}</td>
+                                        <td style="font-weight: 600;">{{ $payDue->next_payment_due->format('M d, Y') }}</td>
+                                        <td>
+                                            @if($payDueDays < 0)
+                                                <span class="badge badge-danger">{{ abs($payDueDays) }} days overdue</span>
+                                            @else
+                                                <span class="badge badge-warning">Due in {{ $payDueDays }} {{ Str::plural('day', $payDueDays) }}</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <button onclick="tlSendPaymentDueReminder({{ $payDue->id }}, '{{ addslashes($payDue->company_name) }}')" style="background: #EA580C; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                                                <i class="fas fa-bell"></i> Send Reminder
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                        @else
+                        <div style="text-align: center; padding: 20px; color: #10B981;"><i class="fas fa-check-circle" style="font-size: 24px; margin-bottom: 8px; display: block;"></i>No upcoming or overdue payments at this time.</div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+
+            <!-- Billing & MOA Schedule Table -->
+            <div id="tl-schedule-table" class="card" style="display: none;">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-calendar-alt" style="color: #2563EB; margin-right: 8px;"></i> Billing &amp; MOA Schedule</h3>
+                    <span style="font-size: 12px; color: #6B7280;">(Only startups with approved MOA)</span>
+                </div>
+                <div class="card-body" style="padding: 0; overflow-x: auto;">
+                    @php
+                        $tlActiveStartups = \App\Models\Startup::where('status', 'active')
+                            ->where('moa_status', 'active')
+                            ->orderBy('company_name')
+                            ->get();
+                    @endphp
+                    <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+                    <table class="data-table" style="min-width: 1100px;">
+                        <thead>
+                            <tr>
+                                <th>Startup</th>
+                                <th>MOA Status</th>
+                                <th>MOA Expiry</th>
+                                <th>Payment Amount</th>
+                                <th>Duration</th>
+                                <th>Next Due Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($tlActiveStartups as $sched)
+                            <tr>
+                                <td>
+                                    <div style="font-weight: 600; margin-bottom: 2px;">{{ $sched->company_name }}</div>
+                                    <div style="font-size: 12px; color: #6B7280;">{{ $sched->room_number ?? 'No room' }}</div>
+                                </td>
+                                <td>
+                                    @if($sched->moa_status === 'active')
+                                        <span class="badge badge-success"><i class="fas fa-check-circle" style="margin-right: 4px;"></i>Active</span>
+                                    @elseif($sched->moa_status === 'pending')
+                                        <span class="badge badge-warning"><i class="fas fa-clock" style="margin-right: 4px;"></i>Pending</span>
+                                    @elseif($sched->moa_status === 'expired')
+                                        <span class="badge badge-danger"><i class="fas fa-times-circle" style="margin-right: 4px;"></i>Expired</span>
+                                    @else
+                                        <span class="badge"><i class="fas fa-minus-circle" style="margin-right: 4px;"></i>None</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($sched->moa_expiry)
+                                        @php $moaDaysLeft = (int) now()->diffInDays($sched->moa_expiry, false); @endphp
+                                        <div style="font-size: 13px; font-weight: 600;">{{ \Carbon\Carbon::parse($sched->moa_expiry)->format('M d, Y') }}</div>
+                                        @if($moaDaysLeft <= 0)
+                                            <span style="font-size: 11px; color: #DC2626; font-weight: 700;"><i class="fas fa-exclamation-triangle"></i> Expired</span>
+                                        @elseif($moaDaysLeft <= 30)
+                                            <span style="font-size: 11px; color: #D97706; font-weight: 600;">{{ $moaDaysLeft }} days left</span>
+                                        @else
+                                            <span style="font-size: 11px; color: #059669;">{{ $moaDaysLeft }} days left</span>
+                                        @endif
+                                    @else
+                                        <span style="font-size: 12px; color: #9CA3AF;">Not set</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($sched->payment_amount)
+                                        <span style="font-weight: 700; color: #059669;">₱{{ number_format($sched->payment_amount, 2) }}</span>
+                                    @else
+                                        <span style="font-size: 12px; color: #9CA3AF;">Not set</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($sched->payment_duration)
+                                        <span style="font-size: 13px; text-transform: capitalize;">{{ str_replace('_', '-', $sched->payment_duration) }}</span>
+                                    @else
+                                        <span style="font-size: 12px; color: #9CA3AF;">—</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($sched->next_payment_due)
+                                        @php $payDaysLeft = (int) now()->diffInDays($sched->next_payment_due, false); @endphp
+                                        <div style="font-size: 13px; font-weight: 600;">{{ $sched->next_payment_due->format('M d, Y') }}</div>
+                                        @if($payDaysLeft < 0)
+                                            <span style="font-size: 11px; color: #DC2626; font-weight: 700;"><i class="fas fa-exclamation-triangle"></i> {{ abs($payDaysLeft) }} days overdue</span>
+                                        @elseif($payDaysLeft <= 7)
+                                            <span style="font-size: 11px; color: #D97706; font-weight: 600;">Due in {{ $payDaysLeft }} {{ Str::plural('day', $payDaysLeft) }}</span>
+                                        @else
+                                            <span style="font-size: 11px; color: #059669;">{{ $payDaysLeft }} days</span>
+                                        @endif
+                                    @else
+                                        <span style="font-size: 12px; color: #9CA3AF;">Not set</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @php
+                                        $schedPayStatus = 'none';
+                                        if ($sched->next_payment_due) {
+                                            $schedPayDays = (int) now()->diffInDays($sched->next_payment_due, false);
+                                            if ($schedPayDays < 0) $schedPayStatus = 'overdue';
+                                            elseif ($schedPayDays <= 7) $schedPayStatus = 'due_soon';
+                                            else $schedPayStatus = 'ok';
+                                        }
+                                    @endphp
+                                    @if($schedPayStatus === 'overdue')
+                                        <span class="badge badge-danger"><i class="fas fa-exclamation-circle" style="margin-right: 4px;"></i>Overdue</span>
+                                    @elseif($schedPayStatus === 'due_soon')
+                                        <span class="badge badge-warning"><i class="fas fa-clock" style="margin-right: 4px;"></i>Due Soon</span>
+                                    @elseif($schedPayStatus === 'ok')
+                                        <span class="badge badge-success"><i class="fas fa-check" style="margin-right: 4px;"></i>On Track</span>
+                                    @else
+                                        <span class="badge">No Schedule</span>
+                                    @endif
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="7" style="text-align: center; padding: 40px; color: #9CA3AF;">
+                                    <i class="fas fa-file-contract" style="font-size: 32px; margin-bottom: 12px; display: block;"></i>
+                                    <div style="font-weight: 600; margin-bottom: 4px;">No startups with approved MOA</div>
+                                    <div style="font-size: 13px;">Billing schedules are only available for startups with an active MOA.</div>
+                                </td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                    </div>
+                </div>
+            </div>
         </div>
         @endif
-
-        {{-- ISSUES MANAGEMENT PAGE --}}
         @if(in_array('issues_management', $viewableModules))
         <div id="issues-management" class="page-content">
+            <div style="margin-bottom: 24px;">
+                <h2 style="font-size: 28px; font-weight: 700; color: #1F2937; margin-bottom: 8px;">Issues & Complaints Management</h2>
+                <p style="color: #6B7280; font-size: 14px;">Track and resolve facility issues, equipment problems, and incubatee complaints from the startup portal</p>
+            </div>
+
             <!-- Stats Overview -->
-            <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); margin-bottom: 24px;">
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #7B1D3A20, #7B1D3A40); color: #7B1D3A;">
-                            <i class="fas fa-exclamation-triangle"></i>
-                        </div>
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
+                <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #FEE2E2, #FCA5A5); border-radius: 12px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-exclamation-circle" style="color: #DC2626; font-size: 20px;"></i></div>
+                        <div><div style="font-size: 28px; font-weight: 700; color: #DC2626;">{{ $issuesData['pendingIssues'] ?? 0 }}</div><div style="font-size: 13px; color: #6B7280;">Open Issues</div></div>
                     </div>
-                    <div class="stat-value">{{ $issuesData['totalIssues'] ?? 0 }}</div>
-                    <div class="stat-label">Total Issues</div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #FEF3C7, #FDE68A); color: #D97706;">
-                            <i class="fas fa-clock"></i>
-                        </div>
+                <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #FEF3C7, #FCD34D); border-radius: 12px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-clock" style="color: #D97706; font-size: 20px;"></i></div>
+                        <div><div style="font-size: 28px; font-weight: 700; color: #D97706;">{{ $issuesData['inProgressIssues'] ?? 0 }}</div><div style="font-size: 13px; color: #6B7280;">In Progress</div></div>
                     </div>
-                    <div class="stat-value">{{ $issuesData['pendingIssues'] ?? 0 }}</div>
-                    <div class="stat-label">Pending Issues</div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #DBEAFE, #BFDBFE); color: #2563EB;">
-                            <i class="fas fa-tools"></i>
-                        </div>
+                <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #D1FAE5, #6EE7B7); border-radius: 12px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-check-circle" style="color: #059669; font-size: 20px;"></i></div>
+                        <div><div style="font-size: 28px; font-weight: 700; color: #059669;">{{ $issuesData['resolvedIssues'] ?? 0 }}</div><div style="font-size: 13px; color: #6B7280;">Resolved (This Month)</div></div>
                     </div>
-                    <div class="stat-value">{{ $issuesData['inProgressIssues'] ?? 0 }}</div>
-                    <div class="stat-label">In Progress</div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #D1FAE5, #A7F3D0); color: #059669;">
-                            <i class="fas fa-check-circle"></i>
-                        </div>
+                <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #E0E7FF, #A5B4FC); border-radius: 12px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-building" style="color: #4F46E5; font-size: 20px;"></i></div>
+                        <div><div style="font-size: 28px; font-weight: 700; color: #4F46E5;">{{ $issuesData['totalIssues'] ?? 0 }}</div><div style="font-size: 13px; color: #6B7280;">Total Reports</div></div>
                     </div>
-                    <div class="stat-value">{{ $issuesData['resolvedIssues'] ?? 0 }}</div>
-                    <div class="stat-label">Resolved</div>
                 </div>
             </div>
 
@@ -2746,25 +3591,28 @@
 
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-exclamation-triangle"></i> Room Issues & Complaints</h3>
+                    <h3 class="card-title"><i class="fas fa-exclamation-triangle"></i> All Room Issues & Complaints</h3>
+                    <button onclick="window.print()" style="padding: 6px 12px; background: white; color: #7B1D3A; border: 2px solid #7B1D3A; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 12px;"><i class="fas fa-download"></i> Export</button>
                 </div>
                 <div class="card-body" style="padding: 0; overflow-x: auto;">
                     @if(isset($issuesData['issues']) && $issuesData['issues']->count() > 0)
-                    <table class="data-table" style="min-width: 900px;">
+                    <table class="data-table" style="min-width: 980px; font-size: 13px;">
                         <thead>
                             <tr>
-                                <th>Room/Description</th>
-                                <th style="width: 100px;">Type</th>
-                                <th>Reported By</th>
-                                <th style="width: 80px;">Priority</th>
-                                <th style="width: 100px;">Status</th>
-                                <th style="width: 90px;">Date</th>
-                                <th style="width: 100px;">Actions</th>
+                                <th style="font-size: 11px;">Code</th>
+                                <th style="font-size: 11px;">Room/Description</th>
+                                <th style="width: 100px; font-size: 11px;">Type</th>
+                                <th style="font-size: 11px;">Reported By</th>
+                                <th style="width: 80px; font-size: 11px;">Priority</th>
+                                <th style="width: 100px; font-size: 11px;">Status</th>
+                                <th style="width: 90px; font-size: 11px;">Date</th>
+                                <th style="width: 100px; font-size: 11px;">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="tlIssuesTableBody">
                             @foreach($issuesData['issues'] as $issue)
                             <tr class="tl-issue-row" data-status="{{ $issue->status }}" data-type="{{ $issue->issue_type }}" data-priority="{{ $issue->priority ?? 'medium' }}">
+                                <td style="padding: 10px 12px;"><strong style="font-size: 12px;">{{ $issue->tracking_code }}</strong></td>
                                 <td>
                                     <div style="font-weight: 600; margin-bottom: 2px;">Room {{ $issue->room_number }}</div>
                                     <div style="font-size: 12px; color: #6B7280;">{{ Str::limit($issue->description, 40) }}</div>
@@ -2821,12 +3669,14 @@
                                         <button onclick="tlViewIssueDetails('{{ $issue->id }}')" class="btn btn-sm" style="padding: 6px 8px; background: #3B82F6; color: white;" title="View Details">
                                             <i class="fas fa-eye"></i>
                                         </button>
+                                        @if($issue->photo_path)
+                                        <a href="{{ asset('storage/' . $issue->photo_path) }}" target="_blank" class="btn btn-sm" style="padding: 6px 8px; background: #8B5CF6; color: white;" title="View Photo">
+                                            <i class="fas fa-image"></i>
+                                        </a>
+                                        @endif
                                         @if(in_array('issues_management', $editableModules))
                                         <button onclick="tlUpdateIssueStatus('{{ $issue->id }}')" class="btn btn-sm" style="padding: 6px 8px; background: #10B981; color: white;" title="Update Status">
                                             <i class="fas fa-check"></i>
-                                        </button>
-                                        <button onclick="tlArchiveIssue('{{ $issue->id }}')" class="btn btn-sm" style="background: #F59E0B; color: white;" title="Archive">
-                                            <i class="fas fa-archive"></i>
                                         </button>
                                         @endif
                                     </div>
@@ -2879,42 +3729,50 @@
             </div>
 
             <!-- Stats Overview -->
-            <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 24px;">
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #DBEAFE, #BFDBFE); color: #2563EB;">
-                            <i class="fas fa-folder"></i>
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
+                <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #DBEAFE, #93C5FD); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-folder" style="color: #2563EB; font-size: 20px;"></i>
+                        </div>
+                        <div>
+                            <div id="tl-dr-total-folders" style="font-size: 28px; font-weight: 700; color: #1F2937;">--</div>
+                            <div style="font-size: 13px; color: #6B7280;">Total Folders</div>
                         </div>
                     </div>
-                    <div class="stat-value" id="tl-dr-total-folders">--</div>
-                    <div class="stat-label">Total Folders</div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #D1FAE5, #A7F3D0); color: #059669;">
-                            <i class="fas fa-file"></i>
+                <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #D1FAE5, #6EE7B7); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-file" style="color: #059669; font-size: 20px;"></i>
+                        </div>
+                        <div>
+                            <div id="tl-dr-total-files" style="font-size: 28px; font-weight: 700; color: #059669;">--</div>
+                            <div style="font-size: 13px; color: #6B7280;">Total Files</div>
                         </div>
                     </div>
-                    <div class="stat-value" id="tl-dr-total-files">--</div>
-                    <div class="stat-label">Total Files</div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #EDE9FE, #DDD6FE); color: #7C3AED;">
-                            <i class="fas fa-hdd"></i>
+                <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #EDE9FE, #C4B5FD); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-hdd" style="color: #7C3AED; font-size: 20px;"></i>
+                        </div>
+                        <div>
+                            <div id="tl-dr-storage-used" style="font-size: 28px; font-weight: 700; color: #7C3AED;">--</div>
+                            <div style="font-size: 13px; color: #6B7280;">Storage Used</div>
                         </div>
                     </div>
-                    <div class="stat-value" id="tl-dr-storage-used">--</div>
-                    <div class="stat-label">Storage Used</div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #FEF3C7, #FDE68A); color: #D97706;">
-                            <i class="fas fa-clock"></i>
+                <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #FEF3C7, #FCD34D); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-clock" style="color: #D97706; font-size: 20px;"></i>
+                        </div>
+                        <div>
+                            <div id="tl-dr-recent-uploads" style="font-size: 28px; font-weight: 700; color: #D97706;">--</div>
+                            <div style="font-size: 13px; color: #6B7280;">Recent Uploads (7d)</div>
                         </div>
                     </div>
-                    <div class="stat-value" id="tl-dr-recent-uploads">--</div>
-                    <div class="stat-label">Recent Uploads (7d)</div>
                 </div>
             </div>
 
@@ -2947,8 +3805,11 @@
                         <i class="fas fa-sync"></i>
                     </button>
                     @if(in_array('digital_records', $editableModules))
-                    <button class="btn btn-primary btn-sm" onclick="tlOpenCreateFolderModal()" style="padding: 8px 16px;">
+                    <button class="btn btn-secondary btn-sm" onclick="tlOpenCreateFolderModal()" style="padding: 8px 16px;">
                         <i class="fas fa-folder-plus"></i> New Folder
+                    </button>
+                    <button class="btn btn-primary btn-sm" onclick="tlOpenUploadFileModal()" style="padding: 8px 16px;">
+                        <i class="fas fa-upload"></i> Upload File
                     </button>
                     @endif
                 </div>
@@ -2969,16 +3830,17 @@
                         <table class="data-table" style="width: 100%;">
                             <thead>
                                 <tr>
-                                    <th style="width: 40%;">Name</th>
+                                    <th style="width: 35%;">Name</th>
                                     <th>Type</th>
                                     <th>Size</th>
                                     <th>Modified</th>
+                                    <th>Uploaded By</th>
                                     <th style="width: 100px;">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="tl-list-view-body">
                                 <tr>
-                                    <td colspan="5" style="text-align: center; padding: 50px; color: #9CA3AF;">
+                                    <td colspan="6" style="text-align: center; padding: 50px; color: #9CA3AF;">
                                         <i class="fas fa-spinner fa-spin" style="font-size: 30px; margin-bottom: 16px;"></i>
                                         <p>Loading documents...</p>
                                     </td>
@@ -3265,6 +4127,134 @@
     @endif
     @endif
 
+    <!-- MOA Template Generator Modal -->
+    @if(in_array('incubatee_tracker', $editableModules))
+    <div id="moaTemplateModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="max-width: 900px; max-height: 90vh;">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-file-word" style="margin-right: 8px;"></i>MOA Template Generator</h3>
+            </div>
+            <div class="modal-body" style="max-height: 65vh; overflow-y: auto;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                    <div>
+                        <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #1F2937;"><i class="fas fa-edit" style="color: #7B1D3A; margin-right: 8px;"></i>MOA Details</h4>
+                        <form id="moaTemplateForm">
+                            <div class="form-group"><label class="form-label">Company/Startup Name <span style="color:#DC2626">*</span></label><input type="text" id="moaCompanyName" class="form-input" placeholder="Enter company name" required></div>
+                            <div class="form-group"><label class="form-label">Representative Name <span style="color:#DC2626">*</span></label><input type="text" id="moaRepresentative" class="form-input" placeholder="Enter representative name" required></div>
+                            <div class="form-group"><label class="form-label">Position/Title <span style="color:#DC2626">*</span></label><input type="text" id="moaPosition" class="form-input" placeholder="e.g., CEO, Founder, Manager" required></div>
+                            <div class="form-group"><label class="form-label">Business Address <span style="color:#DC2626">*</span></label><textarea id="moaAddress" class="form-input" rows="2" placeholder="Enter complete business address" required></textarea></div>
+                            <div class="form-group">
+                                <label class="form-label">MOA Purpose <span style="color:#DC2626">*</span></label>
+                                <select id="moaPurpose" class="form-select" required onchange="toggleOtherPurpose()">
+                                    <option value="">-- Select Purpose --</option>
+                                    <option value="incubation">Business Incubation Program</option>
+                                    <option value="coworking">Co-working Space Usage</option>
+                                    <option value="mentorship">Mentorship Program</option>
+                                    <option value="partnership">Partnership Agreement</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group" id="otherPurposeGroup" style="display: none;"><label class="form-label">Specify Purpose <span style="color:#DC2626">*</span></label><input type="text" id="moaOtherPurpose" class="form-input" placeholder="Enter specific MOA purpose..."></div>
+                            <div class="form-group">
+                                <label class="form-label">Duration <span style="color:#DC2626">*</span></label>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                    <div><label style="font-size: 12px; color: #6B7280;">Start Date</label><input type="date" id="moaStartDate" class="form-input" required></div>
+                                    <div><label style="font-size: 12px; color: #6B7280;">End Date</label><input type="date" id="moaEndDate" class="form-input" required></div>
+                                </div>
+                            </div>
+                            <div class="form-group"><label class="form-label">Monthly Fee (if applicable)</label><input type="number" id="moaFee" class="form-input" placeholder="0.00" step="0.01" min="0"></div>
+                            <div class="form-group">
+                                <label class="form-label">Work Arrangement</label>
+                                <div style="display: flex; gap: 16px; margin-top: 8px;">
+                                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 14px;"><input type="radio" name="moaWorkArrangement" value="onsite" style="width: 16px; height: 16px; accent-color: #7B1D3A;"><i class="fas fa-building" style="color: #7B1D3A;"></i> Onsite</label>
+                                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 14px;"><input type="radio" name="moaWorkArrangement" value="virtual" style="width: 16px; height: 16px; accent-color: #7B1D3A;"><i class="fas fa-laptop-house" style="color: #3B82F6;"></i> Virtual</label>
+                                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 14px;"><input type="radio" name="moaWorkArrangement" value="hybrid" style="width: 16px; height: 16px; accent-color: #7B1D3A;"><i class="fas fa-sync-alt" style="color: #10B981;"></i> Hybrid</label>
+                                </div>
+                            </div>
+                            <div class="form-group"><label class="form-label">Special Terms/Conditions</label><textarea id="moaTerms" class="form-input" rows="3" placeholder="Enter any special terms or conditions..."></textarea></div>
+                            <button type="button" class="btn btn-primary" style="width: 100%;" onclick="generateMoaPreview()"><i class="fas fa-eye"></i> Generate Preview</button>
+                        </form>
+                    </div>
+                    <div>
+                        <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #1F2937;"><i class="fas fa-file-alt" style="color: #7B1D3A; margin-right: 8px;"></i>MOA Preview</h4>
+                        <div id="moaPreviewContent" style="background: white; border: 1px solid #E5E7EB; border-radius: 8px; padding: 24px; font-size: 12px; line-height: 1.6; max-height: 500px; overflow-y: auto;">
+                            <div style="text-align: center; color: #9CA3AF; padding: 40px;"><i class="fas fa-file-alt" style="font-size: 48px; margin-bottom: 16px;"></i><p>Fill in the form and click "Generate Preview" to see the MOA document</p></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeMoaTemplateModal()">Cancel</button>
+                <button class="btn" style="background: #3B82F6; color: white;" onclick="printMoa()"><i class="fas fa-print"></i> Print MOA</button>
+                <button class="btn btn-primary" onclick="downloadMoaAsPdf()"><i class="fas fa-download"></i> Download PDF</button>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    <!-- ===== RESEARCH TRACKING MODALS ===== -->
+    @if(in_array('research_tracking', $viewableModules))
+    <!-- Document Details Modal -->
+    <div id="tlDocumentDetailsModal" class="modal-overlay">
+        <div class="modal" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-file-alt"></i> Document Details</h3>
+                <button class="modal-close" onclick="closeModal('tlDocumentDetailsModal')">&times;</button>
+            </div>
+            <div class="modal-body" id="tlDocumentDetailsContent" style="max-height: 60vh; overflow-y: auto;">
+                <!-- Content loaded by JS -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('tlDocumentDetailsModal')">Close</button>
+                @if(in_array('research_tracking', $editableModules))
+                <button class="btn btn-primary" id="tlDocumentReviewBtn" onclick="tlOpenReviewDocumentModal()">
+                    <i class="fas fa-clipboard-check"></i> Review
+                </button>
+                @endif
+            </div>
+        </div>
+    </div>
+    <!-- Review Document Modal -->
+    @if(in_array('research_tracking', $editableModules))
+    <div id="tlReviewDocumentModal" class="modal-overlay">
+        <div class="modal" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-clipboard-check"></i> Review Document</h3>
+                <button class="modal-close" onclick="closeModal('tlReviewDocumentModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="tlReviewDocumentForm">
+                    <input type="hidden" id="tlReviewDocumentId">
+                    <div class="form-group">
+                        <label class="form-label">Document Info</label>
+                        <div id="tlReviewDocumentInfo" style="background: #F3F4F6; padding: 12px; border-radius: 8px; font-size: 14px;"></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Review Action <span style="color: #EF4444;">*</span></label>
+                        <select id="tlReviewDocumentAction" class="form-control" required>
+                            <option value="">-- Select Action --</option>
+                            <option value="under_review">Mark as Under Review</option>
+                            <option value="approved">Approve Document</option>
+                            <option value="rejected">Reject Document</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Notes</label>
+                        <textarea id="tlReviewDocumentNotes" class="form-control" rows="3" placeholder="Add review notes..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('tlReviewDocumentModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="tlSubmitDocumentReview()">
+                    <i class="fas fa-check"></i> Submit Review
+                </button>
+            </div>
+        </div>
+    </div>
+    @endif
+    @endif
+
     <!-- ===== ISSUES MANAGEMENT MODALS ===== -->
     @if(in_array('issues_management', $viewableModules))
 
@@ -3335,52 +4325,156 @@
     @endif
 
     @if(in_array('digital_records', $editableModules))
-    <div id="tlCreateFolderModal" class="modal-overlay">
-        <div class="modal">
-            <div class="modal-header">
-                <h3><i class="fas fa-folder-plus"></i> Create Shared Folder</h3>
-                <button class="modal-close" onclick="closeModal('tlCreateFolderModal')">&times;</button>
+    <div id="tlCreateFolderModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center; overflow-y: auto; padding: 20px;">
+        <div style="background: white; border-radius: 16px; width: 90%; max-width: 500px; padding: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); margin: auto; max-height: 90vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h3 style="font-size: 22px; font-weight: 700; color: #1F2937; margin: 0;">Create Shared Folder</h3>
+                <button onclick="tlCloseCreateFolderModal()" style="background: none; border: none; font-size: 24px; color: #6B7280; cursor: pointer; padding: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
-            <form onsubmit="tlSubmitCreateFolder(event)">
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label class="form-label">Folder Name *</label>
-                        <input id="tlFolderName" type="text" class="form-input" placeholder="Enter folder name" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Description</label>
-                        <input id="tlFolderDescription" type="text" class="form-input" placeholder="Optional description">
-                    </div>
-                    <input type="hidden" id="tlFolderColor" value="#7B1113">
 
-                    <div class="form-group">
-                        <label class="form-label">Who can upload? *</label>
-                        <div style="display:flex; gap:14px; flex-wrap:wrap;">
-                            <label style="display:flex; gap:8px; align-items:center;">
-                                <input type="checkbox" name="tlAllowedUsers" value="intern" checked>
-                                <span style="font-weight: 700;">Intern</span>
-                            </label>
-                            <label style="display:flex; gap:8px; align-items:center;">
-                                <input type="checkbox" name="tlAllowedUsers" value="team_leader" checked>
-                                <span style="font-weight: 700;">Team Leader</span>
-                            </label>
-                            <label style="display:flex; gap:8px; align-items:center;">
-                                <input type="checkbox" name="tlAllowedUsers" value="startup">
-                                <span style="font-weight: 700;">Startup</span>
-                            </label>
+            <form id="tlCreateFolderForm" onsubmit="tlSubmitCreateFolder(event)">
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 8px;">Folder Name <span style="color: #EF4444;">*</span></label>
+                    <input type="text" id="tlFolderName" required style="width: 100%; padding: 12px; border: 2px solid #E5E7EB; border-radius: 8px; font-size: 14px; transition: border 0.3s; box-sizing: border-box;" placeholder="e.g., Internship Reports" onfocus="this.style.borderColor='#7B1D3A'" onblur="this.style.borderColor='#E5E7EB'">
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 8px;">Folder Color</label>
+                    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                        <button type="button" class="tl-color-option" data-color="#3B82F6" style="width: 40px; height: 40px; border-radius: 8px; background: #3B82F6; border: 3px solid #3B82F6; cursor: pointer;" onclick="tlSelectColor(this)"></button>
+                        <button type="button" class="tl-color-option" data-color="#FFBF00" style="width: 40px; height: 40px; border-radius: 8px; background: #FFBF00; border: 3px solid transparent; cursor: pointer;" onclick="tlSelectColor(this)"></button>
+                        <button type="button" class="tl-color-option" data-color="#10B981" style="width: 40px; height: 40px; border-radius: 8px; background: #10B981; border: 3px solid transparent; cursor: pointer;" onclick="tlSelectColor(this)"></button>
+                        <button type="button" class="tl-color-option" data-color="#EF4444" style="width: 40px; height: 40px; border-radius: 8px; background: #EF4444; border: 3px solid transparent; cursor: pointer;" onclick="tlSelectColor(this)"></button>
+                        <button type="button" class="tl-color-option" data-color="#8B5CF6" style="width: 40px; height: 40px; border-radius: 8px; background: #8B5CF6; border: 3px solid transparent; cursor: pointer;" onclick="tlSelectColor(this)"></button>
+                        <button type="button" class="tl-color-option" data-color="#F59E0B" style="width: 40px; height: 40px; border-radius: 8px; background: #F59E0B; border: 3px solid transparent; cursor: pointer;" onclick="tlSelectColor(this)"></button>
+                    </div>
+                    <input type="hidden" id="tlSelectedColor" value="#3B82F6">
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 8px;">Who can upload? <span style="color: #EF4444;">*</span></label>
+                    <p style="font-size: 12px; color: #6B7280; margin-bottom: 12px;">Select specific interns, team leaders, or startups who can upload to this folder</p>
+
+                    <div id="tlFolderPermissionsLoading" style="text-align: center; padding: 20px; color: #6B7280;">
+                        <i class="fas fa-spinner fa-spin"></i> Loading...
+                    </div>
+
+                    <div id="tlFolderPermissionsContainer" style="display: none; max-height: 350px; overflow-y: auto; border: 1px solid #E5E7EB; border-radius: 8px;">
+                        <div class="permission-accordion">
+                            <div class="permission-accordion-header" onclick="tlTogglePermissionAccordion('tlInternsAccordion')">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <i class="fas fa-user-graduate" style="color: #2563EB;"></i>
+                                    <span style="font-weight: 600; color: #1F2937;">Interns</span>
+                                    <span id="tlInternsSelectedCount" style="background: #DBEAFE; color: #1E40AF; padding: 2px 8px; border-radius: 10px; font-size: 11px;">0 selected</span>
+                                </div>
+                                <i id="tlInternsAccordionIcon" class="fas fa-chevron-down" style="color: #6B7280; transition: transform 0.3s;"></i>
+                            </div>
+                            <div id="tlInternsAccordion" class="permission-accordion-body" style="display: none;">
+                                <div id="tlInternsBySchoolContainer"></div>
+                            </div>
+                        </div>
+
+                        <div class="permission-accordion">
+                            <div class="permission-accordion-header" onclick="tlTogglePermissionAccordion('tlTeamLeadersAccordion')">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <i class="fas fa-user-tie" style="color: #7C3AED;"></i>
+                                    <span style="font-weight: 600; color: #1F2937;">Team Leaders</span>
+                                    <span id="tlTeamLeadersSelectedCount" style="background: #EDE9FE; color: #6D28D9; padding: 2px 8px; border-radius: 10px; font-size: 11px;">0 selected</span>
+                                </div>
+                                <i id="tlTeamLeadersAccordionIcon" class="fas fa-chevron-down" style="color: #6B7280; transition: transform 0.3s;"></i>
+                            </div>
+                            <div id="tlTeamLeadersAccordion" class="permission-accordion-body" style="display: none;">
+                                <div id="tlTeamLeadersBySchoolContainer"></div>
+                            </div>
+                        </div>
+
+                        <div class="permission-accordion">
+                            <div class="permission-accordion-header" onclick="tlTogglePermissionAccordion('tlStartupsAccordion')">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <i class="fas fa-rocket" style="color: #059669;"></i>
+                                    <span style="font-weight: 600; color: #1F2937;">Startups</span>
+                                    <span id="tlStartupsSelectedCount" style="background: #D1FAE5; color: #065F46; padding: 2px 8px; border-radius: 10px; font-size: 11px;">0 selected</span>
+                                </div>
+                                <i id="tlStartupsAccordionIcon" class="fas fa-chevron-down" style="color: #6B7280; transition: transform 0.3s;"></i>
+                            </div>
+                            <div id="tlStartupsAccordion" class="permission-accordion-body" style="display: none;">
+                                <div id="tlStartupsContainer"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer" style="display:flex; justify-content:flex-end; gap:12px;">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal('tlCreateFolderModal')">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Create</button>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 8px;">Folder Storage Limit (MB)</label>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <input type="number" id="tlFolderSizeLimit" min="1" max="5000" value="100" style="width: 120px; padding: 12px; border: 2px solid #E5E7EB; border-radius: 8px; font-size: 14px; transition: border 0.3s;" onfocus="this.style.borderColor='#7B1D3A'" onblur="this.style.borderColor='#E5E7EB'">
+                        <span style="font-size: 14px; color: #6B7280;">MB total</span>
+                    </div>
+                    <div style="margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button type="button" onclick="document.getElementById('tlFolderSizeLimit').value=50" style="padding: 6px 12px; background: #F3F4F6; border: 1px solid #E5E7EB; border-radius: 6px; font-size: 12px; cursor: pointer;" onmouseover="this.style.background='#E5E7EB'" onmouseout="this.style.background='#F3F4F6'">50 MB</button>
+                        <button type="button" onclick="document.getElementById('tlFolderSizeLimit').value=100" style="padding: 6px 12px; background: #F3F4F6; border: 1px solid #E5E7EB; border-radius: 6px; font-size: 12px; cursor: pointer;" onmouseover="this.style.background='#E5E7EB'" onmouseout="this.style.background='#F3F4F6'">100 MB</button>
+                        <button type="button" onclick="document.getElementById('tlFolderSizeLimit').value=250" style="padding: 6px 12px; background: #F3F4F6; border: 1px solid #E5E7EB; border-radius: 6px; font-size: 12px; cursor: pointer;" onmouseover="this.style.background='#E5E7EB'" onmouseout="this.style.background='#F3F4F6'">250 MB</button>
+                        <button type="button" onclick="document.getElementById('tlFolderSizeLimit').value=500" style="padding: 6px 12px; background: #F3F4F6; border: 1px solid #E5E7EB; border-radius: 6px; font-size: 12px; cursor: pointer;" onmouseover="this.style.background='#E5E7EB'" onmouseout="this.style.background='#F3F4F6'">500 MB</button>
+                        <button type="button" onclick="document.getElementById('tlFolderSizeLimit').value=1000" style="padding: 6px 12px; background: #F3F4F6; border: 1px solid #E5E7EB; border-radius: 6px; font-size: 12px; cursor: pointer;" onmouseover="this.style.background='#E5E7EB'" onmouseout="this.style.background='#F3F4F6'">1 GB</button>
+                    </div>
+                    <p style="font-size: 12px; color: #9CA3AF; margin-top: 6px;"><i class="fas fa-info-circle"></i> Total storage limit for this folder. Uploads will be blocked when limit is reached.</p>
+                </div>
+
+                <div style="margin-bottom: 24px;">
+                    <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 8px;">Description (Optional)</label>
+                    <textarea id="tlFolderDescription" rows="3" style="width: 100%; padding: 12px; border: 2px solid #E5E7EB; border-radius: 8px; font-size: 14px; resize: vertical; transition: border 0.3s; box-sizing: border-box;" placeholder="Brief description of this folder's purpose..." onfocus="this.style.borderColor='#7B1D3A'" onblur="this.style.borderColor='#E5E7EB'"></textarea>
+                </div>
+
+                <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                    <button type="button" onclick="tlCloseCreateFolderModal()" style="padding: 12px 24px; border: 2px solid #E5E7EB; background: white; color: #6B7280; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s;">
+                        Cancel
+                    </button>
+                    <button type="submit" style="padding: 12px 24px; background: linear-gradient(135deg, #7B1D3A, #5a1428); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 12px rgba(123, 29, 58, 0.3);">
+                        <i class="fas fa-folder-plus"></i> Create Folder
+                    </button>
                 </div>
             </form>
         </div>
     </div>
+    <div id="tlUploadFileModal" class="modal-overlay" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-upload"></i> Upload Files</h3>
+                <button class="modal-close" onclick="tlCloseUploadFileModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Select Files</label>
+                    <div style="border: 2px dashed #E5E7EB; border-radius: 12px; padding: 28px; text-align: center; cursor: pointer; transition: all 0.3s;"
+                         onclick="document.getElementById('tlFileUploadInput').click()"
+                         onmouseover="this.style.borderColor='#7B1D3A'; this.style.background='#FDF2F4'"
+                         onmouseout="this.style.borderColor='#E5E7EB'; this.style.background='transparent'">
+                        <i class="fas fa-cloud-upload-alt" style="font-size: 36px; color: #7B1D3A; margin-bottom: 10px;"></i>
+                        <p style="font-weight: 600; color: #1F2937; margin-bottom: 4px;">Click to select files</p>
+                        <p style="font-size: 12px; color: #9CA3AF;">Max 50 MB per file &bull; PDF, DOC, XLS, PPT, Images, ZIP</p>
+                    </div>
+                    <input type="file" id="tlFileUploadInput" multiple
+                           accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.jpg,.jpeg,.png,.gif,.zip,.rar,.ppt,.pptx,.csv"
+                           style="display: none;" onchange="tlHandleFileSelect(this)">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Selected Files</label>
+                    <div id="tlUploadFileList" style="max-height: 180px; overflow-y: auto; padding: 4px;">
+                        <p style="color: #9CA3AF; text-align: center; font-size: 13px;">No files selected</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 12px;">
+                <button type="button" class="btn btn-secondary" onclick="tlCloseUploadFileModal()">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="tlSubmitUploadFiles()">
+                    <i class="fas fa-upload"></i> Upload Files
+                </button>
+            </div>
+        </div>
+    </div>
     @endif
-
-    <!-- Create Task Modal -->
     <div id="createTaskModal" class="modal-overlay">
         <div class="modal">
             <div class="modal-header">
@@ -3993,28 +5087,210 @@
         function tlSwitchIncubateeTab(tabType) {
             const moaTable = document.getElementById('tl-moa-table');
             const paymentsTable = document.getElementById('tl-payments-table');
+            const alertsTable = document.getElementById('tl-alerts-table');
+            const scheduleTable = document.getElementById('tl-schedule-table');
             const moaBtn = document.getElementById('tlMoaTabBtn');
             const paymentsBtn = document.getElementById('tlPaymentsTabBtn');
+            const alertsBtn = document.getElementById('tlAlertsTabBtn');
+            const scheduleBtn = document.getElementById('tlScheduleTabBtn');
+
+            // Reset all
+            [moaTable, paymentsTable, alertsTable, scheduleTable].forEach(t => { if (t) t.style.display = 'none'; });
+            [moaBtn, paymentsBtn, alertsBtn, scheduleBtn].forEach(b => {
+                if (!b) return;
+                b.style.background = 'white'; b.style.color = '#6B7280'; b.style.border = '1px solid #E5E7EB';
+            });
 
             if (tabType === 'moa') {
-                moaTable.style.display = 'block';
-                paymentsTable.style.display = 'none';
-                moaBtn.style.background = '#7B1D3A';
-                moaBtn.style.color = 'white';
-                moaBtn.style.border = 'none';
-                paymentsBtn.style.background = 'white';
-                paymentsBtn.style.color = '#6B7280';
-                paymentsBtn.style.border = '1px solid #E5E7EB';
+                if (moaTable) moaTable.style.display = 'block';
+                if (moaBtn) { moaBtn.style.background = '#7B1D3A'; moaBtn.style.color = 'white'; moaBtn.style.border = 'none'; }
             } else if (tabType === 'payments') {
-                moaTable.style.display = 'none';
-                paymentsTable.style.display = 'block';
-                moaBtn.style.background = 'white';
-                moaBtn.style.color = '#6B7280';
-                moaBtn.style.border = '1px solid #E5E7EB';
-                paymentsBtn.style.background = '#7B1D3A';
-                paymentsBtn.style.color = 'white';
-                paymentsBtn.style.border = 'none';
+                if (paymentsTable) paymentsTable.style.display = 'block';
+                if (paymentsBtn) { paymentsBtn.style.background = '#7B1D3A'; paymentsBtn.style.color = 'white'; paymentsBtn.style.border = 'none'; }
+            } else if (tabType === 'alerts') {
+                if (alertsTable) alertsTable.style.display = 'block';
+                if (alertsBtn) { alertsBtn.style.background = '#7B1D3A'; alertsBtn.style.color = 'white'; alertsBtn.style.border = 'none'; }
+            } else if (tabType === 'schedule') {
+                if (scheduleTable) scheduleTable.style.display = 'block';
+                if (scheduleBtn) { scheduleBtn.style.background = '#7B1D3A'; scheduleBtn.style.color = 'white'; scheduleBtn.style.border = 'none'; }
             }
+        }
+
+        // Incubatee reminder functions
+        function tlSendMoaReminder(startupId, companyName) {
+            if (!startupId) { showToast('Invalid startup ID', true); return; }
+            if (!confirm('Send MOA submission reminder to ' + companyName + '?')) return;
+            fetch('/team-leader/send-moa-reminder/' + startupId, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' }
+            })
+            .then(r => r.json())
+            .then(data => { if (data.success) showToast(data.message || 'Reminder sent to ' + companyName); else showToast(data.message || 'Failed to send reminder', true); })
+            .catch(() => showToast('Failed to send reminder', true));
+        }
+        function tlSendPaymentReminder(startupId, companyName) {
+            if (!startupId) { showToast('Invalid startup ID', true); return; }
+            if (!confirm('Send payment reminder to ' + companyName + '?')) return;
+            fetch('/team-leader/send-payment-reminder/' + startupId, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' }
+            })
+            .then(r => r.json())
+            .then(data => { if (data.success) showToast(data.message || 'Reminder sent to ' + companyName); else showToast(data.message || 'Failed to send reminder', true); })
+            .catch(() => showToast('Failed to send reminder', true));
+        }
+        function tlSendMoaExpiryReminder(startupId, companyName) {
+            if (!startupId) { showToast('Invalid startup ID', true); return; }
+            if (!confirm('Send MOA expiry reminder to ' + companyName + '?')) return;
+            fetch('/team-leader/send-moa-expiry-reminder/' + startupId, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' }
+            })
+            .then(r => r.json())
+            .then(data => { if (data.success) showToast(data.message || 'Reminder sent to ' + companyName); else showToast(data.message || 'Failed to send reminder', true); })
+            .catch(() => showToast('Failed to send reminder', true));
+        }
+        function tlSendPaymentDueReminder(startupId, companyName) {
+            if (!startupId) { showToast('Invalid startup ID', true); return; }
+            if (!confirm('Send payment due reminder to ' + companyName + '?')) return;
+            fetch('/team-leader/send-payment-due-reminder/' + startupId, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' }
+            })
+            .then(r => r.json())
+            .then(data => { if (data.success) showToast(data.message || 'Reminder sent to ' + companyName); else showToast(data.message || 'Failed to send reminder', true); })
+            .catch(() => showToast('Failed to send reminder', true));
+        }
+
+        // ===== SCHEDULER TAB FUNCTIONS =====
+        function tlSwitchBookingTab(tabType) {
+            const tabs = ['pending', 'calendar', 'events', 'all', 'archived'];
+            const tabMap = {
+                pending: { content: 'tlPendingBookingsTab', btn: 'tlPendingBookingsTabBtn' },
+                calendar: { content: 'tlCalendarViewTab', btn: 'tlCalendarViewTabBtn' },
+                events: { content: 'tlEventsTab', btn: 'tlEventsTabBtn' },
+                all: { content: 'tlAllBookingsTab', btn: 'tlAllBookingsTabBtn' },
+                archived: { content: 'tlArchivedBookingsTab', btn: 'tlArchivedTabBtn' },
+            };
+            // Hide all tabs
+            tabs.forEach(t => {
+                const c = document.getElementById(tabMap[t].content);
+                const b = document.getElementById(tabMap[t].btn);
+                if (c) c.style.display = 'none';
+                if (b) b.classList.remove('active');
+            });
+            // Show selected tab
+            const selected = tabMap[tabType];
+            if (selected) {
+                const c = document.getElementById(selected.content);
+                const b = document.getElementById(selected.btn);
+                if (c) c.style.display = 'block';
+                if (b) b.classList.add('active');
+            }
+            // If switching to calendar tab, re-render the calendar
+            if (tabType === 'calendar') {
+                if (typeof tlRenderCalendar === 'function') tlRenderCalendar();
+            }
+        }
+
+        function tlApproveBooking(bookingId) { /* handled by async version below */ }
+        function tlRejectBooking(bookingId) { /* handled by async version below */ }
+
+        function tlArchiveBooking(bookingId) {
+            if (!confirm('Archive this booking?')) return;
+            fetch('/team-leader/bookings/' + bookingId, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' }
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    showToast(data.message || 'Booking archived.');
+                    setTimeout(() => location.reload(), 800);
+                } else {
+                    showToast(data.message || 'Failed to archive booking', true);
+                }
+            })
+            .catch(() => showToast('Failed to archive booking', true));
+        }
+
+        function tlFilterAllBookings() {
+            const search = (document.getElementById('tlSearchAllBookings')?.value || '').toLowerCase();
+            const status = document.getElementById('tlFilterAllBookingStatus')?.value || '';
+            document.querySelectorAll('.tl-booking-row').forEach(row => {
+                const rowSearch = row.getAttribute('data-search') || '';
+                const rowStatus = row.getAttribute('data-status') || '';
+                const matchSearch = !search || rowSearch.includes(search);
+                const matchStatus = !status || rowStatus === status;
+                row.style.display = (matchSearch && matchStatus) ? '' : 'none';
+            });
+        }
+
+        function tlFilterArchivedBookings() {
+            const search = (document.getElementById('tlSearchArchivedBookings')?.value || '').toLowerCase();
+            document.querySelectorAll('.tl-archived-booking-row').forEach(row => {
+                const rowSearch = row.getAttribute('data-search') || '';
+                row.style.display = (!search || rowSearch.includes(search)) ? '' : 'none';
+            });
+        }
+
+        // Research Tracking view toggle
+        function tlSwitchResearchView(viewType) {
+            const kanbanView = document.getElementById('tl-kanban-view');
+            const listView = document.getElementById('tl-doc-list-view');
+            const kanbanBtn = document.getElementById('tlDocKanbanBtn');
+            const listBtn = document.getElementById('tlDocListBtn');
+            if (viewType === 'kanban') {
+                if (kanbanView) kanbanView.style.display = 'grid';
+                if (listView) listView.style.display = 'none';
+                if (kanbanBtn) { kanbanBtn.style.background = '#7B1D3A'; kanbanBtn.style.color = 'white'; kanbanBtn.style.border = 'none'; }
+                if (listBtn) { listBtn.style.background = 'white'; listBtn.style.color = '#6B7280'; listBtn.style.border = '1px solid #E5E7EB'; }
+            } else {
+                if (kanbanView) kanbanView.style.display = 'none';
+                if (listView) listView.style.display = 'block';
+                if (listBtn) { listBtn.style.background = '#7B1D3A'; listBtn.style.color = 'white'; listBtn.style.border = 'none'; }
+                if (kanbanBtn) { kanbanBtn.style.background = 'white'; kanbanBtn.style.color = '#6B7280'; kanbanBtn.style.border = '1px solid #E5E7EB'; }
+            }
+        }
+
+        // Kanban drag-and-drop for Research Tracking
+        let tlDraggedDocCard = null;
+        function tlDragStartDoc(e) {
+            tlDraggedDocCard = e.currentTarget;
+            e.currentTarget.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+        function tlDragEndDoc(e) {
+            e.currentTarget.classList.remove('dragging');
+            tlDraggedDocCard = null;
+            document.querySelectorAll('.kanban-column').forEach(c => c.classList.remove('drag-over'));
+        }
+        function tlAllowDropDoc(e) {
+            e.preventDefault();
+            e.currentTarget.closest('.kanban-column').classList.add('drag-over');
+        }
+        function tlDragLeaveDoc(e) {
+            e.currentTarget.closest('.kanban-column').classList.remove('drag-over');
+        }
+        function tlDropDocCard(e) {
+            e.preventDefault();
+            const col = e.currentTarget;
+            col.classList.remove('drag-over');
+            if (!tlDraggedDocCard) return;
+            const docId = tlDraggedDocCard.getAttribute('data-id');
+            const newStatus = col.getAttribute('data-status');
+            fetch(`/team-leader/submissions/${docId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ status: newStatus })
+            }).then(r => r.json()).then(data => {
+                if (data.success) { showToast('Document status updated successfully.'); setTimeout(() => location.reload(), 800); }
+                else showToast(data.message || 'Failed to update status.', true);
+            }).catch(() => showToast('An error occurred. Please try again.', true));
         }
 
         function tlFilterIncubatees() {
@@ -4382,6 +5658,191 @@
             .catch(error => {
                 console.error('Error:', error);
                 showToast('An error occurred while updating the payment submission', true);
+            });
+        }
+        @endif
+
+        // ===== MOA TEMPLATE GENERATOR FUNCTIONS =====
+        @if(in_array('incubatee_tracker', $editableModules))
+        function openMoaTemplateModal() {
+            document.getElementById('moaCompanyName').value = '';
+            document.getElementById('moaRepresentative').value = '';
+            document.getElementById('moaPosition').value = '';
+            document.getElementById('moaAddress').value = '';
+            document.getElementById('moaPurpose').value = '';
+            document.getElementById('moaOtherPurpose').value = '';
+            document.getElementById('otherPurposeGroup').style.display = 'none';
+            document.getElementById('moaStartDate').value = '';
+            document.getElementById('moaEndDate').value = '';
+            document.getElementById('moaFee').value = '';
+            document.getElementById('moaTerms').value = '';
+            document.querySelectorAll('input[name="moaWorkArrangement"]').forEach(r => r.checked = false);
+            document.getElementById('moaPreviewContent').innerHTML = '<p style="color:#6B7280; font-style:italic;">Fill in the form and click "Generate Preview" to see the MOA document.</p>';
+            document.getElementById('moaTemplateModal').style.display = 'flex';
+        }
+        function closeMoaTemplateModal() { document.getElementById('moaTemplateModal').style.display = 'none'; }
+        function toggleOtherPurpose() {
+            const val = document.getElementById('moaPurpose').value;
+            const grp = document.getElementById('otherPurposeGroup');
+            const inp = document.getElementById('moaOtherPurpose');
+            if (val === 'other') { grp.style.display = 'block'; inp.setAttribute('required','required'); }
+            else { grp.style.display = 'none'; inp.removeAttribute('required'); inp.value = ''; }
+        }
+        function generateMoaPreview() {
+            const companyName = document.getElementById('moaCompanyName').value;
+            const representative = document.getElementById('moaRepresentative').value;
+            const position = document.getElementById('moaPosition').value;
+            const address = document.getElementById('moaAddress').value;
+            const purpose = document.getElementById('moaPurpose').value;
+            const otherPurpose = document.getElementById('moaOtherPurpose').value;
+            const startDate = document.getElementById('moaStartDate').value;
+            const endDate = document.getElementById('moaEndDate').value;
+            const fee = document.getElementById('moaFee').value;
+            const terms = document.getElementById('moaTerms').value;
+            const workArrangement = document.querySelector('input[name="moaWorkArrangement"]:checked')?.value || '';
+            if (!companyName || !representative || !position || !address || !purpose || !startDate || !endDate) { alert('Please fill in all required fields'); return; }
+            if (purpose === 'other' && !otherPurpose) { alert('Please specify the MOA purpose'); return; }
+            const purposeLabels = { incubation: 'Business Incubation Program', coworking: 'Co-working Space Usage', mentorship: 'Mentorship Program', partnership: 'Partnership Agreement', other: otherPurpose || 'Other Services' };
+            const workArrangementLabels = { onsite: 'Onsite (Physical workspace at UP Cebu TBI)', virtual: 'Virtual (Remote access to services)', hybrid: 'Hybrid (Combination of onsite and virtual)' };
+            const formatDate = d => new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+            const preview = `<div style="text-align:center;margin-bottom:24px;"><img src="/images/up-cebu-logo.png" style="height:60px;margin-bottom:12px;" onerror="this.style.display='none'"><h2 style="font-size:18px;font-weight:700;color:#7B1D3A;margin:0;">UNIVERSITY OF THE PHILIPPINES CEBU</h2><p style="font-size:12px;color:#6B7280;margin:4px 0;">Gorordo Avenue, Lahug, Cebu City 6000</p><h3 style="font-size:16px;font-weight:700;margin:16px 0 0 0;text-decoration:underline;">MEMORANDUM OF AGREEMENT</h3></div><div style="text-align:justify;font-size:12px;line-height:1.8;"><p><strong>KNOW ALL MEN BY THESE PRESENTS:</strong></p><p>This Memorandum of Agreement (MOA) is entered into by and between:</p><p style="margin-left:20px;"><strong>UNIVERSITY OF THE PHILIPPINES CEBU</strong>, represented herein by its Chancellor, hereinafter referred to as "<strong>UP CEBU</strong>";</p><p style="text-align:center;">- and -</p><p style="margin-left:20px;"><strong>${companyName.toUpperCase()}</strong>, represented herein by <strong>${representative}</strong>, ${position}, with business address at ${address}, hereinafter referred to as the "<strong>PARTNER</strong>";</p><p><strong>ARTICLE I - PURPOSE</strong></p><p>This MOA is entered into for the purpose of: <strong>${purposeLabels[purpose]}</strong></p>${workArrangement ? `<p><strong>ARTICLE II - WORK ARRANGEMENT</strong></p><p>The PARTNER shall operate under: <strong>${workArrangementLabels[workArrangement]}</strong></p>` : ''}<p><strong>ARTICLE ${workArrangement ? 'III' : 'II'} - TERM</strong></p><p>This Agreement shall be effective from <strong>${formatDate(startDate)}</strong> to <strong>${formatDate(endDate)}</strong>.</p>${fee ? `<p><strong>ARTICLE ${workArrangement ? 'IV' : 'III'} - FEES</strong></p><p>The PARTNER agrees to pay a monthly fee of <strong>&#8369;${parseFloat(fee).toLocaleString('en-US',{minimumFractionDigits:2})}</strong>.</p>` : ''}${terms ? `<p><strong>SPECIAL TERMS</strong></p><p>${terms}</p>` : ''}<p><strong>IN WITNESS WHEREOF</strong>, the parties have hereunto set their hands this _____ day of ____________, 20____.</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:40px;"><div style="text-align:center;"><p style="margin-bottom:40px;"><strong>FOR UP CEBU:</strong></p><div style="border-top:1px solid #000;padding-top:8px;"><strong>DR. LIZA L. CORRO</strong><br><span style="font-size:11px;">Chancellor</span></div></div><div style="text-align:center;"><p style="margin-bottom:40px;"><strong>FOR THE PARTNER:</strong></p><div style="border-top:1px solid #000;padding-top:8px;"><strong>${representative.toUpperCase()}</strong><br><span style="font-size:11px;">${position}</span></div></div></div></div>`;
+            document.getElementById('moaPreviewContent').innerHTML = preview;
+        }
+        function printMoa() {
+            const content = document.getElementById('moaPreviewContent').innerHTML;
+            if (content.includes('Fill in the form')) { alert('Please generate a preview first'); return; }
+            const w = window.open('', '_blank');
+            w.document.write(`<!DOCTYPE html><html><head><title>MOA - ${document.getElementById('moaCompanyName').value}</title><style>body{font-family:'Times New Roman',serif;padding:40px;max-width:800px;margin:0 auto;}@media print{body{padding:20px;}}</style></head><body>${content}</body></html>`);
+            w.document.close(); w.print();
+        }
+        function downloadMoaAsPdf() { alert('PDF download requires a PDF library. Using Print → Save as PDF instead.'); printMoa(); }
+        @endif
+
+        // ===== RESEARCH TRACKING FUNCTIONS =====
+        @if(in_array('research_tracking', $viewableModules))
+        @php
+            $tlDocumentsDataArr = isset($incubateeData['startupDocuments']) ? $incubateeData['startupDocuments']->map(function($d) {
+                return [
+                    'id' => $d->id,
+                    'tracking_code' => $d->tracking_code,
+                    'company_name' => $d->company_name,
+                    'contact_person' => $d->contact_person,
+                    'email' => $d->email,
+                    'phone' => $d->phone ?? null,
+                    'document_type' => $d->document_type ?? '',
+                    'description' => $d->description ?? null,
+                    'file_path' => $d->file_path ?? '',
+                    'status' => $d->status,
+                    'admin_notes' => $d->admin_notes ?? null,
+                    'created_at' => $d->created_at->format('M d, Y h:i A'),
+                    'reviewed_at' => $d->reviewed_at ? $d->reviewed_at->format('M d, Y h:i A') : null,
+                ];
+            })->keyBy('id')->toArray() : [];
+        @endphp
+        const tlDocumentsData = @json($tlDocumentsDataArr);
+        let tlCurrentDocumentId = null;
+
+        function tlViewDocumentDetails(docId) {
+            const doc = tlDocumentsData[docId];
+            if (!doc) return;
+            tlCurrentDocumentId = docId;
+            const statusColors = {
+                'pending': { bg: '#FEF3C7', text: '#92400E' },
+                'under_review': { bg: '#DBEAFE', text: '#1E40AF' },
+                'approved': { bg: '#DCFCE7', text: '#166534' },
+                'rejected': { bg: '#FEE2E2', text: '#991B1B' }
+            };
+            const color = statusColors[doc.status] || { bg: '#E5E7EB', text: '#374151' };
+            const content = `
+                <div style="display: grid; gap: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 1px solid #E5E7EB;">
+                        <div>
+                            <div style="font-size: 11px; color: #6B7280;">Tracking Code</div>
+                            <div style="font-size: 18px; font-weight: 700; color: #7B1D3A;">${doc.tracking_code}</div>
+                        </div>
+                        <span style="background: ${color.bg}; color: ${color.text}; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">${doc.status.replace('_', ' ').toUpperCase()}</span>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div><div style="font-size: 11px; color: #6B7280; margin-bottom: 2px;">Company</div><div style="font-weight: 600;">${doc.company_name}</div></div>
+                        <div><div style="font-size: 11px; color: #6B7280; margin-bottom: 2px;">Contact Person</div><div style="font-weight: 600;">${doc.contact_person}</div></div>
+                        <div><div style="font-size: 11px; color: #6B7280; margin-bottom: 2px;">Email</div><div>${doc.email}</div></div>
+                        <div><div style="font-size: 11px; color: #6B7280; margin-bottom: 2px;">Document Type</div><div style="font-weight: 600;">${doc.document_type || 'N/A'}</div></div>
+                    </div>
+                    ${doc.description ? `<div><div style="font-size: 11px; color: #6B7280; margin-bottom: 4px;">Description</div><div style="background: #F3F4F6; padding: 10px; border-radius: 8px; font-size: 13px;">${doc.description}</div></div>` : ''}
+                    ${doc.admin_notes ? `<div><div style="font-size: 11px; color: #6B7280; margin-bottom: 4px;">Review Notes</div><div style="background: #FEF3C7; padding: 10px; border-radius: 8px; font-size: 13px;">${doc.admin_notes}</div></div>` : ''}
+                    <div style="display: flex; gap: 16px; font-size: 12px; color: #6B7280; flex-wrap: wrap;">
+                        <div><i class="fas fa-calendar"></i> Submitted: ${doc.created_at}</div>
+                        ${doc.reviewed_at ? `<div><i class="fas fa-check-circle"></i> Reviewed: ${doc.reviewed_at}</div>` : ''}
+                    </div>
+                    ${doc.file_path ? `<div><a href="/storage/${doc.file_path}" target="_blank" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 6px;"><i class="fas fa-download"></i> Download Document</a></div>` : ''}
+                </div>
+            `;
+            document.getElementById('tlDocumentDetailsContent').innerHTML = content;
+            const reviewBtn = document.getElementById('tlDocumentReviewBtn');
+            if (reviewBtn) {
+                reviewBtn.style.display = ['pending', 'under_review'].includes(doc.status) ? '' : 'none';
+            }
+            openModal('tlDocumentDetailsModal');
+        }
+
+        function tlReviewDocument(docId) {
+            tlCurrentDocumentId = docId;
+            tlOpenReviewDocumentModal();
+        }
+
+        function tlOpenReviewDocumentModal() {
+            const doc = tlDocumentsData[tlCurrentDocumentId];
+            if (!doc) return;
+            document.getElementById('tlReviewDocumentId').value = tlCurrentDocumentId;
+            document.getElementById('tlReviewDocumentInfo').innerHTML =
+                `<strong>${doc.tracking_code}</strong><br>${doc.company_name} &mdash; ${doc.document_type || 'Document'}`;
+            document.getElementById('tlReviewDocumentAction').value = '';
+            document.getElementById('tlReviewDocumentNotes').value = '';
+            closeModal('tlDocumentDetailsModal');
+            openModal('tlReviewDocumentModal');
+        }
+
+        function tlSubmitDocumentReview() {
+            const docId = document.getElementById('tlReviewDocumentId').value;
+            const action = document.getElementById('tlReviewDocumentAction').value;
+            const notes = document.getElementById('tlReviewDocumentNotes').value;
+            if (!action) { showToast('Please select a review action', true); return; }
+            fetch(`/team-leader/submissions/${docId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ status: action, admin_notes: notes })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    showToast(`Document ${data.submission?.tracking_code || ''} marked as ${action.replace('_', ' ')}.`);
+                    closeModal('tlReviewDocumentModal');
+                    location.reload();
+                } else {
+                    showToast(data.message || 'Failed to update document', true);
+                }
+            })
+            .catch(() => showToast('An error occurred', true));
+        }
+
+        function tlFilterDocuments() {
+            const statusFilter = document.getElementById('tlDocumentStatusFilter').value;
+            const typeFilter = document.getElementById('tlDocumentTypeFilter').value;
+            document.querySelectorAll('.tl-document-row').forEach(row => {
+                const matchStatus = statusFilter === 'all' || row.getAttribute('data-status') === statusFilter;
+                const matchType = typeFilter === 'all' || row.getAttribute('data-type') === typeFilter;
+                row.style.display = (matchStatus && matchType) ? '' : 'none';
+            });
+        }
+
+        function tlSearchDocuments() {
+            const searchTerm = document.getElementById('tlDocumentSearchInput').value.toLowerCase();
+            document.querySelectorAll('.tl-document-row').forEach(row => {
+                row.style.display = row.textContent.toLowerCase().includes(searchTerm) ? '' : 'none';
             });
         }
         @endif
@@ -4918,6 +6379,7 @@
                         is_folder: true,
                         folder_type: 'shared',
                         item_count: f.item_count || 0,
+                        color: f.color || '#F59E0B',
                         modified: '--'
                     }));
 
@@ -4928,6 +6390,7 @@
                         is_folder: true,
                         folder_type: 'intern',
                         item_count: f.item_count || 0,
+                        color: f.color || '#F59E0B',
                         modified: '--'
                     }));
 
@@ -4972,6 +6435,7 @@
                         path: i.path,
                         is_folder: !!i.is_folder,
                         item_count: i.item_count || 0,
+                        color: i.color || '#F59E0B',
                         size: i.size,
                         modified: i.modified || '--'
                     }));
@@ -5039,25 +6503,217 @@
                 });
         }
 
+        function tlSelectColor(btn) {
+            document.querySelectorAll('.tl-color-option').forEach(b => {
+                b.style.borderColor = 'transparent';
+            });
+            btn.style.borderColor = btn.style.backgroundColor;
+            document.getElementById('tlSelectedColor').value = btn.getAttribute('data-color');
+        }
+
         function tlOpenCreateFolderModal() {
             if (!tlDrHasEditAccess) return showToast('Edit access required', true);
+            document.getElementById('tlCreateFolderModal').style.display = 'flex';
             document.getElementById('tlFolderName').value = '';
             document.getElementById('tlFolderDescription').value = '';
-            // defaults
-            document.querySelectorAll('input[name="tlAllowedUsers"]').forEach(cb => {
-                cb.checked = cb.value === 'intern' || cb.value === 'team_leader';
+            document.getElementById('tlFolderSizeLimit').value = '100';
+            document.getElementById('tlSelectedColor').value = '#3B82F6';
+
+            // Reset color swatches
+            document.querySelectorAll('.tl-color-option').forEach(b => b.style.borderColor = 'transparent');
+            const firstSwatch = document.querySelector('.tl-color-option[data-color="#3B82F6"]');
+            if (firstSwatch) firstSwatch.style.borderColor = firstSwatch.style.backgroundColor;
+
+            // Reset selections
+            document.querySelectorAll('#tlFolderPermissionsContainer input[type="checkbox"]').forEach(cb => cb.checked = false);
+            tlUpdatePermissionCounts();
+
+            // Show loading, hide container
+            document.getElementById('tlFolderPermissionsLoading').style.display = 'block';
+            document.getElementById('tlFolderPermissionsContainer').style.display = 'none';
+
+            // Fetch interns, team leaders, and startups
+            tlLoadFolderPermissionOptions();
+        }
+
+        function tlCloseCreateFolderModal() {
+            document.getElementById('tlCreateFolderModal').style.display = 'none';
+        }
+
+        function tlLoadFolderPermissionOptions() {
+            fetch('/admin/interns/list', {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                tlPopulateFolderPermissions(data);
+                document.getElementById('tlFolderPermissionsLoading').style.display = 'none';
+                document.getElementById('tlFolderPermissionsContainer').style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error loading folder permissions:', error);
+                document.getElementById('tlFolderPermissionsLoading').innerHTML = '<p style="color: #EF4444;">Failed to load. Please try again.</p>';
             });
-            openModal('tlCreateFolderModal');
+        }
+
+        function tlPopulateFolderPermissions(data) {
+            const internsContainer = document.getElementById('tlInternsBySchoolContainer');
+            let internsHtml = '';
+            if (!data.internsBySchool || Object.keys(data.internsBySchool).length === 0) {
+                internsHtml = '<p style="color: #6B7280; text-align: center; padding: 10px;">No active interns found</p>';
+            } else {
+                for (const [school, interns] of Object.entries(data.internsBySchool)) {
+                    const schoolKey = school.replace(/[^a-zA-Z0-9]/g, '');
+                    internsHtml += `
+                        <div class="permission-school-group">
+                            <div class="permission-school-header" onclick="tlToggleSchoolPermission('tl-is-${schoolKey}')">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="checkbox" class="tl-school-select-all" data-school="${escapeHtml(school)}" data-type="intern" onclick="event.stopPropagation(); tlToggleSchoolSelectAll(this)" style="width: 16px; height: 16px;">
+                                    <span style="font-weight: 500; color: #374151;">${escapeHtml(school)}</span>
+                                    <span style="background: #E5E7EB; padding: 2px 6px; border-radius: 10px; font-size: 11px;">${interns.length}</span>
+                                </div>
+                                <i class="fas fa-chevron-down" style="font-size: 12px; color: #9CA3AF;"></i>
+                            </div>
+                            <div id="tl-is-${schoolKey}" class="permission-school-body" style="display: none;">
+                                ${interns.map(intern => `
+                                    <label class="permission-checkbox-item">
+                                        <input type="checkbox" name="tl_allowed_intern_ids" value="${intern.id}" onchange="tlUpdatePermissionCounts()">
+                                        <span style="font-size: 13px; color: #374151;">${escapeHtml(intern.name)}</span>
+                                    </label>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+            internsContainer.innerHTML = internsHtml;
+
+            const teamLeadersContainer = document.getElementById('tlTeamLeadersBySchoolContainer');
+            let teamLeadersHtml = '';
+            if (!data.teamLeadersBySchool || Object.keys(data.teamLeadersBySchool).length === 0) {
+                teamLeadersHtml = '<p style="color: #6B7280; text-align: center; padding: 10px;">No active team leaders found</p>';
+            } else {
+                for (const [school, teamLeaders] of Object.entries(data.teamLeadersBySchool)) {
+                    const schoolKey = school.replace(/[^a-zA-Z0-9]/g, '');
+                    teamLeadersHtml += `
+                        <div class="permission-school-group">
+                            <div class="permission-school-header" onclick="tlToggleSchoolPermission('tl-tls-${schoolKey}')">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="checkbox" class="tl-school-select-all" data-school="${escapeHtml(school)}" data-type="team_leader" onclick="event.stopPropagation(); tlToggleSchoolSelectAll(this)" style="width: 16px; height: 16px;">
+                                    <span style="font-weight: 500; color: #374151;">${escapeHtml(school)}</span>
+                                    <span style="background: #E5E7EB; padding: 2px 6px; border-radius: 10px; font-size: 11px;">${teamLeaders.length}</span>
+                                </div>
+                                <i class="fas fa-chevron-down" style="font-size: 12px; color: #9CA3AF;"></i>
+                            </div>
+                            <div id="tl-tls-${schoolKey}" class="permission-school-body" style="display: none;">
+                                ${teamLeaders.map(tl => `
+                                    <label class="permission-checkbox-item">
+                                        <input type="checkbox" name="tl_allowed_team_leader_ids" value="${tl.id}" onchange="tlUpdatePermissionCounts()">
+                                        <span style="font-size: 13px; color: #374151;">${escapeHtml(tl.name)}</span>
+                                    </label>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+            teamLeadersContainer.innerHTML = teamLeadersHtml;
+
+            const startupsContainer = document.getElementById('tlStartupsContainer');
+            let startupsHtml = '';
+            if (!data.startups || data.startups.length === 0) {
+                startupsHtml = '<p style="color: #6B7280; text-align: center; padding: 10px;">No active startups found</p>';
+            } else {
+                startupsHtml = `
+                    <div style="margin-bottom: 8px;">
+                        <label class="permission-checkbox-item" style="background: #F3F4F6; border-radius: 6px;">
+                            <input type="checkbox" id="tlSelectAllStartups" onclick="tlToggleAllStartups(this)">
+                            <span style="font-size: 13px; font-weight: 600; color: #374151;">Select All Startups</span>
+                        </label>
+                    </div>
+                `;
+                data.startups.forEach(startup => {
+                    startupsHtml += `
+                        <label class="permission-checkbox-item">
+                            <input type="checkbox" name="tl_allowed_startup_ids" value="${startup.id}" onchange="tlUpdatePermissionCounts()">
+                            <span style="font-size: 13px; color: #374151;">${escapeHtml(startup.name)}</span>
+                            <span style="font-size: 11px; color: #9CA3AF;">(${escapeHtml(startup.startup_code)})</span>
+                        </label>
+                    `;
+                });
+            }
+            startupsContainer.innerHTML = startupsHtml;
+        }
+
+        function tlTogglePermissionAccordion(accordionId) {
+            const accordion = document.getElementById(accordionId);
+            const icon = document.getElementById(accordionId + 'Icon');
+            if (accordion.style.display === 'none') {
+                accordion.style.display = 'block';
+                if (icon) icon.style.transform = 'rotate(180deg)';
+            } else {
+                accordion.style.display = 'none';
+                if (icon) icon.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        function tlToggleSchoolPermission(schoolId) {
+            const el = document.getElementById(schoolId);
+            if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function tlToggleSchoolSelectAll(checkbox) {
+            const school = checkbox.dataset.school;
+            const type = checkbox.dataset.type;
+            const inputName = type === 'intern' ? 'tl_allowed_intern_ids' : 'tl_allowed_team_leader_ids';
+            const parent = checkbox.closest('.permission-school-group');
+            parent.querySelectorAll(`input[name="${inputName}"]`).forEach(cb => cb.checked = checkbox.checked);
+            tlUpdatePermissionCounts();
+        }
+
+        function tlToggleAllStartups(checkbox) {
+            document.querySelectorAll('input[name="tl_allowed_startup_ids"]').forEach(cb => cb.checked = checkbox.checked);
+            tlUpdatePermissionCounts();
+        }
+
+        function tlUpdatePermissionCounts() {
+            const ic = document.querySelectorAll('input[name="tl_allowed_intern_ids"]:checked').length;
+            const tlc = document.querySelectorAll('input[name="tl_allowed_team_leader_ids"]:checked').length;
+            const sc = document.querySelectorAll('input[name="tl_allowed_startup_ids"]:checked').length;
+            const iEl = document.getElementById('tlInternsSelectedCount');
+            const tlEl = document.getElementById('tlTeamLeadersSelectedCount');
+            const sEl = document.getElementById('tlStartupsSelectedCount');
+            if (iEl) iEl.textContent = ic + ' selected';
+            if (tlEl) tlEl.textContent = tlc + ' selected';
+            if (sEl) sEl.textContent = sc + ' selected';
         }
 
         function tlSubmitCreateFolder(event) {
             event.preventDefault();
             if (!tlDrHasEditAccess) return showToast('Edit access required', true);
+
             const name = document.getElementById('tlFolderName').value;
+            const color = document.getElementById('tlSelectedColor').value;
             const description = document.getElementById('tlFolderDescription').value;
-            const color = document.getElementById('tlFolderColor').value || '#7B1113';
-            const allowedUsers = Array.from(document.querySelectorAll('input[name="tlAllowedUsers"]:checked')).map(cb => cb.value);
-            if (!allowedUsers.length) return showToast('Select at least one uploader', true);
+            const sizeLimit = document.getElementById('tlFolderSizeLimit').value || 100;
+
+            const allowedInternIds = Array.from(document.querySelectorAll('input[name="tl_allowed_intern_ids"]:checked')).map(cb => parseInt(cb.value));
+            const allowedTeamLeaderIds = Array.from(document.querySelectorAll('input[name="tl_allowed_team_leader_ids"]:checked')).map(cb => parseInt(cb.value));
+            const allowedStartupIds = Array.from(document.querySelectorAll('input[name="tl_allowed_startup_ids"]:checked')).map(cb => parseInt(cb.value));
+
+            const allowedUsers = [];
+            if (allowedInternIds.length > 0) allowedUsers.push('intern');
+            if (allowedTeamLeaderIds.length > 0) allowedUsers.push('team_leader');
+            if (allowedStartupIds.length > 0) allowedUsers.push('startup');
+
+            if (allowedUsers.length === 0) {
+                showToast('Please select at least one intern, team leader, or startup', true);
+                return;
+            }
 
             fetch('/admin/documents/create-folder', {
                 method: 'POST',
@@ -5066,19 +6722,103 @@
                     'Accept': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                 },
-                body: JSON.stringify({ name, description, color, allowed_users: allowedUsers })
-            })
-                .then(r => r.json())
-                .then(data => {
-                    if (!data.success) throw new Error(data.message || 'Failed');
-                    showToast('Folder created');
-                    closeModal('tlCreateFolderModal');
-                    tlLoadDigitalRecordsRoot();
+                body: JSON.stringify({
+                    name: name,
+                    color: color,
+                    description: description,
+                    allowed_users: allowedUsers,
+                    allowed_intern_ids: allowedInternIds,
+                    allowed_team_leader_ids: allowedTeamLeaderIds,
+                    allowed_startup_ids: allowedStartupIds,
+                    size_limit_mb: parseInt(sizeLimit)
                 })
-                .catch(err => {
-                    console.error('TL create folder error:', err);
-                    showToast('Failed to create folder', true);
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('Folder created successfully');
+                    tlCloseCreateFolderModal();
+                    tlLoadDigitalRecordsRoot();
+                } else {
+                    showToast(data.message || 'Failed to create folder', true);
+                }
+            })
+            .catch(error => {
+                console.error('TL create folder error:', error);
+                showToast('An error occurred while creating folder', true);
+            });
+        }
+
+        function tlOpenUploadFileModal() {
+            if (!tlDrCurrentPath || tlDrCurrentPath === '') {
+                showToast('Please navigate into a folder before uploading files.', true);
+                return;
+            }
+            document.getElementById('tlFileUploadInput').value = '';
+            document.getElementById('tlUploadFileList').innerHTML = '<p style="color: #9CA3AF; text-align: center; font-size: 13px;">No files selected</p>';
+            const overlay = document.getElementById('tlUploadFileModal');
+            if (overlay) { overlay.style.display = 'flex'; }
+        }
+
+        function tlCloseUploadFileModal() {
+            const overlay = document.getElementById('tlUploadFileModal');
+            if (overlay) overlay.style.display = 'none';
+        }
+
+        function tlHandleFileSelect(input) {
+            const files = input.files;
+            const listContainer = document.getElementById('tlUploadFileList');
+            if (!files || files.length === 0) {
+                listContainer.innerHTML = '<p style="color: #9CA3AF; text-align: center; font-size: 13px;">No files selected</p>';
+                return;
+            }
+            const maxSizeBytes = 50 * 1024 * 1024;
+            const allowed = ['pdf','doc','docx','xls','xlsx','txt','jpg','jpeg','png','gif','zip','rar','ppt','pptx','csv'];
+            let html = '';
+            for (let file of files) {
+                const ext = file.name.split('.').pop().toLowerCase();
+                const ok = file.size <= maxSizeBytes && allowed.includes(ext);
+                const icon = ok ? '<i class="fas fa-check-circle" style="color:#10B981;"></i>' : '<i class="fas fa-exclamation-circle" style="color:#EF4444;"></i>';
+                const err = file.size > maxSizeBytes ? '<span style="color:#EF4444;font-size:11px;">Too large (max 50 MB)</span>' : (!allowed.includes(ext) ? '<span style="color:#EF4444;font-size:11px;">Unsupported format</span>' : '');
+                html += `<div style="display:flex;align-items:center;gap:10px;padding:10px;border:1px solid ${ok?'#E5E7EB':'#FCA5A5'};border-radius:8px;margin-bottom:8px;background:${ok?'#F9FAFB':'#FEF2F2'}">${icon}<div style="flex:1;min-width:0"><div style="font-weight:500;color:#1F2937;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${tlEscapeHtml(file.name)}</div><div style="font-size:12px;color:#6B7280;">${(file.size/1024/1024).toFixed(2)} MB</div>${err}</div></div>`;
+            }
+            listContainer.innerHTML = html;
+        }
+
+        function tlSubmitUploadFiles() {
+            const input = document.getElementById('tlFileUploadInput');
+            const files = input ? input.files : null;
+            if (!files || files.length === 0) { showToast('Please select files to upload.', true); return; }
+            const maxSizeBytes = 50 * 1024 * 1024;
+            const allowed = ['pdf','doc','docx','xls','xlsx','txt','jpg','jpeg','png','gif','zip','rar','ppt','pptx','csv'];
+            const validFiles = [];
+            for (let file of files) {
+                const ext = file.name.split('.').pop().toLowerCase();
+                if (file.size > maxSizeBytes) { showToast(`"${file.name}" exceeds 50 MB limit.`, true); continue; }
+                if (!allowed.includes(ext)) { showToast(`"${file.name}" is an unsupported format.`, true); continue; }
+                validFiles.push(file);
+            }
+            if (!validFiles.length) return;
+            let done = 0; let ok = 0;
+            validFiles.forEach(file => {
+                const fd = new FormData();
+                fd.append('file', file);
+                fd.append('path', tlDrCurrentPath);
+                fetch('/admin/documents/upload', {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+                    body: fd
+                }).then(r => r.json()).then(data => {
+                    if (data.success) ok++; else showToast(data.message || `Failed to upload "${file.name}"`, true);
+                }).catch(() => showToast(`Error uploading "${file.name}"`, true)).finally(() => {
+                    done++;
+                    if (done === validFiles.length && ok > 0) {
+                        showToast(`${ok} file(s) uploaded successfully.`);
+                        tlCloseUploadFileModal();
+                        tlDrRefresh();
+                    }
                 });
+            });
         }
 
         function tlRenderDigitalRecordsTable(items) {
@@ -5102,7 +6842,7 @@
                     </div>
                 `;
                 if (gridView) gridView.innerHTML = emptyHtml;
-                if (listViewBody) listViewBody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 32px; color:#9CA3AF;"><i class="fas fa-folder-open" style="margin-right:8px;"></i> No items found</td></tr>`;
+                if (listViewBody) listViewBody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 32px; color:#9CA3AF;"><i class="fas fa-folder-open" style="margin-right:8px;"></i> No items found</td></tr>`;
                 return;
             }
 
@@ -5124,10 +6864,11 @@
                                 : ''))
                         : '';
 
+                    const folderBg = isFolder ? `style="background: ${item.color || '#F59E0B'};"` : '';
                     return `
                         <div class="tl-file-item ${isFolder ? 'folder-item' : ''}" onclick="${onClickHandler}" style="position: relative;">
                             ${deleteBtn}
-                            <div class="tl-file-icon ${iconInfo.class}">
+                            <div class="tl-file-icon ${iconInfo.class}" ${folderBg}>
                                 <i class="${iconInfo.icon}"></i>
                             </div>
                             <div class="tl-file-name">${tlEscapeHtml(item.name)}</div>
@@ -5165,13 +6906,14 @@
                         <tr style="cursor:pointer;" ${openClick}>
                             <td>
                                 <div style="display:flex; align-items:center; gap:10px;">
-                                    <i class="fas ${isFolder ? 'fa-folder' : 'fa-file'}" style="color:${isFolder ? '#F59E0B' : '#6B7280'};"></i>
+                                    <i class="fas ${isFolder ? 'fa-folder' : 'fa-file'}" style="color:${isFolder ? (item.color || '#F59E0B') : '#6B7280'};"></i>
                                     <strong>${tlEscapeHtml(item.name)}</strong>
                                 </div>
                             </td>
                             <td>${type}</td>
                             <td>${tlEscapeHtml(size)}</td>
                             <td>${tlEscapeHtml(modified)}</td>
+                            <td>${tlEscapeHtml(item.uploaded_by || '--')}</td>
                             <td style="text-align:right; white-space:nowrap;">
                                 ${downloadBtn}
                                 ${deleteBtn}
@@ -6930,7 +8672,7 @@ University of the Philippines Cebu
             }
 
             try {
-                const response = await fetch(`/admin/bookings/${bookingId}/approve`, {
+                const response = await fetch(`/team-leader/bookings/${bookingId}/approve`, {
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
@@ -6962,7 +8704,7 @@ University of the Philippines Cebu
             if (reason === null) return; // User cancelled
 
             try {
-                const response = await fetch(`/admin/bookings/${bookingId}/reject`, {
+                const response = await fetch(`/team-leader/bookings/${bookingId}/reject`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
