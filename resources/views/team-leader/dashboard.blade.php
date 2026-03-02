@@ -1311,6 +1311,94 @@
                 padding: 4px 8px;
             }
         }
+
+        /* ===== Granted Access: Responsive Grid Classes ===== */
+        .tl-ga-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .tl-ga-two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .tl-ga-stats-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 12px !important;
+            }
+            /* Granted Access: 3-column stats to 2-column at 900px */
+            #incubatee-tracker [style*="grid-template-columns: repeat(3, 1fr)"],
+            #full-intern-management [style*="grid-template-columns: repeat(3, 1fr)"] {
+                grid-template-columns: 1fr 1fr !important;
+                gap: 12px !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .tl-ga-two-col {
+                grid-template-columns: 1fr !important;
+                gap: 16px !important;
+            }
+            /* Granted Access: collapse all 2-column inline grids on mobile */
+            #scheduler [style*="grid-template-columns: 1fr 1fr"],
+            #research-tracking [style*="grid-template-columns: 1fr 1fr"],
+            #incubatee-tracker [style*="grid-template-columns: 1fr 1fr"],
+            #issues-management [style*="grid-template-columns: 1fr 1fr"],
+            #digital-records [style*="grid-template-columns: 1fr 1fr"],
+            #full-intern-management [style*="grid-template-columns: 1fr 1fr"] {
+                grid-template-columns: 1fr !important;
+                gap: 16px !important;
+            }
+            /* Granted Access: collapse 3-column inline grids on mobile */
+            #incubatee-tracker [style*="grid-template-columns: repeat(3, 1fr)"],
+            #full-intern-management [style*="grid-template-columns: repeat(3, 1fr)"] {
+                grid-template-columns: 1fr 1fr !important;
+                gap: 12px !important;
+            }
+            /* Granted Access filter bars */
+            #scheduler .filter-bar,
+            #research-tracking .filter-bar,
+            #incubatee-tracker .filter-bar,
+            #issues-management .filter-bar,
+            #digital-records .filter-bar,
+            #full-intern-management .filter-bar {
+                flex-direction: column;
+                align-items: stretch !important;
+            }
+            /* Table wrappers in granted access */
+            #scheduler .table-card,
+            #research-tracking .table-card,
+            #incubatee-tracker .table-card,
+            #issues-management .table-card,
+            #digital-records .table-card,
+            #full-intern-management .table-card {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .tl-ga-stats-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 10px !important;
+            }
+            .tl-ga-stats-grid > div {
+                padding: 14px !important;
+            }
+            /* Collapse 3-column grids to 1-column at very small screens */
+            #incubatee-tracker [style*="grid-template-columns: repeat(3, 1fr)"],
+            #full-intern-management [style*="grid-template-columns: repeat(3, 1fr)"] {
+                grid-template-columns: 1fr !important;
+            }
+            /* Calendar: allow horizontal scroll on tiny screens */
+            #scheduler .card-body {
+                overflow-x: auto;
+            }
+        }
     </style>
 </head>
 <body>
@@ -2312,7 +2400,7 @@
             </div>
 
             <!-- Stats Overview (white-box style) -->
-            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
+            <div class="tl-ga-stats-grid">
                 <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
                     <div style="display: flex; align-items: center; gap: 12px;">
                         <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #FEF3C7, #FCD34D); border-radius: 12px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-clock" style="color: #D97706; font-size: 20px;"></i></div>
@@ -2641,7 +2729,7 @@
             </div>
 
             <!-- Stats Overview -->
-            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
+            <div class="tl-ga-stats-grid">
                 <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
                     <div style="display: flex; align-items: center; gap: 12px;">
                         <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #DBEAFE, #93C5FD); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
@@ -3518,7 +3606,7 @@
             </div>
 
             <!-- Stats Overview -->
-            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
+            <div class="tl-ga-stats-grid">
                 <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
                     <div style="display: flex; align-items: center; gap: 12px;">
                         <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #FEE2E2, #FCA5A5); border-radius: 12px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-exclamation-circle" style="color: #DC2626; font-size: 20px;"></i></div>
@@ -3729,7 +3817,7 @@
             </div>
 
             <!-- Stats Overview -->
-            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
+            <div class="tl-ga-stats-grid">
                 <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
                     <div style="display: flex; align-items: center; gap: 12px;">
                         <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #DBEAFE, #93C5FD); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
