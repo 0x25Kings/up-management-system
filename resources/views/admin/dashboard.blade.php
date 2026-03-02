@@ -2218,7 +2218,7 @@
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            grid-template-columns: repeat(4, 1fr);
             gap: 20px;
             margin-bottom: 24px;
         }
@@ -3180,16 +3180,17 @@
             }
 
             .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: repeat(4, 1fr);
                 gap: 12px;
             }
 
             .stat-card {
-                padding: 16px;
+                padding: 12px;
+                min-width: 0;
             }
 
             .stat-value {
-                font-size: 24px;
+                font-size: 20px;
             }
 
             .time-stats-grid {
@@ -3289,15 +3290,17 @@
             }
 
             .stats-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 8px;
             }
 
             .time-stats-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(2, 1fr);
             }
 
             .stat-card {
-                padding: 14px;
+                padding: 10px 8px;
+                min-width: 0;
             }
 
             .stat-icon {

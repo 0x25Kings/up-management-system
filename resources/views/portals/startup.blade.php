@@ -72,7 +72,7 @@
         .action-card {
             background: white;
             border-radius: 16px;
-            padding: 28px;
+            padding: 24px 16px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.08);
             transition: all 0.3s ease;
             cursor: pointer;
@@ -385,9 +385,192 @@
             color: var(--maroon);
         }
 
+        /* Layout containers */
+        .hero-container {
+            max-width: 72rem;
+            margin: 0 auto;
+            padding: 0 32px;
+            text-align: center;
+            color: white;
+        }
+        .hero-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 9999px;
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            background: linear-gradient(135deg, #FFBF00 0%, #D4A500 100%);
+            color: #7B1D3A;
+        }
+        .hero-title {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            line-height: 1.15;
+        }
+        .hero-sub {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .main-section {
+            padding: 64px 0;
+        }
+        .content-container {
+            max-width: 72rem;
+            margin: 0 auto;
+            padding: 0 32px;
+        }
+        .section-heading {
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 12px;
+            color: #7B1D3A;
+        }
+        .section-sub {
+            text-align: center;
+            color: #6B7280;
+            margin-bottom: 40px;
+            font-size: 15px;
+        }
+
+        /* Action cards grid */
+        .action-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            margin-bottom: 48px;
+        }
+
+        /* Info cards */
+        .info-card {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+            text-align: center;
+            margin-top: 32px;
+        }
+        .info-card h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #7B1D3A;
+        }
+        .info-card p {
+            color: #6B7280;
+            margin-bottom: 24px;
+            font-size: 15px;
+        }
+        .contact-card {
+            border-radius: 16px;
+            padding: 32px;
+            text-align: center;
+            margin-top: 32px;
+            border: 2px solid rgba(123, 29, 58, 0.15);
+            background: linear-gradient(135deg, rgba(123, 29, 58, 0.05) 0%, rgba(255, 191, 0, 0.1) 100%);
+        }
+        .contact-card h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #7B1D3A;
+        }
+        .contact-card p {
+            color: #6B7280;
+            margin-bottom: 16px;
+        }
+        .contact-links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 24px;
+        }
+
+        /* ===== RESPONSIVE BREAKPOINTS ===== */
+
+        /* Tablet: 1024px and below */
+        @media (max-width: 1024px) {
+            .action-cards-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 16px;
+            }
+        }
+
+        /* Mobile: 768px and below */
         @media (max-width: 768px) {
             .form-row { grid-template-columns: 1fr; }
             .tracking-input { flex-direction: column; }
+
+            /* Navbar */
+            .navbar { padding: 12px 16px; }
+            .navbar-brand { font-size: 14px; gap: 8px; }
+            .navbar-brand .brand-text { display: none; }
+            .navbar-back { font-size: 13px; }
+
+            /* Hero */
+            .portal-hero { min-height: 26vh; padding-top: 52px; }
+            .hero-container { padding: 0 16px; }
+            .hero-badge { font-size: 12px; margin-bottom: 14px; padding: 6px 14px; }
+            .hero-title { font-size: 1.75rem; margin-bottom: 10px; }
+            .hero-sub { font-size: 0.95rem; }
+
+            /* Main section */
+            .main-section { padding: 32px 0; }
+            .content-container { padding: 0 16px; }
+            .section-heading { font-size: 1.2rem; margin-bottom: 8px; }
+            .section-sub { font-size: 13px; margin-bottom: 24px; }
+
+            /* Action cards */
+            .action-cards-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+                margin-bottom: 28px;
+            }
+            .action-card { padding: 16px 10px; }
+            .action-icon { width: 48px; height: 48px; font-size: 19px; margin-bottom: 10px; border-radius: 12px; }
+            .action-card h3 { font-size: 13px; margin-bottom: 4px; }
+            .action-card p { font-size: 11px; }
+
+            /* Tracking */
+            .tracking-section { padding: 18px 16px; }
+
+            /* Info / contact cards */
+            .info-card { padding: 20px 16px; margin-top: 20px; }
+            .info-card p { margin-bottom: 16px; font-size: 13px; }
+            .contact-card { padding: 20px 16px; margin-top: 20px; }
+
+            /* Buttons */
+            .btn-primary, .btn-secondary, .btn-forest {
+                padding: 12px 18px;
+                font-size: 14px;
+                width: 100%;
+                display: block;
+                text-align: center;
+            }
+            .btn-download { padding: 12px 20px; font-size: 14px; }
+
+            /* Modals */
+            .modal-content { width: 95%; max-height: 95vh; }
+            .modal-header { padding: 16px 18px; }
+            .modal-header h2 { font-size: 16px; }
+            .modal-body { padding: 18px 14px; }
+
+            /* Footer */
+            .portal-footer { padding: 20px 16px; margin-top: 40px; }
+        }
+
+        /* Small mobile: 480px and below */
+        @media (max-width: 480px) {
+            .hero-title { font-size: 1.4rem; }
+            .action-card { padding: 14px 8px; }
+            .action-icon { width: 42px; height: 42px; font-size: 17px; }
+            .action-card h3 { font-size: 12px; }
+            .tracking-code-display .code { font-size: 18px; letter-spacing: 1px; }
+            .tracking-code-display { padding: 14px 10px; }
         }
     </style>
 </head>
@@ -396,7 +579,7 @@
     <nav class="navbar">
         <a href="{{ route('home') }}" class="navbar-brand">
             <i class="fas fa-rocket"></i>
-            <span>UP Cebu Startup Portal</span>
+            <span class="brand-text">UP Cebu Startup Portal</span>
         </a>
         <a href="{{ route('home') }}" class="navbar-back">
             <i class="fas fa-arrow-left"></i> Back to Home
@@ -405,21 +588,21 @@
 
     <!-- Hero Section -->
     <section class="portal-hero">
-        <div class="max-w-6xl mx-auto px-8 text-center text-white">
-            <div class="inline-block px-4 py-2 rounded-full text-sm font-bold mb-6" style="background: linear-gradient(135deg, #FFBF00 0%, #D4A500 100%); color: #7B1D3A;">
-                <i class="fas fa-rocket mr-2"></i> STARTUP PORTAL
+        <div class="hero-container">
+            <div class="hero-badge">
+                <i class="fas fa-rocket"></i> STARTUP PORTAL
             </div>
-            <h1 class="text-4xl md:text-5xl font-bold mb-4">Startup & Incubatee Services</h1>
-            <p class="text-xl opacity-90 max-w-2xl mx-auto">
+            <h1 class="hero-title">Startup & Incubatee Services</h1>
+            <p class="hero-sub">
                 Submit documents, report issues, and track your requests - no login required.
             </p>
         </div>
     </section>
 
     <!-- Main Content -->
-    <section class="py-16">
-        <div class="max-w-6xl mx-auto px-8">
-            
+    <section class="main-section">
+        <div class="content-container">
+
             <!-- Success/Error Messages -->
             @if(session('success'))
                 <div class="alert alert-success">
@@ -456,11 +639,11 @@
             @endif
 
             <!-- Section Title -->
-            <h2 class="text-2xl font-bold text-center mb-4" style="color: #7B1D3A;">What Would You Like To Do?</h2>
-            <p class="text-center text-gray-600 mb-10">Select an action below to submit your request</p>
+            <h2 class="section-heading">What Would You Like To Do?</h2>
+            <p class="section-sub">Select an action below to submit your request</p>
 
             <!-- Action Cards Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            <div class="action-cards-grid">
                 <!-- Upload Document -->
                 <div class="action-card" onclick="openModal('documentModal')">
                     <div class="action-icon"><i class="fas fa-file-upload"></i></div>
@@ -497,7 +680,7 @@
                     <h3 class="text-xl font-bold" style="color: #7B1D3A;">Track Your Request</h3>
                 </div>
                 <p class="text-gray-600 mb-4">Enter your tracking code to check the status of your submission.</p>
-                
+
                 <div class="tracking-input">
                     <input type="text" id="trackingCodeInput" placeholder="Enter tracking code (e.g., DOC-2026-ABC123)" onkeypress="if(event.key==='Enter') trackSubmission()">
                     <button class="btn-primary" onclick="trackSubmission()">
@@ -512,23 +695,21 @@
             </div>
 
             <!-- Download MOA Template Section -->
-            <div class="mt-8 text-center p-8 bg-white rounded-2xl shadow-lg">
-                <h3 class="text-xl font-bold mb-3" style="color: #7B1D3A;">
-                    <i class="fas fa-download mr-2"></i> Need the MOA Template?
-                </h3>
-                <p class="text-gray-600 mb-6">Download the official MOA template before submitting your request.</p>
+            <div class="info-card">
+                <h3><i class="fas fa-download" style="margin-right:8px;"></i> Need the MOA Template?</h3>
+                <p>Download the official MOA template before submitting your request.</p>
                 <a href="{{ route('startup.moa-template') }}" class="btn-download">
-                    <i class="fas fa-file-pdf mr-2"></i> Download MOA Template
+                    <i class="fas fa-file-pdf" style="margin-right:6px;"></i> Download MOA Template
                 </a>
             </div>
 
             <!-- Contact Info -->
-            <div class="mt-8 text-center p-8 rounded-2xl border-2" style="background: linear-gradient(135deg, rgba(123, 29, 58, 0.05) 0%, rgba(255, 191, 0, 0.1) 100%); border-color: rgba(123, 29, 58, 0.15);">
+            <div class="contact-card">
                 <h3 class="text-xl font-bold mb-3" style="color: #7B1D3A;">
                     <i class="fas fa-headset mr-2"></i> Need Help?
                 </h3>
                 <p class="text-gray-600 mb-4">Contact our support team for any inquiries.</p>
-                <div class="flex flex-wrap justify-center gap-6">
+                <div class="contact-links">
                     <div>
                         <i class="fas fa-envelope mr-2" style="color: #228B22;"></i>
                         <span class="text-gray-700">incubation@up.edu.ph</span>
@@ -872,7 +1053,7 @@
 
                 if (data.success) {
                     let html = '';
-                    
+
                     if (data.type === 'room_issue') {
                         html = `
                             <div class="flex items-start gap-4">
