@@ -7821,16 +7821,17 @@
                         <table>
                             <thead>
                                 <tr>
-                                    <th style="width: 40%;">Name</th>
+                                    <th style="width: 35%;">Name</th>
                                     <th>Type</th>
                                     <th>Size</th>
                                     <th>Modified</th>
+                                    <th>Uploaded By</th>
                                     <th style="width: 100px;">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="list-view-body">
                                 <tr>
-                                    <td colspan="5" style="text-align: center; padding: 50px; color: #9CA3AF;">
+                                    <td colspan="6" style="text-align: center; padding: 50px; color: #9CA3AF;">
                                         <i class="fas fa-spinner fa-spin" style="font-size: 30px; margin-bottom: 16px;"></i>
                                         <p>Loading documents...</p>
                                     </td>
@@ -18142,7 +18143,7 @@ University of the Philippines Cebu
                                 <p style="font-size:13px;">You don't have permission to view this section.</p>
                             </div>`;
                         document.getElementById('list-view-body').innerHTML = `
-                            <tr><td colspan="5" style="text-align:center;padding:50px;color:#9CA3AF;">
+                            <tr><td colspan="6" style="text-align:center;padding:50px;color:#9CA3AF;">
                                 <i class="fas fa-lock" style="font-size:28px;margin-bottom:12px;display:block;"></i>
                                 <p>Digital records not accessible</p>
                             </td></tr>`;
@@ -18157,7 +18158,7 @@ University of the Philippines Cebu
                                 </button>
                             </div>`;
                         document.getElementById('list-view-body').innerHTML = `
-                            <tr><td colspan="5" style="text-align:center;padding:50px;color:#9CA3AF;">
+                            <tr><td colspan="6" style="text-align:center;padding:50px;color:#9CA3AF;">
                                 <i class="fas fa-exclamation-circle" style="font-size:28px;margin-bottom:12px;display:block;color:#F59E0B;"></i>
                                 <p style="margin-bottom:12px;">${data.message || 'Failed to load folders'}</p>
                                 <button onclick="loadRootFolders()" style="padding:6px 16px;background:linear-gradient(135deg,#7B1D3A,#A62450);color:white;border:none;border-radius:8px;font-weight:600;cursor:pointer;">Retry</button>
@@ -18213,7 +18214,7 @@ University of the Philippines Cebu
                 `;
                 listViewBody.innerHTML = `
                     <tr>
-                        <td colspan="5" style="text-align: center; padding: 50px; color: #9CA3AF;">
+                        <td colspan="6" style="text-align: center; padding: 50px; color: #9CA3AF;">
                             <i class="fas fa-folder-open" style="font-size: 30px; margin-bottom: 16px;"></i>
                             <p>This folder is empty</p>
                         </td>
@@ -18268,6 +18269,7 @@ University of the Philippines Cebu
                             </div>
                             <div class="file-name">${escapeHtml(file.name)}</div>
                             <div class="file-meta">${file.size} • ${file.modified}</div>
+                            ${file.uploader_name ? `<div style="margin-top:5px;display:flex;justify-content:center;"><span style="font-size:10px;padding:2px 7px;border-radius:10px;font-weight:600;background:${file.uploader_role==='intern'?'#DBEAFE':'#F3F4F6'};color:${file.uploader_role==='intern'?'#1E40AF':'#374151'};display:inline-flex;align-items:center;gap:3px;"><i class="fas fa-${file.uploader_role==='intern'?'user-graduate':'user-shield'}" style="font-size:9px;"></i>${escapeHtml(file.uploader_name)}</span></div><div style="font-size:10px;color:#9CA3AF;margin-top:2px;">${file.uploaded_at || ''}</div>` : ''}
                         </div>
                     </div>
                 `;
@@ -18300,6 +18302,7 @@ University of the Philippines Cebu
                         <td>Folder</td>
                         <td>${folder.item_count} items</td>
                         <td>-</td>
+                        <td>-</td>
                         <td>
                             <button class="action-btn" onclick="event.stopPropagation(); openFolder('${escapeHtml(folder.path)}', '${escapeHtml(folder.name)}')">
                                 <i class="fas fa-folder-open"></i>
@@ -18323,6 +18326,13 @@ University of the Philippines Cebu
                         <td>${getFileType(file.name)}</td>
                         <td>${file.size}</td>
                         <td>${file.modified}</td>
+                        <td>
+                            ${file.uploader_name ? `
+                            <div style="display:flex;align-items:center;gap:6px;">
+                                <span style="font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600;white-space:nowrap;background:${file.uploader_role==='intern'?'#DBEAFE':'#F3F4F6'};color:${file.uploader_role==='intern'?'#1E40AF':'#374151'};display:inline-flex;align-items:center;gap:4px;"><i class="fas fa-${file.uploader_role==='intern'?'user-graduate':'user-shield'}" style="font-size:10px;"></i>${escapeHtml(file.uploader_name)}</span>
+                            </div>
+                            <div style="font-size:10px;color:#6B7280;margin-top:2px;">${file.uploaded_at || file.modified}</div>` : '<span style="color:#9CA3AF;font-size:11px;">—</span>'}
+                        </td>
                         <td>
                             <button class="action-btn" onclick="downloadFile('${escapeHtml(file.path)}', '${escapeHtml(file.name)}')">
                                 <i class="fas fa-download"></i>

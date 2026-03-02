@@ -661,6 +661,12 @@ class DocumentController extends Controller
             }
 
             // Add files (for all folder types)
+            // Batch-lookup Document records to get uploader info (avoids N+1)
+            $docRecords = Document::whereIn('file_path', $files)
+                ->with('intern')
+                ->get()
+                ->keyBy('file_path');
+
             foreach ($files as $file) {
                 $fileName = basename($file);
                 $size = Storage::disk('local')->size($file);
@@ -677,6 +683,18 @@ class DocumentController extends Controller
                 ];
                 $mimeType = $mimeTypes[$extension] ?? 'application/octet-stream';
 
+                // Determine uploader from Document record
+                $docRecord = $docRecords->get($file);
+                if ($docRecord && $docRecord->intern) {
+                    $uploaderName = $docRecord->intern->name;
+                    $uploaderRole = 'intern';
+                    $uploadedAt = $docRecord->created_at->format('M d, Y g:i A');
+                } else {
+                    $uploaderName = 'Admin';
+                    $uploaderRole = 'admin';
+                    $uploadedAt = date('M d, Y', $lastModified);
+                }
+
                 $items[] = [
                     'name' => $fileName,
                     'path' => $file,
@@ -687,6 +705,9 @@ class DocumentController extends Controller
                     'modified_timestamp' => $lastModified,
                     'mime_type' => $mimeType,
                     'is_folder' => false,
+                    'uploader_name' => $uploaderName,
+                    'uploader_role' => $uploaderRole,
+                    'uploaded_at' => $uploadedAt,
                 ];
             }
 
@@ -1010,10 +1031,12 @@ class DocumentController extends Controller
                 return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
             }
 
-            // Count database-tracked shared folders
-            $sharedFolderCount = DocumentFolder::where('folder_type', 'shared')->count();
+            // Count root-level shared folders only (mirrors what the file browser shows)
+            $sharedFolderCount = DocumentFolder::where('folder_type', 'shared')
+                ->whereNull('parent_folder_id')
+                ->count();
 
-            // Count internship folders from filesystem
+            // Count intern folders from filesystem
             $internshipPath = 'Internship';
             $internFolders = Storage::disk('local')->exists($internshipPath)
                 ? Storage::disk('local')->directories($internshipPath)
@@ -1021,29 +1044,44 @@ class DocumentController extends Controller
 
             $totalFolders = $sharedFolderCount + count($internFolders);
 
-            // Count files and size across Shared and Internship roots
-            $roots = ['Shared', 'Internship'];
+            // Count files and storage by scanning all actual DB-tracked storage paths
+            // (avoids hardcoded roots and handles folders stored anywhere on disk)
             $fileCount = 0;
             $totalBytes = 0;
-            $recentUploads = 0;
-            $recentThreshold = now()->subDays(7)->timestamp;
+            $scannedPaths = [];
 
-            foreach ($roots as $root) {
-                if (!Storage::disk('local')->exists($root)) {
-                    continue;
-                }
+            // Scan each DB-tracked shared folder's storage path (root folders only to avoid
+            // double-counting — allFiles() already recurses into sub-folders)
+            $rootSharedFolders = DocumentFolder::where('folder_type', 'shared')
+                ->whereNull('parent_folder_id')
+                ->whereNotNull('storage_path')
+                ->get();
 
-                $files = Storage::disk('local')->allFiles($root);
-                $fileCount += count($files);
-
-                foreach ($files as $file) {
-                    $totalBytes += Storage::disk('local')->size($file);
-                    $lastModified = Storage::disk('local')->lastModified($file);
-                    if ($lastModified >= $recentThreshold) {
-                        $recentUploads++;
+            foreach ($rootSharedFolders as $folder) {
+                $path = str_replace('\\', '/', $folder->storage_path);
+                if (Storage::disk('local')->exists($path)) {
+                    $files = Storage::disk('local')->allFiles($path);
+                    $fileCount += count($files);
+                    foreach ($files as $file) {
+                        $totalBytes += Storage::disk('local')->size($file);
                     }
+                    $scannedPaths[] = $path;
                 }
             }
+
+            // Scan intern folders from filesystem
+            foreach ($internFolders as $dir) {
+                $dir = str_replace('\\', '/', $dir);
+                $files = Storage::disk('local')->allFiles($dir);
+                $fileCount += count($files);
+                foreach ($files as $file) {
+                    $totalBytes += Storage::disk('local')->size($file);
+                }
+            }
+
+            // Recent uploads: use Document DB records for accuracy (intern uploads)
+            // plus filesystem mtime check for any admin-uploaded files not in DB
+            $recentUploads = Document::where('created_at', '>=', now()->subDays(7))->count();
 
             return response()->json([
                 'success' => true,
