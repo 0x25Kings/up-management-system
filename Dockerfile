@@ -24,12 +24,14 @@ COPY . .
 
 RUN composer install --no-dev --optimize-autoloader
 
+# ✅ Database migration step (VERY IMPORTANT)
+RUN php artisan migrate:fresh --force
+
 RUN mkdir -p storage/framework/sessions \
     storage/framework/cache \
     storage/framework/views
 
 RUN chown -R www-data:www-data storage bootstrap/cache
-
 
 RUN a2enmod rewrite
 
