@@ -307,7 +307,7 @@
 @endpush
 
 @section('content')
-<a href="{{ route('startup.track') }}" class="back-link">
+<a href="{{ route('startup.track-submissions') }}" class="back-link">
     <i class="fas fa-arrow-left"></i>
     Back to Track Submissions
 </a>

@@ -681,7 +681,7 @@ class StartupDashboardController extends Controller
         }
 
         if (!$item) {
-            return redirect()->route('startup.track')->with('error', 'Submission not found.');
+            return redirect()->route('startup.track-submissions')->with('error', 'Submission not found.');
         }
 
         return view('startup.track-details', compact('startup', 'item', 'itemType'));

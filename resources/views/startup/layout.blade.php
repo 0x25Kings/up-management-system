@@ -1420,7 +1420,7 @@
             </a>
 
             <div class="nav-section">History & Records</div>
-            <a href="{{ route('startup.track') }}" class="nav-item {{ request()->routeIs('startup.track*') ? 'active' : '' }}" data-tooltip="Track Submissions">
+            <a href="{{ route('startup.track-submissions') }}" class="nav-item {{ request()->routeIs('startup.track-submissions*') ? 'active' : '' }}" data-tooltip="Track Submissions">
                 <i class="fas fa-search-location"></i>
                 <span>Track Submissions</span>
             </a>

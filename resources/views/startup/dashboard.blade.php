@@ -1936,7 +1936,7 @@
                 <span>Submit Payment</span>
             </a>
             <div class="menu-section">History & Records</div>
-            <a href="{{ route('startup.track') }}" class="menu-item" data-tooltip="Track Submissions">
+            <a href="{{ route('startup.track-submissions') }}" class="menu-item" data-tooltip="Track Submissions">
                 <i class="fas fa-search-location"></i>
                 <span>Track Submissions</span>
             </a>

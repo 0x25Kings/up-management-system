@@ -16,10 +16,9 @@ use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\TeamLeaderController;
+use App\Http\Controllers\PageController;
 
-Route::get('/', function () {
-    return view('welcome');
-})->name('home');
+Route::get('/', [PageController::class, 'welcome'])->name('home');
 
 // Booking Routes (Public)
 Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
@@ -101,7 +100,7 @@ Route::middleware(['maintenance', 'startup.auth'])->prefix('startup')->name('sta
     // MOA Request
     Route::get('/request-moa', [StartupDashboardController::class, 'showMoaForm'])->name('request-moa');
     Route::post('/request-moa', [StartupDashboardController::class, 'submitMoa'])->name('moa.submit');
-    Route::get('/moa-template-download', [StartupDashboardController::class, 'downloadMoaTemplate'])->name('moa-template');
+    Route::get('/moa-template-download', [StartupDashboardController::class, 'downloadMoaTemplate'])->name('moa-template-download');
 
     // MOA Submission (upload signed MOA document)
     Route::get('/submit-moa', [StartupDashboardController::class, 'showSubmitMoaForm'])->name('submit-moa');
@@ -125,7 +124,7 @@ Route::middleware(['maintenance', 'startup.auth'])->prefix('startup')->name('sta
     Route::post('/progress', [StartupDashboardController::class, 'submitProgress'])->name('progress.submit');
 
     // Track Submissions
-    Route::get('/track', [StartupDashboardController::class, 'trackSubmissions'])->name('track');
+    Route::get('/track', [StartupDashboardController::class, 'trackSubmissions'])->name('track-submissions');
     Route::get('/track/{trackingCode}', [StartupDashboardController::class, 'trackSubmissionDetails'])->name('track.details');
 
     // Notifications
@@ -149,20 +148,10 @@ Route::middleware(['maintenance', 'startup.auth'])->prefix('startup')->name('sta
     Route::get('/activity-log', [StartupDashboardController::class, 'activityLog'])->name('activity-log');
 });
 
-Route::get('/agency', function () {
-    return view('portals.agency');
-})->name('agency.portal');
+Route::get('/agency', [PageController::class, 'agency'])->name('agency.portal');
 
 // Public route to download task documents
-Route::get('/documents/download/{filename}', function ($filename) {
-    $path = storage_path('app/public/tasks/documents/' . basename($filename));
-
-    if (!file_exists($path)) {
-        abort(404);
-    }
-
-    return response()->download($path);
-})->name('documents.download');
+Route::get('/documents/download/{filename}', [PageController::class, 'downloadDocument'])->name('task.documents.download');
 
 // Admin Authentication Routes (also used by Team Leaders)
 Route::get('/admin/login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
@@ -254,19 +243,7 @@ Route::middleware(['admin'])->group(function () {
     Route::post('/admin/moa-requests/{submission}/reject', [AdminStartupController::class, 'rejectMoaRequest'])->name('admin.moa-requests.reject');
 
     // Serve payment proof files securely (admin-authenticated)
-    Route::get('/admin/payment-proof', function (\Illuminate\Http\Request $request) {
-        $path = $request->query('path', '');
-        if (!$path) abort(404);
-        // Prevent directory traversal
-        $path = ltrim(str_replace(['..', '//'], '', $path), '/');
-        $fullPath = storage_path('app/public/' . $path);
-        if (!file_exists($fullPath)) abort(404, 'File not found');
-        $mime = mime_content_type($fullPath) ?: 'application/octet-stream';
-        return response()->file($fullPath, [
-            'Content-Type' => $mime,
-            'Content-Disposition' => 'inline',
-        ]);
-    })->name('admin.payment-proof');
+    Route::get('/admin/payment-proof', [PageController::class, 'paymentProof'])->name('admin.payment-proof');
 
     // Reminder Routes (Admin)
     Route::post('/admin/send-moa-reminder/{startup}', [AdminStartupController::class, 'sendMoaReminder'])->name('admin.send-moa-reminder');

@@ -514,7 +514,7 @@
 </div>
 
 <!-- Filters -->
-<form action="{{ route('startup.track') }}" method="GET" class="filter-card">
+<form action="{{ route('startup.track-submissions') }}" method="GET" class="filter-card">
     <div class="filter-group">
         <label>Type:</label>
         <select name="type" class="filter-select" onchange="this.form.submit()">
@@ -541,7 +541,7 @@
         <button type="submit" class="search-btn"><i class="fas fa-arrow-right"></i></button>
     </div>
     @if($search || $type !== 'all' || $status !== 'all')
-        <a href="{{ route('startup.track') }}" class="clear-filters-btn" title="Clear all filters">
+        <a href="{{ route('startup.track-submissions') }}" class="clear-filters-btn" title="Clear all filters">
             <i class="fas fa-times"></i> Clear
         </a>
     @endif
