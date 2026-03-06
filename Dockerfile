@@ -9,10 +9,11 @@ RUN apt-get update && apt-get install -y \
     libpng-dev \
     libonig-dev \
     libxml2-dev \
-    zip
+    zip \
+    libpq-dev
 
 # Install PHP extensions
-RUN docker-php-ext-install pdo pdo_pgsql pgsql mbstring exif pcntl bcmath gd
+RUN docker-php-ext-install pdo_pgsql pgsql mbstring exif pcntl bcmath gd
 
 RUN apt-get update && apt-get install -y libpq-dev
 
