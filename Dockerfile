@@ -21,6 +21,10 @@ COPY . .
 
 RUN composer install --no-dev --optimize-autoloader
 
+RUN mkdir -p storage/framework/sessions \
+    storage/framework/cache \
+    storage/framework/views
+
 RUN chown -R www-data:www-data storage bootstrap/cache
 
 RUN a2enmod rewrite
