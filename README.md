@@ -1,59 +1,206 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# UP Management System
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A multi-portal web application built with Laravel 12 for managing interns, startup incubatees, bookings, and administrative operations.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Table of Contents
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- [Overview](#overview)
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Portals](#portals)
+- [Project Structure](#project-structure)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## Overview
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+The UP Management System is an all-in-one platform designed to streamline the management of:
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- **Interns** from partnered schools — tracking attendance, tasks, and documents
+- **Startup incubatees** — handling MOA workflows, document submissions, payments, and room issue reports
+- **Facility bookings** — managing room/space reservation requests
+- **Team Leaders** — overseeing intern groups and submitting periodic reports
 
-## Laravel Sponsors
+---
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## Features
 
-### Premium Partners
+### Admin Portal
+- Dashboard with charts, recent activity, and system statistics
+- Intern management: approval, profile editing, task assignment
+- School/institution management with intern quotas and batch approval
+- Startup account management: create accounts, toggle status, reset passwords
+- Startup submissions review: documents, MOA requests, payments, room issues
+- Incubatee schedule management: payment schedules, MOA expiry dates, automated reminders
+- Project progress review and responses
+- Booking management: approve, reject, email notifications
+- Blocked dates management
+- Digital records management: folder & file CRUD with access controls
+- Event creation and management
+- Team Leader management: create, update, permissions, promote interns
+- Team Leader report review
+- Data exports: interns, attendance, tasks, bookings
+- System settings and data cleanup tools
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### Intern Portal
+- Self-registration with school selection
+- Code-based access (no password required by default)
+- Time-in / time-out attendance tracking with real-time status
+- Task management: view, update progress, complete tasks with checklists
+- Document management: upload files, organize into folders
+- Event calendar view
+- Profile and profile picture management
 
-## Contributing
+### Startup Portal
+- Account login with password or one-time verify code
+- Document submission and tracking
+- MOA request, template download, and signed document upload
+- Payment submission
+- Room issue reporting
+- Project progress reporting
+- Submission history and tracking by reference code
+- Notifications (read/unread)
+- Billing and payment history
+- Activity log
+- Profile and password management
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Team Leader Portal
+- Dashboard with live intern, task, and attendance stats
+- Intern oversight (view-only)
+- Full task CRUD for assigned intern group
+- Attendance viewing
+- Weekly/periodic report creation and submission
+- Blocked dates management
+- Switch to Intern Portal view
 
-## Code of Conduct
+---
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Tech Stack
 
-## Security Vulnerabilities
+| Layer        | Technology                   |
+|--------------|------------------------------|
+| Backend      | PHP 8.2+, Laravel 12         |
+| Frontend     | Tailwind CSS 4, Vite 7       |
+| HTTP Client  | Axios                        |
+| Database     | MySQL (via Laravel Eloquent) |
+| Queue        | Laravel Queue                |
+| Testing      | PHPUnit 11                   |
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+---
 
-## License
+## Prerequisites
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+- PHP >= 8.2
+- Composer
+- Node.js >= 18 & npm
+- MySQL (or compatible database)
+
+---
+
+## Installation
+
+### Quick Setup
+
+```bash
+git clone <repository-url>
+cd up-management-system
+composer run setup
+```
+
+This single command will:
+1. Install PHP dependencies (`composer install`)
+2. Copy `.env.example` to `.env`
+3. Generate the application key
+4. Run all database migrations
+5. Install Node dependencies (`npm install`)
+6. Build frontend assets (`npm run build`)
+
+### Manual Setup
+
+```bash
+# 1. Install dependencies
+composer install
+npm install
+
+# 2. Configure environment
+cp .env.example .env
+php artisan key:generate
+
+# 3. Set up the database in .env, then run migrations
+php artisan migrate
+
+# 4. Seed the admin account
+php artisan db:seed --class=AdminSeeder
+
+# 5. Set up storage symlink
+php artisan storage:link
+
+# 6. Build frontend assets
+npm run build
+```
+
+---
+
+## Usage
+
+### Development Server
+
+Run all services concurrently (PHP server, queue worker, log viewer, and Vite dev server):
+
+```bash
+composer run dev
+```
+
+### Run Tests
+
+```bash
+composer run test
+```
+
+---
+
+## Portals
+
+| Portal      | URL            | Access Method              |
+|-------------|----------------|----------------------------|
+| Home        | `/`            | Public                     |
+| Intern      | `/intern`      | Registration / Access Code |
+| Startup     | `/startup`     | Email + Password / Code    |
+| Team Leader | `/team-leader` | Admin credentials (role)   |
+| Admin       | `/admin`       | Admin credentials          |
+
+> **Note:** The Intern and Startup portals support a **maintenance mode** that can be toggled from the Admin settings to temporarily restrict public access.
+
+---
+
+## Project Structure
+
+```
+app/
+├── Http/
+│   ├── Controllers/       # Route controllers for all portals
+│   └── Middleware/        # Admin, Team Leader, Startup auth & maintenance guards
+├── Models/                # Eloquent models (Intern, Startup, Attendance, Task, etc.)
+└── Providers/
+
+database/
+├── migrations/            # All database schema migrations
+├── factories/
+└── seeders/               # AdminSeeder and others
+
+resources/
+├── views/                 # Blade templates for all portals
+├── css/
+└── js/
+
+routes/
+└── web.php                # All application routes
+
+public/
+└── images/                # Public static images
+```
