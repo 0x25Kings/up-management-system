@@ -440,7 +440,11 @@ class AdminStartupController extends Controller
                     'created_at_iso' => $moa->created_at->toISOString(),
                     'reviewed_at' => $moa->reviewed_at ? $moa->reviewed_at->format('M d, Y h:i A') : null,
                     'profile_photo_url' => ($moa->startup && $moa->startup->profile_photo)
-                        ? \Storage::disk(config('filesystems.upload_disk'))->url($moa->startup->profile_photo) : null,
+                        ? (function() use ($moa) {
+                            /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+                            $disk = Storage::disk(config('filesystems.upload_disk'));
+                            return $disk->url($moa->startup->profile_photo);
+                        })() : null,
                 ];
             });
 
