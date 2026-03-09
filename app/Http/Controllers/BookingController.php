@@ -177,7 +177,7 @@ class BookingController extends Controller
         if ($request->hasFile('attachment')) {
             $file = $request->file('attachment');
             $filename = time() . '_' . preg_replace('/[^a-zA-Z0-9_.-]/', '_', $file->getClientOriginalName());
-            $path = $file->storeAs('booking-attachments', $filename, 'public');
+            $path = $file->storeAs('booking-attachments', $filename, config('filesystems.upload_disk'));
             $validated['attachment_path'] = $path;
         }
 

@@ -34,7 +34,7 @@ class StartupController extends Controller
 
         $file = $request->file('document');
         $filename = time() . '_' . $file->getClientOriginalName();
-        $path = $file->storeAs('startup-documents', $filename, 'public');
+        $path = $file->storeAs('startup-documents', $filename, config('filesystems.upload_disk'));
 
         $submission = StartupSubmission::create([
             'tracking_code' => StartupSubmission::generateTrackingCode('document'),
@@ -76,7 +76,7 @@ class StartupController extends Controller
         if ($request->hasFile('photo')) {
             $photo = $request->file('photo');
             $filename = time() . '_' . $photo->getClientOriginalName();
-            $photoPath = $photo->storeAs('room-issues', $filename, 'public');
+            $photoPath = $photo->storeAs('room-issues', $filename, config('filesystems.upload_disk'));
         }
 
         $issue = RoomIssue::create([
@@ -149,7 +149,7 @@ class StartupController extends Controller
 
         $file = $request->file('payment_proof');
         $filename = time() . '_' . $file->getClientOriginalName();
-        $path = $file->storeAs('payment-proofs', $filename, 'public');
+        $path = $file->storeAs('payment-proofs', $filename, config('filesystems.upload_disk'));
 
         $submission = StartupSubmission::create([
             'tracking_code' => StartupSubmission::generateTrackingCode('finance'),
@@ -243,13 +243,15 @@ class StartupController extends Controller
     public function downloadMoaTemplate()
     {
         // You can create a real MOA template file and store it in storage/app/public/templates/
-        $templatePath = storage_path('app/public/templates/moa-template.pdf');
-        
-        if (!file_exists($templatePath)) {
+        $templatePath = 'templates/moa-template.pdf';
+
+        if (!Storage::disk(config('filesystems.upload_disk'))->exists($templatePath)) {
             return redirect()->route('startup.portal')
                 ->with('error', 'MOA template is not available yet. Please contact the admin.');
         }
 
-        return response()->download($templatePath, 'MOA-Template.pdf');
+        /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+        $disk = Storage::disk(config('filesystems.upload_disk'));
+        return $disk->download($templatePath, 'MOA-Template.pdf');
     }
 }

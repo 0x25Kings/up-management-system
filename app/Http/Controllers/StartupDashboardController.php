@@ -161,7 +161,7 @@ class StartupDashboardController extends Controller
 
         $file = $request->file('document');
         $filename = time() . '_' . $file->getClientOriginalName();
-        $path = $file->storeAs('startup-documents', $filename, 'public');
+        $path = $file->storeAs('startup-documents', $filename, config('filesystems.upload_disk'));
 
         $submission = StartupSubmission::create([
             'startup_id' => $startup->id,
@@ -213,7 +213,7 @@ class StartupDashboardController extends Controller
         if ($request->hasFile('photo')) {
             $photo = $request->file('photo');
             $filename = time() . '_' . $photo->getClientOriginalName();
-            $photoPath = $photo->storeAs('room-issues', $filename, 'public');
+            $photoPath = $photo->storeAs('room-issues', $filename, config('filesystems.upload_disk'));
         }
 
         $issue = RoomIssue::create([
@@ -266,7 +266,7 @@ class StartupDashboardController extends Controller
         if ($request->hasFile('document')) {
             $file = $request->file('document');
             $filename = time() . '_' . $file->getClientOriginalName();
-            $path = $file->storeAs('startup-moa', $filename, 'public');
+            $path = $file->storeAs('startup-moa', $filename, config('filesystems.upload_disk'));
             $originalFilename = $file->getClientOriginalName();
         }
 
@@ -327,7 +327,7 @@ class StartupDashboardController extends Controller
 
         $file = $request->file('document');
         $filename = time() . '_' . $file->getClientOriginalName();
-        $path = $file->storeAs('startup-moa', $filename, 'public');
+        $path = $file->storeAs('startup-moa', $filename, config('filesystems.upload_disk'));
 
         $submission = StartupSubmission::create([
             'startup_id' => $startup->id,
@@ -405,7 +405,7 @@ class StartupDashboardController extends Controller
         }
 
         $filename = time() . '_' . $file->getClientOriginalName();
-        $path = $file->storeAs('startup-payments', $filename, 'public');
+        $path = $file->storeAs('startup-payments', $filename, config('filesystems.upload_disk'));
 
         $submission = StartupSubmission::create([
             'startup_id' => $startup->id,
@@ -475,13 +475,13 @@ class StartupDashboardController extends Controller
         ]);
 
         // Delete old photo if exists
-        if ($startup->profile_photo && Storage::disk('public')->exists($startup->profile_photo)) {
-            Storage::disk('public')->delete($startup->profile_photo);
+        if ($startup->profile_photo && Storage::disk(config('filesystems.upload_disk'))->exists($startup->profile_photo)) {
+            Storage::disk(config('filesystems.upload_disk'))->delete($startup->profile_photo);
         }
 
         $file = $request->file('profile_photo');
         $filename = 'startup_' . $startup->id . '_' . time() . '.' . $file->getClientOriginalExtension();
-        $path = $file->storeAs('startup-photos', $filename, 'public');
+        $path = $file->storeAs('startup-photos', $filename, config('filesystems.upload_disk'));
 
         $startup->update(['profile_photo' => $path]);
 
@@ -536,7 +536,7 @@ class StartupDashboardController extends Controller
         if ($request->hasFile('attachment')) {
             $file = $request->file('attachment');
             $filename = time() . '_' . $file->getClientOriginalName();
-            $path = $file->storeAs('startup-progress', $filename, 'public');
+            $path = $file->storeAs('startup-progress', $filename, config('filesystems.upload_disk'));
             $originalFilename = $file->getClientOriginalName();
         }
 
@@ -826,13 +826,16 @@ class StartupDashboardController extends Controller
         }
 
         // Check if file exists
-        if (!Storage::disk('public')->exists($submission->admin_moa_document_path)) {
+        if (!Storage::disk(config('filesystems.upload_disk'))->exists($submission->admin_moa_document_path)) {
             abort(404, 'MOA document file not found');
         }
 
-        // Use response()->download() to avoid IDE false positive
-        $filePath = Storage::disk('public')->path($submission->admin_moa_document_path);
-        return response()->download($filePath, $submission->admin_moa_document_filename ?? 'moa-document.pdf');
+        /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+        $disk = Storage::disk(config('filesystems.upload_disk'));
+        return $disk->download(
+            $submission->admin_moa_document_path,
+            $submission->admin_moa_document_filename ?? 'moa-document.pdf'
+        );
     }
 
     // ==========================================

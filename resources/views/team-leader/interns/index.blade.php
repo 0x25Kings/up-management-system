@@ -52,7 +52,7 @@
                         <td>
                             <div style="display: flex; align-items: center; gap: 12px;">
                                 @if($intern->profile_picture && file_exists(public_path('storage/' . $intern->profile_picture)))
-                                    <img src="{{ asset('storage/' . $intern->profile_picture) }}" alt="{{ $intern->name }}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex-shrink: 0;">
+                                    <img src="{{ \Storage::disk(config('filesystems.upload_disk'))->url($intern->profile_picture) }}" alt="{{ $intern->name }}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex-shrink: 0;">
                                 @else
                                     <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; font-weight: 600; flex-shrink: 0;">
                                         {{ strtoupper(substr($intern->name, 0, 1)) }}

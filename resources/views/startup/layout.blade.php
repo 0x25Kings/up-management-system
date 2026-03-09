@@ -1521,7 +1521,7 @@
                 <button type="button" class="profile-btn" id="profileBtn">
                     <div class="avatar">
                         @if($startup->profile_photo)
-                            <img src="{{ asset('storage/' . $startup->profile_photo) }}" alt="Profile" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                            <img src="{{ \Storage::disk(config('filesystems.upload_disk'))->url($startup->profile_photo) }}" alt="Profile" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
                         @else
                             @php
                                 $words = explode(' ', $startup->company_name);
@@ -1546,7 +1546,7 @@
                     <div class="profile-menu-header">
                         <div class="avatar">
                             @if($startup->profile_photo)
-                                <img src="{{ asset('storage/' . $startup->profile_photo) }}" alt="Profile" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                                <img src="{{ \Storage::disk(config('filesystems.upload_disk'))->url($startup->profile_photo) }}" alt="Profile" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
                             @else
                                 @php
                                     $words = explode(' ', $startup->company_name);

@@ -467,11 +467,11 @@
                                 {{-- View uploaded file --}}
                                 @if($submission->file_path)
                                     @if($submission->type === 'finance')
-                                        <button onclick="viewProof('{{ asset('storage/' . $submission->file_path) }}', '{{ $submission->title ?? 'Payment Proof' }}')" style="width: 34px; height: 34px; border: 1px solid #E5E7EB; border-radius: 8px; background: white; display: inline-flex; align-items: center; justify-content: center; color: #7B1D3A; cursor: pointer; transition: all 0.3s; font-size: 14px;" title="View Proof">
+                                        <button onclick="viewProof('{{ \Storage::disk(config('filesystems.upload_disk'))->url($submission->file_path) }}', '{{ $submission->title ?? 'Payment Proof' }}')" style="width: 34px; height: 34px; border: 1px solid #E5E7EB; border-radius: 8px; background: white; display: inline-flex; align-items: center; justify-content: center; color: #7B1D3A; cursor: pointer; transition: all 0.3s; font-size: 14px;" title="View Proof">
                                             <i class="fas fa-eye"></i>
                                         </button>
                                     @else
-                                        <a href="{{ asset('storage/' . $submission->file_path) }}" target="_blank" style="width: 34px; height: 34px; border: 1px solid #E5E7EB; border-radius: 8px; background: white; display: inline-flex; align-items: center; justify-content: center; color: #7B1D3A; text-decoration: none; transition: all 0.3s; font-size: 14px;" title="View Submission">
+                                        <a href="{{ \Storage::disk(config('filesystems.upload_disk'))->url($submission->file_path) }}" target="_blank" style="width: 34px; height: 34px; border: 1px solid #E5E7EB; border-radius: 8px; background: white; display: inline-flex; align-items: center; justify-content: center; color: #7B1D3A; text-decoration: none; transition: all 0.3s; font-size: 14px;" title="View Submission">
                                             <i class="fas fa-eye"></i>
                                         </a>
                                     @endif

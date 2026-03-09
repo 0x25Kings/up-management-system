@@ -136,7 +136,7 @@
                     <!-- Actions -->
                     <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
                         @if($moa->file_path)
-                            <a href="{{ asset('storage/' . $moa->file_path) }}" target="_blank" title="View Your Submission" style="width: 40px; height: 40px; border: 1px solid #E5E7EB; border-radius: 10px; background: white; display: flex; align-items: center; justify-content: center; color: #7B1D3A; text-decoration: none; transition: all 0.3s; font-size: 16px;">
+                            <a href="{{ \Storage::disk(config('filesystems.upload_disk'))->url($moa->file_path) }}" target="_blank" title="View Your Submission" style="width: 40px; height: 40px; border: 1px solid #E5E7EB; border-radius: 10px; background: white; display: flex; align-items: center; justify-content: center; color: #7B1D3A; text-decoration: none; transition: all 0.3s; font-size: 16px;">
                                 <i class="fas fa-eye"></i>
                             </a>
                         @endif

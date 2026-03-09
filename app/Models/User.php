@@ -38,11 +38,6 @@ class User extends Authenticatable
         'profile_picture',
     ];
 
-    public function setPasswordAttribute($value)
-{
-    $this->attributes['password'] = Hash::make($value);
-}
-
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -76,19 +71,19 @@ class User extends Authenticatable
     {
         $year = date('Y');
         $prefix = 'TL';
-        
+
         // Get the last reference code for this year
         $lastCode = static::where('reference_code', 'like', "{$prefix}-{$year}-%")
             ->orderBy('reference_code', 'desc')
             ->value('reference_code');
-        
+
         if ($lastCode) {
             $lastNumber = (int) substr($lastCode, -4);
             $newNumber = $lastNumber + 1;
         } else {
             $newNumber = 1;
         }
-        
+
         return sprintf('%s-%s-%04d', $prefix, $year, $newNumber);
     }
 

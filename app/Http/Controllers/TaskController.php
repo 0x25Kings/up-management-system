@@ -127,7 +127,7 @@ class TaskController extends Controller
 
             foreach ($request->file('documents') as $file) {
                 $filename = $file->getClientOriginalName();
-                $file->storeAs($path, $filename, 'public');
+                $file->storeAs($path, $filename, config('filesystems.upload_disk'));
                 $uploadedDocs[] = "{$path}/{$filename}";
             }
 

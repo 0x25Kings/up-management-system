@@ -98,7 +98,7 @@ class DocumentController extends Controller
             $folderPath = $baseDirectory . '/' . $folderName;
 
             // Create the physical directory
-            Storage::disk('local')->makeDirectory($folderPath);
+            Storage::disk(config('filesystems.upload_disk'))->makeDirectory($folderPath);
 
             $folder = DocumentFolder::create([
                 'intern_id' => null,
@@ -134,10 +134,10 @@ class DocumentController extends Controller
     private function getFolderSize($folderPath)
     {
         $totalSize = 0;
-        $files = Storage::disk('local')->allFiles($folderPath);
+        $files = Storage::disk(config('filesystems.upload_disk'))->allFiles($folderPath);
 
         foreach ($files as $file) {
-            $totalSize += Storage::disk('local')->size($file);
+            $totalSize += Storage::disk(config('filesystems.upload_disk'))->size($file);
         }
 
         return $totalSize;
@@ -223,11 +223,11 @@ class DocumentController extends Controller
                 'folder_id' => $folder->id,
                 'folder_name' => $folder->name,
                 'storage_path' => $directory,
-                'folder_exists' => Storage::disk('local')->exists($directory)
+                'folder_exists' => Storage::disk(config('filesystems.upload_disk'))->exists($directory)
             ]);
 
             // Ensure directory exists
-            Storage::disk('local')->makeDirectory($directory);
+            Storage::disk(config('filesystems.upload_disk'))->makeDirectory($directory);
 
             $file = $request->file('file');
 
@@ -239,7 +239,7 @@ class DocumentController extends Controller
             $filename = time() . '_' . $sanitizedName . '.' . $extension;
 
             // Store file
-            $path = Storage::disk('local')->putFileAs($directory, $file, $filename);
+            $path = Storage::disk(config('filesystems.upload_disk'))->putFileAs($directory, $file, $filename);
 
             if (!$path) {
                 return response()->json(['success' => false, 'message' => 'Failed to store file'], 500);
@@ -248,12 +248,11 @@ class DocumentController extends Controller
             Log::info('File uploaded successfully', [
                 'filename' => $filename,
                 'storage_path' => $path,
-                'full_path' => Storage::disk('local')->path($path),
-                'file_exists' => Storage::disk('local')->exists($path)
+                'file_exists' => Storage::disk(config('filesystems.upload_disk'))->exists($path)
             ]);
 
             // Get file size using Storage facade to avoid path issues
-            $fileSize = $this->formatBytes(Storage::disk('local')->size($path));
+            $fileSize = $this->formatBytes(Storage::disk(config('filesystems.upload_disk'))->size($path));
 
             $document = Document::create([
                 'intern_id' => $internId,
@@ -345,16 +344,16 @@ class DocumentController extends Controller
             $files = [];
             $subfolders = [];
 
-            if (Storage::disk('local')->exists($storagePath)) {
+            if (Storage::disk(config('filesystems.upload_disk'))->exists($storagePath)) {
                 // Get subfolders from database (created by interns)
                 $dbSubfolders = DocumentFolder::where('parent_folder_id', $folderId)->get();
                 foreach ($dbSubfolders as $subfolder) {
                     $subfolderStoragePath = str_replace('\\', '/', (string) $subfolder->storage_path);
                     $subfolderItemCount = 0;
-                    if ($subfolderStoragePath !== '' && Storage::disk('local')->exists($subfolderStoragePath)) {
+                    if ($subfolderStoragePath !== '' && Storage::disk(config('filesystems.upload_disk'))->exists($subfolderStoragePath)) {
                         // Count both files and subdirectories
-                        $filesCount = count(Storage::disk('local')->files($subfolderStoragePath));
-                        $dirsCount = count(Storage::disk('local')->directories($subfolderStoragePath));
+                        $filesCount = count(Storage::disk(config('filesystems.upload_disk'))->files($subfolderStoragePath));
+                        $dirsCount = count(Storage::disk(config('filesystems.upload_disk'))->directories($subfolderStoragePath));
                         // Also count subfolders from database
                         $dbNestedSubfoldersCount = DocumentFolder::where('parent_folder_id', $subfolder->id)->count();
                         $subfolderItemCount = $filesCount + max($dirsCount, $dbNestedSubfoldersCount);
@@ -371,11 +370,11 @@ class DocumentController extends Controller
                 }
 
                 // Get files
-                $filesList = Storage::disk('local')->files($storagePath);
+                $filesList = Storage::disk(config('filesystems.upload_disk'))->files($storagePath);
                 foreach ($filesList as $file) {
                     $fileName = basename($file);
-                    $size = Storage::disk('local')->size($file);
-                    $lastModified = Storage::disk('local')->lastModified($file);
+                    $size = Storage::disk(config('filesystems.upload_disk'))->size($file);
+                    $lastModified = Storage::disk(config('filesystems.upload_disk'))->lastModified($file);
 
                     $files[] = [
                         'name' => $fileName,
@@ -456,15 +455,14 @@ class DocumentController extends Controller
 
         if ($document) {
             // Check if file exists
-            if (!Storage::disk('local')->exists($document->file_path)) {
+            if (!Storage::disk(config('filesystems.upload_disk'))->exists($document->file_path)) {
                 return response()->json(['success' => false, 'message' => 'File not found'], 404);
             }
 
             // Get file content and return as download
-            return response()->download(
-                Storage::disk('local')->path($document->file_path),
-                $document->name
-            );
+            /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+            $disk = Storage::disk(config('filesystems.upload_disk'));
+            return $disk->download($document->file_path, $document->name);
         }
 
         // If not in database, treat documentId as a file path (for shared folder files)
@@ -476,15 +474,14 @@ class DocumentController extends Controller
             return response()->json(['success' => false, 'message' => 'Access denied'], 403);
         }
 
-        if (!Storage::disk('local')->exists($filePath)) {
+        if (!Storage::disk(config('filesystems.upload_disk'))->exists($filePath)) {
             return response()->json(['success' => false, 'message' => 'File not found'], 404);
         }
 
         $fileName = basename($filePath);
-        return response()->download(
-            Storage::disk('local')->path($filePath),
-            $fileName
-        );
+        /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+        $disk = Storage::disk(config('filesystems.upload_disk'));
+        return $disk->download($filePath, $fileName);
     }
 
     /**
@@ -522,9 +519,9 @@ class DocumentController extends Controller
                 $itemCount = 0;
                 $storagePath = $folder->storage_path ?? ('Shared/' . preg_replace('/[^A-Za-z0-9_\-]/', '_', $folder->name));
 
-                if (Storage::disk('local')->exists($storagePath)) {
+                if (Storage::disk(config('filesystems.upload_disk'))->exists($storagePath)) {
                     // Count all files recursively
-                    $allFiles = Storage::disk('local')->allFiles($storagePath);
+                    $allFiles = Storage::disk(config('filesystems.upload_disk'))->allFiles($storagePath);
                     $itemCount = count($allFiles);
                 }
 
@@ -541,12 +538,12 @@ class DocumentController extends Controller
 
             // Get Internship folder
             $internshipPath = 'Internship';
-            if (Storage::disk('local')->exists($internshipPath)) {
-                $directories = Storage::disk('local')->directories($internshipPath);
+            if (Storage::disk(config('filesystems.upload_disk'))->exists($internshipPath)) {
+                $directories = Storage::disk(config('filesystems.upload_disk'))->directories($internshipPath);
 
                 foreach ($directories as $dir) {
                     $folderName = basename($dir);
-                    $files = Storage::disk('local')->allFiles($dir);
+                    $files = Storage::disk(config('filesystems.upload_disk'))->allFiles($dir);
 
                     $folders[] = [
                         'name' => $folderName,
@@ -586,8 +583,8 @@ class DocumentController extends Controller
             Log::info('Admin loading folder contents', [
                 'original_path' => $request->query('path', ''),
                 'normalized_path' => $path,
-                'exists' => Storage::disk('local')->exists($path),
-                'full_storage_path' => Storage::disk('local')->path($path)
+                'exists' => Storage::disk(config('filesystems.upload_disk'))->exists($path),
+                'full_storage_path' => $path
             ]);
 
             // Check if this path corresponds to a database folder
@@ -607,11 +604,11 @@ class DocumentController extends Controller
             }
 
             // Get subdirectories from filesystem
-            $directories = Storage::disk('local')->directories($path);
-            $files = Storage::disk('local')->files($path);
+            $directories = Storage::disk(config('filesystems.upload_disk'))->directories($path);
+            $files = Storage::disk(config('filesystems.upload_disk'))->files($path);
 
             // Also try to list all files recursively to see if files exist deeper
-            $allFiles = Storage::disk('local')->allFiles($path);
+            $allFiles = Storage::disk(config('filesystems.upload_disk'))->allFiles($path);
 
             Log::info('Storage scan results', [
                 'path' => $path,
@@ -630,8 +627,8 @@ class DocumentController extends Controller
 
                 // Add database-tracked subfolders
                 foreach ($dbSubfolders as $subfolder) {
-                    if ($subfolder->storage_path && Storage::disk('local')->exists($subfolder->storage_path)) {
-                        $subFiles = Storage::disk('local')->allFiles($subfolder->storage_path);
+                    if ($subfolder->storage_path && Storage::disk(config('filesystems.upload_disk'))->exists($subfolder->storage_path)) {
+                        $subFiles = Storage::disk(config('filesystems.upload_disk'))->allFiles($subfolder->storage_path);
 
                         $items[] = [
                             'id' => $subfolder->id,
@@ -648,7 +645,7 @@ class DocumentController extends Controller
                 // Add filesystem folders (for non-database folders)
                 foreach ($directories as $dir) {
                     $folderName = basename($dir);
-                    $subFiles = Storage::disk('local')->allFiles($dir);
+                    $subFiles = Storage::disk(config('filesystems.upload_disk'))->allFiles($dir);
 
                     $items[] = [
                         'name' => $folderName,
@@ -669,8 +666,8 @@ class DocumentController extends Controller
 
             foreach ($files as $file) {
                 $fileName = basename($file);
-                $size = Storage::disk('local')->size($file);
-                $lastModified = Storage::disk('local')->lastModified($file);
+                $size = Storage::disk(config('filesystems.upload_disk'))->size($file);
+                $lastModified = Storage::disk(config('filesystems.upload_disk'))->lastModified($file);
 
                 // Get mime type from file extension
                 $extension = pathinfo($fileName, PATHINFO_EXTENSION);
@@ -736,16 +733,15 @@ class DocumentController extends Controller
 
             $path = $request->query('path');
 
-            if (!$path || !Storage::disk('local')->exists($path)) {
+            if (!$path || !Storage::disk(config('filesystems.upload_disk'))->exists($path)) {
                 return response()->json(['success' => false, 'message' => 'File not found'], 404);
             }
 
             $fileName = basename($path);
 
-            return response()->download(
-                Storage::disk('local')->path($path),
-                $fileName
-            );
+            /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+            $disk = Storage::disk(config('filesystems.upload_disk'));
+            return $disk->download($path, $fileName);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -789,7 +785,7 @@ class DocumentController extends Controller
             $folderName = preg_replace('/[^A-Za-z0-9_\-]/', '_', $request->name);
             $storagePath = "Shared/" . $folderName;
 
-            Storage::disk('local')->makeDirectory($storagePath);
+            Storage::disk(config('filesystems.upload_disk'))->makeDirectory($storagePath);
 
             $folder = DocumentFolder::create([
                 'name' => $request->name,
@@ -849,8 +845,8 @@ class DocumentController extends Controller
             }
 
             // Ensure directory exists
-            if (!Storage::disk('local')->exists($path)) {
-                Storage::disk('local')->makeDirectory($path);
+            if (!Storage::disk(config('filesystems.upload_disk'))->exists($path)) {
+                Storage::disk(config('filesystems.upload_disk'))->makeDirectory($path);
             }
 
             // Sanitize filename
@@ -861,7 +857,7 @@ class DocumentController extends Controller
             $filename = time() . '_' . $sanitizedName . '.' . $extension;
 
             // Store file
-            $storedPath = Storage::disk('local')->putFileAs($path, $file, $filename);
+            $storedPath = Storage::disk(config('filesystems.upload_disk'))->putFileAs($path, $file, $filename);
 
             if (!$storedPath) {
                 return response()->json([
@@ -923,10 +919,10 @@ class DocumentController extends Controller
                 $storagePath = str_replace('\\', '/', (string) $folder->storage_path);
 
                 $itemCount = 0;
-                if ($storagePath !== '' && Storage::disk('local')->exists($storagePath)) {
+                if ($storagePath !== '' && Storage::disk(config('filesystems.upload_disk'))->exists($storagePath)) {
                     // Count both files and directories in the folder
-                    $filesCount = count(Storage::disk('local')->files($storagePath));
-                    $dirsCount = count(Storage::disk('local')->directories($storagePath));
+                    $filesCount = count(Storage::disk(config('filesystems.upload_disk'))->files($storagePath));
+                    $dirsCount = count(Storage::disk(config('filesystems.upload_disk'))->directories($storagePath));
                     // Also count subfolders from database
                     $dbSubfoldersCount = DocumentFolder::where('parent_folder_id', $folder->id)->count();
                     $itemCount = $filesCount + max($dirsCount, $dbSubfoldersCount);
@@ -969,8 +965,8 @@ class DocumentController extends Controller
                 $storagePath = $folder->storage_path ?? ('Shared/' . preg_replace('/[^A-Za-z0-9_\-]/', '_', $folder->name));
                 $itemCount = 0;
 
-                if (Storage::disk('local')->exists($storagePath)) {
-                    $itemCount = count(Storage::disk('local')->allFiles($storagePath));
+                if (Storage::disk(config('filesystems.upload_disk'))->exists($storagePath)) {
+                    $itemCount = count(Storage::disk(config('filesystems.upload_disk'))->allFiles($storagePath));
                 }
 
                 $sharedFolders[] = [
@@ -990,14 +986,14 @@ class DocumentController extends Controller
             $internshipPath = 'Internship';
             $directories = [];
 
-            if (Storage::disk('local')->exists($internshipPath)) {
-                $directories = Storage::disk('local')->directories($internshipPath);
+            if (Storage::disk(config('filesystems.upload_disk'))->exists($internshipPath)) {
+                $directories = Storage::disk(config('filesystems.upload_disk'))->directories($internshipPath);
             }
 
             $internFolders = [];
             foreach ($directories as $dir) {
                 $folderName = basename($dir);
-                $files = Storage::disk('local')->allFiles($dir);
+                $files = Storage::disk(config('filesystems.upload_disk'))->allFiles($dir);
 
                 $internFolders[] = [
                     'name' => $folderName,
@@ -1038,8 +1034,8 @@ class DocumentController extends Controller
 
             // Count intern folders from filesystem
             $internshipPath = 'Internship';
-            $internFolders = Storage::disk('local')->exists($internshipPath)
-                ? Storage::disk('local')->directories($internshipPath)
+            $internFolders = Storage::disk(config('filesystems.upload_disk'))->exists($internshipPath)
+                ? Storage::disk(config('filesystems.upload_disk'))->directories($internshipPath)
                 : [];
 
             $totalFolders = $sharedFolderCount + count($internFolders);
@@ -1059,11 +1055,11 @@ class DocumentController extends Controller
 
             foreach ($rootSharedFolders as $folder) {
                 $path = str_replace('\\', '/', $folder->storage_path);
-                if (Storage::disk('local')->exists($path)) {
-                    $files = Storage::disk('local')->allFiles($path);
+                if (Storage::disk(config('filesystems.upload_disk'))->exists($path)) {
+                    $files = Storage::disk(config('filesystems.upload_disk'))->allFiles($path);
                     $fileCount += count($files);
                     foreach ($files as $file) {
-                        $totalBytes += Storage::disk('local')->size($file);
+                        $totalBytes += Storage::disk(config('filesystems.upload_disk'))->size($file);
                     }
                     $scannedPaths[] = $path;
                 }
@@ -1072,10 +1068,10 @@ class DocumentController extends Controller
             // Scan intern folders from filesystem
             foreach ($internFolders as $dir) {
                 $dir = str_replace('\\', '/', $dir);
-                $files = Storage::disk('local')->allFiles($dir);
+                $files = Storage::disk(config('filesystems.upload_disk'))->allFiles($dir);
                 $fileCount += count($files);
                 foreach ($files as $file) {
-                    $totalBytes += Storage::disk('local')->size($file);
+                    $totalBytes += Storage::disk(config('filesystems.upload_disk'))->size($file);
                 }
             }
 
@@ -1116,12 +1112,12 @@ class DocumentController extends Controller
             $path = str_replace('\\', '/', $request->path);
 
             // Check if file exists
-            if (!Storage::disk('local')->exists($path)) {
+            if (!Storage::disk(config('filesystems.upload_disk'))->exists($path)) {
                 return response()->json(['success' => false, 'message' => 'File not found'], 404);
             }
 
             // Delete the file
-            Storage::disk('local')->delete($path);
+            Storage::disk(config('filesystems.upload_disk'))->delete($path);
 
             return response()->json([
                 'success' => true,
@@ -1154,8 +1150,8 @@ class DocumentController extends Controller
             // Delete all files in the folder from storage
             if ($folder->storage_path) {
                 $path = str_replace('\\', '/', $folder->storage_path);
-                if (Storage::disk('local')->exists($path)) {
-                    Storage::disk('local')->deleteDirectory($path);
+                if (Storage::disk(config('filesystems.upload_disk'))->exists($path)) {
+                    Storage::disk(config('filesystems.upload_disk'))->deleteDirectory($path);
                 }
             }
 
@@ -1191,8 +1187,8 @@ class DocumentController extends Controller
             // Delete storage
             if ($child->storage_path) {
                 $path = str_replace('\\', '/', $child->storage_path);
-                if (Storage::disk('local')->exists($path)) {
-                    Storage::disk('local')->deleteDirectory($path);
+                if (Storage::disk(config('filesystems.upload_disk'))->exists($path)) {
+                    Storage::disk(config('filesystems.upload_disk'))->deleteDirectory($path);
                 }
             }
 

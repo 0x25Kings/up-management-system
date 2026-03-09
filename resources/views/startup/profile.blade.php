@@ -24,7 +24,7 @@
             <div class="profile-avatar-wrapper">
                 <div class="profile-avatar" id="profileAvatar">
                     @if($startup->profile_photo)
-                        <img src="{{ asset('storage/' . $startup->profile_photo) }}" alt="Profile Photo" class="avatar-img">
+                        <img src="{{ \Storage::disk(config('filesystems.upload_disk'))->url($startup->profile_photo) }}" alt="Profile Photo" class="avatar-img">
                     @else
                         @php
                             $words = explode(' ', $startup->company_name);

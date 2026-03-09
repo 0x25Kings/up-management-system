@@ -1,4 +1,4 @@
-﻿@php
+@php
 /**
  * @var \Illuminate\Support\Collection<int, \App\Models\Attendance> $todayAttendances
  * @var \Illuminate\Support\Collection<int, \App\Models\Attendance> $attendanceHistory
@@ -285,10 +285,10 @@
             100% { left: 108%; }
         }
 
-        /* ── Modern loading spinner ──────────────────────────────────────────
+        /* -- Modern loading spinner ------------------------------------------
            Replaces fa-spinner glyph with a dual-tone arc (maroon + gold).
            Scales automatically via 1em so all existing font-size overrides work.
-        ──────────────────────────────────────────────────────────────────── */
+        -------------------------------------------------------------------- */
         @keyframes up-spin {
             to { transform: rotate(360deg); }
         }
@@ -4474,7 +4474,7 @@
                 <div class="admin-profile-dropdown" id="adminProfileDropdown">
                     <button type="button" class="user-info" id="adminProfileBtn" style="cursor: pointer; border: none; background: transparent; padding: 0;">
                         @if(Auth::user()->profile_picture)
-                            <img src="{{ asset('storage/' . Auth::user()->profile_picture) }}" alt="Profile" class="user-avatar-img" id="userAvatar">
+                            <img src="{{ \Storage::disk(config('filesystems.upload_disk'))->url(Auth::user()->profile_picture) }}" alt="Profile" class="user-avatar-img" id="userAvatar">
                         @else
                             <div class="user-avatar" id="userAvatar">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</div>
                         @endif
@@ -4487,7 +4487,7 @@
                     <div class="admin-profile-menu">
                         <div class="admin-profile-menu-header">
                             @if(Auth::user()->profile_picture)
-                                <img src="{{ asset('storage/' . Auth::user()->profile_picture) }}" alt="Profile" class="admin-profile-avatar-img">
+                                <img src="{{ \Storage::disk(config('filesystems.upload_disk'))->url(Auth::user()->profile_picture) }}" alt="Profile" class="admin-profile-avatar-img">
                             @else
                                 <div class="admin-profile-avatar">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</div>
                             @endif
@@ -4739,7 +4739,7 @@
                                                 <div style="display: flex; align-items: center; gap: 10px;">
                                                     <div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #FEF3C7, #FDE68A); display: flex; align-items: center; justify-content: center; color: #92400E; font-weight: 700; font-size: 13px; overflow: hidden;">
                                                         @if($pending->profile_picture)
-                                                            <img src="{{ asset('storage/' . $pending->profile_picture) }}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
+                                                            <img src="{{ \Storage::disk(config('filesystems.upload_disk'))->url($pending->profile_picture) }}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
                                                         @else
                                                             {{ strtoupper(substr($pending->name, 0, 1)) }}
                                                         @endif
@@ -4883,7 +4883,7 @@
                                             <div style="display: flex; align-items: center; gap: 12px;">
                                                 <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #FFBF00, #FFA500); display: flex; align-items: center; justify-content: center; color: #7B1D3A; font-weight: 700; overflow: hidden;">
                                                     @if($intern->profile_picture)
-                                                        <img src="{{ asset('storage/' . $intern->profile_picture) }}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
+                                                        <img src="{{ \Storage::disk(config('filesystems.upload_disk'))->url($intern->profile_picture) }}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
                                                     @else
                                                         {{ strtoupper(substr($intern->name, 0, 1)) }}
                                                     @endif
@@ -5074,7 +5074,7 @@
                                         <div style="display: flex; align-items: center; gap: 12px;">
                                             <div style="width: 36px; height: 36px; min-width: 36px; border-radius: 50%; background: linear-gradient(135deg, #FFBF00, #FFA500); display: flex; align-items: center; justify-content: center; color: #7B1D3A; font-weight: 700; overflow: hidden;">
                                                 @if($attendance->intern->profile_picture ?? null)
-                                                    <img src="{{ asset('storage/' . $attendance->intern->profile_picture) }}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
+                                                    <img src="{{ \Storage::disk(config('filesystems.upload_disk'))->url($attendance->intern->profile_picture) }}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
                                                 @else
                                                     {{ strtoupper(substr($attendance->intern->name ?? 'U', 0, 1)) }}
                                                 @endif
@@ -5167,7 +5167,7 @@
                                         <div style="display: flex; align-items: center; gap: 12px;">
                                             <div style="width: 36px; height: 36px; min-width: 36px; border-radius: 50%; background: linear-gradient(135deg, #9CA3AF, #6B7280); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; overflow: hidden;">
                                                 @if($absentIntern->profile_picture ?? null)
-                                                    <img src="{{ asset('storage/' . $absentIntern->profile_picture) }}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.7;">
+                                                    <img src="{{ \Storage::disk(config('filesystems.upload_disk'))->url($absentIntern->profile_picture) }}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.7;">
                                                 @else
                                                     {{ strtoupper(substr($absentIntern->name ?? 'U', 0, 1)) }}
                                                 @endif
@@ -5308,7 +5308,7 @@
                                         <div style="display: flex; align-items: center; gap: 12px;">
                                             <div style="width: 36px; height: 36px; min-width: 36px; border-radius: 50%; background: linear-gradient(135deg, #FFBF00, #FFA500); display: flex; align-items: center; justify-content: center; color: #7B1D3A; font-weight: 700; overflow: hidden;">
                                                 @if($attendance->intern->profile_picture ?? null)
-                                                    <img src="{{ asset('storage/' . $attendance->intern->profile_picture) }}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
+                                                    <img src="{{ \Storage::disk(config('filesystems.upload_disk'))->url($attendance->intern->profile_picture) }}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
                                                 @else
                                                     {{ strtoupper(substr($attendance->intern->name ?? 'U', 0, 1)) }}
                                                 @endif
@@ -5445,7 +5445,7 @@
                                         <div style="display: flex; align-items: center; gap: 12px;">
                                             <div style="width: 36px; height: 36px; min-width: 36px; border-radius: 50%; background: linear-gradient(135deg, #FFBF00, #FFA500); display: flex; align-items: center; justify-content: center; color: #7B1D3A; font-weight: 700; overflow: hidden;">
                                                 @if($intern->profile_picture ?? null)
-                                                    <img src="{{ asset('storage/' . $intern->profile_picture) }}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
+                                                    <img src="{{ \Storage::disk(config('filesystems.upload_disk'))->url($intern->profile_picture) }}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
                                                 @else
                                                     {{ strtoupper(substr($intern->name, 0, 1)) }}
                                                 @endif
@@ -5860,7 +5860,7 @@
                                     <button onclick="event.stopPropagation(); openReviewDocumentModal('{{ $doc->id }}')" style="flex: 1; padding: 5px 8px; font-size: 10px; background: #10B981; color: white; border: none; border-radius: 4px; cursor: pointer;">
                                         <i class="fas fa-check"></i> Review
                                     </button>
-                                    <a href="{{ asset('storage/' . $doc->file_path) }}" target="_blank" onclick="event.stopPropagation();" style="padding: 5px 8px; font-size: 10px; background: #3B82F6; color: white; border: none; border-radius: 4px; cursor: pointer; text-decoration: none;">
+                                    <a href="{{ \Storage::disk(config('filesystems.upload_disk'))->url($doc->file_path) }}" target="_blank" onclick="event.stopPropagation();" style="padding: 5px 8px; font-size: 10px; background: #3B82F6; color: white; border: none; border-radius: 4px; cursor: pointer; text-decoration: none;">
                                         <i class="fas fa-download"></i>
                                     </a>
                                 </div>
@@ -5899,7 +5899,7 @@
                                     <button onclick="event.stopPropagation(); openReviewDocumentModal('{{ $doc->id }}')" style="flex: 1; padding: 5px 8px; font-size: 10px; background: #10B981; color: white; border: none; border-radius: 4px; cursor: pointer;">
                                         <i class="fas fa-check"></i> Approve/Reject
                                     </button>
-                                    <a href="{{ asset('storage/' . $doc->file_path) }}" target="_blank" onclick="event.stopPropagation();" style="padding: 5px 8px; font-size: 10px; background: #3B82F6; color: white; border: none; border-radius: 4px; cursor: pointer; text-decoration: none;">
+                                    <a href="{{ \Storage::disk(config('filesystems.upload_disk'))->url($doc->file_path) }}" target="_blank" onclick="event.stopPropagation();" style="padding: 5px 8px; font-size: 10px; background: #3B82F6; color: white; border: none; border-radius: 4px; cursor: pointer; text-decoration: none;">
                                         <i class="fas fa-download"></i>
                                     </a>
                                 </div>
@@ -6040,7 +6040,7 @@
                                     <td>
                                         <div class="action-buttons">
                                             <button class="btn-action btn-view" onclick="viewDocumentDetails('{{ $doc->id }}')" title="View Details"><i class="fas fa-eye"></i></button>
-                                            <a href="{{ asset('storage/' . $doc->file_path) }}" target="_blank" class="btn-action btn-edit" title="Download"><i class="fas fa-download"></i></a>
+                                            <a href="{{ \Storage::disk(config('filesystems.upload_disk'))->url($doc->file_path) }}" target="_blank" class="btn-action btn-edit" title="Download"><i class="fas fa-download"></i></a>
                                             @if(in_array($doc->status, ['pending', 'under_review']))
                                             <button class="btn-action" style="background: #10B981; color: white;" onclick="event.stopPropagation(); openReviewDocumentModal('{{ $doc->id }}')" title="Review"><i class="fas fa-clipboard-check"></i></button>
                                             @endif
@@ -6261,7 +6261,7 @@
                                     <div style="display: flex; align-items: center; gap: 8px;">
                                         @if($moa->startup?->profile_photo)
                                             <div class="avatar" style="padding:0;overflow:hidden;background:none;border:2px solid #E5E7EB;">
-                                                <img src="{{ asset('storage/' . $moa->startup->profile_photo) }}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                                                <img src="{{ \Storage::disk(config('filesystems.upload_disk'))->url($moa->startup->profile_photo) }}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
                                             </div>
                                         @else
                                             <div class="avatar">{{ strtoupper(substr($moa->contact_person, 0, 1)) }}</div>
@@ -6286,7 +6286,7 @@
                                     @if($moa->payment_start_date && $moa->payment_end_date)
                                         <div style="font-size: 11px;">
                                             {{ $moa->payment_start_date->format('M d, Y') }}
-                                            <span style="color: #9CA3AF;">→</span>
+                                            <span style="color: #9CA3AF;">?</span>
                                             {{ $moa->payment_end_date->format('M d, Y') }}
                                         </div>
                                         @if($moa->payment_end_date->isPast())
@@ -6359,12 +6359,12 @@
                             @forelse($paymentSubmissions as $payment)
                             @php
                                 $methodLabels = [
-                                    'bank_transfer' => '🏦 Bank Transfer',
-                                    'bank_deposit' => '💵 Bank Deposit',
+                                    'bank_transfer' => '?? Bank Transfer',
+                                    'bank_deposit' => '?? Bank Deposit',
                                     'gcash' => '<img src="' . asset('images/gcash.jpg') . '" alt="GCash" style="height: 16px; width: auto; vertical-align: middle; margin-right: 4px;">GCash',
-                                    'maya' => '📱 Maya',
-                                    'check' => '📄 Check',
-                                    'cash' => '💰 Cash'
+                                    'maya' => '?? Maya',
+                                    'check' => '?? Check',
+                                    'cash' => '?? Cash'
                                 ];
                             @endphp
                             <tr class="incubatee-row" data-status="{{ $payment->status }}">
@@ -6374,7 +6374,7 @@
                                     <div style="font-size: 12px; color: #6B7280;">{{ $payment->contact_person }}</div>
                                 </td>
                                 <td><strong>{{ $payment->invoice_number }}</strong></td>
-                                <td style="font-weight: 700; color: #059669;">₱{{ number_format($payment->amount, 2) }}</td>
+                                <td style="font-weight: 700; color: #059669;">?{{ number_format($payment->amount, 2) }}</td>
                                 <td>
                                     <span style="font-size: 12px;">{!! $methodLabels[$payment->payment_method] ?? $payment->payment_method ?? 'N/A' !!}</span>
                                 </td>
@@ -6476,7 +6476,7 @@
                                 </td>
                                 <td>
                                     @if($sched->payment_amount)
-                                        <span style="font-weight: 700; color: #059669;">₱{{ number_format($sched->payment_amount, 2) }}</span>
+                                        <span style="font-weight: 700; color: #059669;">?{{ number_format($sched->payment_amount, 2) }}</span>
                                     @else
                                         <span style="font-size: 12px; color: #9CA3AF;">Not set</span>
                                     @endif
@@ -6485,7 +6485,7 @@
                                     @if($sched->payment_duration)
                                         <span style="font-size: 13px; text-transform: capitalize;">{{ str_replace('_', '-', $sched->payment_duration) }}</span>
                                     @else
-                                        <span style="font-size: 12px; color: #9CA3AF;">—</span>
+                                        <span style="font-size: 12px; color: #9CA3AF;">�</span>
                                     @endif
                                 </td>
                                 <td>
@@ -6632,7 +6632,7 @@
                                         <td>
                                             <div style="font-size: 12px;">
                                                 {{ $overdue->payment_start_date ? $overdue->payment_start_date->format('M d, Y') : 'N/A' }}
-                                                <span style="color: #9CA3AF; margin: 0 4px;">→</span>
+                                                <span style="color: #9CA3AF; margin: 0 4px;">?</span>
                                                 {{ $overdue->payment_end_date ? $overdue->payment_end_date->format('M d, Y') : 'N/A' }}
                                             </div>
                                         </td>
@@ -6749,7 +6749,7 @@
                                     @php $payDueDays = (int) now()->diffInDays($payDue->next_payment_due, false); @endphp
                                     <tr>
                                         <td style="font-weight: 600;">{{ $payDue->company_name }}</td>
-                                        <td style="font-weight: 700; color: #059669;">₱{{ number_format($payDue->payment_amount ?? 0, 2) }}</td>
+                                        <td style="font-weight: 700; color: #059669;">?{{ number_format($payDue->payment_amount ?? 0, 2) }}</td>
                                         <td style="text-transform: capitalize;">{{ str_replace('_', '-', $payDue->payment_duration ?? 'N/A') }}</td>
                                         <td style="font-weight: 600;">{{ $payDue->next_payment_due->format('M d, Y') }}</td>
                                         <td>
@@ -6969,7 +6969,7 @@
                                     <div class="action-buttons" style="gap: 4px; justify-content: center;">
                                         <button class="btn-action btn-view" style="width: 26px; height: 26px; font-size: 11px; display: flex; align-items: center; justify-content: center;" onclick="viewRoomIssueDetails('{{ $issue->id }}')"><i class="fas fa-eye"></i></button>
                                         @if($issue->photo_path)
-                                        <a href="{{ asset('storage/' . $issue->photo_path) }}" target="_blank" class="btn-action btn-edit" style="width: 26px; height: 26px; font-size: 11px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-image"></i></a>
+                                        <a href="{{ \Storage::disk(config('filesystems.upload_disk'))->url($issue->photo_path) }}" target="_blank" class="btn-action btn-edit" style="width: 26px; height: 26px; font-size: 11px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-image"></i></a>
                                         @endif
                                         <button class="btn-action" style="background: #10B981; color: white; width: 26px; height: 26px; font-size: 11px; display: flex; align-items: center; justify-content: center;" onclick="updateIssueStatus('{{ $issue->id }}')"><i class="fas fa-check"></i></button>
                                     </div>
@@ -7094,7 +7094,7 @@
                                         <div style="display: flex; align-items: center; gap: 10px;">
                                             <div style="width: 36px; height: 36px; background: linear-gradient(135deg, #7B1D3A, #A62450); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 12px; overflow: hidden; flex-shrink: 0;">
                                                 @if($progress->startup?->profile_photo)
-                                                    <img src="{{ asset('storage/' . $progress->startup->profile_photo) }}" alt="{{ $progress->startup->company_name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                                    <img src="{{ \Storage::disk(config('filesystems.upload_disk'))->url($progress->startup->profile_photo) }}" alt="{{ $progress->startup->company_name }}" style="width: 100%; height: 100%; object-fit: cover;">
                                                 @else
                                                     {{ strtoupper(substr($progress->startup->company_name, 0, 2)) }}
                                                 @endif
@@ -8141,7 +8141,7 @@
                                     </td>
                                     <td>
                                         @if($booking->attachment_path)
-                                        <a href="{{ asset('storage/' . $booking->attachment_path) }}" target="_blank" class="btn-action btn-view" title="View Attachment" style="background: #DBEAFE; color: #2563EB;">
+                                        <a href="{{ \Storage::disk(config('filesystems.upload_disk'))->url($booking->attachment_path) }}" target="_blank" class="btn-action btn-view" title="View Attachment" style="background: #DBEAFE; color: #2563EB;">
                                             <i class="fas fa-file-pdf"></i>
                                         </a>
                                         @else
@@ -8150,13 +8150,13 @@
                                     </td>
                                     <td>
                                         <div style="display: flex; gap: 4px; align-items: center;">
-                                            <button class="btn-action btn-view" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? asset('storage/' . $booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})" title="View Details">
+                                            <button class="btn-action btn-view" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? \Storage::disk(config('filesystems.upload_disk'))->url($booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})" title="View Details">
                                                 <i class="fas fa-eye"></i>
                                             </button>
-                                            <button class="btn-action btn-edit" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? asset('storage/' . $booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})" title="Approve">
+                                            <button class="btn-action btn-edit" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? \Storage::disk(config('filesystems.upload_disk'))->url($booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})" title="Approve">
                                                 <i class="fas fa-check"></i>
                                             </button>
-                                            <button class="btn-action btn-delete" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? asset('storage/' . $booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})" title="Reject">
+                                            <button class="btn-action btn-delete" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? \Storage::disk(config('filesystems.upload_disk'))->url($booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})" title="Reject">
                                                 <i class="fas fa-times"></i>
                                             </button>
                                         </div>
@@ -8353,33 +8353,33 @@
                                                 <i class="fas fa-check-circle"></i> Sent
                                             </span>
                                             @else
-                                            <span style="display: inline-flex; align-items: center; gap: 4px; background: #FEF3C7; color: #D97706; font-size: 11px; padding: 4px 8px; border-radius: 6px; font-weight: 600; cursor: pointer; animation: pulse-amber 2s infinite;" title="Click to send email notification" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? asset('storage/' . $booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})">
+                                            <span style="display: inline-flex; align-items: center; gap: 4px; background: #FEF3C7; color: #D97706; font-size: 11px; padding: 4px 8px; border-radius: 6px; font-weight: 600; cursor: pointer; animation: pulse-amber 2s infinite;" title="Click to send email notification" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? \Storage::disk(config('filesystems.upload_disk'))->url($booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})">
                                                 <i class="fas fa-envelope"></i> Not Sent
                                             </span>
                                             @endif
                                         @else
-                                        <span style="color: #9CA3AF; font-size: 12px;">—</span>
+                                        <span style="color: #9CA3AF; font-size: 12px;">�</span>
                                         @endif
                                     </td>
                                     <td>
                                         @if($booking->attachment_path)
-                                        <a href="{{ asset('storage/' . $booking->attachment_path) }}" target="_blank" class="btn-action btn-view" title="View PDF" style="background: #DBEAFE; color: #2563EB;">
+                                        <a href="{{ \Storage::disk(config('filesystems.upload_disk'))->url($booking->attachment_path) }}" target="_blank" class="btn-action btn-view" title="View PDF" style="background: #DBEAFE; color: #2563EB;">
                                             <i class="fas fa-file-pdf"></i>
                                         </a>
                                         @else
-                                        <span style="color: #9CA3AF; font-size: 12px;">—</span>
+                                        <span style="color: #9CA3AF; font-size: 12px;">�</span>
                                         @endif
                                     </td>
                                     <td>
                                         <div style="display: flex; gap: 4px; align-items: center; flex-wrap: nowrap;">
-                                            <button class="btn-action btn-view" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? asset('storage/' . $booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})" title="View Details">
+                                            <button class="btn-action btn-view" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? \Storage::disk(config('filesystems.upload_disk'))->url($booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})" title="View Details">
                                                 <i class="fas fa-eye"></i>
                                             </button>
                                             @if($booking->status === 'pending')
-                                            <button class="btn-action btn-edit" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? asset('storage/' . $booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})" title="Approve">
+                                            <button class="btn-action btn-edit" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? \Storage::disk(config('filesystems.upload_disk'))->url($booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})" title="Approve">
                                                 <i class="fas fa-check"></i>
                                             </button>
-                                            <button class="btn-action btn-delete" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? asset('storage/' . $booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})" title="Reject">
+                                            <button class="btn-action btn-delete" onclick="openBookingActionModal({{ $booking->id }}, '{{ addslashes($booking->agency_name) }}', '{{ $booking->booking_date->format('M d, Y') }}', '{{ $booking->formatted_time }}', '{{ addslashes($booking->event_name) }}', '{{ addslashes($booking->contact_person) }}', '{{ $booking->email }}', '{{ $booking->phone }}', '{{ addslashes($booking->purpose ?? 'N/A') }}', '{{ $booking->attachment_path ? \Storage::disk(config('filesystems.upload_disk'))->url($booking->attachment_path) : '' }}', '{{ $booking->status }}', {{ $booking->admin_emailed ? 'true' : 'false' }})" title="Reject">
                                                 <i class="fas fa-times"></i>
                                             </button>
                                             @else
@@ -8480,7 +8480,7 @@
                                         @endif
                                     </td>
                                     <td style="white-space: nowrap;">
-                                        {{ $booking->archived_at ? $booking->archived_at->format('M d, Y h:i A') : '—' }}
+                                        {{ $booking->archived_at ? $booking->archived_at->format('M d, Y h:i A') : '�' }}
                                     </td>
                                 </tr>
                                 @empty
@@ -8659,7 +8659,7 @@
                     <div style="text-align: center; padding: 40px 24px; background: linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%); color: white;">
                         <div id="adminProfilePictureContainer" style="position: relative; width: 120px; height: 120px; margin: 0 auto 16px; cursor: pointer;" onclick="document.getElementById('adminProfilePictureInput').click()">
                             @if(Auth::user()->profile_picture)
-                                <img id="adminProfilePictureImg" src="{{ asset('storage/' . Auth::user()->profile_picture) }}" alt="Profile" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3); border: 4px solid rgba(255, 255, 255, 0.3);">
+                                <img id="adminProfilePictureImg" src="{{ \Storage::disk(config('filesystems.upload_disk'))->url(Auth::user()->profile_picture) }}" alt="Profile" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3); border: 4px solid rgba(255, 255, 255, 0.3);">
                             @else
                                 <div id="adminProfilePictureInitial" style="width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #FFBF00 0%, #FFA500 100%); display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3); border: 4px solid rgba(255, 255, 255, 0.3);">
                                     <span style="font-size: 48px; color: #7B1D3A; font-weight: 700;">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
@@ -9213,7 +9213,7 @@
                                 </div>
                                 <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 8px;">UP Management System</h2>
                                 <p style="opacity: 0.9; margin-bottom: 4px;">Version 1.0.0</p>
-                                <p style="opacity: 0.7; font-size: 13px;">© 2026 University of Pangasinan</p>
+                                <p style="opacity: 0.7; font-size: 13px;">� 2026 University of Pangasinan</p>
                             </div>
 
                             <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px;">
@@ -10018,7 +10018,7 @@
                             <p style="font-size: 12px; color: #6B7280; margin-bottom: 12px;">Set the recurring payment schedule for this incubatee</p>
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
                                 <div>
-                                    <label style="font-size: 12px; font-weight: 600; color: #374151; display: block; margin-bottom: 4px;">Payment Amount (₱)</label>
+                                    <label style="font-size: 12px; font-weight: 600; color: #374151; display: block; margin-bottom: 4px;">Payment Amount (?)</label>
                                     <input type="number" id="moaBillingAmount" step="0.01" min="0" placeholder="e.g. 5000.00" class="form-input" style="font-size: 13px;">
                                 </div>
                                 <div>
@@ -10416,7 +10416,7 @@
                                         </span>
                                     </div>
                                     @if($school->contact_person)
-                                    <div style="font-size: 12px; color: #6B7280; margin-top: 2px;">{{ $school->contact_person }} @if($school->contact_email)• {{ $school->contact_email }}@endif</div>
+                                    <div style="font-size: 12px; color: #6B7280; margin-top: 2px;">{{ $school->contact_person }} @if($school->contact_email)� {{ $school->contact_email }}@endif</div>
                                     @endif
                                 </div>
                             </div>
@@ -11210,7 +11210,7 @@
                     if (pendingBookings.length > previousBookingCount) {
                         const newCount = pendingBookings.length - previousBookingCount;
                         const latestBooking = pendingBookings[0];
-                        showToast('info', `🗓️ New Booking Request${newCount > 1 ? 's' : ''}!`,
+                        showToast('info', `??? New Booking Request${newCount > 1 ? 's' : ''}!`,
                             newCount > 1
                                 ? `${newCount} new booking requests need your attention.`
                                 : `${latestBooking.agency_name || 'Someone'} wants to book for ${latestBooking.event_name || 'an event'}.`,
@@ -11222,7 +11222,7 @@
                     if (pendingInterns.length > previousInternCount) {
                         const newCount = pendingInterns.length - previousInternCount;
                         const latestIntern = pendingInterns[0];
-                        showToast('warning', `👤 New Intern Registration${newCount > 1 ? 's' : ''}!`,
+                        showToast('warning', `?? New Intern Registration${newCount > 1 ? 's' : ''}!`,
                             newCount > 1
                                 ? `${newCount} new intern registrations need approval.`
                                 : `${latestIntern.name || 'An intern'} has registered and awaits approval.`,
@@ -11232,7 +11232,7 @@
 
                     // Absent interns (only notify once per day on first detection)
                     if (absentInterns.length > 0 && absentInterns.length !== previousAbsentCount && previousAbsentCount === 0) {
-                        showToast('warning', `⏰ Absent Interns Today`,
+                        showToast('warning', `? Absent Interns Today`,
                             `${absentInterns.length} intern${absentInterns.length > 1 ? 's are' : ' is'} absent today.`,
                             6000);
                     }
@@ -11241,7 +11241,7 @@
                     if (taskSubmissions.length > previousTaskSubmissionCount) {
                         const newCount = taskSubmissions.length - previousTaskSubmissionCount;
                         const latestTask = taskSubmissions[0];
-                        showToast('success', `✅ Task Completed${newCount > 1 ? ' (Multiple)' : ''}!`,
+                        showToast('success', `? Task Completed${newCount > 1 ? ' (Multiple)' : ''}!`,
                             newCount > 1
                                 ? `${newCount} tasks have been completed.`
                                 : `${latestTask.intern_name || 'An intern'} completed "${latestTask.title || 'a task'}".`,
@@ -11253,7 +11253,7 @@
                     if (documentUploads.length > previousDocUploadCount) {
                         const newCount = documentUploads.length - previousDocUploadCount;
                         const latestDoc = documentUploads[0];
-                        showToast('info', `📤 New File Upload${newCount > 1 ? 's' : ''}!`,
+                        showToast('info', `?? New File Upload${newCount > 1 ? 's' : ''}!`,
                             newCount > 1
                                 ? `${newCount} new files have been uploaded.`
                                 : `"${latestDoc.name || 'A file'}" was uploaded by ${latestDoc.uploader || 'someone'}.`,
@@ -11265,7 +11265,7 @@
                     if (pendingReports.length > previousReportCount) {
                         const newCount = pendingReports.length - previousReportCount;
                         const latestReport = pendingReports[0];
-                        showToast('info', `📋 New Team Leader Report${newCount > 1 ? 's' : ''}!`,
+                        showToast('info', `?? New Team Leader Report${newCount > 1 ? 's' : ''}!`,
                             newCount > 1
                                 ? `${newCount} new reports need your review.`
                                 : `${latestReport.team_leader_name || 'A team leader'} submitted a ${latestReport.report_type || 'report'}.`,
@@ -11277,7 +11277,7 @@
                     if (tlActivities.length > previousTlActivityCount) {
                         const newCount = tlActivities.length - previousTlActivityCount;
                         const latestActivity = tlActivities[0];
-                        showToast('info', `👥 Team Leader Action${newCount > 1 ? 's' : ''}!`,
+                        showToast('info', `?? Team Leader Action${newCount > 1 ? 's' : ''}!`,
                             newCount > 1
                                 ? `Team leaders performed ${newCount} new actions.`
                                 : `${latestActivity.team_leader_name || 'A team leader'}: ${latestActivity.action || 'performed an action'}.`,
@@ -11289,7 +11289,7 @@
                     if (progressUpdates.length > previousProgressCount) {
                         const newCount = progressUpdates.length - previousProgressCount;
                         const latestProgress = progressUpdates[0];
-                        showToast('success', `📈 Project Progress Update${newCount > 1 ? 's' : ''}!`,
+                        showToast('success', `?? Project Progress Update${newCount > 1 ? 's' : ''}!`,
                             newCount > 1
                                 ? `${newCount} startups submitted progress updates.`
                                 : `${latestProgress.startup_name || 'A startup'} submitted a ${latestProgress.milestone_type || 'progress'} update.`,
@@ -11301,7 +11301,7 @@
                     if (pendingMoa.length > previousMoaCount) {
                         const newCount = pendingMoa.length - previousMoaCount;
                         const latestMoa = pendingMoa[0];
-                        showToast('success', `📄 New MOA Submission${newCount > 1 ? 's' : ''}!`,
+                        showToast('success', `?? New MOA Submission${newCount > 1 ? 's' : ''}!`,
                             newCount > 1
                                 ? `${newCount} new MOA requests need review.`
                                 : `${latestMoa.startup_name || 'A startup'} submitted an MOA request.`,
@@ -11313,7 +11313,7 @@
                     if (pendingPayments.length > previousPaymentCount) {
                         const newCount = pendingPayments.length - previousPaymentCount;
                         const latestPayment = pendingPayments[0];
-                        showToast('success', `💰 New Payment Submission${newCount > 1 ? 's' : ''}!`,
+                        showToast('success', `?? New Payment Submission${newCount > 1 ? 's' : ''}!`,
                             newCount > 1
                                 ? `${newCount} new payment submissions need verification.`
                                 : `${latestPayment.startup_name || 'A startup'} submitted a payment.`,
@@ -11325,7 +11325,7 @@
                     if (pendingDocuments.length > previousDocumentCount) {
                         const newCount = pendingDocuments.length - previousDocumentCount;
                         const latestDoc = pendingDocuments[0];
-                        showToast('info', `📁 New Document Submission${newCount > 1 ? 's' : ''}!`,
+                        showToast('info', `?? New Document Submission${newCount > 1 ? 's' : ''}!`,
                             newCount > 1
                                 ? `${newCount} new documents need review.`
                                 : `${latestDoc.startup_name || 'A startup'} submitted a document.`,
@@ -11337,7 +11337,7 @@
                     if (pendingStartups.length > previousStartupCount) {
                         const newCount = pendingStartups.length - previousStartupCount;
                         const latestStartup = pendingStartups[0];
-                        showToast('success', `🚀 New Startup Application${newCount > 1 ? 's' : ''}!`,
+                        showToast('success', `?? New Startup Application${newCount > 1 ? 's' : ''}!`,
                             newCount > 1
                                 ? `${newCount} new startup applications need review.`
                                 : `${latestStartup.startup_name || 'A startup'} has applied for incubation.`,
@@ -11349,7 +11349,7 @@
                     if (pendingIssues.length > previousIssueCount) {
                         const newCount = pendingIssues.length - previousIssueCount;
                         const latestIssue = pendingIssues[0];
-                        showToast('warning', `⚠️ New Issue Reported${newCount > 1 ? 's' : ''}!`,
+                        showToast('warning', `?? New Issue Reported${newCount > 1 ? 's' : ''}!`,
                             newCount > 1
                                 ? `${newCount} new issues require attention.`
                                 : `Issue at ${latestIssue.room_location || 'a room'}: ${latestIssue.category || 'Reported'}`,
@@ -11370,14 +11370,14 @@
                         if (pendingPayments.length > 0) summaryParts.push(`${pendingPayments.length} payment${pendingPayments.length > 1 ? 's' : ''}`);
                         if (progressUpdates.length > 0) summaryParts.push(`${progressUpdates.length} progress update${progressUpdates.length > 1 ? 's' : ''}`);
 
-                        showToast('info', '📬 Pending Items',
+                        showToast('info', '?? Pending Items',
                             `You have ${summaryParts.slice(0, 3).join(', ')}${summaryParts.length > 3 ? ' and more' : ''} awaiting review.`,
                             5000);
                     }
 
                     // Show absent interns on first load
                     if (absentInterns.length > 0) {
-                        showToast('warning', `⏰ Today's Attendance`,
+                        showToast('warning', `? Today's Attendance`,
                             `${absentInterns.length} intern${absentInterns.length > 1 ? 's are' : ' is'} currently absent.`,
                             5000);
                     }
@@ -12961,7 +12961,7 @@
                         </div>
                         <div>
                             <div style="font-weight: 600; color: #1F2937;">${intern.name}</div>
-                            <div style="font-size: 12px; color: #6B7280;">${intern.course} • ${intern.email}</div>
+                            <div style="font-size: 12px; color: #6B7280;">${intern.course} � ${intern.email}</div>
                         </div>
                     </div>
                     <div style="text-align: right;">
@@ -12983,7 +12983,7 @@
             document.getElementById('selectedInternId').value = intern.id;
             document.getElementById('selectedInternAvatar').textContent = intern.name.charAt(0).toUpperCase();
             document.getElementById('selectedInternName').textContent = intern.name;
-            document.getElementById('selectedInternInfo').textContent = `${intern.course} • ${intern.completed_hours}/${intern.required_hours} hrs completed`;
+            document.getElementById('selectedInternInfo').textContent = `${intern.course} � ${intern.completed_hours}/${intern.required_hours} hrs completed`;
 
             document.getElementById('selectedInternDisplay').style.display = 'block';
             document.getElementById('passwordSection').style.display = 'block';
@@ -13543,7 +13543,7 @@
 
             // Update header
             title.textContent = report.title;
-            subtitle.innerHTML = `<span style="display: inline-flex; align-items: center; gap: 6px;"><i class="fas fa-user"></i> ${report.team_leader_name}</span> <span style="margin: 0 8px;">•</span> <span>${report.report_type.charAt(0).toUpperCase() + report.report_type.slice(1)} Report</span>`;
+            subtitle.innerHTML = `<span style="display: inline-flex; align-items: center; gap: 6px;"><i class="fas fa-user"></i> ${report.team_leader_name}</span> <span style="margin: 0 8px;">�</span> <span>${report.report_type.charAt(0).toUpperCase() + report.report_type.slice(1)} Report</span>`;
 
             // Get status badge
             const getStatusBadge = (status) => {
@@ -14306,7 +14306,7 @@
                     'created_at' => $m->created_at->format('M d, Y h:i A'),
                     'reviewed_at' => $m->reviewed_at ? $m->reviewed_at->format('M d, Y h:i A') : null,
                     'profile_photo_url' => ($m->startup && $m->startup->profile_photo)
-                        ? asset('storage/' . $m->startup->profile_photo) : null,
+                        ? \Storage::disk(config('filesystems.upload_disk'))->url($m->startup->profile_photo) : null,
                 ];
             })->keyBy('id')->toArray() : [];
 
@@ -15153,7 +15153,7 @@
 
                     ${fee ? `
                     <p><strong>ARTICLE ${workArrangement ? 'IV' : 'III'} - FEES</strong></p>
-                    <p>The PARTNER agrees to pay a monthly fee of <strong>₱${parseFloat(fee).toLocaleString('en-US', {minimumFractionDigits: 2})}</strong>
+                    <p>The PARTNER agrees to pay a monthly fee of <strong>?${parseFloat(fee).toLocaleString('en-US', {minimumFractionDigits: 2})}</strong>
                     for the duration of this agreement, payable on or before the 5th day of each month.</p>
                     ` : ''}
 
@@ -15248,12 +15248,12 @@
             const color = statusColors[payment.status] || { bg: '#E5E7EB', text: '#374151' };
 
             const paymentMethodLabels = {
-                'bank_transfer': '🏦 Bank Transfer',
-                'bank_deposit': '💵 Bank Deposit',
+                'bank_transfer': '?? Bank Transfer',
+                'bank_deposit': '?? Bank Deposit',
                 'gcash': '<img src="/images/gcash.jpg" alt="GCash" style="height: 16px; width: auto; vertical-align: middle; margin-right: 4px;">GCash',
-                'maya': '📱 Maya',
-                'check': '📄 Check Payment',
-                'cash': '💰 Cash'
+                'maya': '?? Maya',
+                'check': '?? Check Payment',
+                'cash': '?? Cash'
             };
             const methodLabel = paymentMethodLabels[payment.payment_method] || payment.payment_method || 'N/A';
 
@@ -15273,7 +15273,7 @@
 
                         <div style="background: linear-gradient(135deg, #10B981, #059669); color: white; padding: 16px; border-radius: 12px; text-align: center;">
                             <div style="font-size: 12px; opacity: 0.9;">Payment Amount</div>
-                            <div style="font-size: 28px; font-weight: 700;">₱${parseFloat(payment.amount).toLocaleString('en-US', {minimumFractionDigits: 2})}</div>
+                            <div style="font-size: 28px; font-weight: 700;">?${parseFloat(payment.amount).toLocaleString('en-US', {minimumFractionDigits: 2})}</div>
                             <div style="font-size: 13px; margin-top: 4px;">Invoice #${payment.invoice_number}</div>
                         </div>
 
@@ -15352,7 +15352,7 @@
             document.getElementById('reviewPaymentId').value = currentPaymentId;
             document.getElementById('reviewPaymentInfo').innerHTML = `
                 <strong>${payment.tracking_code}</strong><br>
-                ${payment.company_name} - ₱${parseFloat(payment.amount).toLocaleString('en-US', {minimumFractionDigits: 2})}
+                ${payment.company_name} - ?${parseFloat(payment.amount).toLocaleString('en-US', {minimumFractionDigits: 2})}
             `;
             document.getElementById('reviewPaymentAction').value = '';
             document.getElementById('reviewPaymentNotes').value = '';
@@ -16015,7 +16015,7 @@
                         </div>
                     </td>
                     <td style="padding: 16px;">
-                        <div style="font-size: 13px; color: #374151;">${startup.contact_person || '<span style="color: #9CA3AF;">—</span>'}</div>
+                        <div style="font-size: 13px; color: #374151;">${startup.contact_person || '<span style="color: #9CA3AF;">�</span>'}</div>
                         ${startup.phone ? `<div style="font-size: 11px; color: #9CA3AF; margin-top: 2px;"><i class="fas fa-phone" style="margin-right: 4px;"></i>${startup.phone}</div>` : ''}
                     </td>
                     <td style="padding: 16px; text-align: center;">
@@ -16183,7 +16183,7 @@
             if (!startup) return;
 
             const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : null;
-            const fmtMoney = (v) => v ? '₱' + parseFloat(v).toLocaleString('en-US', { minimumFractionDigits: 2 }) : null;
+            const fmtMoney = (v) => v ? '?' + parseFloat(v).toLocaleString('en-US', { minimumFractionDigits: 2 }) : null;
             const notSet = `<span style="color:#9CA3AF;font-style:italic;">Not yet set</span>`;
 
             const moaStatusColors = {
@@ -16776,7 +16776,7 @@
                     'email' => $b->email,
                     'phone' => $b->phone,
                     'purpose' => $b->purpose ?? 'N/A',
-                    'attachment' => $b->attachment_path ? asset('storage/' . $b->attachment_path) : '',
+                    'attachment' => $b->attachment_path ? \Storage::disk(config('filesystems.upload_disk'))->url($b->attachment_path) : '',
                     'status' => $b->status,
                     'admin_emailed' => $b->admin_emailed ? true : false
                 ];
@@ -17005,8 +17005,8 @@
 
 We are pleased to inform you that your booking request has been APPROVED.
 
-📅 BOOKING DETAILS:
-━━━━━━━━━━━━━━━━━━━━
+?? BOOKING DETAILS:
+????????????????????
 Date: ${date}
 Time: ${time}
 Purpose: ${purpose}
@@ -17018,8 +17018,8 @@ We look forward to seeing you!
 Best regards,
 UP Cebu Innovation & Technology Hub
 University of the Philippines Cebu
-📧 info@upcebu.edu.ph
-📞 +63 32 123 4567`;
+?? info@upcebu.edu.ph
+?? +63 32 123 4567`;
 
             document.getElementById('emailPreviewTo').textContent = email;
             document.getElementById('emailPreviewSubject').textContent = subject;
@@ -17401,7 +17401,7 @@ University of the Philippines Cebu
                     const eventStartDate = eventStart.toISOString().split('T')[0];
                     const isStartDay = dateString === eventStartDate;
                     const timeStr = (event.all_day || !isStartDay) ? '' : eventStart.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-                    const eventLabel = isStartDay ? escapeHtml(event.title) : `↔ ${escapeHtml(event.title)}`;
+                    const eventLabel = isStartDay ? escapeHtml(event.title) : `? ${escapeHtml(event.title)}`;
                     eventsHtml += `
                         <div class="calendar-event" onclick="event.stopPropagation(); editEvent(${event.id})" style="cursor: pointer; background: ${event.color}20; border-left-color: ${event.color};">
                             ${timeStr ? `<div class="event-time">${timeStr}</div>` : ''}
@@ -17457,7 +17457,7 @@ University of the Philippines Cebu
             const dateBookings = schedulerBookings.filter(b => b.date === dateString);
             if (dateBookings.length > 0 && !blockedInfo) {
                 document.getElementById('blockDateWarning').style.display = 'block';
-                let bookingsList = dateBookings.map(b => `• ${b.agency} (${b.time})`).join('<br>');
+                let bookingsList = dateBookings.map(b => `� ${b.agency} (${b.time})`).join('<br>');
                 document.getElementById('blockDateWarningText').innerHTML = `
                     There are ${dateBookings.length} approved booking(s) on this date:<br>${bookingsList}<br>
                     <small>Blocking this date will not cancel existing bookings.</small>
@@ -17734,7 +17734,7 @@ University of the Philippines Cebu
                                 }
                                 <div>
                                     <div style="font-weight: 600; color: #1F2937;">${escapeHtml(moa.company_name || '')}</div>
-                                    <div style="font-size: 12px; color: #6B7280;">${escapeHtml(moa.contact_person || '')} • ${escapeHtml(moa.email || '')}</div>
+                                    <div style="font-size: 12px; color: #6B7280;">${escapeHtml(moa.contact_person || '')} � ${escapeHtml(moa.email || '')}</div>
                                 </div>
                             </div>
                         </td>
@@ -18279,7 +18279,7 @@ University of the Philippines Cebu
                                 <i class="${fileIcon.icon}"></i>
                             </div>
                             <div class="file-name">${escapeHtml(file.name)}</div>
-                            <div class="file-meta">${file.size} • ${file.modified}</div>
+                            <div class="file-meta">${file.size} � ${file.modified}</div>
                             ${file.uploader_name ? `<div style="margin-top:5px;display:flex;justify-content:center;"><span style="font-size:10px;padding:2px 7px;border-radius:10px;font-weight:600;background:${file.uploader_role==='intern'?'#DBEAFE':'#F3F4F6'};color:${file.uploader_role==='intern'?'#1E40AF':'#374151'};display:inline-flex;align-items:center;gap:3px;"><i class="fas fa-${file.uploader_role==='intern'?'user-graduate':'user-shield'}" style="font-size:9px;"></i>${escapeHtml(file.uploader_name)}</span></div><div style="font-size:10px;color:#9CA3AF;margin-top:2px;">${file.uploaded_at || ''}</div>` : ''}
                         </div>
                     </div>
@@ -18342,7 +18342,7 @@ University of the Philippines Cebu
                             <div style="display:flex;align-items:center;gap:6px;">
                                 <span style="font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600;white-space:nowrap;background:${file.uploader_role==='intern'?'#DBEAFE':'#F3F4F6'};color:${file.uploader_role==='intern'?'#1E40AF':'#374151'};display:inline-flex;align-items:center;gap:4px;"><i class="fas fa-${file.uploader_role==='intern'?'user-graduate':'user-shield'}" style="font-size:10px;"></i>${escapeHtml(file.uploader_name)}</span>
                             </div>
-                            <div style="font-size:10px;color:#6B7280;margin-top:2px;">${file.uploaded_at || file.modified}</div>` : '<span style="color:#9CA3AF;font-size:11px;">—</span>'}
+                            <div style="font-size:10px;color:#6B7280;margin-top:2px;">${file.uploaded_at || file.modified}</div>` : '<span style="color:#9CA3AF;font-size:11px;">�</span>'}
                         </td>
                         <td>
                             <button class="action-btn" onclick="downloadFile('${escapeHtml(file.path)}', '${escapeHtml(file.name)}')">
@@ -22392,7 +22392,7 @@ University of the Philippines Cebu
                     <i class="fas fa-cloud-upload-alt" style="font-size: 40px; color: #7B1D3A; margin-bottom: 12px;"></i>
                     <p style="font-weight: 600; color: #1F2937; margin-bottom: 4px;">Click to select files</p>
                     <p style="font-size: 12px; color: #6B7280;">or drag and drop files here</p>
-                    <p style="font-size: 11px; color: #9CA3AF; margin-top: 8px;">Max 50 MB per file • PDF, DOC, XLS, PPT, Images, ZIP</p>
+                    <p style="font-size: 11px; color: #9CA3AF; margin-top: 8px;">Max 50 MB per file � PDF, DOC, XLS, PPT, Images, ZIP</p>
                 </div>
                 <input type="file" id="adminFileUpload" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.jpg,.jpeg,.png,.gif,.zip,.rar,.ppt,.pptx,.csv" style="display: none;" onchange="handleAdminFileSelect(this)">
             </div>
@@ -22558,7 +22558,7 @@ University of the Philippines Cebu
             <div style="padding: 24px;">
                 <input type="hidden" id="paymentScheduleStartupId">
                 <div style="margin-bottom: 16px;">
-                    <label style="display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px;">Payment Amount (₱)</label>
+                    <label style="display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px;">Payment Amount (?)</label>
                     <input type="number" id="paymentScheduleAmount" step="0.01" min="0" placeholder="e.g. 5000.00" style="width: 100%; padding: 10px 14px; border: 1.5px solid #D1D5DB; border-radius: 8px; font-size: 14px; box-sizing: border-box;">
                 </div>
                 <div style="margin-bottom: 16px;">

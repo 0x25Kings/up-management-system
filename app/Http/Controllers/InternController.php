@@ -367,11 +367,11 @@ class InternController extends Controller
 
         // Delete old profile picture if exists
         if ($intern->profile_picture) {
-            Storage::disk('public')->delete($intern->profile_picture);
+            Storage::disk(config('filesystems.upload_disk'))->delete($intern->profile_picture);
         }
 
         // Store new profile picture
-        $path = $request->file('profile_picture')->store('profile-pictures', 'public');
+        $path = $request->file('profile_picture')->store('profile-pictures', config('filesystems.upload_disk'));
 
         $intern->update(['profile_picture' => $path]);
 
@@ -381,10 +381,12 @@ class InternController extends Controller
             $linkedUser->update(['profile_picture' => $path]);
         }
 
+        /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+        $disk = Storage::disk(config('filesystems.upload_disk'));
         return response()->json([
             'success' => true,
             'message' => 'Profile picture updated successfully',
-            'image_url' => asset('storage/' . $path)
+            'image_url' => $disk->url($path)
         ]);
     }
 
@@ -805,7 +807,7 @@ class InternController extends Controller
 
             foreach ($request->file('documents') as $file) {
                 $filename = time() . '_' . $file->getClientOriginalName();
-                $file->storeAs($path, $filename, 'public');
+                $file->storeAs($path, $filename, config('filesystems.upload_disk'));
                 $uploadedDocs[] = "{$path}/{$filename}";
             }
 

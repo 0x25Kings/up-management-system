@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -45,7 +45,7 @@
         .fa-spin {
             animation: spin 1s linear infinite;
         }
-        /* ── Modern loading spinner ─────────────────────────────────────────── */
+        /* -- Modern loading spinner ------------------------------------------- */
         @keyframes up-spin {
             to { transform: rotate(360deg); }
         }
@@ -1552,7 +1552,7 @@
                     @endphp
                     <button type="button" class="user-info" id="tlProfileBtn" style="cursor: pointer; border: none; background: transparent; padding: 0;">
                         @if($profilePicture)
-                            <img src="{{ asset('storage/' . $profilePicture) }}" alt="Profile" class="user-avatar-img">
+                            <img src="{{ \Storage::disk(config('filesystems.upload_disk'))->url($profilePicture) }}" alt="Profile" class="user-avatar-img">
                         @else
                             <div class="user-avatar">{{ strtoupper(substr($user->name, 0, 1)) }}</div>
                         @endif
@@ -1565,7 +1565,7 @@
                     <div class="tl-profile-menu">
                         <div class="tl-profile-menu-header">
                             @if($profilePicture)
-                                <img src="{{ asset('storage/' . $profilePicture) }}" alt="Profile" class="tl-profile-avatar-img">
+                                <img src="{{ \Storage::disk(config('filesystems.upload_disk'))->url($profilePicture) }}" alt="Profile" class="tl-profile-avatar-img">
                             @else
                                 <div class="tl-profile-avatar">{{ strtoupper(substr($user->name, 0, 1)) }}</div>
                             @endif
@@ -1661,7 +1661,7 @@
                                 <div class="list-item-content">
                                     <div class="list-item-title">{{ $task->title }}</div>
                                     <div class="list-item-subtitle">
-                                        {{ $task->intern->name ?? 'N/A' }} • Due: {{ $task->due_date ? $task->due_date->format('M d, Y') : 'No date' }}
+                                        {{ $task->intern->name ?? 'N/A' }} � Due: {{ $task->due_date ? $task->due_date->format('M d, Y') : 'No date' }}
                                     </div>
                                 </div>
                                 <span class="badge badge-{{ $isPendingAdminApproval ? 'info' : ($task->status === 'Completed' ? 'success' : ($task->status === 'In Progress' ? 'info' : 'warning')) }}">
@@ -1703,7 +1703,7 @@
                                 <div class="list-item-avatar">{{ strtoupper(substr($intern->name, 0, 1)) }}</div>
                                 <div class="list-item-content">
                                     <div class="list-item-title">{{ $intern->name }}</div>
-                                    <div class="list-item-subtitle">{{ $intern->course }} • {{ number_format($intern->completed_hours, 1) }} / {{ $intern->required_hours }} hrs</div>
+                                    <div class="list-item-subtitle">{{ $intern->course }} � {{ number_format($intern->completed_hours, 1) }} / {{ $intern->required_hours }} hrs</div>
                                     <div class="progress-container" style="margin-top: 8px;">
                                         <div class="progress-bar {{ $progress < 30 ? 'red' : 'gold' }}" style="width: {{ $progress }}%"></div>
                                     </div>
@@ -1774,7 +1774,7 @@
                             </div>
                             <div class="list-item-content">
                                 <div class="list-item-title">{{ $report->title }}</div>
-                                <div class="list-item-subtitle">{{ ucfirst($report->report_type) }} • {{ $report->created_at->format('M d, Y') }}</div>
+                                <div class="list-item-subtitle">{{ ucfirst($report->report_type) }} � {{ $report->created_at->format('M d, Y') }}</div>
                             </div>
                             <span class="badge badge-{{ $report->status === 'submitted' ? 'info' : ($report->status === 'reviewed' ? 'success' : 'warning') }}">
                                 {{ ucfirst($report->status) }}
@@ -2262,7 +2262,7 @@
                     <div class="profile-header-section" style="text-align: center; padding: 30px 0; border-bottom: 1px solid #E5E7EB; margin-bottom: 30px;">
                         <div id="profilePictureContainer" style="position: relative; width: 120px; height: 120px; margin: 0 auto 16px; cursor: pointer;" onclick="document.getElementById('profilePictureInput').click()">
                             @if($profilePicture)
-                                <img id="profilePictureImg" src="{{ asset('storage/' . $profilePicture) }}" alt="Profile" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; box-shadow: 0 8px 24px rgba(123, 29, 58, 0.3);">
+                                <img id="profilePictureImg" src="{{ \Storage::disk(config('filesystems.upload_disk'))->url($profilePicture) }}" alt="Profile" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; box-shadow: 0 8px 24px rgba(123, 29, 58, 0.3);">
                             @else
                                 <div id="profilePictureInitial" style="width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, var(--maroon), var(--maroon-dark)); display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(123, 29, 58, 0.3);">
                                     <span style="font-size: 48px; color: var(--gold); font-weight: 700;">{{ strtoupper(substr($user->name, 0, 1)) }}</span>
@@ -2485,7 +2485,7 @@
                                 </td>
                                 <td>
                                     @if($booking->attachment_path)
-                                    <a href="{{ asset('storage/' . $booking->attachment_path) }}" target="_blank" class="btn-action btn-view" style="background: #DBEAFE; color: #2563EB;" title="View Attachment"><i class="fas fa-file-pdf"></i></a>
+                                    <a href="{{ \Storage::disk(config('filesystems.upload_disk'))->url($booking->attachment_path) }}" target="_blank" class="btn-action btn-view" style="background: #DBEAFE; color: #2563EB;" title="View Attachment"><i class="fas fa-file-pdf"></i></a>
                                     @else
                                     <span style="color: #9CA3AF; font-size: 12px;">None</span>
                                     @endif
@@ -2632,9 +2632,9 @@
                                 </td>
                                 <td>
                                     @if($booking->attachment_path)
-                                    <a href="{{ asset('storage/' . $booking->attachment_path) }}" target="_blank" class="btn-action btn-view" style="background: #DBEAFE; color: #2563EB;" title="View PDF"><i class="fas fa-file-pdf"></i></a>
+                                    <a href="{{ \Storage::disk(config('filesystems.upload_disk'))->url($booking->attachment_path) }}" target="_blank" class="btn-action btn-view" style="background: #DBEAFE; color: #2563EB;" title="View PDF"><i class="fas fa-file-pdf"></i></a>
                                     @else
-                                    <span style="color: #9CA3AF; font-size: 12px;">—</span>
+                                    <span style="color: #9CA3AF; font-size: 12px;">�</span>
                                     @endif
                                 </td>
                                 @if(in_array('scheduler', $editableModules))
@@ -2703,7 +2703,7 @@
                                     <span style="background: #FEE2E2; color: #DC2626; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;">Rejected</span>
                                     @endif
                                 </td>
-                                <td style="white-space: nowrap;">{{ $booking->archived_at ? $booking->archived_at->format('M d, Y h:i A') : '—' }}</td>
+                                <td style="white-space: nowrap;">{{ $booking->archived_at ? $booking->archived_at->format('M d, Y h:i A') : '�' }}</td>
                             </tr>
                             @empty
                             <tr>
@@ -2837,7 +2837,7 @@
                                 @if(in_array('research_tracking', $editableModules))
                                 <button onclick="event.stopPropagation(); tlReviewDocument('{{ $doc->id }}')" style="flex: 1; padding: 5px 8px; font-size: 10px; background: #10B981; color: white; border: none; border-radius: 4px; cursor: pointer;"><i class="fas fa-check"></i> Review</button>
                                 @endif
-                                <a href="{{ asset('storage/' . $doc->file_path) }}" target="_blank" onclick="event.stopPropagation();" style="padding: 5px 8px; font-size: 10px; background: #3B82F6; color: white; border: none; border-radius: 4px; cursor: pointer; text-decoration: none;"><i class="fas fa-download"></i></a>
+                                <a href="{{ \Storage::disk(config('filesystems.upload_disk'))->url($doc->file_path) }}" target="_blank" onclick="event.stopPropagation();" style="padding: 5px 8px; font-size: 10px; background: #3B82F6; color: white; border: none; border-radius: 4px; cursor: pointer; text-decoration: none;"><i class="fas fa-download"></i></a>
                             </div>
                         </div>
                         @empty
@@ -2867,7 +2867,7 @@
                                 @if(in_array('research_tracking', $editableModules))
                                 <button onclick="event.stopPropagation(); tlReviewDocument('{{ $doc->id }}')" style="flex: 1; padding: 5px 8px; font-size: 10px; background: #10B981; color: white; border: none; border-radius: 4px; cursor: pointer;"><i class="fas fa-check"></i> Approve/Reject</button>
                                 @endif
-                                <a href="{{ asset('storage/' . $doc->file_path) }}" target="_blank" onclick="event.stopPropagation();" style="padding: 5px 8px; font-size: 10px; background: #3B82F6; color: white; border: none; border-radius: 4px; cursor: pointer; text-decoration: none;"><i class="fas fa-download"></i></a>
+                                <a href="{{ \Storage::disk(config('filesystems.upload_disk'))->url($doc->file_path) }}" target="_blank" onclick="event.stopPropagation();" style="padding: 5px 8px; font-size: 10px; background: #3B82F6; color: white; border: none; border-radius: 4px; cursor: pointer; text-decoration: none;"><i class="fas fa-download"></i></a>
                             </div>
                         </div>
                         @empty
@@ -2989,7 +2989,7 @@
                                         <button class="btn btn-sm" style="background: #3B82F6; color: white;" onclick="tlViewDocumentDetails('{{ $doc->id }}')" title="View Details">
                                             <i class="fas fa-eye"></i>
                                         </button>
-                                        <a href="{{ asset('storage/' . $doc->file_path) }}" target="_blank" class="btn btn-sm" style="background: #6B7280; color: white;" title="Download">
+                                        <a href="{{ \Storage::disk(config('filesystems.upload_disk'))->url($doc->file_path) }}" target="_blank" class="btn btn-sm" style="background: #6B7280; color: white;" title="Download">
                                             <i class="fas fa-download"></i>
                                         </a>
                                         @if(in_array('research_tracking', $editableModules) && in_array($doc->status, ['pending', 'under_review']))
@@ -3174,7 +3174,7 @@
                                 </td>
                                 <td>
                                     @if($moa->payment_start_date && $moa->payment_end_date)
-                                        <div style="font-size: 11px;">{{ \Carbon\Carbon::parse($moa->payment_start_date)->format('M d, Y') }} <span style="color: #9CA3AF;">→</span> {{ \Carbon\Carbon::parse($moa->payment_end_date)->format('M d, Y') }}</div>
+                                        <div style="font-size: 11px;">{{ \Carbon\Carbon::parse($moa->payment_start_date)->format('M d, Y') }} <span style="color: #9CA3AF;">?</span> {{ \Carbon\Carbon::parse($moa->payment_end_date)->format('M d, Y') }}</div>
                                         @if(\Carbon\Carbon::parse($moa->payment_end_date)->isPast())
                                         <span style="font-size: 10px; color: #DC2626; font-weight: 600;"><i class="fas fa-exclamation-circle"></i> Overdue</span>
                                         @endif
@@ -3249,12 +3249,12 @@
                         <tbody>
                             @php
                                 $methodLabels = [
-                                    'bank_transfer' => '🏦 Bank Transfer',
-                                    'bank_deposit' => '💵 Bank Deposit',
+                                    'bank_transfer' => '?? Bank Transfer',
+                                    'bank_deposit' => '?? Bank Deposit',
                                     'gcash' => '<img src="' . asset('images/gcash.jpg') . '" alt="GCash" style="height: 16px; width: auto; vertical-align: middle; margin-right: 4px;">GCash',
-                                    'maya' => '📱 Maya',
-                                    'check' => '📄 Check',
-                                    'cash' => '💰 Cash'
+                                    'maya' => '?? Maya',
+                                    'check' => '?? Check',
+                                    'cash' => '?? Cash'
                                 ];
                             @endphp
                             @foreach($incubateeData['paymentSubmissions'] as $payment)
@@ -3265,7 +3265,7 @@
                                     <div style="font-size: 12px; color: #6B7280;">{{ $payment->contact_person }}</div>
                                 </td>
                                 <td><strong>{{ $payment->invoice_number }}</strong></td>
-                                <td style="font-weight: 700; color: #059669;">₱{{ number_format($payment->amount, 2) }}</td>
+                                <td style="font-weight: 700; color: #059669;">?{{ number_format($payment->amount, 2) }}</td>
                                 <td>
                                     <span style="font-size: 12px;">{!! $methodLabels[$payment->payment_method] ?? $payment->payment_method ?? 'N/A' !!}</span>
                                 </td>
@@ -3371,7 +3371,7 @@
                                     <tr>
                                         <td><strong>{{ $overP->tracking_code }}</strong></td>
                                         <td style="font-weight: 600;">{{ $overP->company_name }}</td>
-                                        <td style="font-size: 12px;">{{ $overP->payment_start_date ? \Carbon\Carbon::parse($overP->payment_start_date)->format('M d, Y') : 'N/A' }} <span style="color: #9CA3AF;">→</span> {{ $overP->payment_end_date ? \Carbon\Carbon::parse($overP->payment_end_date)->format('M d, Y') : 'N/A' }}</td>
+                                        <td style="font-size: 12px;">{{ $overP->payment_start_date ? \Carbon\Carbon::parse($overP->payment_start_date)->format('M d, Y') : 'N/A' }} <span style="color: #9CA3AF;">?</span> {{ $overP->payment_end_date ? \Carbon\Carbon::parse($overP->payment_end_date)->format('M d, Y') : 'N/A' }}</td>
                                         <td><span style="color: #DC2626; font-weight: 700;">{{ $daysOverdue }} {{ Str::plural('day', $daysOverdue) }}</span></td>
                                         <td><span class="badge badge-danger"><i class="fas fa-exclamation-circle"></i> Overdue</span></td>
                                         <td>
@@ -3446,7 +3446,7 @@
                                     @php $payDueDays = (int) now()->diffInDays($payDue->next_payment_due, false); @endphp
                                     <tr>
                                         <td style="font-weight: 600;">{{ $payDue->company_name }}</td>
-                                        <td style="font-weight: 700; color: #059669;">₱{{ number_format($payDue->payment_amount ?? 0, 2) }}</td>
+                                        <td style="font-weight: 700; color: #059669;">?{{ number_format($payDue->payment_amount ?? 0, 2) }}</td>
                                         <td style="text-transform: capitalize;">{{ str_replace('_', '-', $payDue->payment_duration ?? 'N/A') }}</td>
                                         <td style="font-weight: 600;">{{ $payDue->next_payment_due->format('M d, Y') }}</td>
                                         <td>
@@ -3534,7 +3534,7 @@
                                 </td>
                                 <td>
                                     @if($sched->payment_amount)
-                                        <span style="font-weight: 700; color: #059669;">₱{{ number_format($sched->payment_amount, 2) }}</span>
+                                        <span style="font-weight: 700; color: #059669;">?{{ number_format($sched->payment_amount, 2) }}</span>
                                     @else
                                         <span style="font-size: 12px; color: #9CA3AF;">Not set</span>
                                     @endif
@@ -3543,7 +3543,7 @@
                                     @if($sched->payment_duration)
                                         <span style="font-size: 13px; text-transform: capitalize;">{{ str_replace('_', '-', $sched->payment_duration) }}</span>
                                     @else
-                                        <span style="font-size: 12px; color: #9CA3AF;">—</span>
+                                        <span style="font-size: 12px; color: #9CA3AF;">�</span>
                                     @endif
                                 </td>
                                 <td>
@@ -3758,7 +3758,7 @@
                                             <i class="fas fa-eye"></i>
                                         </button>
                                         @if($issue->photo_path)
-                                        <a href="{{ asset('storage/' . $issue->photo_path) }}" target="_blank" class="btn btn-sm" style="padding: 6px 8px; background: #8B5CF6; color: white;" title="View Photo">
+                                        <a href="{{ \Storage::disk(config('filesystems.upload_disk'))->url($issue->photo_path) }}" target="_blank" class="btn btn-sm" style="padding: 6px 8px; background: #8B5CF6; color: white;" title="View Photo">
                                             <i class="fas fa-image"></i>
                                         </a>
                                         @endif
@@ -5592,12 +5592,12 @@
             const color = statusColors[payment.status] || { bg: '#E5E7EB', text: '#374151' };
 
             const paymentMethodLabels = {
-                'bank_transfer': '🏦 Bank Transfer',
-                'bank_deposit': '💵 Bank Deposit',
+                'bank_transfer': '?? Bank Transfer',
+                'bank_deposit': '?? Bank Deposit',
                 'gcash': '<img src="/images/gcash.jpg" alt="GCash" style="height: 16px; width: auto; vertical-align: middle; margin-right: 4px;">GCash',
-                'maya': '📱 Maya',
-                'check': '📄 Check Payment',
-                'cash': '💰 Cash'
+                'maya': '?? Maya',
+                'check': '?? Check Payment',
+                'cash': '?? Cash'
             };
             const methodLabel = paymentMethodLabels[payment.payment_method] || payment.payment_method || 'N/A';
 
@@ -5617,7 +5617,7 @@
 
                         <div style="background: linear-gradient(135deg, #10B981, #059669); color: white; padding: 16px; border-radius: 12px; text-align: center;">
                             <div style="font-size: 12px; opacity: 0.9;">Payment Amount</div>
-                            <div style="font-size: 28px; font-weight: 700;">₱${parseFloat(payment.amount).toLocaleString('en-US', {minimumFractionDigits: 2})}</div>
+                            <div style="font-size: 28px; font-weight: 700;">?${parseFloat(payment.amount).toLocaleString('en-US', {minimumFractionDigits: 2})}</div>
                             <div style="font-size: 13px; margin-top: 4px;">Invoice #${payment.invoice_number}</div>
                         </div>
 
@@ -5696,7 +5696,7 @@
             document.getElementById('tlReviewPaymentId').value = tlCurrentPaymentId;
             document.getElementById('tlReviewPaymentInfo').innerHTML = `
                 <strong>${payment.tracking_code}</strong><br>
-                ${payment.company_name} - ₱${parseFloat(payment.amount).toLocaleString('en-US', {minimumFractionDigits: 2})}
+                ${payment.company_name} - ?${parseFloat(payment.amount).toLocaleString('en-US', {minimumFractionDigits: 2})}
             `;
             document.getElementById('tlReviewPaymentAction').value = '';
             document.getElementById('tlReviewPaymentNotes').value = '';
@@ -5803,7 +5803,7 @@
             w.document.write(`<!DOCTYPE html><html><head><title>MOA - ${document.getElementById('moaCompanyName').value}</title><style>body{font-family:'Times New Roman',serif;padding:40px;max-width:800px;margin:0 auto;}@media print{body{padding:20px;}}</style></head><body>${content}</body></html>`);
             w.document.close(); w.print();
         }
-        function downloadMoaAsPdf() { alert('PDF download requires a PDF library. Using Print → Save as PDF instead.'); printMoa(); }
+        function downloadMoaAsPdf() { alert('PDF download requires a PDF library. Using Print ? Save as PDF instead.'); printMoa(); }
         @endif
 
         // ===== RESEARCH TRACKING FUNCTIONS =====
@@ -8081,7 +8081,7 @@
                 dayEvents.slice(0, 2).forEach(event => {
                     const eventStart = new Date(event.start_date).toISOString().split('T')[0];
                     const isStartDay = dateString === eventStart;
-                    const eventLabel = isStartDay ? event.title : `↔ ${event.title}`;
+                    const eventLabel = isStartDay ? event.title : `? ${event.title}`;
                     eventsHtml += `<div style="background: ${event.color}20; border-left: 3px solid ${event.color}; color: ${event.color}; padding: 4px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer;" title="${event.title}" onclick="tlViewEvent(${event.id})">${eventLabel}</div>`;
                 });
 
@@ -8294,8 +8294,8 @@
 
 We are pleased to inform you that your booking request has been APPROVED.
 
-📅 BOOKING DETAILS:
-━━━━━━━━━━━━━━━━━━━━
+?? BOOKING DETAILS:
+????????????????????
 Date: ${dateStr}
 Time: ${booking.time}
 Purpose: ${booking.event}
@@ -8307,8 +8307,8 @@ We look forward to seeing you!
 Best regards,
 UP Cebu Innovation & Technology Hub
 University of the Philippines Cebu
-📧 info@upcebu.edu.ph
-📞 +63 32 123 4567`;
+?? info@upcebu.edu.ph
+?? +63 32 123 4567`;
 
                     emailSection = `
                         <div style="margin-top: 20px; padding: 16px; background: #FEF3C7; border: 1px solid #F59E0B; border-radius: 12px;">

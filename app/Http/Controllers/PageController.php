@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class PageController extends Controller
 {
@@ -18,13 +19,15 @@ class PageController extends Controller
 
     public function downloadDocument($filename)
     {
-        $path = storage_path('app/public/tasks/documents/' . basename($filename));
+        $path = 'tasks/documents/' . basename($filename);
 
-        if (!file_exists($path)) {
+        if (!Storage::disk(config('filesystems.upload_disk'))->exists($path)) {
             abort(404);
         }
 
-        return response()->download($path);
+        /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+        $disk = Storage::disk(config('filesystems.upload_disk'));
+        return $disk->download($path);
     }
 
     public function paymentProof(Request $request)
@@ -33,12 +36,13 @@ class PageController extends Controller
         if (!$path) abort(404);
         // Prevent directory traversal
         $path = ltrim(str_replace(['..', '//'], '', $path), '/');
-        $fullPath = storage_path('app/public/' . $path);
-        if (!file_exists($fullPath)) abort(404, 'File not found');
-        $mime = mime_content_type($fullPath) ?: 'application/octet-stream';
-        return response()->file($fullPath, [
-            'Content-Type' => $mime,
-            'Content-Disposition' => 'inline',
-        ]);
+
+        /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+        $disk = Storage::disk(config('filesystems.upload_disk'));
+        if (!$disk->exists($path)) {
+            abort(404, 'File not found');
+        }
+
+        return $disk->response($path);
     }
 }

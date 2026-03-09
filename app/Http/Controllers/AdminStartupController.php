@@ -485,11 +485,11 @@ class AdminStartupController extends Controller
         // Handle file upload
         if ($request->hasFile('moa_document')) {
             if ($submission->admin_moa_document_path) {
-                Storage::disk('public')->delete($submission->admin_moa_document_path);
+                Storage::disk(config('filesystems.upload_disk'))->delete($submission->admin_moa_document_path);
             }
             $file = $request->file('moa_document');
             $filename = $file->getClientOriginalName();
-            $path = $file->store('moa-documents', 'public');
+            $path = $file->store('moa-documents', config('filesystems.upload_disk'));
 
             $updateData['admin_moa_document_path'] = $path;
             $updateData['admin_moa_document_filename'] = $filename;
@@ -705,13 +705,13 @@ class AdminStartupController extends Controller
 
         // Delete old document if exists
         if ($submission->admin_moa_document_path) {
-            Storage::disk('public')->delete($submission->admin_moa_document_path);
+            Storage::disk(config('filesystems.upload_disk'))->delete($submission->admin_moa_document_path);
         }
 
         // Store new document
         $file = $request->file('moa_document');
         $filename = $file->getClientOriginalName();
-        $path = $file->store('moa-documents', 'public');
+        $path = $file->store('moa-documents', config('filesystems.upload_disk'));
 
         // Update submission
         $submission->update([
@@ -756,16 +756,19 @@ class AdminStartupController extends Controller
         }
 
         // Check if file exists in storage
-        if (!Storage::disk('public')->exists($submission->admin_moa_document_path)) {
+        if (!Storage::disk(config('filesystems.upload_disk'))->exists($submission->admin_moa_document_path)) {
             return response()->json([
                 'success' => false,
                 'message' => 'MOA document file not found'
             ], 404);
         }
 
-        // Use response()->download() to avoid IDE false positive
-        $filePath = Storage::disk('public')->path($submission->admin_moa_document_path);
-        return response()->download($filePath, $submission->admin_moa_document_filename);
+        /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+        $disk = Storage::disk(config('filesystems.upload_disk'));
+        return $disk->download(
+            $submission->admin_moa_document_path,
+            $submission->admin_moa_document_filename
+        );
     }
 
     /**

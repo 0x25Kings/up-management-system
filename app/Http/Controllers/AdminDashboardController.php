@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Models\Intern;
 use App\Models\Attendance;
@@ -1450,25 +1451,24 @@ class AdminDashboardController extends Controller
         if ($request->hasFile('profile_picture')) {
             // Delete old profile picture if exists
             if ($user->profile_picture) {
-                $oldPath = storage_path('app/public/' . $user->profile_picture);
-                if (file_exists($oldPath)) {
-                    unlink($oldPath);
-                }
+                Storage::disk(config('filesystems.upload_disk'))->delete($user->profile_picture);
             }
 
             // Store new profile picture
             $file = $request->file('profile_picture');
             $filename = 'admin_' . $user->id . '_' . time() . '.' . $file->getClientOriginalExtension();
-            $path = $file->storeAs('profile-pictures', $filename, 'public');
+            $path = $file->storeAs('profile-pictures', $filename, config('filesystems.upload_disk'));
 
             // Update user's profile picture
             $user->profile_picture = $path;
             $user->save();
 
+            /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+            $disk = Storage::disk(config('filesystems.upload_disk'));
             return response()->json([
                 'success' => true,
                 'message' => 'Profile picture updated successfully',
-                'image_url' => asset('storage/' . $path)
+                'image_url' => $disk->url($path)
             ]);
         }
 

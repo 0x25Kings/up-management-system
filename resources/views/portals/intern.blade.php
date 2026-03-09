@@ -1543,7 +1543,7 @@
                 <div class="intern-profile-dropdown" id="internProfileDropdown">
                     <button type="button" class="user-info" id="internProfileBtn" style="cursor: pointer; border: none; background: transparent; padding: 0;">
                         @if($intern->profile_picture)
-                            <img src="{{ asset('storage/' . $intern->profile_picture) }}" alt="Profile" class="user-avatar-img">
+                            <img src="{{ \Storage::disk(config('filesystems.upload_disk'))->url($intern->profile_picture) }}" alt="Profile" class="user-avatar-img">
                         @else
                             <div class="user-avatar">{{ strtoupper(substr($intern->name, 0, 1)) }}</div>
                         @endif
@@ -1556,7 +1556,7 @@
                     <div class="intern-profile-menu">
                         <div class="intern-profile-menu-header">
                             @if($intern->profile_picture)
-                                <img src="{{ asset('storage/' . $intern->profile_picture) }}" alt="Profile" class="intern-profile-avatar-img">
+                                <img src="{{ \Storage::disk(config('filesystems.upload_disk'))->url($intern->profile_picture) }}" alt="Profile" class="intern-profile-avatar-img">
                             @else
                                 <div class="intern-profile-avatar">{{ strtoupper(substr($intern->name, 0, 1)) }}</div>
                             @endif
@@ -1890,7 +1890,7 @@
                     <div style="position: relative; display: inline-block; margin-bottom: 20px;">
                         <div id="profilePicturePreview" style="width: 150px; height: 150px; border-radius: 50%; background: linear-gradient(135deg, #7B1D3A, #5a1428); display: flex; align-items: center; justify-content: center; margin: 0 auto; overflow: hidden; box-shadow: 0 8px 24px rgba(123, 29, 58, 0.3);">
                             @if($intern->profile_picture)
-                                <img src="{{ asset('storage/' . $intern->profile_picture) }}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
+                                <img src="{{ \Storage::disk(config('filesystems.upload_disk'))->url($intern->profile_picture) }}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
                             @else
                                 <span style="font-size: 48px; color: #FFBF00; font-weight: 700;">{{ substr($intern->name, 0, 1) }}</span>
                             @endif

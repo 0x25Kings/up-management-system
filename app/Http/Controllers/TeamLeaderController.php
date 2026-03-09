@@ -1068,11 +1068,11 @@ class TeamLeaderController extends Controller
 
         // Delete old profile picture if exists
         if ($user->profile_picture) {
-            Storage::disk('public')->delete($user->profile_picture);
+            Storage::disk(config('filesystems.upload_disk'))->delete($user->profile_picture);
         }
 
         // Store new profile picture
-        $path = $request->file('profile_picture')->store('profile-pictures', 'public');
+        $path = $request->file('profile_picture')->store('profile-pictures', config('filesystems.upload_disk'));
 
         $user->update(['profile_picture' => $path]);
 
@@ -1081,7 +1081,7 @@ class TeamLeaderController extends Controller
         if ($linkedIntern) {
             // Delete old intern profile picture if different
             if ($linkedIntern->profile_picture && $linkedIntern->profile_picture !== $path) {
-                Storage::disk('public')->delete($linkedIntern->profile_picture);
+                Storage::disk(config('filesystems.upload_disk'))->delete($linkedIntern->profile_picture);
             }
             $linkedIntern->update(['profile_picture' => $path]);
         }

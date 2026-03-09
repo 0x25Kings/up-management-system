@@ -171,7 +171,7 @@
                             </td>
                             <td style="padding: 16px 20px; text-align: center;">
                                 @if($payment->file_path)
-                                    <button onclick="viewProof('{{ asset('storage/' . $payment->file_path) }}', '{{ $payment->title ?? 'Payment Proof' }}')" style="width: 36px; height: 36px; border: 1px solid #E5E7EB; border-radius: 8px; background: white; display: inline-flex; align-items: center; justify-content: center; color: #7B1D3A; cursor: pointer; transition: all 0.3s;" title="View Proof">
+                                    <button onclick="viewProof('{{ \Storage::disk(config('filesystems.upload_disk'))->url($payment->file_path) }}', '{{ $payment->title ?? 'Payment Proof' }}')" style="width: 36px; height: 36px; border: 1px solid #E5E7EB; border-radius: 8px; background: white; display: inline-flex; align-items: center; justify-content: center; color: #7B1D3A; cursor: pointer; transition: all 0.3s;" title="View Proof">
                                         <i class="fas fa-eye"></i>
                                     </button>
                                 @else
