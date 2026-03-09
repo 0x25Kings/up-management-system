@@ -7145,7 +7145,7 @@
                                                 <span>View & Respond</span>
                                             </button>
                                             @if($progress->file_path)
-                                            <a href="{{ Storage::url($progress->file_path) }}" target="_blank" class="progress-attachment-btn" title="Download Attachment">
+                                            <a href="{{ Storage::disk(config('filesystems.upload_disk'))->url($progress->file_path) }}" target="_blank" class="progress-attachment-btn" title="Download Attachment">
                                                 <i class="fas fa-paperclip"></i>
                                             </a>
                                             @endif
@@ -14656,7 +14656,7 @@
             `;
 
             document.getElementById('documentDetailsContent').innerHTML = content;
-            document.getElementById('documentDownloadBtn').href = '/storage/' + doc.file_path;
+            document.getElementById('documentDownloadBtn').href = '/admin/documents/download?path=' + encodeURIComponent(doc.file_path);
             document.getElementById('documentDetailsModal').style.display = 'flex';
         }
 
@@ -15248,12 +15248,12 @@
             const color = statusColors[payment.status] || { bg: '#E5E7EB', text: '#374151' };
 
             const paymentMethodLabels = {
-                'bank_transfer': '?? Bank Transfer',
-                'bank_deposit': '?? Bank Deposit',
+                'bank_transfer': '\u{1F3E6} Bank Transfer',
+                'bank_deposit': '\u{1F4B3} Bank Deposit',
                 'gcash': '<img src="/images/gcash.jpg" alt="GCash" style="height: 16px; width: auto; vertical-align: middle; margin-right: 4px;">GCash',
-                'maya': '?? Maya',
-                'check': '?? Check Payment',
-                'cash': '?? Cash'
+                'maya': '\u{1F4F1} Maya',
+                'check': '\u{1F4DC} Check Payment',
+                'cash': '\u{1F4B5} Cash'
             };
             const methodLabel = paymentMethodLabels[payment.payment_method] || payment.payment_method || 'N/A';
 
@@ -15273,7 +15273,7 @@
 
                         <div style="background: linear-gradient(135deg, #10B981, #059669); color: white; padding: 16px; border-radius: 12px; text-align: center;">
                             <div style="font-size: 12px; opacity: 0.9;">Payment Amount</div>
-                            <div style="font-size: 28px; font-weight: 700;">?${parseFloat(payment.amount).toLocaleString('en-US', {minimumFractionDigits: 2})}</div>
+                            <div style="font-size: 28px; font-weight: 700;">&#x20B1;${parseFloat(payment.amount).toLocaleString('en-US', {minimumFractionDigits: 2})}</div>
                             <div style="font-size: 13px; margin-top: 4px;">Invoice #${payment.invoice_number}</div>
                         </div>
 
@@ -21721,7 +21721,7 @@ University of the Philippines Cebu
 
         async function bulkUpdateTaskStatus(newStatus) {
             if (selectedTasks.size === 0) {
-                showToast('No tasks selected', 'warning');
+                showToast('warning', 'No Tasks Selected', 'Please select at least one task.');
                 return;
             }
 
@@ -21732,7 +21732,7 @@ University of the Philippines Cebu
                 return;
             }
 
-            showToast(`Updating ${count} task(s)...`, 'info');
+            showToast('info', 'Updating Tasks', `Updating ${count} task(s)...`);
 
             let successCount = 0;
             let failCount = 0;
@@ -21765,16 +21765,16 @@ University of the Philippines Cebu
             clearTaskSelection();
 
             if (successCount > 0) {
-                showToast(`Successfully updated ${successCount} task(s)${failCount > 0 ? `, ${failCount} failed` : ''}`, 'success');
+                showToast('success', 'Tasks Updated', `Successfully updated ${successCount} task(s)${failCount > 0 ? `, ${failCount} failed` : ''}.`);
                 setTimeout(() => location.reload(), 1500);
             } else {
-                showToast('Failed to update tasks', 'error');
+                showToast('error', 'Update Failed', 'Failed to update tasks.');
             }
         }
 
         async function bulkDeleteTasks() {
             if (selectedTasks.size === 0) {
-                showToast('No tasks selected', 'warning');
+                showToast('warning', 'No Tasks Selected', 'Please select at least one task.');
                 return;
             }
 
@@ -21786,7 +21786,7 @@ University of the Philippines Cebu
                 return;
             }
 
-            showToast(`Deleting ${count} task(s)...`, 'info');
+            showToast('info', 'Deleting Tasks', `Deleting ${count} task(s)...`);
 
             let successCount = 0;
             let failCount = 0;
@@ -21819,14 +21819,14 @@ University of the Philippines Cebu
             clearTaskSelection();
 
             if (successCount > 0) {
-                showToast(`Successfully deleted ${successCount} task(s)${failCount > 0 ? `, ${failCount} failed` : ''}`, 'success');
+                showToast('success', 'Tasks Deleted', `Successfully deleted ${successCount} task(s)${failCount > 0 ? `, ${failCount} failed` : ''}.`);
                 if (failCount === 0) {
                     // If all deleted successfully, no need to reload
                 } else {
                     setTimeout(() => location.reload(), 1500);
                 }
             } else {
-                showToast('Failed to delete tasks', 'error');
+                showToast('error', 'Delete Failed', 'Failed to delete tasks.');
             }
         }
 

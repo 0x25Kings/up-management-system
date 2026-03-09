@@ -811,6 +811,19 @@ class AdminStartupController extends Controller
             'payment_reminder_sent' => false,
         ]);
 
+        // Also update the linked approved MOA submission so the payment period shows in the MOA table
+        $moaSubmission = \App\Models\StartupSubmission::where('startup_id', $startup->id)
+            ->where('type', 'moa')
+            ->where('status', 'approved')
+            ->latest()
+            ->first();
+        if ($moaSubmission) {
+            $moaSubmission->update([
+                'payment_start_date' => $startDate,
+                'payment_end_date' => $dueDate,
+            ]);
+        }
+
         // Notify startup
         StartupNotification::notify(
             $startup->id,
