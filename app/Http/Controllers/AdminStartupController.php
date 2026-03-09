@@ -440,7 +440,7 @@ class AdminStartupController extends Controller
                     'created_at_iso' => $moa->created_at->toISOString(),
                     'reviewed_at' => $moa->reviewed_at ? $moa->reviewed_at->format('M d, Y h:i A') : null,
                     'profile_photo_url' => ($moa->startup && $moa->startup->profile_photo)
-                        ? asset('storage/' . $moa->startup->profile_photo) : null,
+                        ? \Storage::disk(config('filesystems.upload_disk'))->url($moa->startup->profile_photo) : null,
                 ];
             });
 
@@ -534,6 +534,12 @@ class AdminStartupController extends Controller
                 $startupUpdateData['payment_due_date'] = $dueDate;
                 $startupUpdateData['next_payment_due'] = $dueDate;
                 $startupUpdateData['payment_reminder_sent'] = false;
+
+                // Also save payment period on the submission record so it shows in the MOA table
+                $submission->update([
+                    'payment_start_date' => $billingStartDate,
+                    'payment_end_date' => $dueDate,
+                ]);
 
                 StartupActivityLog::log($startup->id, 'payment_schedule', 'Payment schedule set during MOA approval: ₱' . number_format($request->billing_amount, 2) . ' ' . $request->billing_duration);
             }

@@ -6286,7 +6286,7 @@
                                     @if($moa->payment_start_date && $moa->payment_end_date)
                                         <div style="font-size: 11px;">
                                             {{ $moa->payment_start_date->format('M d, Y') }}
-                                            <span style="color: #9CA3AF;">?</span>
+                                            <span style="color: #9CA3AF;">&rarr;</span>
                                             {{ $moa->payment_end_date->format('M d, Y') }}
                                         </div>
                                         @if($moa->payment_end_date->isPast())
@@ -6476,7 +6476,7 @@
                                 </td>
                                 <td>
                                     @if($sched->payment_amount)
-                                        <span style="font-weight: 700; color: #059669;">?{{ number_format($sched->payment_amount, 2) }}</span>
+                                        <span style="font-weight: 700; color: #059669;">&#x20B1;{{ number_format($sched->payment_amount, 2) }}</span>
                                     @else
                                         <span style="font-size: 12px; color: #9CA3AF;">Not set</span>
                                     @endif
@@ -6485,7 +6485,7 @@
                                     @if($sched->payment_duration)
                                         <span style="font-size: 13px; text-transform: capitalize;">{{ str_replace('_', '-', $sched->payment_duration) }}</span>
                                     @else
-                                        <span style="font-size: 12px; color: #9CA3AF;">�</span>
+                                        <span style="font-size: 12px; color: #9CA3AF;">&mdash;</span>
                                     @endif
                                 </td>
                                 <td>
@@ -6749,7 +6749,7 @@
                                     @php $payDueDays = (int) now()->diffInDays($payDue->next_payment_due, false); @endphp
                                     <tr>
                                         <td style="font-weight: 600;">{{ $payDue->company_name }}</td>
-                                        <td style="font-weight: 700; color: #059669;">?{{ number_format($payDue->payment_amount ?? 0, 2) }}</td>
+                                        <td style="font-weight: 700; color: #059669;">&#x20B1;{{ number_format($payDue->payment_amount ?? 0, 2) }}</td>
                                         <td style="text-transform: capitalize;">{{ str_replace('_', '-', $payDue->payment_duration ?? 'N/A') }}</td>
                                         <td style="font-weight: 600;">{{ $payDue->next_payment_due->format('M d, Y') }}</td>
                                         <td>
@@ -9209,11 +9209,11 @@
 
                             <div style="text-align: center; padding: 40px 20px; background: linear-gradient(135deg, #7B1D3A 0%, #5a1428 100%); border-radius: 16px; color: white; margin-bottom: 24px;">
                                 <div style="width: 80px; height: 80px; background: white; border-radius: 20px; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center;">
-                                    <img src="{{ asset('images/up logo.png') }}" alt="UP Logo" style="width: 60px; height: 60px; object-fit: contain;">
+                                    <img src="{{ asset('images/UP logo.png') }}" alt="UP Logo" style="width: 60px; height: 60px; object-fit: contain;">
                                 </div>
                                 <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 8px;">UP Management System</h2>
                                 <p style="opacity: 0.9; margin-bottom: 4px;">Version 1.0.0</p>
-                                <p style="opacity: 0.7; font-size: 13px;">� 2026 University of Pangasinan</p>
+                                <p style="opacity: 0.7; font-size: 13px;">&copy; 2026 University of Pangasinan</p>� 2026 University of Pangasinan</p>
                             </div>
 
                             <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px;">
@@ -10018,7 +10018,7 @@
                             <p style="font-size: 12px; color: #6B7280; margin-bottom: 12px;">Set the recurring payment schedule for this incubatee</p>
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
                                 <div>
-                                    <label style="font-size: 12px; font-weight: 600; color: #374151; display: block; margin-bottom: 4px;">Payment Amount (?)</label>
+                                    <label style="font-size: 12px; font-weight: 600; color: #374151; display: block; margin-bottom: 4px;">Payment Amount (&#x20B1;)</label>
                                     <input type="number" id="moaBillingAmount" step="0.01" min="0" placeholder="e.g. 5000.00" class="form-input" style="font-size: 13px;">
                                 </div>
                                 <div>
@@ -11210,7 +11210,7 @@
                     if (pendingBookings.length > previousBookingCount) {
                         const newCount = pendingBookings.length - previousBookingCount;
                         const latestBooking = pendingBookings[0];
-                        showToast('info', `??? New Booking Request${newCount > 1 ? 's' : ''}!`,
+                        showToast('info', `\u{1F4CB} New Booking Request${newCount > 1 ? 's' : ''}!`,
                             newCount > 1
                                 ? `${newCount} new booking requests need your attention.`
                                 : `${latestBooking.agency_name || 'Someone'} wants to book for ${latestBooking.event_name || 'an event'}.`,
@@ -11222,7 +11222,7 @@
                     if (pendingInterns.length > previousInternCount) {
                         const newCount = pendingInterns.length - previousInternCount;
                         const latestIntern = pendingInterns[0];
-                        showToast('warning', `?? New Intern Registration${newCount > 1 ? 's' : ''}!`,
+                        showToast('warning', `\u{1F464} New Intern Registration${newCount > 1 ? 's' : ''}!`,
                             newCount > 1
                                 ? `${newCount} new intern registrations need approval.`
                                 : `${latestIntern.name || 'An intern'} has registered and awaits approval.`,
@@ -11232,7 +11232,7 @@
 
                     // Absent interns (only notify once per day on first detection)
                     if (absentInterns.length > 0 && absentInterns.length !== previousAbsentCount && previousAbsentCount === 0) {
-                        showToast('warning', `? Absent Interns Today`,
+                        showToast('warning', `\u{26A0} Absent Interns Today`,
                             `${absentInterns.length} intern${absentInterns.length > 1 ? 's are' : ' is'} absent today.`,
                             6000);
                     }
@@ -11241,7 +11241,7 @@
                     if (taskSubmissions.length > previousTaskSubmissionCount) {
                         const newCount = taskSubmissions.length - previousTaskSubmissionCount;
                         const latestTask = taskSubmissions[0];
-                        showToast('success', `? Task Completed${newCount > 1 ? ' (Multiple)' : ''}!`,
+                        showToast('success', `\u{2705} Task Completed${newCount > 1 ? ' (Multiple)' : ''}!`,
                             newCount > 1
                                 ? `${newCount} tasks have been completed.`
                                 : `${latestTask.intern_name || 'An intern'} completed "${latestTask.title || 'a task'}".`,
@@ -11253,7 +11253,7 @@
                     if (documentUploads.length > previousDocUploadCount) {
                         const newCount = documentUploads.length - previousDocUploadCount;
                         const latestDoc = documentUploads[0];
-                        showToast('info', `?? New File Upload${newCount > 1 ? 's' : ''}!`,
+                        showToast('info', `\u{1F4C1} New File Upload${newCount > 1 ? 's' : ''}!`,
                             newCount > 1
                                 ? `${newCount} new files have been uploaded.`
                                 : `"${latestDoc.name || 'A file'}" was uploaded by ${latestDoc.uploader || 'someone'}.`,
@@ -11265,7 +11265,7 @@
                     if (pendingReports.length > previousReportCount) {
                         const newCount = pendingReports.length - previousReportCount;
                         const latestReport = pendingReports[0];
-                        showToast('info', `?? New Team Leader Report${newCount > 1 ? 's' : ''}!`,
+                        showToast('info', `\u{1F4C4} New Team Leader Report${newCount > 1 ? 's' : ''}!`,
                             newCount > 1
                                 ? `${newCount} new reports need your review.`
                                 : `${latestReport.team_leader_name || 'A team leader'} submitted a ${latestReport.report_type || 'report'}.`,
@@ -11277,7 +11277,7 @@
                     if (tlActivities.length > previousTlActivityCount) {
                         const newCount = tlActivities.length - previousTlActivityCount;
                         const latestActivity = tlActivities[0];
-                        showToast('info', `?? Team Leader Action${newCount > 1 ? 's' : ''}!`,
+                        showToast('info', `\u{26A1} Team Leader Action${newCount > 1 ? 's' : ''}!`,
                             newCount > 1
                                 ? `Team leaders performed ${newCount} new actions.`
                                 : `${latestActivity.team_leader_name || 'A team leader'}: ${latestActivity.action || 'performed an action'}.`,
@@ -11289,7 +11289,7 @@
                     if (progressUpdates.length > previousProgressCount) {
                         const newCount = progressUpdates.length - previousProgressCount;
                         const latestProgress = progressUpdates[0];
-                        showToast('success', `?? Project Progress Update${newCount > 1 ? 's' : ''}!`,
+                        showToast('success', `\u{1F4C8} Project Progress Update${newCount > 1 ? 's' : ''}!`,
                             newCount > 1
                                 ? `${newCount} startups submitted progress updates.`
                                 : `${latestProgress.startup_name || 'A startup'} submitted a ${latestProgress.milestone_type || 'progress'} update.`,
@@ -11301,7 +11301,7 @@
                     if (pendingMoa.length > previousMoaCount) {
                         const newCount = pendingMoa.length - previousMoaCount;
                         const latestMoa = pendingMoa[0];
-                        showToast('success', `?? New MOA Submission${newCount > 1 ? 's' : ''}!`,
+                        showToast('success', `\u{1F4DD} New MOA Submission${newCount > 1 ? 's' : ''}!`,
                             newCount > 1
                                 ? `${newCount} new MOA requests need review.`
                                 : `${latestMoa.startup_name || 'A startup'} submitted an MOA request.`,
@@ -11313,7 +11313,7 @@
                     if (pendingPayments.length > previousPaymentCount) {
                         const newCount = pendingPayments.length - previousPaymentCount;
                         const latestPayment = pendingPayments[0];
-                        showToast('success', `?? New Payment Submission${newCount > 1 ? 's' : ''}!`,
+                        showToast('success', `\u{1F4B3} New Payment Submission${newCount > 1 ? 's' : ''}!`,
                             newCount > 1
                                 ? `${newCount} new payment submissions need verification.`
                                 : `${latestPayment.startup_name || 'A startup'} submitted a payment.`,
@@ -11325,7 +11325,7 @@
                     if (pendingDocuments.length > previousDocumentCount) {
                         const newCount = pendingDocuments.length - previousDocumentCount;
                         const latestDoc = pendingDocuments[0];
-                        showToast('info', `?? New Document Submission${newCount > 1 ? 's' : ''}!`,
+                        showToast('info', `\u{1F4CE} New Document Submission${newCount > 1 ? 's' : ''}!`,
                             newCount > 1
                                 ? `${newCount} new documents need review.`
                                 : `${latestDoc.startup_name || 'A startup'} submitted a document.`,
@@ -11337,7 +11337,7 @@
                     if (pendingStartups.length > previousStartupCount) {
                         const newCount = pendingStartups.length - previousStartupCount;
                         const latestStartup = pendingStartups[0];
-                        showToast('success', `?? New Startup Application${newCount > 1 ? 's' : ''}!`,
+                        showToast('success', `\u{1F680} New Startup Application${newCount > 1 ? 's' : ''}!`,
                             newCount > 1
                                 ? `${newCount} new startup applications need review.`
                                 : `${latestStartup.startup_name || 'A startup'} has applied for incubation.`,
@@ -11349,7 +11349,7 @@
                     if (pendingIssues.length > previousIssueCount) {
                         const newCount = pendingIssues.length - previousIssueCount;
                         const latestIssue = pendingIssues[0];
-                        showToast('warning', `?? New Issue Reported${newCount > 1 ? 's' : ''}!`,
+                        showToast('warning', `\u{26A0} New Issue Reported${newCount > 1 ? 's' : ''}!`,
                             newCount > 1
                                 ? `${newCount} new issues require attention.`
                                 : `Issue at ${latestIssue.room_location || 'a room'}: ${latestIssue.category || 'Reported'}`,
@@ -11370,14 +11370,14 @@
                         if (pendingPayments.length > 0) summaryParts.push(`${pendingPayments.length} payment${pendingPayments.length > 1 ? 's' : ''}`);
                         if (progressUpdates.length > 0) summaryParts.push(`${progressUpdates.length} progress update${progressUpdates.length > 1 ? 's' : ''}`);
 
-                        showToast('info', '?? Pending Items',
+                        showToast('info', '\u{1F514} Pending Items',
                             `You have ${summaryParts.slice(0, 3).join(', ')}${summaryParts.length > 3 ? ' and more' : ''} awaiting review.`,
                             5000);
                     }
 
                     // Show absent interns on first load
                     if (absentInterns.length > 0) {
-                        showToast('warning', `? Today's Attendance`,
+                        showToast('warning', `\u{1F550} Today's Attendance`,
                             `${absentInterns.length} intern${absentInterns.length > 1 ? 's are' : ' is'} currently absent.`,
                             5000);
                     }

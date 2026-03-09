@@ -1066,31 +1066,43 @@ class TeamLeaderController extends Controller
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        // Delete old profile picture if exists
-        if ($user->profile_picture) {
-            Storage::disk(config('filesystems.upload_disk'))->delete($user->profile_picture);
-        }
-
-        // Store new profile picture
-        $path = $request->file('profile_picture')->store('profile-pictures', config('filesystems.upload_disk'));
-
-        $user->update(['profile_picture' => $path]);
-
-        // Sync profile picture to linked Intern account if exists
-        $linkedIntern = Intern::where('email', $user->email)->first();
-        if ($linkedIntern) {
-            // Delete old intern profile picture if different
-            if ($linkedIntern->profile_picture && $linkedIntern->profile_picture !== $path) {
-                Storage::disk(config('filesystems.upload_disk'))->delete($linkedIntern->profile_picture);
+        try {
+            // Delete old profile picture if exists
+            if ($user->profile_picture) {
+                Storage::disk(config('filesystems.upload_disk'))->delete($user->profile_picture);
             }
-            $linkedIntern->update(['profile_picture' => $path]);
-        }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Profile picture updated successfully',
-            'image_url' => asset('storage/' . $path)
-        ]);
+            // Store new profile picture
+            $path = $request->file('profile_picture')->store('profile-pictures', config('filesystems.upload_disk'));
+
+            if (!$path) {
+                return response()->json(['success' => false, 'message' => 'Failed to store file. Check storage configuration.'], 500);
+            }
+
+            $user->update(['profile_picture' => $path]);
+
+            // Sync profile picture to linked Intern account if exists
+            $linkedIntern = Intern::where('email', $user->email)->first();
+            if ($linkedIntern) {
+                if ($linkedIntern->profile_picture && $linkedIntern->profile_picture !== $path) {
+                    Storage::disk(config('filesystems.upload_disk'))->delete($linkedIntern->profile_picture);
+                }
+                $linkedIntern->update(['profile_picture' => $path]);
+            }
+
+            /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+            $disk = Storage::disk(config('filesystems.upload_disk'));
+            return response()->json([
+                'success' => true,
+                'message' => 'Profile picture updated successfully',
+                'image_url' => $disk->url($path)
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Upload failed: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**

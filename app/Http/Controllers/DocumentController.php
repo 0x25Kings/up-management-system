@@ -737,10 +737,16 @@ class DocumentController extends Controller
                 return response()->json(['success' => false, 'message' => 'File not found'], 404);
             }
 
-            $fileName = basename($path);
-
             /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
             $disk = Storage::disk(config('filesystems.upload_disk'));
+
+            // For cloud storage (S3/R2), redirect to the public URL directly
+            // For local disk, stream the file through PHP
+            if (config('filesystems.upload_disk') === 's3') {
+                return redirect($disk->url($path));
+            }
+
+            $fileName = basename($path);
             return $disk->download($path, $fileName);
         } catch (\Exception $e) {
             return response()->json([
