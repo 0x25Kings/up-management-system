@@ -1449,27 +1449,38 @@ class AdminDashboardController extends Controller
         $user = Auth::user();
 
         if ($request->hasFile('profile_picture')) {
-            // Delete old profile picture if exists
-            if ($user->profile_picture) {
-                Storage::disk(config('filesystems.upload_disk'))->delete($user->profile_picture);
+            try {
+                // Delete old profile picture if exists
+                if ($user->profile_picture) {
+                    Storage::disk(config('filesystems.upload_disk'))->delete($user->profile_picture);
+                }
+
+                // Store new profile picture
+                $file = $request->file('profile_picture');
+                $filename = 'admin_' . $user->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+                $path = $file->storeAs('profile-pictures', $filename, config('filesystems.upload_disk'));
+
+                if (!$path) {
+                    return response()->json(['success' => false, 'message' => 'Failed to store file. Check storage configuration.'], 500);
+                }
+
+                // Update user's profile picture
+                $user->profile_picture = $path;
+                $user->save();
+
+                /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+                $disk = Storage::disk(config('filesystems.upload_disk'));
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Profile picture updated successfully',
+                    'image_url' => $disk->url($path)
+                ]);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Upload failed: ' . $e->getMessage()
+                ], 500);
             }
-
-            // Store new profile picture
-            $file = $request->file('profile_picture');
-            $filename = 'admin_' . $user->id . '_' . time() . '.' . $file->getClientOriginalExtension();
-            $path = $file->storeAs('profile-pictures', $filename, config('filesystems.upload_disk'));
-
-            // Update user's profile picture
-            $user->profile_picture = $path;
-            $user->save();
-
-            /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
-            $disk = Storage::disk(config('filesystems.upload_disk'));
-            return response()->json([
-                'success' => true,
-                'message' => 'Profile picture updated successfully',
-                'image_url' => $disk->url($path)
-            ]);
         }
 
         return response()->json([

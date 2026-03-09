@@ -6485,7 +6485,7 @@
                                     @if($sched->payment_duration)
                                         <span style="font-size: 13px; text-transform: capitalize;">{{ str_replace('_', '-', $sched->payment_duration) }}</span>
                                     @else
-                                        <span style="font-size: 12px; color: #9CA3AF;">—</span>
+                                        <span style="font-size: 12px; color: #9CA3AF;">ï¿½</span>
                                     @endif
                                 </td>
                                 <td>
@@ -8358,7 +8358,7 @@
                                             </span>
                                             @endif
                                         @else
-                                        <span style="color: #9CA3AF; font-size: 12px;">—</span>
+                                        <span style="color: #9CA3AF; font-size: 12px;">ï¿½</span>
                                         @endif
                                     </td>
                                     <td>
@@ -8367,7 +8367,7 @@
                                             <i class="fas fa-file-pdf"></i>
                                         </a>
                                         @else
-                                        <span style="color: #9CA3AF; font-size: 12px;">—</span>
+                                        <span style="color: #9CA3AF; font-size: 12px;">ï¿½</span>
                                         @endif
                                     </td>
                                     <td>
@@ -8480,7 +8480,7 @@
                                         @endif
                                     </td>
                                     <td style="white-space: nowrap;">
-                                        {{ $booking->archived_at ? $booking->archived_at->format('M d, Y h:i A') : '—' }}
+                                        {{ $booking->archived_at ? $booking->archived_at->format('M d, Y h:i A') : 'ï¿½' }}
                                     </td>
                                 </tr>
                                 @empty
@@ -9213,7 +9213,7 @@
                                 </div>
                                 <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 8px;">UP Management System</h2>
                                 <p style="opacity: 0.9; margin-bottom: 4px;">Version 1.0.0</p>
-                                <p style="opacity: 0.7; font-size: 13px;">© 2026 University of Pangasinan</p>
+                                <p style="opacity: 0.7; font-size: 13px;">ï¿½ 2026 University of Pangasinan</p>
                             </div>
 
                             <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px;">
@@ -10416,7 +10416,7 @@
                                         </span>
                                     </div>
                                     @if($school->contact_person)
-                                    <div style="font-size: 12px; color: #6B7280; margin-top: 2px;">{{ $school->contact_person }} @if($school->contact_email)• {{ $school->contact_email }}@endif</div>
+                                    <div style="font-size: 12px; color: #6B7280; margin-top: 2px;">{{ $school->contact_person }} @if($school->contact_email)ï¿½ {{ $school->contact_email }}@endif</div>
                                     @endif
                                 </div>
                             </div>
@@ -11095,7 +11095,7 @@
                 }
             } catch (error) {
                 console.error('Error uploading profile picture:', error);
-                alert('An error occurred while uploading the profile picture');
+                alert('An error occurred while uploading the profile picture: ' + error.message);
             }
 
             // Clear the input
@@ -12961,7 +12961,7 @@
                         </div>
                         <div>
                             <div style="font-weight: 600; color: #1F2937;">${intern.name}</div>
-                            <div style="font-size: 12px; color: #6B7280;">${intern.course} • ${intern.email}</div>
+                            <div style="font-size: 12px; color: #6B7280;">${intern.course} ï¿½ ${intern.email}</div>
                         </div>
                     </div>
                     <div style="text-align: right;">
@@ -12983,7 +12983,7 @@
             document.getElementById('selectedInternId').value = intern.id;
             document.getElementById('selectedInternAvatar').textContent = intern.name.charAt(0).toUpperCase();
             document.getElementById('selectedInternName').textContent = intern.name;
-            document.getElementById('selectedInternInfo').textContent = `${intern.course} • ${intern.completed_hours}/${intern.required_hours} hrs completed`;
+            document.getElementById('selectedInternInfo').textContent = `${intern.course} ï¿½ ${intern.completed_hours}/${intern.required_hours} hrs completed`;
 
             document.getElementById('selectedInternDisplay').style.display = 'block';
             document.getElementById('passwordSection').style.display = 'block';
@@ -13543,7 +13543,7 @@
 
             // Update header
             title.textContent = report.title;
-            subtitle.innerHTML = `<span style="display: inline-flex; align-items: center; gap: 6px;"><i class="fas fa-user"></i> ${report.team_leader_name}</span> <span style="margin: 0 8px;">•</span> <span>${report.report_type.charAt(0).toUpperCase() + report.report_type.slice(1)} Report</span>`;
+            subtitle.innerHTML = `<span style="display: inline-flex; align-items: center; gap: 6px;"><i class="fas fa-user"></i> ${report.team_leader_name}</span> <span style="margin: 0 8px;">ï¿½</span> <span>${report.report_type.charAt(0).toUpperCase() + report.report_type.slice(1)} Report</span>`;
 
             // Get status badge
             const getStatusBadge = (status) => {
@@ -16015,7 +16015,7 @@
                         </div>
                     </td>
                     <td style="padding: 16px;">
-                        <div style="font-size: 13px; color: #374151;">${startup.contact_person || '<span style="color: #9CA3AF;">—</span>'}</div>
+                        <div style="font-size: 13px; color: #374151;">${startup.contact_person || '<span style="color: #9CA3AF;">ï¿½</span>'}</div>
                         ${startup.phone ? `<div style="font-size: 11px; color: #9CA3AF; margin-top: 2px;"><i class="fas fa-phone" style="margin-right: 4px;"></i>${startup.phone}</div>` : ''}
                     </td>
                     <td style="padding: 16px; text-align: center;">
@@ -17457,7 +17457,7 @@ University of the Philippines Cebu
             const dateBookings = schedulerBookings.filter(b => b.date === dateString);
             if (dateBookings.length > 0 && !blockedInfo) {
                 document.getElementById('blockDateWarning').style.display = 'block';
-                let bookingsList = dateBookings.map(b => `• ${b.agency} (${b.time})`).join('<br>');
+                let bookingsList = dateBookings.map(b => `ï¿½ ${b.agency} (${b.time})`).join('<br>');
                 document.getElementById('blockDateWarningText').innerHTML = `
                     There are ${dateBookings.length} approved booking(s) on this date:<br>${bookingsList}<br>
                     <small>Blocking this date will not cancel existing bookings.</small>
@@ -17734,7 +17734,7 @@ University of the Philippines Cebu
                                 }
                                 <div>
                                     <div style="font-weight: 600; color: #1F2937;">${escapeHtml(moa.company_name || '')}</div>
-                                    <div style="font-size: 12px; color: #6B7280;">${escapeHtml(moa.contact_person || '')} • ${escapeHtml(moa.email || '')}</div>
+                                    <div style="font-size: 12px; color: #6B7280;">${escapeHtml(moa.contact_person || '')} ï¿½ ${escapeHtml(moa.email || '')}</div>
                                 </div>
                             </div>
                         </td>
@@ -18279,7 +18279,7 @@ University of the Philippines Cebu
                                 <i class="${fileIcon.icon}"></i>
                             </div>
                             <div class="file-name">${escapeHtml(file.name)}</div>
-                            <div class="file-meta">${file.size} • ${file.modified}</div>
+                            <div class="file-meta">${file.size} ï¿½ ${file.modified}</div>
                             ${file.uploader_name ? `<div style="margin-top:5px;display:flex;justify-content:center;"><span style="font-size:10px;padding:2px 7px;border-radius:10px;font-weight:600;background:${file.uploader_role==='intern'?'#DBEAFE':'#F3F4F6'};color:${file.uploader_role==='intern'?'#1E40AF':'#374151'};display:inline-flex;align-items:center;gap:3px;"><i class="fas fa-${file.uploader_role==='intern'?'user-graduate':'user-shield'}" style="font-size:9px;"></i>${escapeHtml(file.uploader_name)}</span></div><div style="font-size:10px;color:#9CA3AF;margin-top:2px;">${file.uploaded_at || ''}</div>` : ''}
                         </div>
                     </div>
@@ -18342,7 +18342,7 @@ University of the Philippines Cebu
                             <div style="display:flex;align-items:center;gap:6px;">
                                 <span style="font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600;white-space:nowrap;background:${file.uploader_role==='intern'?'#DBEAFE':'#F3F4F6'};color:${file.uploader_role==='intern'?'#1E40AF':'#374151'};display:inline-flex;align-items:center;gap:4px;"><i class="fas fa-${file.uploader_role==='intern'?'user-graduate':'user-shield'}" style="font-size:10px;"></i>${escapeHtml(file.uploader_name)}</span>
                             </div>
-                            <div style="font-size:10px;color:#6B7280;margin-top:2px;">${file.uploaded_at || file.modified}</div>` : '<span style="color:#9CA3AF;font-size:11px;">—</span>'}
+                            <div style="font-size:10px;color:#6B7280;margin-top:2px;">${file.uploaded_at || file.modified}</div>` : '<span style="color:#9CA3AF;font-size:11px;">ï¿½</span>'}
                         </td>
                         <td>
                             <button class="action-btn" onclick="downloadFile('${escapeHtml(file.path)}', '${escapeHtml(file.name)}')">
@@ -22392,7 +22392,7 @@ University of the Philippines Cebu
                     <i class="fas fa-cloud-upload-alt" style="font-size: 40px; color: #7B1D3A; margin-bottom: 12px;"></i>
                     <p style="font-weight: 600; color: #1F2937; margin-bottom: 4px;">Click to select files</p>
                     <p style="font-size: 12px; color: #6B7280;">or drag and drop files here</p>
-                    <p style="font-size: 11px; color: #9CA3AF; margin-top: 8px;">Max 50 MB per file • PDF, DOC, XLS, PPT, Images, ZIP</p>
+                    <p style="font-size: 11px; color: #9CA3AF; margin-top: 8px;">Max 50 MB per file ï¿½ PDF, DOC, XLS, PPT, Images, ZIP</p>
                 </div>
                 <input type="file" id="adminFileUpload" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.jpg,.jpeg,.png,.gif,.zip,.rar,.ppt,.pptx,.csv" style="display: none;" onchange="handleAdminFileSelect(this)">
             </div>
